@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+---
+<Base title="Chi siamo" description={`Semi Store: rivenditore e centro assistenza autorizzato DEWALT a ${SITO.citta}.`}>
+  <section class="wrap sec prose">
+    <h1 class="h2">Chi siamo</h1>
+    <p style="font-size:18px">Semi Store è rivenditore e centro assistenza autorizzato DEWALT a {SITO.citta}. Vendiamo utensili professionali DEWALT, BLACK+DECKER e STANLEY e li ripariamo nel nostro laboratorio con ricambi originali.</p>
+    <p>Perché comprare da chi ripara? Perché vediamo ogni giorno come lavorano gli utensili dopo mesi di cantiere: ti consigliamo il modello giusto, non il più caro, e se qualcosa si guasta apriamo noi la pratica di garanzia.</p>
+    <p><a href="/catalogo/" class="btn btn-y">Vai al catalogo</a></p>
+  </section>
+</Base>

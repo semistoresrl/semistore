@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+const q = encodeURIComponent(`${SITO.indirizzo}, ${SITO.cap} ${SITO.citta}`);
+---
+<Base title="Contatti e dove siamo" description={`Semi Store, ${SITO.indirizzo}, ${SITO.citta} (${SITO.provincia}). Telefono ${SITO.telefono}. Vendita e assistenza DEWALT.`}>
+  <section class="wrap sec">
+    <h1 class="h2" style="margin-bottom:24px">Contatti</h1>
+    <div class="cgrid">
+      <div class="card box">
+        <h2>Negozio e laboratorio</h2>
+        <p style="margin:0">{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</p>
+        <a class="btn btn-k" href={`https://www.google.com/maps/search/?api=1&query=${q}`} rel="noopener">Indicazioni stradali</a>
+      </div>
+      <div class="card box">
+        <h2>Scrivici o chiamaci</h2>
+        <a class="btn btn-y" href={`tel:${SITO.telefonoLink}`}>Chiama {SITO.telefono}</a>
+        <a class="btn btn-k" href={`mailto:${SITO.email}`}>{SITO.email}</a>
+        {SITO.whatsapp && <a class="btn btn-k" href={`https://wa.me/${SITO.whatsapp}`} rel="noopener">WhatsApp</a>}
+      </div>
+      {SITO.orari.length > 0 && <div class="card box"><h2>Orari</h2>{SITO.orari.map((o) => <p style="margin:0"><b>{o.giorni}</b> {o.ore}</p>)}</div>}
+    </div>
+  </section>
+</Base>
+<style>.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}.box{padding:24px;display:flex;flex-direction:column;gap:14px}.box h2{font-size:22px}</style>

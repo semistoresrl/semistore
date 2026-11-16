@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITO, euro } from '../data/sito.js';
+---
+<Base title="Condizioni di vendita">
+  <section class="wrap sec prose">
+    <h1 class="h2">Condizioni di vendita</h1>
+    <p><b>Bozza da far verificare al consulente prima della pubblicazione.</b></p>
+    <p>Il venditore è {SITO.ragioneSociale}, {SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia}), P.IVA {SITO.piva}, email {SITO.email}, tel. {SITO.telefono}.</p>
+    <h2>Prezzi</h2><p>I prezzi sono in euro, IVA inclusa. Le spese di consegna sono indicate nel carrello prima del pagamento.</p>
+    <h2 id="pagamenti">Pagamenti</h2><p>Pagamenti con carta di credito/debito, Apple Pay e Google Pay tramite Stripe. Il sito non conserva i dati della carta.</p>
+    <h2>Spedizioni</h2><p>Consegna in Italia in {SITO.spedizione.giorni} giorni lavorativi dalla conferma. Spedizione {euro(SITO.spedizione.costo)}, gratuita per ordini da {euro(SITO.spedizione.gratisDa)}. Ritiro gratuito in negozio.</p>
+    <h2>Recesso</h2><p>Il consumatore può recedere entro 14 giorni dalla consegna senza indicarne il motivo (artt. 52 e ss. Codice del Consumo), scrivendo a {SITO.email}. Il prodotto va restituito integro nella confezione originale; le spese di restituzione sono a carico del cliente. Il rimborso avviene entro 14 giorni con lo stesso metodo di pagamento.</p>
+    <h2>Garanzia</h2><p>Si applica la garanzia legale di conformità di 24 mesi per i consumatori. Come centro assistenza autorizzato gestiamo direttamente le pratiche di garanzia DEWALT.</p>
+    <h2>Risoluzione delle controversie</h2><p>Piattaforma europea ODR: https://ec.europa.eu/consumers/odr</p>
+  </section>
+</Base>

@@ -1,0 +1,14 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+---
+<Base title="Privacy">
+  <section class="wrap sec prose">
+    <h1 class="h2">Informativa privacy</h1>
+    <p><b>Bozza da far verificare al consulente prima della pubblicazione.</b></p>
+    <p>Titolare del trattamento: {SITO.ragioneSociale}, {SITO.indirizzo}, {SITO.cap} {SITO.citta}, {SITO.email}.</p>
+    <h2>Dati raccolti</h2><p>Dati inseriti nei moduli (nome, telefono, email, dati dell'utensile) per gestire richieste di assistenza; dati di ordine e spedizione per eseguire gli acquisti. I pagamenti sono gestiti da Stripe Payments Europe Ltd., che tratta i dati di pagamento come titolare autonomo.</p>
+    <h2>Cookie</h2><p>Il sito usa solo lo spazio locale del browser per ricordare il carrello (tecnico, non richiede consenso). Non usiamo cookie di profilazione.</p>
+    <h2>Conservazione e diritti</h2><p>I dati sono conservati per il tempo necessario alla richiesta e agli obblighi di legge. Puoi chiedere accesso, rettifica o cancellazione scrivendo a {SITO.email}, e proporre reclamo al Garante Privacy.</p>
+  </section>
+</Base>

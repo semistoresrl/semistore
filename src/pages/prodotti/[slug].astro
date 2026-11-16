@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import prodotti from '../../data/prodotti.json';
+import foto from '../../data/foto.json';
+import { SITO, euro } from '../../data/sito.js';
+import { productLd } from '../../data/seo.js';
+export async function getStaticPaths() {
+  return prodotti.map((prod) => ({ params: { slug: prod.slug }, props: { p: prod } }));
+}
+const { p } = Astro.props;
+const hasImg = (foto as Record<string, boolean>)[p.slug];
+const img = hasImg ? `/img/prodotti/${p.slug}-800.webp` : undefined;
+const simili = prodotti.filter((x) => x.categoria === p.categoria && x.slug !== p.slug).slice(0, 4);
+const titolo = `${p.nome}${p.modello ? ' ' + p.modello : ''}`;
+const ld = productLd(p, img);
+---
+<Base title={titolo} description={`${p.marca} ${titolo} a ${euro(p.prezzo)}. Acquista online o ritira a ${SITO.citta}. Assistenza e garanzia gestite da centro autorizzato.`} image={img} jsonld={ld}>
+  <div class="wrap">
+    <nav aria-label="Percorso" class="bc"><a href="/">Home</a> / <a href="/catalogo/">Catalogo</a> / <a href={`/catalogo/?cat=${p.categoria.toLowerCase().split(' ')[0]}`}>{p.categoria}</a></nav>
+    <div class="pd">
+      <div class="card pd-img">
+        {img ? <img src={img} width="800" height="800" alt={titolo} fetchpriority="high" /> : <span class="mono" style="font-size:40px;color:#c9c6bc;font-weight:700">{p.modello || p.marca}</span>}
+      </div>
+      <div class="pd-i">
+        <span class="row" style="gap:8px">{p.volt && <span class="pill k">{p.volt}</span>}<span class="pill">{p.marca}</span><span class="pill">{p.categoria}</span></span>
+        <h1>{p.nome}</h1>
+        {p.modello && <span class="mono" style="color:var(--mut)">Codice {p.modello}</span>}
+        <div class="pd-pr">{euro(p.prezzo)} <small>IVA inclusa</small></div>
+        <div class="row" style="gap:10px">
+          <label class="field qty"><span class="sr">Quantità</span><input id="qty" type="number" min="1" max="20" value="1" inputmode="numeric" /></label>
+          <button class="btn btn-y" id="add" data-slug={p.slug} style="flex:1">Aggiungi al carrello</button>
+        </div>
+        <p id="ok" hidden class="okmsg" role="status">Aggiunto. <a class="ul" href="/carrello/">Vai al carrello</a></p>
+        <ul class="pd-l">
+          <li>Spedizione in {SITO.spedizione.giorni} giorni lavorativi, gratis sopra {euro(SITO.spedizione.gratisDa)}</li>
+          <li>Ritiro gratuito in negozio a {SITO.citta}</li>
+          <li>Garanzia e riparazioni gestite direttamente da noi, centro autorizzato</li>
+          <li>Hai dubbi su batterie o kit? <a class="ul" href={`tel:${SITO.telefonoLink}`}>Chiamaci</a></li>
+        </ul>
+      </div>
+    </div>
+    {simili.length > 0 && <section class="sec"><div class="sec-h"><h2 class="h2">Simili</h2></div><div class="grid-p">{simili.map((s) => <ProductCard p={s} />)}</div></section>}
+  </div>
+</Base>
+<script>
+  import { add } from '../../scripts/cart.js';
+  const b = document.getElementById('add')!;
+  b.addEventListener('click', () => {
+    const q = Math.max(1, Math.min(20, Number((document.getElementById('qty') as HTMLInputElement).value) || 1));
+    add(b.dataset.slug!, q); (document.getElementById('ok') as HTMLElement).hidden = false;
+  });
+</script>
+<style>
+  .bc{font-size:14px;color:var(--mut);padding:20px 0}.bc a{text-decoration:underline}
+  .pd{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:36px;align-items:start}
+  .pd-img{aspect-ratio:1;display:grid;place-items:center;padding:24px}.pd-img img{width:100%;height:100%;object-fit:contain}
+  .pd-i{display:flex;flex-direction:column;gap:16px}.pd-i h1{font-size:clamp(28px,4vw,40px);line-height:1.05}
+  .pill{font-size:12px;font-weight:800;padding:5px 9px;border-radius:4px;background:#fff;border:1px solid var(--line)}.pill.k{background:var(--ink);color:var(--y);border-color:var(--ink)}
+  .pd-pr{font-size:40px;font-weight:900}.pd-pr small{font-size:14px;color:var(--mut);font-weight:500}
+  .qty{width:90px}.okmsg{margin:0;color:var(--ok);font-weight:700}
+  .pd-l{margin:8px 0 0;padding:16px 16px 16px 34px;background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+</style>

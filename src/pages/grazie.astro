@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+---
+<Base title="Ordine ricevuto" noindex>
+  <section class="wrap sec" style="max-width:720px">
+    <h1 class="h2">Grazie, ordine ricevuto!</h1>
+    <p style="font-size:18px">Ti abbiamo inviato la ricevuta via email. Ti contattiamo appena l'ordine è pronto per la spedizione o il ritiro.</p>
+    <p>Per qualsiasi domanda: <a class="ul" href={`tel:${SITO.telefonoLink}`}>{SITO.telefono}</a> · <a class="ul" href={`mailto:${SITO.email}`}>{SITO.email}</a></p>
+    <a href="/catalogo/" class="btn btn-y">Torna al catalogo</a>
+  </section>
+</Base>
+<script>import { clear } from '../scripts/cart.js'; clear();</script>

@@ -1,0 +1,98 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi', 'In riparazione', 'Pronto', 'Consegnato'];
+---
+<Base title="Assistenza e riparazioni" description={`Centro assistenza autorizzato DEWALT a ${SITO.citta}: riparazioni in garanzia e fuori garanzia, preventivi, ricambi originali. Richiedi assistenza online e segui lo stato della riparazione.`}>
+  <section class="hero-a"><div class="wrap">
+    <span class="kicker" style="color:var(--y)">Centro assistenza autorizzato DEWALT</span>
+    <h1>Assistenza e riparazioni</h1>
+    <p>Apri la richiesta online, portaci l'utensile e segui la riparazione passo passo.</p>
+  </div></section>
+
+  <div class="wrap ag">
+    <form id="req" class="card box" novalidate>
+      <h2 id="preventivo">Richiedi assistenza o preventivo</h2>
+      <fieldset class="step" data-step="1">
+        <legend>1 · L'utensile</legend>
+        <label class="field">Modello / codice (sull'etichetta)<input name="modello" required placeholder="es. DCD805" /></label>
+        <label class="field">Numero di serie (se lo trovi)<input name="seriale" /></label>
+        <label class="field">È in garanzia?<select name="garanzia"><option>Non so</option><option>Sì, ho lo scontrino/fattura</option><option>No</option></select></label>
+        <label class="field">Che problema ha?<textarea name="problema" required placeholder="es. non si avvia, fa scintille, batteria non carica…"></textarea></label>
+      </fieldset>
+      <fieldset class="step" data-step="2">
+        <legend>2 · I tuoi dati</legend>
+        <label class="field">Nome e cognome / ditta<input name="nome" required autocomplete="name" /></label>
+        <label class="field">Telefono<input name="telefono" type="tel" required autocomplete="tel" inputmode="tel" /></label>
+        <label class="field">Email<input name="email" type="email" autocomplete="email" /></label>
+      </fieldset>
+      <fieldset class="step" data-step="3">
+        <legend>3 · Consegna dell'utensile</legend>
+        <label class="radio"><input type="radio" name="consegna" value="Porto in negozio" checked /> Lo porto in negozio</label>
+        <label class="radio"><input type="radio" name="consegna" value="Spedisco" /> Lo spedisco (vi contatto per le istruzioni)</label>
+        <label class="radio chk"><input type="checkbox" name="privacy" required /> Accetto il trattamento dei dati per gestire la richiesta (<a class="ul" href="/privacy/">privacy</a>)</label>
+        <input type="text" name="sito_web" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
+      </fieldset>
+      <button class="btn btn-y" id="inv">Invia richiesta</button>
+      <p id="msg" role="status" class="msg" hidden></p>
+    </form>
+
+    <div class="col-a">
+      <form id="stato" class="card box">
+        <h2>Stato della riparazione</h2>
+        <label class="field">Numero scheda<input name="scheda" required class="mono" placeholder="es. AS-2026-0142" /></label>
+        <label class="field">Telefono lasciato in accettazione<input name="tel" type="tel" required inputmode="tel" /></label>
+        <button class="btn btn-k">Controlla</button>
+        <div id="esito" aria-live="polite"></div>
+      </form>
+      <div class="card box">
+        <h2>Preferisci parlarne?</h2>
+        <p style="margin:0">Chiamaci al <a class="ul" href={`tel:${SITO.telefonoLink}`}>{SITO.telefono}</a> o scrivi a <a class="ul" href={`mailto:${SITO.email}`}>{SITO.email}</a>.</p>
+      </div>
+    </div>
+  </div>
+</Base>
+<script define:vars={{ STATI }}>window.__STATI = STATI;</script>
+<script>
+  const STATI: string[] = (window as any).__STATI;
+  const f = document.getElementById('req') as HTMLFormElement, msg = document.getElementById('msg')!;
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!f.checkValidity()) { f.reportValidity(); return; }
+    const b = document.getElementById('inv') as HTMLButtonElement; b.disabled = true; b.textContent = 'Invio…';
+    try {
+      const r = await fetch('/api/assistenza', { method: 'POST', body: new FormData(f) });
+      const j = await r.json(); if (!r.ok) throw new Error(j.error || 'errore');
+      f.reset(); msg.className = 'msg ok'; msg.textContent = `Richiesta ricevuta (n. ${j.id}). Ti richiamiamo entro un giorno lavorativo.`;
+    } catch { msg.className = 'msg ko'; msg.textContent = 'Invio non riuscito. Riprova o chiamaci.'; }
+    msg.hidden = false; b.disabled = false; b.textContent = 'Invia richiesta';
+  });
+  const s = document.getElementById('stato') as HTMLFormElement, out = document.getElementById('esito')!;
+  async function check() {
+    const d = new FormData(s); if (!d.get('scheda') || !d.get('tel')) return;
+    out.textContent = 'Controllo…';
+    try {
+      const r = await fetch('/api/stato?' + new URLSearchParams({ scheda: String(d.get('scheda')), tel: String(d.get('tel')) }));
+      const j = await r.json(); if (!r.ok) throw new Error(j.error);
+      const i = STATI.indexOf(j.stato);
+      out.innerHTML = `<div class="bar">${STATI.map((_, k) => `<span class="${k <= i ? 'on' : ''}"></span>`).join('')}</div><p><b></b></p><p class="nota"></p>`;
+      out.querySelector('b')!.textContent = j.stato; out.querySelector('.nota')!.textContent = j.nota || '';
+    } catch (e: any) { out.textContent = e.message === 'non trovata' ? 'Scheda non trovata: controlla numero e telefono.' : 'Servizio non disponibile, chiamaci.'; }
+  }
+  s.addEventListener('submit', (e) => { e.preventDefault(); check(); });
+  const u = new URL(location.href);
+  if (u.searchParams.get('scheda')) { (s.elements.namedItem('scheda') as HTMLInputElement).value = u.searchParams.get('scheda')!; (s.elements.namedItem('tel') as HTMLInputElement).value = u.searchParams.get('tel') || ''; check(); }
+</script>
+<style is:global>
+  .hero-a{background:var(--ink);color:#fff;padding:48px 0}.hero-a h1{font-size:clamp(34px,5vw,56px);text-transform:uppercase;margin:12px 0}.hero-a p{color:#c9cbcf;margin:0;font-size:18px}
+  .ag{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:20px;padding-top:32px;align-items:start}
+  @media (max-width:860px){.ag{grid-template-columns:1fr}}
+  .col-a{display:flex;flex-direction:column;gap:20px}
+  .box{padding:24px;display:flex;flex-direction:column;gap:16px}.box h2{font-size:24px}
+  .step{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}.step legend{font-weight:900;font-size:16px;margin-bottom:8px;color:var(--y-d)}
+  .radio{display:flex;gap:10px;align-items:center;min-height:40px}.chk{font-size:14px}
+  .hp{position:absolute;left:-9999px}
+  .msg{margin:0;font-weight:700}.msg.ok{color:var(--ok)}.msg.ko{color:#b3261e}
+  .bar{display:flex;gap:4px;margin-top:4px}.bar span{flex:1;height:8px;border-radius:4px;background:var(--line)}.bar span.on{background:var(--ink)}
+  .nota{color:var(--mut);margin:0}
+</style>

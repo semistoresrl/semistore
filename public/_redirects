@@ -1,0 +1,6 @@
+/azienda/        /chi-siamo/     301
+/azienda         /chi-siamo/     301
+/shopping/*      /carrello/      301
+/servizio_clienti/*  /condizioni-di-vendita/  301
+/search/*        /catalogo/      301
+/index.php       /               301

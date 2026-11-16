@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /carrello/
+Disallow: /grazie/
+Disallow: /api/
+Sitemap: https://semistore.it/sitemap-index.xml

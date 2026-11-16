@@ -1,0 +1,126 @@
+---
+import Base from '../layouts/Base.astro';
+import ProductCard from '../components/ProductCard.astro';
+import prodotti from '../data/prodotti.json';
+import { SITO } from '../data/sito.js';
+import foto from '../data/foto.json';
+
+const evidenza = ['DCD805P2T', 'DCF900P2T', 'DCG405P2', 'DCB115P3', 'DCH273P2T', 'DCK2153P2T', 'DCS438E2T', 'DCE089D1G']
+  .map((m) => prodotti.find((p) => p.modello === m)).filter(Boolean).slice(0, 8);
+const heroImg = evidenza[0] && (foto as Record<string, boolean>)[evidenza[0].slug] ? `/img/prodotti/${evidenza[0].slug}-800.webp` : '';
+const cats = Object.entries(prodotti.reduce((a, p) => ((a[p.categoria] = (a[p.categoria] || 0) + 1), a), {} as Record<string, number>))
+  .sort((a, b) => b[1] - a[1]);
+const sigla: Record<string, string> = { 'Trapani e avvitatori': 'TR', 'Tassellatori e demolitori': 'TS', 'Smerigliatrici e levigatrici': 'SM', 'Seghe e troncatrici': 'SG', 'Batterie': 'BT', 'Kit': 'KT', 'Misura e laser': 'MI', 'Contenitori': 'ST', 'Altri utensili': 'AU' };
+const slugCat = (c: string) => c.toLowerCase().split(' ')[0];
+const piattaforme = [
+  { v: '12V', n: 'XR 12V', d: 'Compatti e leggeri, per installatori e spazi stretti.', q: '12v' },
+  { v: '18V', n: 'XR 18V', d: 'La gamma più ampia: il sistema di riferimento per il professionista.', q: '18v' },
+  { v: '54V', n: 'FLEXVOLT', d: 'Potenza da cavo per seghe, troncatrici e lavori pesanti.', q: '54v' },
+];
+const passi = [
+  ['Apri la richiesta', 'Online in 2 minuti, o direttamente al banco.'],
+  ['Porta o spedisci', 'Ti diamo il numero di scheda da seguire.'],
+  ['Diagnosi e preventivo', 'In garanzia non paghi; fuori garanzia approvi prima.'],
+  ['Ritira', 'Ti avvisiamo appena è pronto.'],
+];
+---
+<Base title={SITO.nome}>
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div class="hero-t">
+        <span class="kicker tag">Centro autorizzato DEWALT · Casavatore</span>
+        <h1>Potenza da cantiere.<br /><span>Assistenza</span> da specialisti.</h1>
+        <p>Tutta la gamma DEWALT, consigliata da chi la ripara ogni giorno. Acquisti online, ritiri in negozio e, se serve, la riparazione la facciamo noi con ricambi originali.</p>
+        <div class="row" style="gap:12px">
+          <a href="/catalogo/" class="btn btn-y">Scopri il catalogo</a>
+          <a href="/assistenza/" class="btn btn-o">Richiedi una riparazione</a>
+        </div>
+      </div>
+      <div class="hero-v" aria-hidden="true">
+        <div class="hero-bg"></div>
+        {heroImg ? <img src={heroImg} width="800" height="800" alt="" fetchpriority="high" /> : <span class="hero-ph mono">18V XR</span>}
+        <span class="mono hero-codes">DCD805 · DCF900 · DCB115</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="trust"><div class="wrap trust-in">
+    <div><b>Centro autorizzato</b><span>Garanzie gestite in sede</span></div>
+    <div><b>Ricambi originali</b><span>Per i modelli più diffusi</span></div>
+    <div><b>Spedizione o ritiro</b><span>Ordina online, ritira in negozio</span></div>
+    <div><b>Pagamento sicuro</b><span>Carte, Apple Pay, Google Pay</span></div>
+  </div></section>
+
+  <section class="sec"><div class="wrap">
+    <div class="sec-h"><h2 class="h2">Scegli per lavoro</h2><a href="/catalogo/" class="ul">Tutto il catalogo</a></div>
+    <div class="cats">
+      {cats.map(([c, n]) => (
+        <a href={`/catalogo/?cat=${slugCat(c)}`} class="card cat">
+          <span class="row between"><span class="mono cat-s">{sigla[c] || 'AU'}</span><span class="cat-n">{n} articoli</span></span>
+          <b>{c}</b>
+        </a>
+      ))}
+    </div>
+  </div></section>
+
+  <section class="wrap"><div class="plat">
+    <span class="kicker" style="color:var(--y)">Una batteria, decine di utensili</span>
+    <h2 class="h2" style="color:#fff">Scegli la tua piattaforma</h2>
+    <div class="plat-g">
+      {piattaforme.map((p) => (
+        <a href={`/catalogo/?q=${p.q}`} class="plat-c"><span class="plat-v">{p.v}</span><b>{p.n}</b><span>{p.d}</span><span class="plat-l">Vedi la gamma →</span></a>
+      ))}
+    </div>
+  </div></section>
+
+  <section class="sec"><div class="wrap">
+    <div class="sec-h"><h2 class="h2">In evidenza</h2><a href="/catalogo/" class="ul">Vai al catalogo</a></div>
+    <div class="grid-p">{evidenza.map((p) => <ProductCard p={p} />)}</div>
+  </div></section>
+
+  <section class="ass"><div class="wrap ass-in">
+    <div class="ass-t">
+      <span class="kicker">Centro assistenza autorizzato</span>
+      <h2>Utensile fermo?<br />Lo rimettiamo in piedi.</h2>
+      <div class="steps">{passi.map(([t, d], i) => <div class="step"><span class="mono">0{i + 1}</span><b>{t}</b><span>{d}</span></div>)}</div>
+      <a href="/assistenza/" class="btn btn-k" style="align-self:flex-start">Richiedi assistenza online</a>
+    </div>
+    <form class="card ass-f" action="/assistenza/" method="get">
+      <b style="font-size:22px">Segui la tua riparazione</b>
+      <span style="color:var(--mut);font-size:14px">Inserisci il numero di scheda che ti abbiamo dato al banco e il tuo telefono.</span>
+      <label class="field">Numero scheda<input name="scheda" required placeholder="es. AS-2026-0142" class="mono" /></label>
+      <label class="field">Telefono<input name="tel" type="tel" required inputmode="tel" autocomplete="tel" /></label>
+      <button class="btn btn-y" formaction="/assistenza/#stato">Controlla lo stato</button>
+    </form>
+  </div></section>
+</Base>
+
+<style>
+  .hero{background:var(--ink);color:#fff;overflow:hidden}
+  .hero-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:40px;align-items:center;padding-top:56px;padding-bottom:72px}
+  .hero-t{display:flex;flex-direction:column;gap:22px}
+  .tag{align-self:flex-start;color:var(--y);border:1px solid #f5b80066;padding:6px 10px;border-radius:4px;font-weight:500}
+  h1{font-size:clamp(40px,6.4vw,72px);line-height:.95;text-transform:uppercase}h1 span{color:var(--y)}
+  .hero-t p{margin:0;font-size:18px;color:#c9cbcf;max-width:520px}
+  .hero-v{position:relative;min-height:380px;display:grid;place-items:center}
+  .hero-bg{position:absolute;inset:24px 0 24px 36px;background:var(--y);border-radius:18px;transform:skewX(-6deg)}
+  .hero-v img{position:relative;width:78%;max-width:440px;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:14px;padding:20px;box-shadow:0 30px 60px #0007}
+  .hero-ph{position:relative;width:70%;aspect-ratio:1;background:var(--ink2);border-radius:14px;display:grid;place-items:center;color:var(--y);font-size:clamp(40px,7vw,72px);font-weight:700;box-shadow:0 30px 60px #0007}
+  .hero-codes{position:absolute;right:14px;top:36px;font-weight:700;font-size:13px;color:var(--ink)}
+  .trust{background:#fff;border-bottom:1px solid var(--line)}
+  .trust-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;padding-top:22px;padding-bottom:22px}
+  .trust-in div{display:flex;flex-direction:column;border-left:3px solid var(--y);padding-left:12px}.trust-in span{font-size:13px;color:var(--mut)}
+  .cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .cat{padding:20px;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}.cat b{font-size:19px}
+  .cat-s{width:48px;height:48px;border-radius:10px;background:var(--ink);color:var(--y);display:grid;place-items:center;font-weight:700}
+  .cat-n{font-size:13px;color:var(--mut);font-weight:600}
+  .plat{background:var(--ink);border-radius:20px;padding:clamp(24px,5vw,48px);display:flex;flex-direction:column;gap:14px}
+  .plat-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:12px}
+  .plat-c{background:var(--ink2);border:1px solid var(--line-d);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:10px;color:#fff}.plat-c span{color:var(--mut-d);font-size:14px}.plat-c:hover{color:#fff;border-color:var(--y)}
+  .plat-v{font-size:52px;font-weight:900;color:var(--y)!important;line-height:1}.plat-l{color:var(--y)!important;font-weight:700}
+  .ass{background:var(--y)}.ass-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:40px;align-items:center;padding-top:64px;padding-bottom:64px}
+  .ass-t{display:flex;flex-direction:column;gap:20px}.ass-t h2{font-size:clamp(34px,5vw,52px);text-transform:uppercase;line-height:.95}
+  .steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .step{background:var(--ink);color:#fff;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}.step .mono{color:var(--y);font-weight:700}.step span:last-child{font-size:13px;color:var(--mut-d)}
+  .ass-f{padding:28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 50px #0002}
+</style>

@@ -1,0 +1,149 @@
+---
+import '@fontsource-variable/archivo';
+import font from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
+import { SITO } from '../data/sito.js';
+interface Props { title: string; description?: string; image?: string; noindex?: boolean; jsonld?: object }
+const { title, description = 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (NA). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
+const canonical = new URL(Astro.url.pathname, SITO.url).href;
+const fullTitle = title === SITO.nome ? `${SITO.nome} · DEWALT Casavatore` : `${title} · ${SITO.nome}`;
+const org = {
+  '@context': 'https://schema.org', '@type': 'HardwareStore', name: SITO.nome, legalName: SITO.ragioneSociale,
+  url: SITO.url, telephone: SITO.telefonoLink, email: SITO.email, vatID: 'IT' + SITO.piva,
+  address: { '@type': 'PostalAddress', streetAddress: SITO.indirizzo, postalCode: SITO.cap, addressLocality: SITO.citta, addressRegion: SITO.provincia, addressCountry: 'IT' },
+  sameAs: [SITO.instagram, SITO.facebook].filter(Boolean),
+};
+const path = Astro.url.pathname;
+const nav = [
+  ['/catalogo/', 'Prodotti'], ['/catalogo/?cat=batterie', 'Batterie'], ['/catalogo/?cat=kit', 'Kit'],
+  ['/assistenza/', 'Assistenza'], ['/contatti/', 'Contatti'],
+];
+---
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{fullTitle}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  {noindex && <meta name="robots" content="noindex" />}
+  <meta name="theme-color" content="#15171a" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href={font} as="font" type="font/woff2" crossorigin />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:locale" content="it_IT" />
+  {image && <meta property="og:image" content={new URL(image, SITO.url).href} />}
+  <script type="application/ld+json" set:html={JSON.stringify(org)} />
+  {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
+</head>
+<body>
+  <a class="skip" href="#main">Vai al contenuto</a>
+  <div class="strip"><div class="wrap row between">
+    <span>Rivenditore e Centro Assistenza Autorizzato DEWALT</span>
+    <span class="row gap"><span>Spedizione in {SITO.spedizione.giorni} giorni lavorativi</span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a></span>
+  </div></div>
+  <header class="hdr">
+    <div class="wrap row hdr-in">
+      <a href="/" class="logo" aria-label="Semi Store, home">
+        <span class="logo-s" aria-hidden="true">S</span>
+        <span class="logo-t"><b>SEMI</b><small>STORE · ASSISTENZA</small></span>
+      </a>
+      <nav aria-label="Principale" class="nav">
+        {nav.map(([h, l]) => <a href={h} aria-current={path === h ? 'page' : undefined}>{l}</a>)}
+      </nav>
+      <div class="hdr-act">
+        <form action="/catalogo/" method="get" role="search" class="search">
+          <label for="q" class="sr">Cerca</label>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9a9ca1" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input id="q" name="q" type="search" placeholder="Cerca modello, es. DCD805" autocomplete="off" />
+        </form>
+        <a href="/carrello/" class="btn-cart" aria-label="Carrello">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/></svg>
+          <span data-cart-count>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main"><slot /></main>
+
+  <footer class="ftr" id="contatti">
+    <div class="wrap grid4">
+      <div class="col">
+        <b class="ftr-brand">SEMI STORE</b>
+        <span>{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</span>
+        <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br /><a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
+      </div>
+      <div class="col"><b>Negozio</b><a href="/catalogo/">Catalogo</a><a href="/condizioni-di-vendita/">Spedizioni e resi</a><a href="/condizioni-di-vendita/#pagamenti">Pagamenti</a></div>
+      <div class="col"><b>Assistenza</b><a href="/assistenza/">Richiedi riparazione</a><a href="/assistenza/#stato">Stato riparazione</a><a href="/assistenza/#preventivo">Preventivo</a></div>
+      <div class="col"><b>Seguici</b>
+        {SITO.instagram && <a href={SITO.instagram} rel="noopener">Instagram</a>}
+        {SITO.facebook && <a href={SITO.facebook} rel="noopener">Facebook</a>}
+        {SITO.orari.length > 0 && <><b style="margin-top:12px">Orari</b>{SITO.orari.map((o) => <span>{o.giorni} {o.ore}</span>)}</>}
+      </div>
+    </div>
+    <div class="wrap legal">
+      <span>© {new Date().getFullYear()} {SITO.ragioneSociale} · P.IVA {SITO.piva}</span>
+      <span>DEWALT, BLACK+DECKER e STANLEY sono marchi registrati dei rispettivi proprietari.</span>
+      <span><a href="/privacy/">Privacy</a> · <a href="/condizioni-di-vendita/">Condizioni di vendita</a></span>
+    </div>
+  </footer>
+  {SITO.whatsapp && <a class="wa" href={`https://wa.me/${SITO.whatsapp}`} aria-label="Scrivici su WhatsApp" rel="noopener"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3z"/></svg></a>}
+  <script>
+    import { count } from '../scripts/cart.js';
+    const upd = () => document.querySelectorAll('[data-cart-count]').forEach((e) => (e.textContent = String(count())));
+    upd(); addEventListener('cart:change', upd); addEventListener('storage', upd);
+  </script>
+</body>
+</html>
+
+<style is:global>
+  :root{--ink:#15171a;--ink2:#23262b;--line-d:#33373d;--y:#f5b800;--y-d:#8a6600;--bg:#f4f3ef;--card:#fff;--line:#e3e1da;--mut:#5c5f65;--mut-d:#b9bbbf;--ok:#1a7a43;--r:14px}
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Archivo Variable',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5}
+  img{max-width:100%;height:auto;display:block}
+  a{color:inherit;text-decoration:none}a:hover{color:var(--y-d)}
+  h1,h2,h3{line-height:1;margin:0;font-weight:900;letter-spacing:-.01em}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  .row{display:flex;flex-wrap:wrap;align-items:center}.between{justify-content:space-between}.gap{gap:8px 24px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;z-index:99;background:var(--y);padding:8px 12px}
+  .mono{font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace}
+  :focus-visible{outline:3px solid var(--y);outline-offset:2px}
+  .strip{background:var(--y);font-size:13px;font-weight:700}.strip .wrap{padding-top:7px;padding-bottom:7px;gap:4px 24px}
+  .hdr{background:var(--ink);color:#fff;position:sticky;top:0;z-index:20}
+  .hdr-in{gap:14px 28px;padding-top:14px;padding-bottom:14px}
+  .logo{display:flex;align-items:center;gap:12px;color:#fff}.logo:hover{color:#fff}
+  .logo-s{width:40px;height:40px;background:var(--y);color:var(--ink);display:grid;place-items:center;font-weight:900;font-size:20px;border-radius:6px;transform:skewX(-8deg)}
+  .logo-t{display:flex;flex-direction:column;line-height:1.05}.logo-t b{font-size:20px;letter-spacing:.04em}.logo-t small{font-size:11px;color:var(--mut-d);letter-spacing:.18em}
+  .nav{display:flex;flex-wrap:wrap;gap:4px 22px;font-weight:600;font-size:15px}.nav a{color:#fff;padding:10px 0}.nav a:hover,.nav a[aria-current]{color:var(--y)}
+  .hdr-act{flex:1 1 240px;display:flex;gap:10px;justify-content:flex-end;align-items:center}
+  .search{flex:1 1 200px;max-width:320px;display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:8px;padding:0 12px;height:44px}
+  .search input{flex:1;min-width:0;background:transparent;border:0;color:#fff;font:inherit;font-size:14px;outline:none}
+  .btn-cart{height:44px;padding:0 14px;border-radius:8px;background:var(--y);color:var(--ink);display:flex;align-items:center;gap:8px;font-weight:800}.btn-cart:hover{color:var(--ink)}
+  @media (max-width:720px){.nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap}.hdr-act{flex-basis:100%}.search{max-width:none}.strip .wrap>span:first-child{display:none}}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;border-radius:8px;font-weight:800;font-size:16px;border:0;cursor:pointer;font-family:inherit}
+  .btn-y{background:var(--y);color:var(--ink)}.btn-y:hover{color:var(--ink);filter:brightness(1.05)}
+  .btn-k{background:var(--ink);color:#fff}.btn-k:hover{color:var(--y)}
+  .btn-o{border:1px solid #4a4e55;color:#fff;background:transparent}.btn-o:hover{color:var(--y)}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+  .kicker{font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.14em;font-weight:700;text-transform:uppercase}
+  .sec{padding-top:56px;padding-bottom:56px}.sec-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:24px}
+  .h2{font-size:clamp(30px,4.5vw,44px);text-transform:uppercase}
+  .ul{font-weight:700;border-bottom:2px solid var(--y);padding-bottom:2px}
+  .grid-p{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(230px,44vw),1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+  .field{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700}
+  .field input,.field select,.field textarea{min-height:48px;border:1px solid #cfccc2;border-radius:8px;padding:10px 14px;font:inherit;font-size:16px;font-weight:400;background:#fff;color:var(--ink)}
+  .field textarea{min-height:110px;resize:vertical}
+  .ftr{background:var(--ink);color:#c9cbcf;margin-top:40px}.ftr a{color:#c9cbcf}.ftr a:hover{color:var(--y)}
+  .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:28px;padding-top:52px;padding-bottom:28px}
+  .col{display:flex;flex-direction:column;gap:8px;font-size:14px}.col b{color:#fff}.ftr-brand{font-size:22px;letter-spacing:.04em}
+  .legal{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#9a9ca1;border-top:1px solid #2e3238;padding-top:18px;padding-bottom:26px}
+  .wa{position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;background:#1a7a43;color:#fff;display:grid;place-items:center;box-shadow:0 10px 30px #0004;z-index:30}.wa:hover{color:#fff}
+  .prose{max-width:760px}.prose h2{font-size:24px;margin:32px 0 10px}.prose p,.prose li{color:#33363b}
+</style>

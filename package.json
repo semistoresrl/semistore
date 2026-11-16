@@ -1,0 +1,20 @@
+{
+  "name": "semistore",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "immagini": "node scripts/fetch-images.mjs",
+    "dev": "astro dev",
+    "build": "node scripts/fetch-images.mjs && astro build",
+    "preview": "wrangler pages dev dist"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.0",
+    "@fontsource-variable/archivo": "^5.1.0",
+    "astro": "^5.0.0",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "wrangler": "^4.163.0"
+  }
+}

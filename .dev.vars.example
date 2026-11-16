@@ -1,0 +1,5 @@
+STRIPE_SECRET_KEY=sk_test_...
+ADMIN_TOKEN=una-stringa-lunga-a-caso
+RESEND_API_KEY=
+EMAIL_TO=info@semistore.it
+EMAIL_FROM=Sito Semi Store <sito@semistore.it>

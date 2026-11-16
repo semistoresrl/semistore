@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import ProductCard from '../components/ProductCard.astro';
+import prodotti from '../data/prodotti.json';
+const lista = [...prodotti].sort((a, b) => (a.marca === 'DEWALT' ? 0 : 1) - (b.marca === 'DEWALT' ? 0 : 1) || a.categoria.localeCompare(b.categoria) || a.prezzo - b.prezzo);
+const cats = [...new Set(prodotti.map((p) => p.categoria))].sort();
+const marche = [...new Set(prodotti.map((p) => p.marca))];
+---
+<Base title="Catalogo" description="Catalogo utensili DEWALT, BLACK+DECKER e STANLEY: trapani, avvitatori, tassellatori, smerigliatrici, batterie e kit. Acquisto online o ritiro a Casavatore.">
+  <section class="wrap sec">
+    <div class="sec-h"><h1 class="h2">Catalogo</h1><span id="n" class="cnt" aria-live="polite">{lista.length} prodotti</span></div>
+    <div class="flt card">
+      <label class="field">Cerca<input id="fq" type="search" placeholder="Nome o codice, es. DCF900" /></label>
+      <label class="field">Categoria<select id="fc"><option value="">Tutte</option>{cats.map((c) => <option value={c}>{c}</option>)}</select></label>
+      <label class="field">Marca<select id="fm"><option value="">Tutte</option>{marche.map((m) => <option value={m}>{m}</option>)}</select></label>
+      <label class="field">Ordina<select id="fo"><option value="">Consigliati</option><option value="asc">Prezzo crescente</option><option value="desc">Prezzo decrescente</option></select></label>
+    </div>
+    <div class="grid-p" id="g">{lista.map((p, i) => <ProductCard p={p} eager={i < 4} />)}</div>
+    <p id="vuoto" hidden class="card" style="padding:24px">Nessun prodotto trovato. Cerchi un modello che non vedi? <a class="ul" href="/contatti/">Chiedicelo</a>: lo ordiniamo noi.</p>
+  </section>
+</Base>
+<script>
+  const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+  const g = document.getElementById('g')!; const cards = [...g.children] as HTMLElement[];
+  const prezzo = (c: HTMLElement) => Number(c.querySelector('.pc-pr')?.textContent?.replace(/[^\d,]/g, '').replace(',', '.'));
+  const u = new URL(location.href);
+  const catQ = (u.searchParams.get('cat') || '').toLowerCase();
+  if (catQ) { const o = [...$('fc').options].find((o) => o.value.toLowerCase().startsWith(catQ)); if (o) $('fc').value = o.value; }
+  const mq = (u.searchParams.get('marca') || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (mq) { const o = [...$('fm').options].find((o) => o.value.toLowerCase().replace(/[^a-z]/g, '') === mq); if (o) $('fm').value = o.value; }
+  $('fq').value = u.searchParams.get('q') || '';
+  function run() {
+    const q = $('fq').value.trim().toLowerCase().split(/\s+/).filter(Boolean), c = $('fc').value, m = $('fm').value, o = $('fo').value;
+    let n = 0;
+    for (const el of cards) {
+      const ok = (!c || el.dataset.cat === c) && (!m || el.dataset.marca === m) && q.every((w) => el.dataset.text!.replace(/\s/g, '').includes(w) || el.dataset.text!.includes(w));
+      el.hidden = !ok; if (ok) n++;
+    }
+    const sorted = o ? [...cards].sort((a, b) => (o === 'asc' ? 1 : -1) * (prezzo(a) - prezzo(b))) : cards;
+    g.append(...sorted);
+    $('n').textContent = `${n} prodott${n === 1 ? 'o' : 'i'}`; (document.getElementById('vuoto') as HTMLElement).hidden = n > 0;
+    const p = new URLSearchParams(); if ($('fq').value) p.set('q', $('fq').value); if (c) p.set('cat', c.toLowerCase().split(' ')[0]); if (m) p.set('marca', m.toLowerCase().replace(/[^a-z]/g, ''));
+    history.replaceState(null, '', p.size ? `?${p}` : location.pathname);
+  }
+  ['fq', 'fc', 'fm', 'fo'].forEach((id) => $(id).addEventListener('input', run)); run();
+</script>
+<style>
+  .cnt{color:var(--mut);font-weight:600}
+  .flt{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;padding:16px;margin-bottom:20px}
+</style>
