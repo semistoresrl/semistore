@@ -34,7 +34,8 @@ export const SITO = {
 };
 
 export const GOOGLE = {
-  scheda: `https://www.google.com/maps/place/?q=place_id:${SITO.googlePlaceId}`,
+  // formato ufficiale Google Maps: funziona anche quando il link apre l'app Maps sul telefono
+  scheda: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`SE.M.I. srl ${SITO.indirizzo} ${SITO.citta}`)}&query_place_id=${SITO.googlePlaceId}`,
   indicazioni: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${SITO.indirizzo}, ${SITO.cap} ${SITO.citta}`)}&destination_place_id=${SITO.googlePlaceId}`,
   recensione: `https://search.google.com/local/writereview?placeid=${SITO.googlePlaceId}`,
 };
