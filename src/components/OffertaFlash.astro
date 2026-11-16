@@ -9,16 +9,24 @@ const foto = ['DCF850P2T', 'DCD805P2T', 'DCG405P2']
   .map((p: any) => fotoDi(p.slug, 400) || p.immagineDewalt).filter(Boolean).slice(0, 3);
 ---
 {OFFERTA.attiva && (
-  <section class="of-w" data-offerta data-scade={OFFERTA.scade} hidden>
+  <section class="of-w" data-offerta data-scade={OFFERTA.scade} data-inizio={OFFERTA.inizio} hidden>
     <div class="wrap">
       <a class="of" href={OFFERTA.url} target="_blank" rel="noopener" aria-label={`${OFFERTA.titolo}: apri le offerte`}>
         <span class="of-bg" aria-hidden="true"></span>
         <span class="of-t">
-          <span class="of-k"><i aria-hidden="true"></i>Offerta a tempo · attiva ora</span>
+          <span class="of-k"><i aria-hidden="true"></i><span data-of-k>Offerta a tempo · attiva ora</span></span>
           <b class="of-h">Offerte<br /><span>Flash</span> DEWALT</b>
           <span class="of-s" data-of-sotto>{OFFERTA.sottotitolo}</span>
-          <span class="of-cd mono" data-of-cd hidden></span>
-          <span class="of-cta">Scopri le offerte <span aria-hidden="true">→</span></span>
+          <span class="of-cd" data-of-box hidden>
+            <span class="of-cd-l" data-of-lab>Termina tra</span>
+            <span class="of-cd-r mono">
+              <span><b data-u="g">00</b><small>giorni</small></span><i>:</i>
+              <span><b data-u="h">00</b><small>ore</small></span><i>:</i>
+              <span><b data-u="m">00</b><small>min</small></span><i>:</i>
+              <span><b data-u="s">00</b><small>sec</small></span>
+            </span>
+          </span>
+          <span class="of-cta"><span data-of-cta>Scopri le offerte</span> <span aria-hidden="true">→</span></span>
         </span>
         <span class="of-v" aria-hidden="true">
           {foto.map((u, i) => <span class={`of-p of-p${i}`}><img src={u} alt="" loading="lazy" decoding="async" /></span>)}
@@ -42,8 +50,16 @@ const foto = ['DCF850P2T', 'DCD805P2T', 'DCG405P2']
   .of-h{font-size:clamp(40px,6vw,76px);line-height:.9;text-transform:uppercase;font-weight:900;letter-spacing:-.01em}
   .of-h span{color:var(--y);font-style:italic}
   .of-s{color:#c9cbcf;font-size:17px;max-width:440px}
-  .of-cd{background:#ffffff12;border-radius:8px;padding:8px 12px;font-weight:700;font-size:15px;color:#fff}
-  .of-cd b{color:var(--y)}
+  .of-cd{display:flex;flex-direction:column;gap:6px}
+  .of-cd[hidden]{display:none}
+  .of-cd-l{font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#c9cbcf}
+  .of-cd-r{display:flex;align-items:flex-start;gap:6px}
+  .of-cd-r>span{display:flex;flex-direction:column;align-items:center;min-width:64px;background:#ffffff10;border:1px solid #ffffff22;border-radius:10px;padding:8px 6px 6px}
+  .of-cd-r b{font-size:clamp(26px,3.4vw,38px);line-height:1;color:var(--y);font-weight:800;font-variant-numeric:tabular-nums}
+  .of-cd-r small{font-size:11px;color:#b9bbbf;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;font-family:'Archivo Variable',system-ui,sans-serif}
+  .of-cd-r i{font-style:normal;font-size:26px;font-weight:800;color:#ffffff55;padding-top:8px}
+  .of.prossima .of-k i{background:var(--y);box-shadow:none;animation:none}
+  @media (max-width:420px){.of-cd-r>span{min-width:0;flex:1}.of-cd-r i{display:none}}
   .of-cta{margin-top:4px;background:var(--y);color:var(--ink);font-weight:900;font-size:17px;padding:14px 22px;border-radius:10px;text-transform:uppercase;letter-spacing:.02em}
   .of:hover .of-cta span{display:inline-block;transform:translateX(4px)}
   .of-v{position:relative;height:300px}
