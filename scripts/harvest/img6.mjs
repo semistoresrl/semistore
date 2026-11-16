@@ -23,15 +23,16 @@ async function one(t) {
   const out = { tried: [] };
   let pages = [...(EXTRA[b] || [])];
   for (const e of engines) {
-    for (const q of [`${b} ${t.b.replace('+', ' ')}`, `${t.c}`, `${b} ${t.n}`]) {
-      await sleep(2500);
+    for (const q of [`${b} ${t.b.replace('+', ' ')}`, `${t.c}`]) {
+      if (pages.length > 2) break;
+      await sleep(25000);
       const s = await get(e(encodeURIComponent(q)));
       const links = [...new Set([...s.html.matchAll(/href="(https?:\/\/[^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&')).filter((u) => !BAN.test(u)))];
       out.tried.push(`${new URL(e('x')).host}:${s.status || 'ok'}:${links.length}`);
       if (!dbg[new URL(e('x')).host]) dbg[new URL(e('x')).host] = s.html.slice(0, 1500);
       pages.push(...links.filter((u) => u.toLowerCase().replace(/[^a-z0-9]/g, '').includes(key)).slice(0, 6));
     }
-    if (pages.length > 8) break;
+    if (pages.length > 2) break;
   }
   pages = [...new Set(pages)].slice(0, 15);
   out.pages = pages;
