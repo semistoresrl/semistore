@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
 const q = encodeURIComponent(`${SITO.indirizzo}, ${SITO.cap} ${SITO.citta}`);
+import VideoNegozio from '../components/VideoNegozio.astro';
 ---
 <Base title="Contatti e dove siamo" description={`Semi Store, ${SITO.indirizzo}, ${SITO.citta} (${SITO.provincia}). Telefono ${SITO.telefono}. Vendita e assistenza DEWALT.`}>
   <section class="wrap sec">
@@ -21,5 +22,6 @@ const q = encodeURIComponent(`${SITO.indirizzo}, ${SITO.cap} ${SITO.citta}`);
       {SITO.orari.length > 0 && <div class="card box"><h2>Orari</h2>{SITO.orari.map((o) => <p style="margin:0"><b>{o.giorni}</b> {o.ore}</p>)}</div>}
     </div>
   </section>
+  <VideoNegozio titolo="Come arrivare" />
 </Base>
 <style>.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}.box{padding:24px;display:flex;flex-direction:column;gap:14px}.box h2{font-size:22px}</style>

@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
+import VideoNegozio from '../components/VideoNegozio.astro';
 ---
 <Base title="Chi siamo" description={`Semi Store: rivenditore e centro assistenza autorizzato DEWALT a ${SITO.citta}.`}>
   <section class="wrap sec prose">
@@ -9,4 +10,5 @@ import { SITO } from '../data/sito.js';
     <p>Perché comprare da chi ripara? Perché vediamo ogni giorno come lavorano gli utensili dopo mesi di cantiere: ti consigliamo il modello giusto, non il più caro, e se qualcosa si guasta apriamo noi la pratica di garanzia.</p>
     <p><a href="/catalogo/" class="btn btn-y">Vai al catalogo</a></p>
   </section>
+  <VideoNegozio titolo="Il nostro negozio" />
 </Base>

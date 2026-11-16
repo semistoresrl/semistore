@@ -4,6 +4,7 @@ import ProductCard from '../components/ProductCard.astro';
 import prodotti from '../data/prodotti.json';
 import { SITO, euro } from '../data/sito.js';
 import { fotoDi } from '../data/foto';
+import VideoNegozio from '../components/VideoNegozio.astro';
 
 const evidenza = ['DCD805P2T', 'DCF850P2T', 'DCG405P2', 'DCF900P2T', 'DCH273P2T', 'DCK2050E2T', 'DCS438E2T', 'DCE089D1G']
   .map((m) => prodotti.find((p) => p.modello === m)).filter(Boolean).slice(0, 8);
@@ -106,6 +107,8 @@ const passi = [
     <div class="sec-h"><h2 class="h2">In evidenza</h2><a href="/catalogo/" class="ul">Vai al catalogo</a></div>
     <div class="grid-p">{evidenza.map((p) => <ProductCard p={p} />)}</div>
   </div></section>
+
+  <VideoNegozio />
 
   <section class="ass"><div class="wrap ass-in">
     <div class="ass-t">
