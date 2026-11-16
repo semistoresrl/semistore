@@ -13,16 +13,27 @@ async function one(t) {
   for (const host of ['assets.dewalt.it', 'assets.blackanddecker.it', 'www.blackanddecker.it', 'assets.stanley.it']) {
     for (const f of [`WHITEBG/${b}_1.jpg`, `WHITEBG/${b}_K1.jpg`, `WHITEBG/${b}_1_1280.webp`, `WHITEBG/${b}_2_1280.webp`, `WHITEBG/${b}_K1_1280.webp`, `${b}_1.jpg`, `${b}_K1.jpg`, `${b}_2.jpg`]) cand.push(`https://${host}/EMEA/PRODUCT/IMAGES/HIRES/${f}`);
   }
-  const out = {};
-  for (const q of [`${t.c} ${t.b}`, `${b} ${t.b}`]) {
-    const s = await get(`https://www.bing.com/images/search?q=${encodeURIComponent(q)}&form=HDRSC2&first=1`);
-    if (!s) { out.err = 'bing'; continue; }
-    const items = [...s.html.matchAll(/\sm="([^"]+)"/g)].map((m) => { try { return JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&')); } catch { return null; } }).filter(Boolean);
-    out.n = items.length;
-    const key = b.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const good = items.filter((it) => it.murl && !/amazon|ebay|aliexpress|pinterest|alamy|shutterstock/i.test(it.murl + it.purl) && ((it.purl || '') + (it.murl || '') + (it.t || '')).toLowerCase().replace(/[^a-z0-9]/g, '').includes(key));
-    out.cands = good.slice(0, 4).map((it) => [it.murl, it.purl, it.t]);
-    for (const it of good.slice(0, 4)) { if (await head(it.murl)) return { img: it.murl, src: it.purl, t: it.t }; }
+  const out = { tried: [] };
+  const key = b.toLowerCase();
+  const shops = [
+    (q) => `https://www.toolnation.com/catalogsearch/result/?q=${q}`,
+    (q) => `https://www.tooriistamaailm.ee/en/search?query=${q}`,
+    (q) => `https://www.misterworker.com/it/search?controller=search&s=${q}`,
+    (q) => `https://www.toolstop.co.uk/search?q=${q}`,
+    (q) => `https://www.tooled-up.com/search?q=${q}`,
+    (q) => `https://www.ffx.co.uk/search?q=${q}`,
+  ];
+  for (const sh of shops) {
+    const s = await get(sh(encodeURIComponent(b)));
+    if (!s) { out.tried.push('x'); continue; }
+    const host = new URL(s.url).host;
+    const links = [...new Set([...s.html.matchAll(/href="([^"#]+)"/g)].map((m) => { try { return new URL(m[1].replace(/&amp;/g, '&'), s.url).href; } catch { return ''; } }).filter((u) => u.includes(host) && u.toLowerCase().replace(/[^a-z0-9]/g, '').includes(key.replace(/[^a-z0-9]/g, '')) && !/search|catalogsearch|review|login|cart/i.test(u)))];
+    out.tried.push(host + ':' + links.length);
+    for (const l of links.slice(0, 2)) {
+      const p = await get(l); if (!p) continue;
+      const og = (p.html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)/i) || p.html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i) || [])[1];
+      if (og && !/logo|placeholder|default|no_selection/i.test(og)) { const u = new URL(og, p.url).href; if (await head(u)) return { img: u, src: l }; }
+    }
   }
   return out;
 }
