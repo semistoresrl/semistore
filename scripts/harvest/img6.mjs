@@ -11,11 +11,11 @@ const EXTRA = {
   'X33091': ['https://www.tooled-up.com/black-and-decker-piranha-sanding-belts-75mm-x-457mm/prod/104840'],
 };
 const engines = [
-  (q) => `https://www.mojeek.com/search?q=${q}`,
-  (q) => `https://lite.duckduckgo.com/lite/?q=${q}`,
   (q) => `https://search.brave.com/search?q=${q}`,
-  (q) => `https://www.qwant.com/?q=${q}&t=web`,
+  (q) => `https://www.bing.com/search?q=${q}&setlang=it`,
+  (q) => `https://www.startpage.com/do/search?q=${q}`,
 ];
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const BAN = /mojeek|duckduckgo|brave\.com|qwant|amazon\.|ebay\.|youtube|facebook|pinterest|wikipedia|\.pdf(\?|$)|manualslib|google\./i;
 const res = {}; let i = 0; const dbg = {};
 async function one(t) {
@@ -23,16 +23,17 @@ async function one(t) {
   const out = { tried: [] };
   let pages = [...(EXTRA[b] || [])];
   for (const e of engines) {
-    for (const q of [`"${b}" ${t.b}`, `${t.c}`]) {
+    for (const q of [`${b} ${t.b.replace('+', ' ')}`, `${t.c}`, `${b} ${t.n}`]) {
+      await sleep(2500);
       const s = await get(e(encodeURIComponent(q)));
       const links = [...new Set([...s.html.matchAll(/href="(https?:\/\/[^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&')).filter((u) => !BAN.test(u)))];
       out.tried.push(`${new URL(e('x')).host}:${s.status || 'ok'}:${links.length}`);
       if (!dbg[new URL(e('x')).host]) dbg[new URL(e('x')).host] = s.html.slice(0, 1500);
       pages.push(...links.filter((u) => u.toLowerCase().replace(/[^a-z0-9]/g, '').includes(key)).slice(0, 6));
     }
-    if (pages.length > 6) break;
+    if (pages.length > 8) break;
   }
-  pages = [...new Set(pages)].slice(0, 10);
+  pages = [...new Set(pages)].slice(0, 15);
   out.pages = pages;
   for (const l of pages) {
     const p = await get(l); if (!p.html) continue;
@@ -45,7 +46,7 @@ async function one(t) {
   return out;
 }
 async function worker() { while (i < todo.length) { const t = todo[i++]; res[t.k] = await one(t); } }
-await Promise.all(Array.from({ length: 4 }, worker));
+await Promise.all(Array.from({ length: 1 }, worker));
 await fs.mkdir('harvest-out', { recursive: true });
 await fs.writeFile('harvest-out/img6.json', JSON.stringify({ res, dbg }));
 console.log('foto', Object.values(res).filter((x) => x.img).length, '/', todo.length);
