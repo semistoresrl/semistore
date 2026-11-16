@@ -5,6 +5,22 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import http from 'node:http';
+
+// semistore.it ora punta al sito nuovo: le foto vecchie si chiedono al vecchio server (IONOS) per IP
+const VECCHIO_IP = '194.164.162.85';
+function dalVecchioServer(u) {
+  return new Promise((ok) => {
+    try {
+      const url = new URL(u);
+      const req = http.get({ host: VECCHIO_IP, path: url.pathname, headers: { host: 'semistore.it', 'user-agent': 'Mozilla/5.0 (SemiStore build)' }, timeout: 15000 }, (r) => {
+        if (r.statusCode !== 200) { r.resume(); return ok(null); }
+        const c = []; r.on('data', (d) => c.push(d)); r.on('end', () => ok(Buffer.concat(c)));
+      });
+      req.on('timeout', () => req.destroy()); req.on('error', () => ok(null));
+    } catch { ok(null); }
+  });
+}
 // Il vecchio sito ha il certificato HTTPS scaduto: lo accettiamo SOLO per scaricare le sue foto pubbliche.
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -37,6 +53,7 @@ await Promise.all(prodotti.map(async (p) => {
       } catch (e) { console.warn('Foto', p.slug, e.cause?.code || e.message); }
     }
   }
+  if (!buf && p.immagineOrigine) buf = await dalVecchioServer(p.immagineOrigine);
   if (!buf) { ko++; return; }
   try {
     const base = sharp(buf).flatten({ background: '#ffffff' }).trim({ threshold: 8 });
