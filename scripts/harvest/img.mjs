@@ -13,19 +13,16 @@ async function one(t) {
   for (const host of ['assets.dewalt.it', 'assets.blackanddecker.it', 'www.blackanddecker.it', 'assets.stanley.it']) {
     for (const f of [`WHITEBG/${b}_1.jpg`, `WHITEBG/${b}_K1.jpg`, `WHITEBG/${b}_1_1280.webp`, `WHITEBG/${b}_2_1280.webp`, `WHITEBG/${b}_K1_1280.webp`, `${b}_1.jpg`, `${b}_K1.jpg`, `${b}_2.jpg`]) cand.push(`https://${host}/EMEA/PRODUCT/IMAGES/HIRES/${f}`);
   }
-  for (const u of cand) { const ok = await head(u); if (ok) return { img: ok, src: 'pattern' }; }
-  // ricerca web
-  const q = encodeURIComponent(`${t.c} ${t.b}`);
-  const s = await get(`https://html.duckduckgo.com/html/?q=${q}`);
-  const links = s ? [...s.html.matchAll(/class="result__a" href="([^"]+)"/g)].map((m) => { const u = m[1]; const mm = u.match(/uddg=([^&]+)/); return mm ? decodeURIComponent(mm[1]) : u; }) : [];
-  const out = { links: links.slice(0, 6) };
-  for (const l of links.slice(0, 5)) {
-    if (/amazon\.|ebay\.|youtube|facebook|pinterest|\.pdf$/i.test(l)) continue;
-    const p = await get(l); if (!p) continue;
-    const page = p.html;
-    if (!page.toUpperCase().includes(b.toUpperCase())) continue;
-    const og = (page.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)/i) || page.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i) || [])[1];
-    if (og && !/logo|placeholder|default/i.test(og)) { const u = new URL(og, p.url).href; if (await head(u)) return { img: u, src: l, links: out.links }; }
+  const out = {};
+  for (const q of [`${t.c} ${t.b}`, `${b} ${t.b}`]) {
+    const s = await get(`https://www.bing.com/images/search?q=${encodeURIComponent(q)}&form=HDRSC2&first=1`);
+    if (!s) { out.err = 'bing'; continue; }
+    const items = [...s.html.matchAll(/\sm="([^"]+)"/g)].map((m) => { try { return JSON.parse(m[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&')); } catch { return null; } }).filter(Boolean);
+    out.n = items.length;
+    const key = b.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const good = items.filter((it) => it.murl && !/amazon|ebay|aliexpress|pinterest|alamy|shutterstock/i.test(it.murl + it.purl) && ((it.purl || '') + (it.murl || '') + (it.t || '')).toLowerCase().replace(/[^a-z0-9]/g, '').includes(key));
+    out.cands = good.slice(0, 4).map((it) => [it.murl, it.purl, it.t]);
+    for (const it of good.slice(0, 4)) { if (await head(it.murl)) return { img: it.murl, src: it.purl, t: it.t }; }
   }
   return out;
 }
