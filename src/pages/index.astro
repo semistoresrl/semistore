@@ -4,6 +4,7 @@ import ProductCard from '../components/ProductCard.astro';
 import prodotti from '../data/prodotti.json';
 import { SITO, euro } from '../data/sito.js';
 import { fotoDi } from '../data/foto';
+import OffertaFlash from '../components/OffertaFlash.astro';
 import VideoNegozio from '../components/VideoNegozio.astro';
 
 const evidenza = ['DCD805P2T', 'DCF850P2T', 'DCG405P2', 'DCF900P2T', 'DCH273P2T', 'DCK2050E2T', 'DCS438E2T', 'DCE089D1G']
@@ -68,6 +69,8 @@ const passi = [
       </div>
     </div>
   </section>
+
+  <OffertaFlash />
 
   <section class="trust"><div class="wrap trust-in">
     <div><b>Centro autorizzato</b><span>Garanzie gestite in sede</span></div>

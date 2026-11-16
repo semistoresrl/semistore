@@ -1,4 +1,5 @@
 ---
+import { OFFERTA } from '../data/offerta.js';
 import '@fontsource-variable/archivo';
 import font from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
 import { SITO, GOOGLE } from '../data/sito.js';
@@ -43,6 +44,11 @@ const nav = [
 </head>
 <body>
   <a class="skip" href="#main">Vai al contenuto</a>
+  {OFFERTA.attiva && (
+    <a class="of-bar" href={OFFERTA.url} target="_blank" rel="noopener" data-offerta data-scade={OFFERTA.scade} hidden>
+      <span class="wrap"><b>⚡ {OFFERTA.titolo}</b> <span class="of-bar-s">prezzi speciali a tempo limitato</span> <span class="of-bar-cd mono" data-of-cd hidden></span> <u>Scopri →</u></span>
+    </a>
+  )}
   <div class="strip"><div class="wrap row between">
     <span>Rivenditore e Centro Assistenza Autorizzato DEWALT</span>
     <span class="row gap"><span>Spedizione in {SITO.spedizione.giorni} giorni lavorativi</span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a></span>
@@ -100,6 +106,7 @@ const nav = [
     const upd = () => document.querySelectorAll('[data-cart-count]').forEach((e) => (e.textContent = String(count())));
     upd(); addEventListener('cart:change', upd); addEventListener('storage', upd);
   </script>
+  <script>import '../scripts/offerta.js';</script>
 </body>
 </html>
 
@@ -117,6 +124,7 @@ const nav = [
   .skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;z-index:99;background:var(--y);padding:8px 12px}
   .mono{font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace}
   :focus-visible{outline:3px solid var(--y);outline-offset:2px}
+  .of-bar{display:block;background:var(--ink);color:#fff;font-size:14px;text-align:center;border-bottom:2px solid var(--y)}.of-bar:hover{color:#fff}.of-bar[hidden]{display:none}.of-bar .wrap{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 12px;padding-top:8px;padding-bottom:8px}.of-bar b{color:var(--y);text-transform:uppercase;letter-spacing:.04em}.of-bar u{font-weight:800;color:var(--y)}.of-bar-cd b{color:#fff}@media (max-width:560px){.of-bar-s{display:none}}
   .strip{background:var(--y);font-size:13px;font-weight:700}.strip .wrap{padding-top:7px;padding-bottom:7px;gap:4px 24px}
   .hdr{background:var(--ink);color:#fff;position:sticky;top:0;z-index:20}
   .hdr-in{gap:14px 28px;padding-top:14px;padding-bottom:14px}
