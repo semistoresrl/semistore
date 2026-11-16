@@ -12,13 +12,24 @@ const get = async (u, head = false) => {
 };
 const txt = (s) => s.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, '').replace(/<br\s*\/?>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&rsquo;/g, "'").replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ').trim();
 const meta = (h, p) => (h.match(new RegExp(`<meta[^>]+(?:property|name)=["']${p}["'][^>]+content=["']([^"']*)`, 'i')) || h.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+(?:property|name)=["']${p}["']`, 'i')) || [])[1];
+function sbd(h) {
+  const o = {};
+  for (const m of h.matchAll(/<script[^>]*application\/ld\+json[^>]*>([\s\S]*?)<\/script>/g)) {
+    try { const j = JSON.parse(m[1]); if (j['@type'] === 'Product') { o.name = j.name; o.ldesc = j.description; o.img = j.image; o.props = (j.additionalProperty || []).map((p) => [p.name, String(p.value ?? '') + (p.unitCode ? ' ' + p.unitCode : '')]); } } catch {}
+  }
+  const sec = (a, b) => { const i = h.indexOf('>' + a + '<'); if (i < 0) return []; const j = b ? h.indexOf('>' + b + '<', i + 5) : -1; const seg = h.slice(i, j > i ? j : i + 12000).replace(/<style[\s\S]*?<\/style>|<svg[\s\S]*?<\/svg>/g, '');
+    return [...seg.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/g)].map((x) => txt(x[1])).filter((t) => t.length > 2 && t.length < 300); };
+  o.feat = sec('Caratteristiche', 'Specifiche');
+  o.incl = sec('Include', 'Garanzia');
+  return o;
+}
 function parse(page) {
   const h = page.html;
   const lis = [...h.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/g)].map((m) => txt(m[1])).filter((t) => t.length > 12 && t.length < 260 && !/cookie|privacy|accedi|newsletter|carrello|login|menu|©|seguici|facebook|instagram/i.test(t));
   const rows = [...h.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/g)].map((m) => [...m[1].matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/g)].map((c) => txt(c[1]))).filter((r) => r.length === 2 && r[0] && r[1] && r[0].length < 60 && r[1].length < 120);
   const dts = [...h.matchAll(/<dt[^>]*>([\s\S]*?)<\/dt>\s*<dd[^>]*>([\s\S]*?)<\/dd>/g)].map((m) => [txt(m[1]), txt(m[2])]).filter((r) => r[0] && r[1] && r[1].length < 120);
   const paras = [...h.matchAll(/<p[^>]*>([\s\S]*?)<\/p>/g)].map((m) => txt(m[1])).filter((t) => t.length > 60 && t.length < 900 && !/cookie|privacy|newsletter|©|iscriviti|registra/i.test(t));
-  return { url: page.url, title: txt((h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || ''), og: meta(h, 'og:image'), desc: meta(h, 'description') || meta(h, 'og:description'), li: [...new Set(lis)].slice(0, 40), specs: [...rows, ...dts].slice(0, 40), p: [...new Set(paras)].slice(0, 8) };
+  return { ...sbd(h), url: page.url, title: txt((h.match(/<h1[^>]*>([\s\S]*?)<\/h1>/) || [])[1] || ''), og: meta(h, 'og:image'), desc: meta(h, 'description') || meta(h, 'og:description'), specs: [...rows, ...dts].slice(0, 40) };
 }
 const base = (c) => c.replace(/-(XJ|QZ|QS|QW|IT|GB|LX|KS|B5|B6|0|1)$/i, '');
 async function one(t) {
@@ -36,7 +47,7 @@ async function one(t) {
   const site = { DEWALT: ['www.dewalt.it', 'assets.dewalt.it'], 'BLACK+DECKER': ['www.blackanddecker.it', 'assets.blackanddecker.it'], STANLEY: ['www.stanley.it', 'assets.stanley.it'], LENOX: ['www.lenoxtools.com', null] }[t.b] || ['www.dewalt.it', 'assets.dewalt.it'];
   const sites = /^DT|^DE|^DW/.test(c) && t.b !== 'DEWALT' ? [site, ['www.dewalt.it', 'assets.dewalt.it']] : [site];
   const pu = IDX[c.toUpperCase()] || IDX[b.toUpperCase()];
-  if (pu) { const p = await get(pu); if (p) { Object.assign(out, parse(p)); if (!rawDone) { rawDone = true; debug.raw = p.html.slice(0, 200000); } } }
+  if (pu) { const p = await get(pu); if (p) { Object.assign(out, parse(p)); if (!rawDone) { rawDone = true; debug.raw = ''; } } }
   if (!t.img) {
     const cand = [];
     for (const [w, a] of sites) {
@@ -64,12 +75,14 @@ async function sitemapUrls(host) {
   return { sitemaps: [...seen], urls: out };
 }
 for (const h of ['www.dewalt.it', 'www.blackanddecker.it', 'www.stanley.it', 'www.lenoxtools.com']) SM[h] = await sitemapUrls(h);
+const bdr = await get('https://www.blackanddecker.it/robots.txt'); const bdh = await get('https://www.blackanddecker.it/it-it');
+const DBG2 = { bdRobots: bdr && bdr.html.slice(0, 1500), bdHome: bdh && bdh.url, bdLinks: bdh ? [...bdh.html.matchAll(/href="([^"]*prodott[^"]*)"/g)].map((m) => m[1]).slice(0, 20) : null };
 const IDX = {};
 for (const [h, v] of Object.entries(SM)) for (const u of v.urls) {
   const seg = decodeURIComponent(u.split(/[?#]/)[0].replace(/\/$/, '')).split('/').slice(-2).join('/').toUpperCase();
   for (const m of seg.matchAll(/[A-Z]{1,6}\d[A-Z0-9]*(?:-[A-Z0-9]{1,3})?/g)) { const code = m[0]; IDX[code] ??= u; IDX[code.replace(/-(XJ|QZ|QS|QW|IT|GB|LX|KS|B5|B6)$/i, '')] ??= u; }
 }
-const debug = { sitemaps: Object.fromEntries(Object.entries(SM).map(([h, v]) => [h, { n: v.urls.length, maps: v.sitemaps.slice(0, 20), sample: v.urls.slice(0, 5).concat(v.urls.filter((u) => /dcd|dcf|dt\d|ka\d|bdc/i.test(u)).slice(0, 25)) }])), idx: Object.keys(IDX).length };
+const debug = { DBG2, sitemaps: Object.fromEntries(Object.entries(SM).map(([h, v]) => [h, { n: v.urls.length, maps: v.sitemaps.slice(0, 20), sample: v.urls.slice(0, 5).concat(v.urls.filter((u) => /dcd|dcf|dt\d|ka\d|bdc/i.test(u)).slice(0, 25)) }])), idx: Object.keys(IDX).length };
 const res = {}; let i = 0; let rawDone = false;
 const t0 = Date.now();
 async function worker() { while (i < todo.length && Date.now() - t0 < 40 * 60e3) { const t = todo[i++]; res[t.k] = await one(t); } }
