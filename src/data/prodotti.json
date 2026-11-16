@@ -99,7 +99,8 @@
   "prezzo": 53700,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/41048831_DCF900P2T_QW.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCF900P2T_1_1280.webp"
  },
  {
   "id": 3666,
@@ -161,7 +162,8 @@
   "prezzo": 58500,
   "volt": "54V",
   "immagineOrigine": "http://semistore.it/public/icona/3298587_59319705_elettrosega-54v-flexvolt-con-barra-40cm-dcm575x1.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCM575X1_1_1280.webp"
  },
  {
   "id": 3712,
@@ -209,7 +211,8 @@
   "prezzo": 56500,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/58655947_KIT-DCK2050E2T-QW.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCK2050E2T_K1_1280.webp"
  },
  {
   "id": 3715,
@@ -273,7 +276,8 @@
   "prezzo": 49000,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/43069094_DCS438E2T.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCS438E2T_1_1280.webp"
  },
  {
   "id": 3662,
@@ -311,7 +315,8 @@
   "prezzo": 8900,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/32937259_MISURATORE-LASER-30M-DWHT77100-XJ.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWHT77100_1_1280.webp"
  },
  {
   "id": 3700,
@@ -622,7 +627,8 @@
   "prezzo": 17000,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/72513979_tower-kit-con%20cuote-dwst83517-1-tstak.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWST83517-1_1_1280.webp"
  },
  {
   "id": 3696,
@@ -725,7 +731,8 @@
   "prezzo": 122000,
   "volt": "54V",
   "immagineOrigine": "http://semistore.it/public/icona/48943728_DCS691X2_1.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCS691X2_1_1280.webp"
  },
  {
   "id": 3732,
