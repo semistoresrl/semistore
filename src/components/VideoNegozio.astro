@@ -17,15 +17,17 @@ const mappa = GOOGLE.indicazioni;
       <h2>{titolo}</h2>
       <ApertoOra />
       <p>Esposizione completa DEWALT, BLACK+DECKER e STANLEY, laboratorio di riparazione interno e ricambi originali. Passa a provare gli utensili o portaci il tuo in assistenza.</p>
-      <ul class="vn-l">
-        <li><b>Indirizzo</b><span>{SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia})</span></li>
-        <li><b>Telefono</b><span>{SITO.telefono}</span></li>
-        {SITO.orari.length > 0 && <li><b>Orari</b><span>{SITO.orari.map((o) => `${o.giorni} ${o.ore}`).join(' · ')}</span></li>}
-      </ul>
+      <div class="vn-info">
+        <div class="vn-r"><span class="vn-i"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.6" fill="currentColor"/></svg></span><span><small>Indirizzo</small>{SITO.indirizzo}, {SITO.citta} ({SITO.provincia})</span></div>
+        <a class="vn-r" href={`tel:${SITO.telefonoLink}`}><span class="vn-i"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span><small>Telefono</small>{SITO.telefono}</span></a>
+        {SITO.orari.length > 0 && (
+          <div class="vn-r"><span class="vn-i"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span><small>Orari</small>{SITO.orari.map((o) => <span class="vn-o"><b>{o.giorni}</b>{o.ore}</span>)}</span></div>
+        )}
+      </div>
       <div class="vn-b">
-        <a class="btn btn-y" href={mappa} target="_blank" rel="noopener">Indicazioni stradali</a>
-        <a class="btn btn-o" href={`tel:${SITO.telefonoLink}`}>Chiama</a>
-        <a class="btn btn-o" href={GOOGLE.scheda} target="_blank" rel="noopener">Recensioni su Google</a>
+        <a class="vn-a vn-a-y" href={mappa} target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z" fill="currentColor"/></svg><span>Indicazioni</span></a>
+        <a class="vn-a" href={`tel:${SITO.telefonoLink}`}><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Chiama</span></a>
+        <a class="vn-a" href={GOOGLE.scheda} target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="currentColor"/></svg><span>Recensioni</span></a>
       </div>
     </div>
   </div>
@@ -50,9 +52,19 @@ const mappa = GOOGLE.indicazioni;
   .vn-t{display:flex;flex-direction:column;gap:14px}
   .vn-t h2{margin:0;font-size:clamp(32px,4.5vw,52px);line-height:.95;text-transform:uppercase}
   .vn-t p{margin:0;color:#c9cbcf;font-size:16px}
-  .vn-l{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
-  .vn-l li{display:flex;gap:12px;border-left:3px solid var(--y);padding-left:12px;font-size:15px}.vn-l b{min-width:76px;color:#fff}.vn-l span{color:#c9cbcf}
-  .vn-b{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .vn-info{display:flex;flex-direction:column;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:14px;overflow:hidden}
+  .vn-r{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;color:#fff;text-decoration:none}
+  .vn-r+.vn-r{border-top:1px solid #ffffff14}
+  a.vn-r:hover{background:#ffffff0a;color:#fff}
+  .vn-r>span:last-child{display:flex;flex-direction:column;gap:2px;font-size:16px;line-height:1.35}
+  .vn-r small{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9aa0a6}
+  .vn-i{flex:none;width:38px;height:38px;border-radius:10px;background:#f5b8001f;color:var(--y);display:grid;place-items:center}
+  .vn-o{display:flex;gap:10px}.vn-o b{min-width:66px;font-weight:700}
+  .vn-b{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .vn-a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:76px;border-radius:12px;background:#ffffff12;border:1px solid #ffffff1f;color:#fff;font-weight:800;font-size:14px;text-decoration:none;transition:background .15s,transform .15s}
+  .vn-a:hover{background:#ffffff22;color:#fff;transform:translateY(-1px)}
+  .vn-a svg{color:var(--y)}
+  .vn-a-y{background:var(--y);border-color:var(--y);color:var(--ink)}.vn-a-y svg{color:var(--ink)}.vn-a-y:hover{background:var(--y);color:var(--ink);filter:brightness(1.05)}
   .vn-d{border:0;padding:0;background:transparent;width:min(1100px,94vw);max-width:none;overflow:visible}
   .vn-d::backdrop{background:#000d;backdrop-filter:blur(4px)}
   .vn-full{width:100%;aspect-ratio:16/9;display:block;border-radius:14px;background:#000}
