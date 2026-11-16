@@ -126,7 +126,19 @@
   "prezzo": 21300,
   "volt": "18V",
   "immagineOrigine": "http://semistore.it/public/icona/89190310_BATTERIA%20DCB115D3-QW.jpg",
-  "nota": ""
+  "nota": "",
+  "kit": [
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB183_1_1280.webp",
+    "n": "Batteria 18V XR 2Ah DCB183",
+    "q": 3
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB115_1_1280.webp",
+    "n": "Caricabatterie multitensione DCB115",
+    "q": 1
+   }
+  ]
  },
  {
   "id": 3672,
@@ -138,7 +150,19 @@
   "prezzo": 27500,
   "volt": "18V",
   "immagineOrigine": "http://semistore.it/public/icona/77705019_BATTERIE%20DCB115P3-QW.jpg",
-  "nota": ""
+  "nota": "",
+  "kit": [
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB184_1_1280.webp",
+    "n": "Batteria 18V XR 5Ah DCB184",
+    "q": 3
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB115_1_1280.webp",
+    "n": "Caricabatterie multitensione DCB115",
+    "q": 1
+   }
+  ]
  },
  {
   "id": 3693,
@@ -176,7 +200,39 @@
   "prezzo": 101000,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/95650881_kit-dck353p4t-it.jpg",
-  "nota": ""
+  "nota": "",
+  "kit": [
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCH273N_1_1280.webp",
+    "n": "Tassellatore SDS-Plus DCH273",
+    "q": 1
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCD796N_1_1280.webp",
+    "n": "Trapano a percussione DCD796",
+    "q": 1
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCG405N_1_1280.webp",
+    "n": "Smerigliatrice 125 mm DCG405",
+    "q": 1
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB184_1_1280.webp",
+    "n": "Batteria 18V XR 5Ah DCB184",
+    "q": 4
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB115_1_1280.webp",
+    "n": "Caricabatterie DCB115",
+    "q": 2
+   },
+   {
+    "u": "",
+    "n": "Valigette TSTAK",
+    "q": 3
+   }
+  ]
  },
  {
   "id": 3713,
@@ -188,7 +244,34 @@
   "prezzo": 55500,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/95116823_KIT-DCK2153P2T-IT.jpg",
-  "nota": ""
+  "nota": "",
+  "kit": [
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCD796N_1_1280.webp",
+    "n": "Trapano a percussione DCD796",
+    "q": 1
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCG405N_1_1280.webp",
+    "n": "Smerigliatrice 125 mm DCG405",
+    "q": 1
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB184_1_1280.webp",
+    "n": "Batteria 18V XR 5Ah DCB184",
+    "q": 2
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB115_1_1280.webp",
+    "n": "Caricabatterie DCB115",
+    "q": 1
+   },
+   {
+    "u": "",
+    "n": "Valigette TSTAK",
+    "q": 2
+   }
+  ]
  },
  {
   "id": 3736,

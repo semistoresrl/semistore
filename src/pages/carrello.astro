@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import prodotti from '../data/prodotti.json';
 import { fotoDi } from '../data/foto';
 import { SITO } from '../data/sito.js';
-const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.modello, pr: p.prezzo, img: fotoDi(p.slug, 400) || '' }]));
+const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.modello, pr: p.prezzo, img: fotoDi(p.slug, 400) || (p.kit ? p.kit[0].u : '') }]));
 ---
 <Base title="Carrello" noindex>
   <section class="wrap sec">

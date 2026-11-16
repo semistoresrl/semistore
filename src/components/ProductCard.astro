@@ -1,6 +1,7 @@
 ---
 import { euro } from '../data/sito.js';
 import { fotoDi, fotoLocale } from '../data/foto';
+import KitFoto from './KitFoto.astro';
 const { p, eager = false } = Astro.props;
 const img = fotoDi(p.slug, 400);
 const srcset = fotoLocale(p.slug) ? `/img/prodotti/${p.slug}-400.webp 400w, /img/prodotti/${p.slug}-800.webp 800w` : undefined;
@@ -9,7 +10,7 @@ const srcset = fotoLocale(p.slug) ? `/img/prodotti/${p.slug}-400.webp 400w, /img
   <span class="pc-img">
     {img
       ? <img src={img} srcset={srcset} sizes="(max-width:600px) 50vw, 260px" width="400" height="400" alt={p.nome} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager ? 'high' : undefined} />
-      : <span class="mono pc-ph">{p.modello || p.marca}</span>}
+      : p.kit ? <KitFoto pezzi={p.kit} alt={p.nome} /> : <span class="mono pc-ph">{p.modello || p.marca}</span>}
     <span class="pc-tags">{p.volt && <span class="t-k">{p.volt}</span>}<span class="t-w">{p.marca}</span></span>
   </span>
   <span class="pc-b">

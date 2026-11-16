@@ -1,0 +1,21 @@
+---
+// Composizione con le foto ufficiali dei pezzi di un kit (per i kit senza foto propria)
+interface Pezzo { u: string; q?: number; n: string }
+const { pezzi, alt } = Astro.props as { pezzi: Pezzo[]; alt: string };
+---
+<span class={`kit kit-${Math.min(pezzi.filter((x) => x.u).length, 4)}`} role="img" aria-label={`${alt}: ${pezzi.map((x) => (x.q && x.q > 1 ? x.q + '× ' : '') + x.n).join(', ')}`}>
+  {pezzi.filter((x) => x.u).slice(0, 4).map((x) => (
+    <span class="kit-c">
+      <img src={x.u} alt="" loading="lazy" decoding="async" />
+      {x.q && x.q > 1 && <b class="kit-q">{x.q}×</b>}
+    </span>
+  ))}
+</span>
+<style>
+  .kit{display:grid;width:100%;height:100%;gap:6px;grid-template-columns:1fr 1fr}
+  .kit-c{position:relative;display:grid;place-items:center;min-height:0;background:#fff}
+  .kit-c img{width:100%;height:100%;object-fit:contain}
+  .kit-2{grid-template-columns:1fr 1fr;align-items:center}
+  .kit-3 .kit-c:first-child{grid-row:span 2}
+  .kit-q{position:absolute;right:4px;bottom:4px;background:var(--ink);color:var(--y);font-size:12px;font-weight:800;padding:2px 7px;border-radius:4px}
+</style>
