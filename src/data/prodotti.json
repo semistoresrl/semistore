@@ -283,7 +283,30 @@
   "prezzo": 102300,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/63456362_4-attrezzi-2valigie.jpg",
-  "nota": ""
+  "nota": "",
+  "kit": [
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCD996NT_1_1280.webp",
+    "n": "Trapano avvitatore a percussione"
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCH273N_1_1280.webp",
+    "n": "Martello demo-perforatore SDS-Plus"
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCG405N_1_1280.webp",
+    "n": "Smerigliatrice angolare"
+   },
+   {
+    "u": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCF887N_1_1280.webp",
+    "n": "Avvitatore a impulsi"
+   },
+   {
+    "u": "",
+    "n": "Valigette",
+    "q": 2
+   }
+  ]
  },
  {
   "id": 3714,
