@@ -22,7 +22,7 @@ Pagine leggerissime (circa 7–10 KB compressi), nessun jQuery, nessun server da
 3. **Cloudflare** → Workers & Pages → Crea → Pages → collega il repository.
    - Build command: `npm run build` · Output: `dist`
    - Variabili (Settings → Variables, tipo *Secret*): `STRIPE_SECRET_KEY`, `ADMIN_TOKEN` (stringa lunga a caso), facoltative `RESEND_API_KEY`, `EMAIL_TO`, `EMAIL_FROM`
-   - Settings → Bindings → KV namespace: nome `RICHIESTE` (creane uno nuovo)
+   - Settings → Bindings → KV namespace: nome variabile `RICHIESTE` (creane uno nuovo). La configurazione è tutta nel pannello: nel repository non c'è wrangler.toml apposta
 4. Prova tutto su `semistore.pages.dev` (con carta di test Stripe 4242 4242 4242 4242).
 5. **Cambio dominio**: Pages → Custom domains → aggiungi `semistore.it` e `www.semistore.it`. Cloudflare sostituisce i vecchi record A e attiva HTTPS da solo in pochi minuti.
    - NON toccare i record **MX** e **TXT (SPF)**: servono all'email.
