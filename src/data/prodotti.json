@@ -3164,8 +3164,7 @@
 "Caricabatterie: non incluso",
 "Alimentazione: batteria 12V",
 "Torcia LED a batteria con testa rotante",
-"Senza batterie e caricabatteria in scatola di cartone",
-"BATTERIE E CARICABATTERIE BATTERIE"
+"Senza batterie e caricabatteria in scatola di cartone"
 ],
 "dotazione": "Solo corpo macchina. Batterie e caricabatterie non incluse",
 "disponibilita": "conferma",
@@ -4016,8 +4015,7 @@
 "Reversibile",
 "Peso 1,75 kg",
 "In valigetta TSTAK",
-"Senza batterie e caricabatterie",
-"TRAPANO MAGNETICO"
+"Senza batterie e caricabatterie"
 ],
 "dotazione": "Utensile solo corpo, valigetta TSTAK (batterie e caricabatterie non inclusi)",
 "disponibilita": "conferma",
@@ -4667,8 +4665,7 @@
 "3: Bassa velocità 0-1400 giri/min",
 "4: Alta velocità 0-2500 Giri/min)",
 "Peso solo corpo 1,1 kg",
-"In valigetta TSTAK senza batterie e caricabatteria",
-"AVVITATORI A IMPULSI ATTACCO 3/4\""
+"In valigetta TSTAK senza batterie e caricabatteria"
 ],
 "dotazione": "Solo corpo macchina, valigetta TSTAK. Batterie e caricabatterie non incluse",
 "disponibilita": "conferma",
@@ -5565,8 +5562,7 @@
 "Scarpa pivotante",
 "Luce LED",
 "Peso 1,4 kg",
-"In valigetta TSTAK senza batterie e caricabatterie",
-"SEGHE E SEGHETTI"
+"In valigetta TSTAK senza batterie e caricabatterie"
 ],
 "dotazione": "Solo corpo macchina, valigetta TSTAK. Batterie e caricabatterie non incluse",
 "disponibilita": "conferma",
@@ -6645,7 +6641,8 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCN8903",
-"Tipologia: Accessorio originale per elettroutensili"
+"Tipologia: Accessorio originale per elettroutensili",
+"Pezzi: 4"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -6789,14 +6786,15 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCN8901030_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Consumabili originali per chiodatrici e fissaggi",
-"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: misura 30 mm. Confezione da 1005 pezzi.",
+"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: misura 30 mm, peso 0,01 kg. Confezione da 1005 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCN8901030",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
 "Pezzi per confezione: 1005",
 "Misura: 30 mm",
-"Pezzi: 1005"
+"Pezzi: 1005",
+"Peso: 0,01 kg"
 ],
 "dotazione": "1005 pezzi",
 "disponibilita": "conferma",
@@ -7069,14 +7067,15 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCN8903048_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Consumabili originali per chiodatrici e fissaggi",
-"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: misura 48 mm. Confezione da 510 pezzi.",
+"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: misura 48 mm, peso 0,01 kg. Confezione da 510 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCN8903048",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
 "Pezzi per confezione: 510",
 "Misura: 48 mm",
-"Pezzi: 510"
+"Pezzi: 510",
+"Peso: 0,01 kg"
 ],
 "dotazione": "510 pezzi",
 "disponibilita": "conferma",
@@ -7542,7 +7541,6 @@
 "Protezione IP55",
 "Peso solo corpo 7,4 kg",
 "Senza batterie e caricabatteria in scatola di cartone",
-"SOLLEVATORE E VUOTO",
 "Tensione: 18 V",
 "Lumen: 3000"
 ],
@@ -8007,7 +8005,8 @@
 "Caricabatterie: non incluso",
 "Valigetta: TSTAK",
 "Taglia barre filettate XR 18V",
-"Taglienti M6-M12"
+"Taglienti M6-M12",
+"Motore: Brushless (senza spazzole)"
 ],
 "dotazione": "In valigetta TSTAK senza batterie e caricabatterie",
 "disponibilita": "conferma",
@@ -8163,8 +8162,7 @@
 "Quadrante digitale",
 "Peso 2,7 kg",
 "Batteria non inclusa",
-"Senza batterie e caricabatteria in scatola di cartone",
-"RADIO DA CANTIERE"
+"Senza batterie e caricabatteria in scatola di cartone"
 ],
 "dotazione": "Solo corpo macchina. Batterie e caricabatterie non incluse",
 "disponibilita": "conferma",
@@ -8210,9 +8208,7 @@
 "Porta audio AUX 3,5 mm per connessione di dispositivi portatili per ascolto di file musicali",
 "Porta USB 2,1A per utilizzo e caricamento di dispositvi esterni",
 "Alimentazione a filo o con batterie XR Litio",
-"Peso 7,2 kg",
-"UTENSILI DA GIARDINO A BATTERIA XR LITIO",
-"PIATTAFORMA UTENSILI DA GIARDINO"
+"Peso 7,2 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -8895,12 +8891,11 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT20650_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Ricambio originale per macchine da giardino",
-"descrizione": "Ricambio e accessorio originale per macchine da giardino. Dati principali: dCMST561.\n\nRicambio originale che mantiene le prestazioni della macchina come il primo giorno.",
+"descrizione": "Ricambio e accessorio originale per macchine da giardino.\n\nRicambio originale che mantiene le prestazioni della macchina come il primo giorno.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20650",
 "Tipologia: Ricambio originale per macchine da giardino",
-"DCMST561",
 "Filo nylon 2 mm x 15,2 m DCM571"
 ],
 "dotazione": "",
@@ -9010,13 +9005,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCBP034G_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Batteria al litio originale con indicatore di carica",
-"descrizione": "Batteria al litio originale, compatibile con tutti gli utensili della stessa piattaforma, con indicatore del livello di carica. Dati principali: capacità batteria 1,7 Ah.",
+"descrizione": "Batteria al litio originale, compatibile con tutti gli utensili della stessa piattaforma, con indicatore del livello di carica. Dati principali: capacità batteria 1,7 Ah, peso 0,31 kg, larghezza 6,5 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCBP034G",
 "Tipologia: Batteria al litio originale con indicatore di carica",
 "Tensione: 18 V",
 "Capacità batteria: 1,7 Ah",
+"Lunghezza: 10,69 cm",
+"Peso: 0,31 kg",
+"Larghezza: 6,5 cm",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "",
@@ -9237,13 +9235,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB184G_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Batteria al litio originale con indicatore di carica",
-"descrizione": "Batteria al litio originale, compatibile con tutti gli utensili della stessa piattaforma, con indicatore del livello di carica. Dati principali: capacità batteria 5,0 Ah.\n\nPiattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT.",
+"descrizione": "Batteria al litio originale, compatibile con tutti gli utensili della stessa piattaforma, con indicatore del livello di carica. Dati principali: capacità batteria 5,0 Ah, peso 0,67 kg, larghezza 7,9 cm.\n\nPiattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCB184G",
 "Tipologia: Batteria al litio originale con indicatore di carica",
 "Tensione: 18 V",
 "Capacità batteria: 5,0 Ah",
+"Lunghezza: 12,09 cm",
+"Peso: 0,67 kg",
+"Larghezza: 7,9 cm",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "",
@@ -9278,16 +9279,14 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB104_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Caricabatterie originale per batterie al litio",
-"descrizione": "Caricabatterie originale per batterie al litio, con ricarica sicura e indicatori di stato. Dati principali: per batterie da 12V, 14,4V 14,4V, 54V fino a 5 Ah.\n\nRicarica rapida e sicura delle batterie originali, con protezione da surriscaldamento e indicatori di stato.",
+"descrizione": "Caricabatterie originale per batterie al litio, con ricarica sicura e indicatori di stato. Dati principali: per batterie da 12V, 54V fino a 5 Ah.\n\nRicarica rapida e sicura delle batterie originali, con protezione da surriscaldamento e indicatori di stato.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCB104",
 "Tipologia: Caricabatterie originale per batterie al litio",
 "Caricabatterie universale XR Litio",
 "Per batterie da 12V",
-"14,4V 14,4V",
-"54V fino a 5 Ah",
-"PIATTAFORMA MARTELLI DEMOPERFORATORI SDS-MAX"
+"54V fino a 5 Ah"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -10181,7 +10180,6 @@
 "Lunghezza corsa 28,6 mm",
 "Aggancio rapido della lama in 2 posizioni",
 "In valigetta TSTAK senza batterie e caricabatterie",
-"SEGHE CIRCOLARI E AD AFFONDAMENTO",
 "Motore: Brushless (senza spazzole)"
 ],
 "dotazione": "Solo corpo macchina, valigetta TSTAK. Batterie e caricabatterie non incluse",
@@ -10654,7 +10652,8 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20663",
-"Tipologia: Ricambio originale per macchine da giardino"
+"Tipologia: Ricambio originale per macchine da giardino",
+"Materiale: acciaio"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -11575,13 +11574,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DE0735_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Accessorio per livelle e tracciatori laser",
-"descrizione": "Accessorio per livelle e strumenti laser. Dati principali: attacco 5/8\".\n\nAccessorio originale per sfruttare al meglio livelle laser e tracciatori in cantiere.",
+"descrizione": "Accessorio per livelle e strumenti laser. Dati principali: attacco 5/8\", larghezza 20,32 cm, peso 5,22 kg.\n\nAccessorio originale per sfruttare al meglio livelle laser e tracciatori in cantiere.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DE0735",
 "Tipologia: Accessorio per livelle e tracciatori laser",
 "• • • • • Treppiede telescopico in alluminio con altezza max di 3 metri",
-"Attacco 5/8\""
+"Attacco 5/8\"",
+"Lunghezza: 124,46 cm",
+"Larghezza: 20,32 cm",
+"Peso: 5,22 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -11684,11 +11686,12 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DE0737_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Accessorio per livelle e tracciatori laser",
-"descrizione": "Accessorio per livelle e strumenti laser.",
+"descrizione": "Accessorio per livelle e strumenti laser. Dati principali: peso 0,45 kg.\n\nAccessorio originale per sfruttare al meglio livelle laser e tracciatori in cantiere.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DE0737",
-"Tipologia: Accessorio per livelle e tracciatori laser"
+"Tipologia: Accessorio per livelle e tracciatori laser",
+"Peso: 0,45 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -11769,11 +11772,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DE0730_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Tracciamento laser di linee e piani di riferimento",
-"descrizione": "Livella laser per tracciare linee orizzontali, verticali e piani di riferimento perfettamente in bolla.\n\nProietta linee e piani di riferimento per allineare, livellare e mettere in squadra con precisione.",
+"descrizione": "Livella laser per tracciare linee orizzontali, verticali e piani di riferimento perfettamente in bolla. Dati principali: larghezza 12,7 cm, peso 0,07 kg.\n\nProietta linee e piani di riferimento per allineare, livellare e mettere in squadra con precisione.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DE0730",
-"Tipologia: Tracciamento laser di linee e piani di riferimento"
+"Tipologia: Tracciamento laser di linee e piani di riferimento",
+"Colore laser: rosso",
+"Magnetico: sì",
+"Lunghezza: 22,86 cm",
+"Larghezza: 12,7 cm",
+"Peso: 0,07 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -12382,7 +12390,6 @@
 "Energia del colpo (EPTA) 2,0 J",
 "Velocità a vuoto 0-1550 giri/min",
 "Frequenza 0-5680 percussioni/min",
-"ROTOSTOP",
 "Peso 2,5 kg"
 ],
 "dotazione": "Impugnatura laterale orientabile, Stop di profondità, Valigetta TSTAK",
@@ -12433,8 +12440,7 @@
 "Velocità a vuoto 0-820 giri/min",
 "Frequenza 0-4700 percussioni/min",
 "Sistema antivibrazioni attivo (AVC)",
-"Peso 4,2 kg",
-"ROTOSTOP"
+"Peso 4,2 kg"
 ],
 "dotazione": "Impugnatura laterale antivibrazione orientabile, Stop di profondità, valigetta SCALPELLATORE ELETTROPNEUMATICO SDS PLUS",
 "disponibilita": "conferma",
@@ -15605,7 +15611,8 @@
 "Tipologia: Accessorio per il banco di lavoro",
 "• • • • • • • • • Cavalletto di supporto universale lungo 1,70Mt",
 "Estendibile con prolunghe fino 3,83Mt",
-"In dotazione coppia di staffe e supporti poggiapezzo"
+"In dotazione coppia di staffe e supporti poggiapezzo",
+"Materiale: alluminio"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -15645,7 +15652,8 @@
 "Tipologia: Accessorio per il banco di lavoro",
 "• • • • • • • • • Cavalletto di supporto universale lungo 1,1Mt",
 "Estendibile con prolunghe fino a 2,50Mt",
-"In dotazione coppia di staffe e supporti poggiapezzo"
+"In dotazione coppia di staffe e supporti poggiapezzo",
+"Materiale: alluminio"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -15808,7 +15816,8 @@
 "Codice articolo: DE7778",
 "Tipologia: Set di accessori per forare e avvitare",
 "• • • Set di aspirazione a 3 vie",
-"Attacco Ø 35 mm"
+"Attacco Ø 35 mm",
+"Pezzi: 11"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -16085,11 +16094,14 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWV9470_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Aspirazione di polveri e liquidi per cantiere e officina",
-"descrizione": "Aspiratore per polveri e liquidi da cantiere e officina, con filtrazione efficace e potenza di aspirazione costante.\n\nAspirazione efficace di polveri e detriti per lavorare puliti e in sicurezza.",
+"descrizione": "Aspiratore per polveri e liquidi da cantiere e officina, con filtrazione efficace e potenza di aspirazione costante. Dati principali: peso 1,81 kg, larghezza 34,62 cm.\n\nAspirazione efficace di polveri e detriti per lavorare puliti e in sicurezza.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWV9470",
-"Tipologia: Aspirazione di polveri e liquidi per cantiere e officina"
+"Tipologia: Aspirazione di polveri e liquidi per cantiere e officina",
+"Lunghezza: 35,26 cm",
+"Peso: 1,81 kg",
+"Larghezza: 34,62 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -16410,7 +16422,6 @@
 "Adatto per aspirare polveri e sporco grossolano",
 "Rimozione del 99.995% delle polveri dannose per la salute",
 "Con valori limite di esposizione professionale < 0,1 mg/m³",
-"NON IDONEO ALL’ASPIRAZIONE DI AMIANTO",
 "Classe di protezione IPX4",
 "Capacità serbatorio max 38 litri",
 "Capacità serbatorio max liquidi 18.4litri",
@@ -16452,13 +16463,15 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWV9350_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Più utensili in un unico kit conveniente",
-"descrizione": "Kit di utensili a batteria che condividono la stessa piattaforma: compri le batterie una volta sola e le usi su tutti gli utensili.\n\nUtensili professionali abbinati in un unico kit, con batterie e caricabatterie condivisi.",
+"descrizione": "Kit di utensili a batteria che condividono la stessa piattaforma: compri le batterie una volta sola e le usi su tutti gli utensili. Dati principali: peso 1,42 kg, larghezza 17,15 cm.\n\nUtensili professionali abbinati in un unico kit, con batterie e caricabatterie condivisi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWV9350",
 "Tipologia: Più utensili in un unico kit conveniente",
 "• • • Kit pulizia pavimenti (2 tubi in metallo, bocchetta per fessure, spazzola per pavimenti) ADATTATORI",
-"TUBI E BOCCHETTE"
+"Lunghezza: 55,25 cm",
+"Peso: 1,42 kg",
+"Larghezza: 17,15 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -16492,14 +16505,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWV9401_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Ricambio originale per aspiratori",
-"descrizione": "Ricambio e accessorio per aspiratori, per mantenere potenza di aspirazione e filtrazione al massimo. Dati principali: confezione da 5 pz. Confezione da 5 pezzi.",
+"descrizione": "Ricambio e accessorio per aspiratori, per mantenere potenza di aspirazione e filtrazione al massimo. Dati principali: confezione da 5 pz, peso 0,58 kg, larghezza 21,59 cm. Confezione da 5 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWV9401",
 "Tipologia: Ricambio originale per aspiratori",
 "Pezzi per confezione: 5",
 "• • • Sacchetti di carta raccogli-polvere",
-"Confezione da 5 pz"
+"Confezione da 5 pz",
+"Lunghezza: 34,29 cm",
+"Peso: 0,58 kg",
+"Larghezza: 21,59 cm"
 ],
 "dotazione": "5 pezzi",
 "disponibilita": "conferma",
@@ -16528,14 +16544,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWV9402_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Ricambio originale per aspiratori",
-"descrizione": "Ricambio e accessorio per aspiratori, per mantenere potenza di aspirazione e filtrazione al massimo. Dati principali: confezione da 5 pz. Confezione da 5 pezzi.",
+"descrizione": "Ricambio e accessorio per aspiratori, per mantenere potenza di aspirazione e filtrazione al massimo. Dati principali: confezione da 5 pz, peso 0,46 kg, larghezza 34,29 cm. Confezione da 5 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWV9402",
 "Tipologia: Ricambio originale per aspiratori",
 "Pezzi per confezione: 5",
 "• • • Sacchetti in tessuto raccogli-polvere",
-"Confezione da 5 pz"
+"Confezione da 5 pz",
+"Lunghezza: 45,4 cm",
+"Peso: 0,46 kg",
+"Larghezza: 34,29 cm"
 ],
 "dotazione": "5 pezzi",
 "disponibilita": "conferma",
@@ -16636,7 +16655,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWV9130_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Accessorio originale per elettroutensili",
-"descrizione": "Accessorio originale che amplia le possibilità di impiego dell'utensile. Dati principali: adatto per bocchette di aspirazione di DW624/5E/6, dW621, d26204K.",
+"descrizione": "Accessorio originale che amplia le possibilità di impiego dell'utensile. Dati principali: adatto per bocchette di aspirazione di DW624/5E/6, dW621, d26441.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWV9130",
@@ -16644,13 +16663,9 @@
 "Adattatore univesale per connessione con tubi da 35 mm",
 "Adatto per bocchette di aspirazione di: DW624/5E/6",
 "DW621",
-"D26204K",
-"DW744/5",
 "D26441",
-"D26420/1/2/3",
 "D26453",
-"D26410",
-"D25301D"
+"D26410"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -17173,7 +17188,6 @@
 "Marca: DEWALT",
 "Codice articolo: DWST83345-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
-"TSTAK II",
 "Unità porta elettroutensili",
 "Spugna interna pretagliata",
 "Cerniere per aggancio laterale",
@@ -17225,7 +17239,6 @@
 "Marca: DEWALT",
 "Codice articolo: DWST83346-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
-"TSTAK IV",
 "Unità profonda porta elettroutensili con vasca portaoggetti amovibile",
 "Cerniere per aggancio laterale",
 "Con cerniere di chiusura in metallo e guarnizione a protezione da umidità e polvere (IP54)",
@@ -17416,8 +17429,8 @@
 "Marca: DEWALT",
 "Codice articolo: DWST1-71196",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
-"TSTAK TROLLEY",
-"MISURE: 490x700x285 mm MAX CAPACITÀ DI CARICO: 100 kg MAX PORTATA SU GRADINI: 50 kg"
+"MISURE: 490x700x285 mm MAX CAPACITÀ DI CARICO: 100 kg MAX PORTATA SU GRADINI: 50 kg",
+"Materiale: plastica"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -17456,7 +17469,6 @@
 "Marca: DEWALT",
 "Codice articolo: DWST1-71229",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
-"TSTAK CART",
 "Unità per trasporto sistema TSTAK dotata di 4 ruote orientabili a 360° di cui 2 munite di freno",
 "Cerniere per aggancio laterale",
 "SPESSORE MATERIALE: 2,8 mm",
@@ -17500,7 +17512,6 @@
 "Marca: DEWALT",
 "Codice articolo: DWST83395-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
-"TSTAK COMBO II+IV",
 "Combinazione unità porta elettroutensili TSTAK II + unità doppio cassetto TSTAK IV SPESSORE MATERIALE: 2,8 mm",
 "MISURE: 440x332x326 mm",
 "MAX VOLUME DI CARICO: 21,5 L",
@@ -17549,7 +17560,6 @@
 "Marca: DEWALT",
 "Codice articolo: DWST83517-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
-"TSTAK TOWER",
 "Combinazione di TSTAK Vasca con ruote (DWST83347-1) + TSTAK IV",
 "Unità profonda con vasca amovibile (DWST83346-1) + TSTAK II",
 "Unità porta elettroutensili senza spugna interna pretagliata",
@@ -17592,7 +17602,6 @@
 "Marca: DEWALT",
 "Codice articolo: DWST83411-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
-"TSTAK TOWER I",
 "Kit composto da TSTAK Vasca con ruote e Impugnatura telescopica + TSTAK V + TSTAK I"
 ],
 "dotazione": "",
@@ -17899,13 +17908,18 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWST83529-1_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Trasporto e organizzazione di utensili e accessori",
-"descrizione": "Sistema di trasporto e organizzazione robusto e componibile, che tiene in ordine utensili e minuteria dal furgone al cantiere.",
+"descrizione": "Sistema di trasporto e organizzazione robusto e componibile, che tiene in ordine utensili e minuteria dal furgone al cantiere. Dati principali: numero di cassetti 2, larghezza 0,0 cm, peso 0,0 kg.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWST83529-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
 "Cassetta porta utensili con doppio cassetto",
-"In polietilene ad alta desnità con cerniere di chiusura in metallo"
+"In polietilene ad alta desnità con cerniere di chiusura in metallo",
+"Materiale: plastica",
+"Numero di cassetti: 2",
+"Lunghezza: 0,0 cm",
+"Larghezza: 0,0 cm",
+"Peso: 0,0 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -17945,7 +17959,8 @@
 "Codice articolo: DWST83408-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
 "Unità vassoio interno fondo",
-"Contenitore porta utensili es accessori"
+"Contenitore porta utensili es accessori",
+"Materiale: plastica"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -17985,7 +18000,8 @@
 "Codice articolo: DWST83407-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
 "Unità vassoio interno bassi",
-"Contenitore porta utensili es accessori"
+"Contenitore porta utensili es accessori",
+"Materiale: plastica"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -18025,7 +18041,6 @@
 "Codice articolo: DWST83295-1",
 "Tipologia: Trasporto e organizzazione di utensili e accessori",
 "DS450",
-"VASCA CON RUOTE",
 "Schiuma strutturale di polipropilene espanso",
 "Livello di protezione acqua e polvere (IP65)",
 "Asola per chiusura a lucchetto",
@@ -18466,7 +18481,8 @@
 "Codice articolo: DT6691",
 "Tipologia: Punte per cemento e muratura",
 "Diametro: 14 mm",
-"Lunghezza: 200 mm"
+"Lunghezza: 200 mm",
+"Materiale: metallo duro"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -20181,7 +20197,8 @@
 "Codice articolo: DT60301",
 "Tipologia: Punte SDS-Plus per calcestruzzo e muratura",
 "Pezzi per confezione: 5",
-"Attacco: SDS-Plus"
+"Attacco: SDS-Plus",
+"Pezzi: 5"
 ],
 "dotazione": "5 pezzi",
 "disponibilita": "conferma",
@@ -20260,7 +20277,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT60330",
 "Tipologia: Scalpelli per tassellatori e demolitori",
-"Attacco: SDS-Plus"
+"Attacco: SDS-Plus",
+"Pezzi: 3"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -20292,7 +20310,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT8909_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Punte SDS-Plus per calcestruzzo e muratura",
-"descrizione": "Punta SDS-Plus per forare calcestruzzo, mattoni e pietra con tassellatori e martelli perforatori. Questo modello (DT8909) ha diametro 5 mm, lunghezza totale 210 mm.\n\nTesta in metallo duro per forare rapidamente calcestruzzo, cemento e muratura con i tassellatori SDS-Plus.",
+"descrizione": "Punta SDS-Plus per forare calcestruzzo, mattoni e pietra con tassellatori e martelli perforatori. Questo modello (DT8909) ha diametro 5 mm, lunghezza totale 210 mm. Inoltre: larghezza 4,32 cm, peso 0,03 kg.\n\nTesta in metallo duro per forare rapidamente calcestruzzo, cemento e muratura con i tassellatori SDS-Plus.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT8909",
@@ -20300,7 +20318,10 @@
 "Diametro: 5 mm",
 "Lunghezza totale: 210 mm",
 "Lunghezza utile: 150 mm",
-"Attacco: SDS-Plus"
+"Attacco: SDS-Plus",
+"Lunghezza: 11,94 cm",
+"Larghezza: 4,32 cm",
+"Peso: 0,03 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -21300,13 +21321,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT6806_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Scalpelli per tassellatori e demolitori",
-"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: dimensioni 40×200 mm.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
+"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: dimensioni 40×200 mm, larghezza 12,19 cm, peso 0,15 kg.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT6806",
 "Tipologia: Scalpelli per tassellatori e demolitori",
 "Attacco: SDS-Plus",
-"Dimensioni: 40×200 mm"
+"Dimensioni: 40×200 mm",
+"Lunghezza: 82,55 cm",
+"Larghezza: 12,19 cm",
+"Peso: 0,15 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -21377,13 +21401,14 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT6979_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Scalpelli per tassellatori e demolitori",
-"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: dimensioni 250×20 mm.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
+"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: dimensioni 250×20 mm, peso 0,37 kg.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT6979",
 "Tipologia: Scalpelli per tassellatori e demolitori",
 "Attacco: SDS-Plus",
-"Dimensioni: 250×20 mm"
+"Dimensioni: 250×20 mm",
+"Peso: 0,37 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -22216,13 +22241,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT6927_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Scalpelli per tassellatori e demolitori",
-"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: misura 28 mm.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
+"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: misura 28 mm, larghezza 11,43 cm, peso 0,9 kg.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT6927",
 "Tipologia: Scalpelli per tassellatori e demolitori",
 "Attacco: esagonale",
-"Misura: 28 mm"
+"Misura: 28 mm",
+"Materiale: acciaio",
+"Lunghezza: 11,43 cm",
+"Larghezza: 11,43 cm",
+"Peso: 0,9 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -22260,7 +22289,8 @@
 "Codice articolo: DT6929",
 "Tipologia: Scalpelli per tassellatori e demolitori",
 "Attacco: esagonale",
-"Misura: 28 mm"
+"Misura: 28 mm",
+"Materiale: acciaio"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -22444,13 +22474,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT8087_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Scalpelli per tassellatori e demolitori",
-"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: misura 600 mm.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
+"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: misura 600 mm, larghezza 6,35 cm, peso 0,91 kg.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT8087",
 "Tipologia: Scalpelli per tassellatori e demolitori",
 "Attacco: SDS-Max",
-"Misura: 600 mm"
+"Misura: 600 mm",
+"Lunghezza: 11,94 cm",
+"Larghezza: 6,35 cm",
+"Peso: 0,91 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -22558,13 +22591,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT8088_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Scalpelli per tassellatori e demolitori",
-"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: dimensioni 25×600 mm.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
+"descrizione": "Scalpello per demolitori e tassellatori: rimozione di piastrelle, intonaco, massetti e muratura. Dati principali: dimensioni 25×600 mm, larghezza 11,94 cm, peso 0,52 kg.\n\nAcciaio temprato per tracce, demolizioni e rimozione di piastrelle e intonaci. Accessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT8088",
 "Tipologia: Scalpelli per tassellatori e demolitori",
 "Attacco: SDS-Max",
-"Dimensioni: 25×600 mm"
+"Dimensioni: 25×600 mm",
+"Lunghezza: 171,45 cm",
+"Larghezza: 11,94 cm",
+"Peso: 0,52 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -22677,7 +22713,9 @@
 "Marca: DEWALT",
 "Codice articolo: DT9000",
 "Tipologia: Scalpelli per tassellatori e demolitori",
-"Attacco: SDS-Max"
+"Attacco: SDS-Max",
+"Pezzi: 2",
+"Materiale: acciaio"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -22979,7 +23017,8 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT7002",
-"Tipologia: Accessorio originale per elettroutensili"
+"Tipologia: Accessorio originale per elettroutensili",
+"Uso: standard"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -23009,12 +23048,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT6830_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Accessorio originale per elettroutensili",
-"descrizione": "Accessorio originale che amplia le possibilità di impiego dell'utensile.",
+"descrizione": "Accessorio originale che amplia le possibilità di impiego dell'utensile. Dati principali: larghezza 68,58 cm, peso 0,06 kg.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT6830",
 "Tipologia: Accessorio originale per elettroutensili",
-"Attacco: SDS-Max"
+"Attacco: SDS-Max",
+"Materiale: metallo duro",
+"Lunghezza: 12,7 cm",
+"Larghezza: 68,58 cm",
+"Peso: 0,06 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -23044,12 +23087,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT7030_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Accessorio originale per elettroutensili",
-"descrizione": "Accessorio originale che amplia le possibilità di impiego dell'utensile.",
+"descrizione": "Accessorio originale che amplia le possibilità di impiego dell'utensile. Dati principali: larghezza 6,35 cm, peso 0,02 kg.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT7030",
 "Tipologia: Accessorio originale per elettroutensili",
-"Attacco: SDS-Plus"
+"Attacco: SDS-Plus",
+"Uso: standard",
+"Lunghezza: 22,86 cm",
+"Larghezza: 6,35 cm",
+"Peso: 0,02 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -23666,7 +23713,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT5041_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Punte per metallo in acciaio HSS",
-"descrizione": "Punta per forare acciaio, ferro, metalli non ferrosi e plastica con fori precisi e puliti. Questo modello (DT5041) ha diametro 3,5 mm, lunghezza totale 70 mm. Confezione da 2 pezzi.\n\nAccessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
+"descrizione": "Punta per forare acciaio, ferro, metalli non ferrosi e plastica con fori precisi e puliti. Questo modello (DT5041) ha diametro 3,5 mm, lunghezza totale 70 mm. Inoltre: larghezza 19,56 cm, peso 0,01 kg. Confezione da 2 pezzi.\n\nAccessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT5041",
@@ -23674,7 +23721,12 @@
 "Diametro: 3,5 mm",
 "Lunghezza totale: 70 mm",
 "Lunghezza utile: 39 mm",
-"Pezzi per confezione: 2"
+"Pezzi per confezione: 2",
+"Pezzi: 2",
+"Uso: standard",
+"Lunghezza: 1,27 cm",
+"Larghezza: 19,56 cm",
+"Peso: 0,01 kg"
 ],
 "dotazione": "2 pezzi",
 "disponibilita": "conferma",
@@ -26041,12 +26093,14 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90296_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90296) ha diametro 16 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90296) ha diametro 16 mm. Inoltre: larghezza 1,98 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90296",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 16 mm"
+"Diametro: 16 mm",
+"Lunghezza: 5,08 cm",
+"Larghezza: 1,98 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26155,12 +26209,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90331_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90331) ha diametro 79 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90331) ha diametro 79 mm. Inoltre: larghezza 5,61 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90331",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 79 mm"
+"Diametro: 79 mm",
+"Materiale lama: bimetallico",
+"Materiale: bimetallico",
+"Lunghezza: 10,08 cm",
+"Larghezza: 5,61 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26193,12 +26251,14 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90304_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90304) ha diametro 27 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90304) ha diametro 27 mm. Inoltre: larghezza 3,88 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90304",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 27 mm"
+"Diametro: 27 mm",
+"Lunghezza: 6,52 cm",
+"Larghezza: 3,88 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26231,12 +26291,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90305_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90305) ha diametro 29 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90305) ha diametro 29 mm. Inoltre: larghezza 3,88 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90305",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 29 mm"
+"Diametro: 29 mm",
+"Materiale lama: bimetallico",
+"Materiale: bimetallico",
+"Lunghezza: 6,52 cm",
+"Larghezza: 3,88 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26269,12 +26333,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90333_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90333) ha diametro 86 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90333) ha diametro 86 mm. Inoltre: peso 0,28 kg, larghezza 9,14 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90333",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 86 mm"
+"Diametro: 86 mm",
+"Materiale lama: bimetallico",
+"Materiale: bimetallico",
+"Lunghezza: 11,68 cm",
+"Peso: 0,28 kg",
+"Larghezza: 9,14 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26307,12 +26376,14 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90334_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90334) ha diametro 89 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90334) ha diametro 89 mm. Inoltre: larghezza 5,61 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90334",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 89 mm"
+"Diametro: 89 mm",
+"Lunghezza: 10,08 cm",
+"Larghezza: 5,61 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26345,12 +26416,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90338_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90338) ha diametro 102 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90338) ha diametro 102 mm. Inoltre: peso 0,39 kg, larghezza 5,84 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90338",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 102 mm"
+"Diametro: 102 mm",
+"Materiale lama: bimetallico",
+"Materiale: bimetallico",
+"Lunghezza: 11,94 cm",
+"Peso: 0,39 kg",
+"Larghezza: 5,84 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26383,12 +26459,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90342_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90342) ha diametro 114 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90342) ha diametro 114 mm. Inoltre: peso 0,5 kg, larghezza 5,84 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90342",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 114 mm"
+"Diametro: 114 mm",
+"Materiale lama: bimetallico",
+"Materiale: bimetallico",
+"Lunghezza: 11,94 cm",
+"Peso: 0,5 kg",
+"Larghezza: 5,84 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26421,12 +26502,15 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90344_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90344) ha diametro 127 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90344) ha diametro 127 mm. Inoltre: peso 0,64 kg, larghezza 5,72 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90344",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 127 mm"
+"Diametro: 127 mm",
+"Lunghezza: 15,95 cm",
+"Peso: 0,64 kg",
+"Larghezza: 5,72 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26459,12 +26543,14 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90320_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90320) ha diametro 54 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT90320) ha diametro 54 mm. Inoltre: larghezza 5,94 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90320",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 54 mm"
+"Diametro: 54 mm",
+"Lunghezza: 7,3 cm",
+"Larghezza: 5,94 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26502,7 +26588,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT8266",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 177 mm"
+"Diametro: 177 mm",
+"Materiale: bimetallico"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -26539,7 +26626,9 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90400",
-"Tipologia: Fori di grande diametro per impianti"
+"Tipologia: Fori di grande diametro per impianti",
+"Materiale lama: metallo duro",
+"Materiale: metallo duro"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -27353,12 +27442,19 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT7520_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Inserti e accessori per avvitatura",
-"descrizione": "Inserti e accessori per avvitare in modo sicuro, senza far scivolare l'inserto sulla testa della vite. Dati principali: cartongesso (5 pezzi).\n\nInserti in acciaio resistente alle sollecitazioni di avvitatori e avvitatori a impulsi, per una presa sicura sulla vite.",
+"descrizione": "Inserti e accessori per avvitare in modo sicuro, senza far scivolare l'inserto sulla testa della vite. Dati principali: cartongesso (5 pezzi), larghezza 0,12 cm, peso 0,02 kg.\n\nInserti in acciaio resistente alle sollecitazioni di avvitatori e avvitatori a impulsi, per una presa sicura sulla vite.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT7520",
 "Tipologia: Inserti e accessori per avvitatura",
-"Cartongesso (5 pezzi)"
+"Cartongesso (5 pezzi)",
+"Pezzi: 5",
+"Attacco gambo: esagonale",
+"Magnetico: sì",
+"Uso: standard",
+"Lunghezza: 0,39 cm",
+"Larghezza: 0,12 cm",
+"Peso: 0,02 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -27577,7 +27673,9 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT7521",
-"Tipologia: Inserti e accessori per avvitatura"
+"Tipologia: Inserti e accessori per avvitatura",
+"Attacco gambo: esagonale",
+"Uso: standard"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -27615,7 +27713,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT7508",
 "Tipologia: Accessorio originale per elettroutensili",
-"Attacco: 1/2\""
+"Attacco: 1/2\"",
+"Uso: per avvitatori a impulsi"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -27818,12 +27917,18 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT70567T_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Inserti e accessori per avvitatura",
-"descrizione": "Inserti e accessori per avvitare in modo sicuro, senza far scivolare l'inserto sulla testa della vite. Confezione da 2 pezzi.\n\nInserti in acciaio resistente alle sollecitazioni di avvitatori e avvitatori a impulsi, per una presa sicura sulla vite.",
+"descrizione": "Inserti e accessori per avvitare in modo sicuro, senza far scivolare l'inserto sulla testa della vite. Dati principali: larghezza 4,8 cm, peso 0,06 kg. Confezione da 2 pezzi.\n\nInserti in acciaio resistente alle sollecitazioni di avvitatori e avvitatori a impulsi, per una presa sicura sulla vite.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT70567T",
 "Tipologia: Inserti e accessori per avvitatura",
-"Pezzi per confezione: 2"
+"Pezzi per confezione: 2",
+"Pezzi: 2",
+"Magnetico: sì",
+"Uso: per avvitatori a impulsi",
+"Lunghezza: 15,19 cm",
+"Larghezza: 4,8 cm",
+"Peso: 0,06 kg"
 ],
 "dotazione": "2 pezzi",
 "disponibilita": "conferma",
@@ -28126,12 +28231,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT70569T_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Inserti e accessori per avvitatura",
-"descrizione": "Inserti e accessori per avvitare in modo sicuro, senza far scivolare l'inserto sulla testa della vite.\n\nInserti in acciaio resistente alle sollecitazioni di avvitatori e avvitatori a impulsi, per una presa sicura sulla vite.",
+"descrizione": "Inserti e accessori per avvitare in modo sicuro, senza far scivolare l'inserto sulla testa della vite. Dati principali: larghezza 4,8 cm, peso 0,03 kg.\n\nInserti in acciaio resistente alle sollecitazioni di avvitatori e avvitatori a impulsi, per una presa sicura sulla vite.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT70569T",
 "Tipologia: Inserti e accessori per avvitatura",
-"Pezzi: 2"
+"Pezzi: 2",
+"Magnetico: sì",
+"Uso: per avvitatori a impulsi",
+"Lunghezza: 15,19 cm",
+"Larghezza: 4,8 cm",
+"Peso: 0,03 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -29478,14 +29588,18 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT4288_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Taglio extra fine su legno, laminati, plastica, allu",
-"descrizione": "Lama circolare per tagli puliti e precisi, con denti in metallo duro per una lunga durata. Questo modello (DT4288) ha diametro 305 mm, 80 denti. Inoltre: foro 30 mm.\n\nProdotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
+"descrizione": "Lama circolare per tagli puliti e precisi, con denti in metallo duro per una lunga durata. Questo modello (DT4288) ha diametro 305 mm, 80 denti. Inoltre: foro 30 mm, peso 1,41 kg, larghezza 32,99 cm.\n\nProdotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT4288",
 "Tipologia: Taglio extra fine su legno, laminati, plastica, allu",
 "Diametro: 305 mm",
 "Foro: 30 mm",
-"Numero di denti: 80"
+"Numero di denti: 80",
+"Materiale: metallo duro",
+"Lunghezza: 37,01 cm",
+"Peso: 1,41 kg",
+"Larghezza: 32,99 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -29519,14 +29633,19 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT4290_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Taglio extra fine su legno, laminati, plastica, allu",
-"descrizione": "Lama circolare per tagli puliti e precisi, con denti in metallo duro per una lunga durata. Questo modello (DT4290) ha diametro 305 mm, 96 denti. Inoltre: foro 30 mm.\n\nProdotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
+"descrizione": "Lama circolare per tagli puliti e precisi, con denti in metallo duro per una lunga durata. Questo modello (DT4290) ha diametro 305 mm, 96 denti. Inoltre: foro 30 mm, peso 1,44 kg, larghezza 33,1 cm.\n\nProdotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT4290",
 "Tipologia: Taglio extra fine su legno, laminati, plastica, allu",
 "Diametro: 305 mm",
 "Foro: 30 mm",
-"Numero di denti: 96"
+"Numero di denti: 96",
+"Materiale lama: metallo duro",
+"Materiale: metallo duro",
+"Lunghezza: 36,91 cm",
+"Peso: 1,44 kg",
+"Larghezza: 33,1 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -29803,14 +29922,18 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT10304_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Lama circolare per legno e materiali da costruzione",
-"descrizione": "Lama circolare per tagli puliti e precisi, con denti in metallo duro per una lunga durata. Questo modello (DT10304) ha diametro 190 mm, 24 denti. Inoltre: foro 30 mm.\n\nProdotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
+"descrizione": "Lama circolare per tagli puliti e precisi, con denti in metallo duro per una lunga durata. Questo modello (DT10304) ha diametro 190 mm, 24 denti. Inoltre: foro 30 mm, peso 0,24 kg, larghezza 19,41 cm.\n\nProdotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT10304",
 "Tipologia: Lama circolare per legno e materiali da costruzione",
 "Diametro: 190 mm",
 "Foro: 30 mm",
-"Numero di denti: 24"
+"Numero di denti: 24",
+"Materiale lama: metallo duro",
+"Lunghezza: 22,81 cm",
+"Peso: 0,24 kg",
+"Larghezza: 19,41 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31096,14 +31219,18 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT90387_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Lame per sega universale",
-"descrizione": "Lame per sega universale per tagli in demolizione su legno con chiodi, metallo, mattoni e materiali da costruzione. Questo modello (DT90387) ha 14 TPI. Inoltre: misura 228 mm. Confezione da 5 pezzi.",
+"descrizione": "Lame per sega universale per tagli in demolizione su legno con chiodi, metallo, mattoni e materiali da costruzione. Questo modello (DT90387) ha 14 TPI. Inoltre: misura 228 mm, peso 0,18 kg, larghezza 1,27 cm. Confezione da 5 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT90387",
 "Tipologia: Lame per sega universale",
 "Denti per pollice (TPI): 14",
 "Pezzi per confezione: 5",
-"Misura: 228 mm"
+"Misura: 228 mm",
+"Pezzi: 5",
+"Lunghezza: 5,4 cm",
+"Peso: 0,18 kg",
+"Larghezza: 1,27 cm"
 ],
 "dotazione": "5 pezzi",
 "disponibilita": "conferma",
@@ -31268,7 +31395,9 @@
 "Marca: DEWALT",
 "Codice articolo: DT2421",
 "Tipologia: Lame di ricambio originali",
-"Dimensioni: 305 × 12,7 mm"
+"Dimensioni: 305 × 12,7 mm",
+"Denti per pollice (TPI): 2",
+"Materiale: metallo duro"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31346,7 +31475,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT2422",
 "Tipologia: Lame di ricambio originali",
-"Denti per pollice (TPI): 45"
+"Denti per pollice (TPI): 45",
+"Materiale: metallo duro"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31376,12 +31506,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT2364_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Lame di ricambio originali",
-"descrizione": "Lama di ricambio originale, studiata per prestazioni costanti e lunga durata. Confezione da 5 pezzi.\n\nLame originali per mantenere le prestazioni dell'utensile. Prodotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
+"descrizione": "Lama di ricambio originale, studiata per prestazioni costanti e lunga durata. Dati principali: larghezza 4,62 cm. Confezione da 5 pezzi.\n\nLame originali per mantenere le prestazioni dell'utensile. Prodotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT2364",
 "Tipologia: Lame di ricambio originali",
-"Pezzi per confezione: 5"
+"Pezzi per confezione: 5",
+"Pezzi: 5",
+"Denti per pollice (TPI): 6",
+"Materiale: bimetallico",
+"Lunghezza: 37,47 cm",
+"Larghezza: 4,62 cm"
 ],
 "dotazione": "5 pezzi",
 "disponibilita": "conferma",
@@ -31418,7 +31553,10 @@
 "Tipologia: Lame per sega universale",
 "Pezzi per confezione: 2",
 "Misura: 228 mm",
-"Pezzi: 2"
+"Pezzi: 2",
+"Materiale lama: metallo duro",
+"Denti per pollice (TPI): 13",
+"Materiale: metallo duro"
 ],
 "dotazione": "2 pezzi",
 "disponibilita": "conferma",
@@ -31492,7 +31630,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT2974",
 "Tipologia: Lame per sega universale",
-"Dimensioni: 528 × 425 mm"
+"Dimensioni: 528 × 425 mm",
+"Numero di denti: 48"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31566,7 +31705,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT2975",
 "Tipologia: Lame per sega universale",
-"Dimensioni: 528 × 425 mm"
+"Dimensioni: 528 × 425 mm",
+"Numero di denti: 48"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31603,7 +31743,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT2976",
 "Tipologia: Lame per sega universale",
-"Dimensioni: 528 × 425 mm"
+"Dimensioni: 528 × 425 mm",
+"Numero di denti: 48"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31640,7 +31781,9 @@
 "Marca: DEWALT",
 "Codice articolo: DT2963",
 "Tipologia: Lame per sega universale",
-"Dimensioni: 360 × 275 mm"
+"Dimensioni: 360 × 275 mm",
+"Numero di denti: 32",
+"Materiale: metallo duro"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31677,7 +31820,9 @@
 "Marca: DEWALT",
 "Codice articolo: DT2964",
 "Tipologia: Lame per sega universale",
-"Dimensioni: 528 × 425 mm"
+"Dimensioni: 528 × 425 mm",
+"Numero di denti: 48",
+"Materiale: metallo duro"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31714,7 +31859,9 @@
 "Marca: DEWALT",
 "Codice articolo: DT2965",
 "Tipologia: Lame per sega universale",
-"Dimensioni: 528 × 425 mm"
+"Dimensioni: 528 × 425 mm",
+"Numero di denti: 48",
+"Materiale: metallo duro"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -31751,7 +31898,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT2966",
 "Tipologia: Lame per sega universale",
-"Dimensioni: 528 × 425 mm"
+"Dimensioni: 528 × 425 mm",
+"Numero di denti: 48"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -32260,24 +32408,24 @@
 },
 {
 "id": 4370,
-"slug": "dewalt-set-punte-e-inserti-dt20774",
+"slug": "dewalt-lama-bimetallica-per-tagli-ad-affondamento-32-mm-per-utensile-multifun-dt20774",
 "marca": "DEWALT",
-"nome": "Set punte e inserti",
+"nome": "Lama bimetallica per tagli ad affondamento 32 mm per utensile multifunzione",
 "modello": "DT20774",
 "codice": "DT20774-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 2200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://www.powertoolsdirect.com/media/catalog/product/d/e/dewalt-power-tools-dt20774-qz-dt20774-bi-metal-plunge-point-multitool-blade-32mm-5054905325206.jpg?width=265&amp;height=265&amp;store=storeview_ptd&amp;image-type=image",
 "soloLink": true,
-"sottotitolo": "Punte per metallo in acciaio HSS",
-"descrizione": "Punta per forare acciaio, ferro, metalli non ferrosi e plastica con fori precisi e puliti. Dati principali: larghezza 32 mm.\n\nAccessorio di qualità professionale, compatibile con i principali elettroutensili in commercio.",
+"sottotitolo": "Taglio ad affondamento su legno, legno con chiodi e metallo",
+"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Dati principali: larghezza 32 mm.\n\nLama bimetallica larga 32 mm per tagli ad affondamento e a filo con l'utensile multifunzione oscillante: lavora legno, legno con chiodi, plastica e lamiere sottili. Attacco universale compatibile con i principali utensili multifunzione.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20774",
-"Tipologia: Punte per metallo in acciaio HSS",
+"Tipologia: Taglio ad affondamento su legno, legno con chiodi e metallo",
 "Lama bimetal per tagli ed afftondamento su legno",
 "Legno con chiodi",
 "Cartongesso",
@@ -32287,16 +32435,15 @@
 "disponibilita": "conferma",
 "auto": true,
 "prezzoListino": 2775,
-"tipo": "punta-metallo",
+"tipo": "acc-multi",
 "punti": [
-"Acciaio rapido HSS per durata e precisione",
-"Affilatura per un attacco sicuro senza scivolare",
-"Gambo cilindrico per tutti i mandrini"
+"Attacco universale",
+"Precisione nei tagli a filo e ad affondamento"
 ],
 "impieghi": [
-"Carpenteria metallica",
-"Impiantistica",
-"Officina"
+"Ristrutturazioni",
+"Tagli a filo",
+"Rimozione fughe e sigillanti"
 ],
 "consiglio": "Forando l'acciaio usa una velocità bassa e un po' di olio da taglio: la punta resta affilata molto più a lungo."
 },
@@ -32355,14 +32502,18 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT20707_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Per tagli su metalli ferrosi e lamiera",
-"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Dati principali: dimensioni 31 × 43 mm, larghezza 31 mm lunghezza 43 mm.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
+"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Dati principali: dimensioni 31 × 43 mm, larghezza 31 mm lunghezza 43 mm, peso 0,04 kg.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20707",
 "Tipologia: Per tagli su metalli ferrosi e lamiera",
 "Dimensioni: 31 × 43 mm",
 "Larghezza 31 mm lunghezza 43 mm",
-"Per tagli su metalli ferrosi e lamiera"
+"Per tagli su metalli ferrosi e lamiera",
+"Materiale: bimetallico",
+"Lunghezza: 14,61 cm",
+"Peso: 0,04 kg",
+"Larghezza: 9,91 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -32394,13 +32545,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT20740_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Per tagli su legno fino a 50 mm di spessore, cartongesso e plastiche morbide",
-"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
+"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Dati principali: peso 0,05 kg, larghezza 9,8 cm.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20740",
 "Tipologia: Per tagli su legno fino a 50 mm di spessore, cartongesso e plastiche morbide",
 "Larghezza 32 mm lunghezza 43 mm Per tagli su legno fino a 50 mm di spessore",
-"Cartongesso e plastiche morbide"
+"Cartongesso e plastiche morbide",
+"Lunghezza: 14,71 cm",
+"Peso: 0,05 kg",
+"Larghezza: 9,8 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -32511,7 +32665,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT20708_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Per tagli a filo di materiale e tagli a misura su legno, cartongesso e materiali plastici",
-"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Questo modello (DT20708) ha diametro 100 mm.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
+"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Questo modello (DT20708) ha diametro 100 mm. Inoltre: peso 0,07 kg, larghezza 11,99 cm.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20708",
@@ -32519,7 +32673,12 @@
 "Diametro: 100 mm",
 "Lama segmentata diametro 100 mm",
 "Per tagli a filo di materiale e tagli a misura su legno",
-"Cartongesso e materiali plastici"
+"Cartongesso e materiali plastici",
+"Materiale lama: bimetallico",
+"Materiale: bimetallico",
+"Lunghezza: 17,09 cm",
+"Peso: 0,07 kg",
+"Larghezza: 11,99 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -32758,12 +32917,15 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT20750_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Accessori per utensile multifunzione",
-"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Dati principali: dimensioni 35 × 70 mm.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
+"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Dati principali: dimensioni 35 × 70 mm, peso 0,05 kg, larghezza 10,01 cm.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20750",
 "Tipologia: Accessori per utensile multifunzione",
-"Dimensioni: 35 × 70 mm"
+"Dimensioni: 35 × 70 mm",
+"Lunghezza: 17,5 cm",
+"Peso: 0,05 kg",
+"Larghezza: 10,01 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -32877,12 +33039,15 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT20700_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Accessori per utensile multifunzione",
-"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Dati principali: dimensioni 93 × 93 mm.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
+"descrizione": "Accessorio per utensile multifunzione oscillante, con attacco universale compatibile con i principali utensili in commercio. Dati principali: dimensioni 93 × 93 mm, peso 0,1 kg, larghezza 11,99 cm.\n\nAttacco universale per tagliare, rifilare, raschiare e levigare con gli utensili multifunzione.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20700",
 "Tipologia: Accessori per utensile multifunzione",
-"Dimensioni: 93 × 93 mm"
+"Dimensioni: 93 × 93 mm",
+"Lunghezza: 14,5 cm",
+"Peso: 0,1 kg",
+"Larghezza: 11,99 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -33050,7 +33215,11 @@
 "Pezzi per confezione: 5",
 "N. 5 Lame in Titanio lunga durata per tagli ad affondamento",
 "Larghezza 31 mm lunghezza 43 mm",
-"Per tagli su metalli ferrosi e lamiera (DT20707-QZ)"
+"Per tagli su metalli ferrosi e lamiera (DT20707-QZ)",
+"Pezzi: 5",
+"Lunghezza: 14,5 cm",
+"Peso: 0,12 kg",
+"Larghezza: 9,5 cm"
 ],
 "dotazione": "5 pezzi",
 "disponibilita": "conferma",
@@ -33082,11 +33251,14 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT20739_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Taglio di fughe e piastrelle con utensile multifunzione",
-"descrizione": "Disco diamantato per tagli rapidi e duraturi su materiali edili.\n\nLama con riporto diamantato per rimuovere fughe, tagliare piastrelle e materiali ceramici con precisione anche in spazi ristretti.",
+"descrizione": "Disco diamantato per tagli rapidi e duraturi su materiali edili. Dati principali: peso 0,04 kg, larghezza 9,5 cm.\n\nLama con riporto diamantato per rimuovere fughe, tagliare piastrelle e materiali ceramici con precisione anche in spazi ristretti.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20739",
-"Tipologia: Taglio di fughe e piastrelle con utensile multifunzione"
+"Tipologia: Taglio di fughe e piastrelle con utensile multifunzione",
+"Lunghezza: 18,01 cm",
+"Peso: 0,04 kg",
+"Larghezza: 9,5 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -33119,13 +33291,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT20731_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Set di accessori per forare e avvitare",
-"descrizione": "Set di accessori per forare e avvitare, tutto in una custodia ordinata. Confezione da 8 pezzi.\n\nGli accessori più usati in un unico set ordinato, facile da portare in cantiere.",
+"descrizione": "Set di accessori per forare e avvitare, tutto in una custodia ordinata. Dati principali: peso 0,68 kg, larghezza 26,7 cm. Confezione da 8 pezzi.\n\nGli accessori più usati in un unico set ordinato, facile da portare in cantiere.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20731",
 "Tipologia: Set di accessori per forare e avvitare",
 "Pezzi per confezione: 8",
-"Pezzi: 8"
+"Pezzi: 8",
+"Lunghezza: 30,0 cm",
+"Peso: 0,68 kg",
+"Larghezza: 26,7 cm"
 ],
 "dotazione": "8 pezzi",
 "disponibilita": "conferma",
@@ -33404,7 +33579,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT1306_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Lame di ricambio originali",
-"descrizione": "Lama di ricambio originale, studiata per prestazioni costanti e lunga durata. Questo modello (DT1306) ha diametro 102 mm, lunghezza 22 mm, 12 denti. Inoltre: spessore 3,9 mm.\n\nLame originali per mantenere le prestazioni dell'utensile. Prodotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
+"descrizione": "Lama di ricambio originale, studiata per prestazioni costanti e lunga durata. Questo modello (DT1306) ha diametro 102 mm, lunghezza 22 mm, 12 denti. Inoltre: spessore 3,9 mm, peso 0,17 kg, larghezza 11,3 cm.\n\nLame originali per mantenere le prestazioni dell'utensile. Prodotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT1306",
@@ -33413,7 +33588,9 @@
 "Lunghezza: 22 mm",
 "Numero di denti: 12",
 "Lama HM Ø 102 mm",
-"Spessore 3,9 mm"
+"Spessore 3,9 mm",
+"Peso: 0,17 kg",
+"Larghezza: 11,3 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -33980,11 +34157,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT3702_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Dati principali: peso 0,1 kg, larghezza 11,4 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT3702",
-"Tipologia: Fori di grande diametro per impianti"
+"Tipologia: Fori di grande diametro per impianti",
+"Materiale lama: diamante",
+"Materiale: diamante",
+"Lunghezza: 11,4 cm",
+"Peso: 0,1 kg",
+"Larghezza: 11,4 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -34017,12 +34199,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT3711_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT3711) ha diametro 125 mm.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (DT3711) ha diametro 125 mm. Inoltre: peso 0,16 kg, larghezza 12,5 cm.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT3711",
 "Tipologia: Fori di grande diametro per impianti",
-"Diametro: 125 mm"
+"Diametro: 125 mm",
+"Materiale lama: diamante",
+"Materiale: diamante",
+"Lunghezza: 19,51 cm",
+"Peso: 0,16 kg",
+"Larghezza: 12,5 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -34092,11 +34279,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT3733_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Disco diamantato per taglio ceramica e gres",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi.\n\nCorona continua per tagli netti e senza scheggiature su ceramica, gres porcellanato e piastrelle.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Dati principali: peso 0,64 kg, larghezza 28,7 cm.\n\nCorona continua per tagli netti e senza scheggiature su ceramica, gres porcellanato e piastrelle.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT3733",
-"Tipologia: Disco diamantato per taglio ceramica e gres"
+"Tipologia: Disco diamantato per taglio ceramica e gres",
+"Materiale lama: diamante",
+"Materiale: diamante",
+"Lunghezza: 31,6 cm",
+"Peso: 0,64 kg",
+"Larghezza: 28,7 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -34129,11 +34321,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT3734_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Disco diamantato per taglio pietra e cemento",
-"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi.\n\nCorona continua per tagli puliti su pietra naturale, cemento e materiali edili duri.",
+"descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Dati principali: peso 0,63 kg, larghezza 29,01 cm.\n\nCorona continua per tagli puliti su pietra naturale, cemento e materiali edili duri.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT3734",
-"Tipologia: Disco diamantato per taglio pietra e cemento"
+"Tipologia: Disco diamantato per taglio pietra e cemento",
+"Materiale lama: diamante",
+"Materiale: diamante",
+"Lunghezza: 32,0 cm",
+"Peso: 0,63 kg",
+"Larghezza: 29,01 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -34533,7 +34730,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBT1815GZ",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Diametro gambo chiodo: 18"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -34571,7 +34769,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBSB1625Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Diametro gambo chiodo: 16"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -34609,7 +34808,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBT1820GZ",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Diametro gambo chiodo: 18"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -34647,7 +34847,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBSB1632Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 2500"
+"Pezzi per confezione: 2500",
+"Diametro gambo chiodo: 16"
 ],
 "dotazione": "2500 pezzi",
 "disponibilita": "conferma",
@@ -34723,7 +34924,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBSB1638Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 2500"
+"Pezzi per confezione: 2500",
+"Diametro gambo chiodo: 16"
 ],
 "dotazione": "2500 pezzi",
 "disponibilita": "conferma",
@@ -34761,7 +34963,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBT1830GZ",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Diametro gambo chiodo: 18"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -34799,7 +35002,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBSB1650Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 2500"
+"Pezzi per confezione: 2500",
+"Diametro gambo chiodo: 16"
 ],
 "dotazione": "2500 pezzi",
 "disponibilita": "conferma",
@@ -34875,7 +35079,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBT1840GZ",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Diametro gambo chiodo: 18"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -34913,7 +35118,8 @@
 "Marca: DEWALT",
 "Codice articolo: DNBT1850GZ",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Diametro gambo chiodo: 18"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -34951,7 +35157,8 @@
 "Marca: DEWALT",
 "Codice articolo: DSTSX15Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Materiale: acciaio"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -34989,7 +35196,8 @@
 "Marca: DEWALT",
 "Codice articolo: DSTSX19Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Materiale: acciaio"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -35027,7 +35235,8 @@
 "Marca: DEWALT",
 "Codice articolo: DSTSX22Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Materiale: acciaio"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -35065,7 +35274,8 @@
 "Marca: DEWALT",
 "Codice articolo: DSTSX25Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 5000"
+"Pezzi per confezione: 5000",
+"Materiale: acciaio"
 ],
 "dotazione": "5000 pezzi",
 "disponibilita": "conferma",
@@ -35103,7 +35313,9 @@
 "Marca: DEWALT",
 "Codice articolo: DSTSX30Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 3000"
+"Pezzi per confezione: 3000",
+"Materiale: acciaio",
+"Pezzi: 5000"
 ],
 "dotazione": "3000 pezzi",
 "disponibilita": "conferma",
@@ -35141,7 +35353,8 @@
 "Marca: DEWALT",
 "Codice articolo: DSTSX35Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 3000"
+"Pezzi per confezione: 3000",
+"Materiale: acciaio"
 ],
 "dotazione": "3000 pezzi",
 "disponibilita": "conferma",
@@ -35288,12 +35501,13 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DNPT2863Z_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Consumabili originali per chiodatrici e fissaggi",
-"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Confezione da 2200 pezzi.",
+"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: angolo chiodatrice 33°. Confezione da 2200 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DNPT2863Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 2200"
+"Pezzi per confezione: 2200",
+"Angolo chiodatrice: 33°"
 ],
 "dotazione": "2200 pezzi",
 "disponibilita": "conferma",
@@ -35326,12 +35540,13 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DNPT28R50Z_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Consumabili originali per chiodatrici e fissaggi",
-"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Confezione da 2200 pezzi.",
+"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: angolo chiodatrice 33°. Confezione da 2200 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DNPT28R50Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 2200"
+"Pezzi per confezione: 2200",
+"Angolo chiodatrice: 33°"
 ],
 "dotazione": "2200 pezzi",
 "disponibilita": "conferma",
@@ -35364,12 +35579,13 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DNPT28R75Z_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Consumabili originali per chiodatrici e fissaggi",
-"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Confezione da 2200 pezzi.",
+"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: angolo chiodatrice 33°. Confezione da 2200 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DNPT28R75Z",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 2200"
+"Pezzi per confezione: 2200",
+"Angolo chiodatrice: 33°"
 ],
 "dotazione": "2200 pezzi",
 "disponibilita": "conferma",
@@ -35402,12 +35618,13 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DNW2850E_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Consumabili originali per chiodatrici e fissaggi",
-"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Confezione da 2200 pezzi.",
+"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: angolo chiodatrice 33°. Confezione da 2200 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DNW2850E",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 2200"
+"Pezzi per confezione: 2200",
+"Angolo chiodatrice: 33°"
 ],
 "dotazione": "2200 pezzi",
 "disponibilita": "conferma",
@@ -35516,12 +35733,13 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DNW2880E_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Consumabili originali per chiodatrici e fissaggi",
-"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Confezione da 2200 pezzi.",
+"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: angolo chiodatrice 33°. Confezione da 2200 pezzi.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DNW2880E",
 "Tipologia: Consumabili originali per chiodatrici e fissaggi",
-"Pezzi per confezione: 2200"
+"Pezzi per confezione: 2200",
+"Angolo chiodatrice: 33°"
 ],
 "dotazione": "2200 pezzi",
 "disponibilita": "conferma",
@@ -35597,7 +35815,10 @@
 "Marca: DEWALT",
 "Codice articolo: DT6952",
 "Tipologia: Punte per cemento e muratura",
-"Pezzi per confezione: 5"
+"Pezzi per confezione: 5",
+"Pezzi: 5",
+"Attacco gambo: cilindrico",
+"Uso: standard"
 ],
 "dotazione": "5 pezzi",
 "disponibilita": "conferma",
@@ -36204,7 +36425,10 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20503",
-"Tipologia: Accessorio originale per elettroutensili"
+"Tipologia: Accessorio originale per elettroutensili",
+"Attacco gambo: esagonale",
+"Magnetico: sì",
+"Uso: per avvitatori a impulsi"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -36238,7 +36462,10 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20500",
-"Tipologia: Accessorio originale per elettroutensili"
+"Tipologia: Accessorio originale per elettroutensili",
+"Attacco gambo: esagonale",
+"Magnetico: sì",
+"Uso: per avvitatori a impulsi"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -36272,7 +36499,9 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT20501",
-"Tipologia: Accessorio originale per elettroutensili"
+"Tipologia: Accessorio originale per elettroutensili",
+"Attacco gambo: esagonale",
+"Uso: per avvitatori a impulsi"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -36302,13 +36531,18 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT70518T_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Set di accessori per forare e avvitare",
-"descrizione": "Set di accessori per forare e avvitare, tutto in una custodia ordinata. Confezione da 10 pezzi.\n\nGli accessori più usati in un unico set ordinato, facile da portare in cantiere.",
+"descrizione": "Set di accessori per forare e avvitare, tutto in una custodia ordinata. Dati principali: larghezza 2,01 cm, peso 0,1 kg. Confezione da 10 pezzi.\n\nGli accessori più usati in un unico set ordinato, facile da portare in cantiere.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT70518T",
 "Tipologia: Set di accessori per forare e avvitare",
 "Pezzi per confezione: 10",
-"Pezzi: 10"
+"Pezzi: 10",
+"Magnetico: sì",
+"Uso: per avvitatori a impulsi",
+"Lunghezza: 5,99 cm",
+"Larghezza: 2,01 cm",
+"Peso: 0,1 kg"
 ],
 "dotazione": "10 pezzi",
 "disponibilita": "conferma",
@@ -36430,7 +36664,9 @@
 "Marca: DEWALT",
 "Codice articolo: DT7969",
 "Tipologia: Set di accessori per forare e avvitare",
-"Pezzi: 32"
+"Pezzi: 32",
+"Attacco gambo: esagonale",
+"Uso: standard"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -36511,14 +36747,19 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT71522_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Inserti e accessori per avvitatura",
-"descrizione": "Inserti e accessori per avvitare in modo sicuro, senza far scivolare l'inserto sulla testa della vite. Dati principali: misura 25 mm. Confezione da 25 pezzi.\n\nInserti in acciaio resistente alle sollecitazioni di avvitatori e avvitatori a impulsi, per una presa sicura sulla vite.",
+"descrizione": "Inserti e accessori per avvitare in modo sicuro, senza far scivolare l'inserto sulla testa della vite. Dati principali: misura 25 mm, larghezza 7,01 cm, peso 0,15 kg. Confezione da 25 pezzi.\n\nInserti in acciaio resistente alle sollecitazioni di avvitatori e avvitatori a impulsi, per una presa sicura sulla vite.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT71522",
 "Tipologia: Inserti e accessori per avvitatura",
 "Pezzi per confezione: 25",
 "Misura: 25 mm",
-"Pezzi: 25"
+"Pezzi: 25",
+"Magnetico: sì",
+"Uso: standard",
+"Lunghezza: 7,7 cm",
+"Larghezza: 7,01 cm",
+"Peso: 0,15 kg"
 ],
 "dotazione": "25 pezzi",
 "disponibilita": "conferma",
@@ -36689,12 +36930,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT71516_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Set di accessori per forare e avvitare",
-"descrizione": "Set di accessori per forare e avvitare, tutto in una custodia ordinata.\n\nGli accessori più usati in un unico set ordinato, facile da portare in cantiere.",
+"descrizione": "Set di accessori per forare e avvitare, tutto in una custodia ordinata. Dati principali: peso 0,15 kg, larghezza 26,92 cm.\n\nGli accessori più usati in un unico set ordinato, facile da portare in cantiere.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT71516",
 "Tipologia: Set di accessori per forare e avvitare",
-"Pezzi: 24"
+"Pezzi: 24",
+"Uso: per avvitatori a impulsi",
+"Lunghezza: 19,81 cm",
+"Peso: 0,15 kg",
+"Larghezza: 26,92 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -36732,7 +36977,8 @@
 "Codice articolo: DT71567",
 "Tipologia: Punte per metallo in acciaio HSS",
 "Pezzi per confezione: 16",
-"Pezzi: 16"
+"Pezzi: 16",
+"Uso: per avvitatori a impulsi"
 ],
 "dotazione": "16 pezzi",
 "disponibilita": "conferma",
@@ -36858,13 +37104,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT70760_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Set di accessori per forare e avvitare",
-"descrizione": "Set di accessori per forare e avvitare, tutto in una custodia ordinata. Confezione da 68 pezzi.\n\nGli accessori più usati in un unico set ordinato, facile da portare in cantiere.",
+"descrizione": "Set di accessori per forare e avvitare, tutto in una custodia ordinata. Dati principali: larghezza 3,18 cm, peso 1,34 kg. Confezione da 68 pezzi.\n\nGli accessori più usati in un unico set ordinato, facile da portare in cantiere.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DT70760",
 "Tipologia: Set di accessori per forare e avvitare",
 "Pezzi per confezione: 68",
-"Pezzi: 68"
+"Pezzi: 68",
+"Attacco gambo: SDS-Plus",
+"Lunghezza: 36,98 cm",
+"Larghezza: 3,18 cm",
+"Peso: 1,34 kg"
 ],
 "dotazione": "68 pezzi",
 "disponibilita": "conferma",
@@ -37016,14 +37266,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DFM1110060_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Ancoranti per fissaggi pesanti",
-"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: dimensioni 8×60 mm. Confezione da 100 pezzi.\n\nAncoranti in acciaio zincato per fissaggi pesanti su calcestruzzo. Consumabile originale per un funzionamento affidabile e fissaggi sicuri.",
+"descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Dati principali: dimensioni 8×60 mm, peso 1,19 kg, larghezza 30,48 cm. Confezione da 100 pezzi.\n\nAncoranti in acciaio zincato per fissaggi pesanti su calcestruzzo. Consumabile originale per un funzionamento affidabile e fissaggi sicuri.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DFM1110060",
 "Tipologia: Ancoranti per fissaggi pesanti",
 "Pezzi per confezione: 100",
 "Dimensioni: 8×60 mm",
-"Pezzi: 100"
+"Pezzi: 100",
+"Lunghezza: 39,37 cm",
+"Peso: 1,19 kg",
+"Larghezza: 30,48 cm"
 ],
 "dotazione": "100 pezzi",
 "disponibilita": "conferma",
@@ -37549,7 +37802,9 @@
 "Marca: DEWALT",
 "Codice articolo: DWHT36917-0",
 "Tipologia: Strumento di misura e tracciatura",
-"Misura: 32 mm"
+"Misura: 32 mm",
+"Materiale lama: acciaio",
+"Magnetico: sì"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -37630,7 +37885,8 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWHT0-43224",
-"Tipologia: Strumento di misura e tracciatura"
+"Tipologia: Strumento di misura e tracciatura",
+"Lunghezza: 60,96 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -37667,7 +37923,8 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWHT0-43248",
-"Tipologia: Strumento di misura e tracciatura"
+"Tipologia: Strumento di misura e tracciatura",
+"Lunghezza: 121,92 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -37704,7 +37961,8 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWHT0-43172",
-"Tipologia: Strumento di misura e tracciatura"
+"Tipologia: Strumento di misura e tracciatura",
+"Lunghezza: 182,88 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -37742,7 +38000,8 @@
 "Marca: DEWALT",
 "Codice articolo: DWHT38114-0",
 "Tipologia: Strumento di misura e tracciatura",
-"Misura: 28 mm"
+"Misura: 28 mm",
+"Materiale lama: acciaio"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -37780,7 +38039,8 @@
 "Marca: DEWALT",
 "Codice articolo: DWHT38128-0",
 "Tipologia: Strumento di misura e tracciatura",
-"Misura: 28 mm"
+"Misura: 28 mm",
+"Materiale lama: acciaio"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -37860,7 +38120,9 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWHT0-43003",
-"Tipologia: Strumento di misura e tracciatura"
+"Tipologia: Strumento di misura e tracciatura",
+"Magnetico: sì",
+"Lunghezza: 25,4 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -37939,7 +38201,8 @@
 "Marca: DEWALT",
 "Codice articolo: DWHT0-10249",
 "Tipologia: Punte per metallo in acciaio HSS",
-"Misura: 18 mm"
+"Misura: 18 mm",
+"Materiale lama: metallo duro"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -38053,7 +38316,9 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWHT0-20547",
-"Tipologia: Utensile manuale professionale"
+"Tipologia: Utensile manuale professionale",
+"Materiale: bimetallico",
+"Materiale lama: bimetallico"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -38307,7 +38572,7 @@
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "http://www.emmetistore.com/cdn/shop/files/DEWALT_03133e6d-1570-42df-ada1-879fbc121144.webp?crop=center&height=1200&v=1773741290&width=1200",
 "soloLink": true,
 "sottotitolo": "Più utensili in un unico kit conveniente",
 "descrizione": "Kit di utensili a batteria che condividono la stessa piattaforma: compri le batterie una volta sola e le usi su tutti gli utensili. Dati principali: capacità batteria 5,0 Ah.\n\nUtensili professionali abbinati in un unico kit, con batterie e caricabatterie condivisi. Kit pronto all'uso con 3 batterie 5,0 Ah, caricabatterie e valigetta TSTAK.",
@@ -38435,12 +38700,15 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWE4257KT_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Accessorio originale per elettroutensili",
-"descrizione": "Accessorio originale che amplia le possibilità di impiego dell'utensile. Dati principali: misura 125 mm.",
+"descrizione": "Accessorio originale che amplia le possibilità di impiego dell'utensile. Dati principali: misura 125 mm, velocità massima 10000 giri/min, peso 2,6 kg.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWE4257KT",
 "Tipologia: Accessorio originale per elettroutensili",
-"Misura: 125 mm"
+"Misura: 125 mm",
+"Velocità massima: 10000 giri/min",
+"Lunghezza: 31,5 cm",
+"Peso: 2,6 kg"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -38876,7 +39144,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://data.sanitino.eu/PRODUCT-591605/0f15d3dd9e580b980d998301?v=67f64e42",
 "soloLink": true,
 "sottotitolo": "Consumabili originali per chiodatrici e fissaggi",
 "descrizione": "Consumabile originale per chiodatrici e fissaggi, con qualità costante per un funzionamento affidabile. Confezione da 1000 pezzi.",
@@ -43178,7 +43446,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://www.toolworkbay.com/wp-content/uploads/2026/09/28/1790595443/black-decker-cs3651lc-screwdriver-3-6v-1-x-1-5ah-li-ion.webp",
 "soloLink": true,
 "sottotitolo": "Foratura e avvitatura di precisione",
 "descrizione": "Un trapano avvitatore professionale è l'utensile che si usa di più in cantiere e in officina: fora legno, metallo e plastica e avvita viti di ogni misura con il controllo preciso della frizione.",
@@ -43481,7 +43749,8 @@
 "Marca: DEWALT",
 "Codice articolo: DT2979",
 "Tipologia: Lame per sega universale",
-"Dimensioni: 528 × 425 mm"
+"Dimensioni: 528 × 425 mm",
+"Numero di denti: 40"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -43623,7 +43892,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://d3s2y7lmzr67yx.cloudfront.net/IMG/EXPERT/PRODUCTS/HD/EXP365043.jpg?t=big",
 "soloLink": true,
 "sottotitolo": "Pulizia della casa senza fili",
 "descrizione": "Apparecchio per la pulizia di casa e auto, leggero e pronto all'uso. Confezione da 3 pezzi.",
@@ -43810,7 +44079,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://toolsandpartsdirect.co.uk/image-factory/16f637fd95fae9265e5a6bbf23e40b7b65f1f579~500x500:contain/images/products/ZAoWi1tJghJFw8flVcQGIdjg9B4wDiHJtfFkOUHV.jpg",
 "soloLink": true,
 "sottotitolo": "Dischi abrasivi per smerigliatrici",
 "descrizione": "Disco abrasivo per smerigliatrici angolari, per taglio e sbavatura rapidi e puliti su acciaio, inox e metalli. Questo modello (X32155) ha diametro 115 mm. Confezione da 5 pezzi.\n\nProdotto di consumo originale, studiato per prestazioni costanti e lunga durata.",
@@ -44592,7 +44861,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCD996NT_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Forare legno, metallo e muratura e avvitare",
-"descrizione": "Trapano avvitatore con funzione percussione: in un solo utensile hai l'avvitatore per viti e bulloni, il trapano per legno e metallo e la percussione per forare mattoni, blocchi e muratura leggera.\n\nAvvita, fora legno e metallo e, con la percussione inserita, fora mattone e muratura. Piattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina in valigetta TSTAK, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
+"descrizione": "Trapano avvitatore con funzione percussione: in un solo utensile hai l'avvitatore per viti e bulloni, il trapano per legno e metallo e la percussione per forare mattoni, blocchi e muratura leggera. Dati principali: velocità massima 2250 giri/min, velocità a vuoto 2250, posizioni frizione 11.\n\nAvvita, fora legno e metallo e, con la percussione inserita, fora mattone e muratura. Piattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina in valigetta TSTAK, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCD996NT",
@@ -44602,6 +44871,12 @@
 "Batterie incluse: No (solo corpo)",
 "Caricabatterie: non incluso",
 "Valigetta: TSTAK",
+"Velocità massima: 2250 giri/min",
+"Velocità a vuoto: 2250",
+"Posizioni frizione: 11",
+"Lunghezza: 111,76 cm",
+"Peso: 1,7 kg",
+"Larghezza: 30,48 cm",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "Solo corpo macchina, valigetta TSTAK. Batterie e caricabatterie non incluse",
@@ -44836,7 +45111,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://towntools.co.uk/cdn/shop/files/e9191a47-4cb8-43ed-be81-925f6bc5f3bd_1200x1200.jpg?v=1744476099",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
 "descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (10507827) ha diametro 29 mm.",
@@ -44874,7 +45149,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://towntools.co.uk/cdn/shop/files/e9191a47-4cb8-43ed-be81-925f6bc5f3bd_1200x1200.jpg?v=1744476099",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
 "descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (10507828) ha diametro 32 mm.",
@@ -44912,7 +45187,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://towntools.co.uk/cdn/shop/files/e9191a47-4cb8-43ed-be81-925f6bc5f3bd_1200x1200.jpg?v=1744476099",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
 "descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (10507830) ha diametro 38 mm.",
@@ -44950,7 +45225,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://towntools.co.uk/cdn/shop/files/e9191a47-4cb8-43ed-be81-925f6bc5f3bd_1200x1200.jpg?v=1744476099",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
 "descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (10507831) ha diametro 44 mm.",
@@ -44988,7 +45263,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://towntools.co.uk/cdn/shop/files/e9191a47-4cb8-43ed-be81-925f6bc5f3bd_1200x1200.jpg?v=1744476099",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
 "descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (10507833) ha diametro 51 mm.",
@@ -45026,7 +45301,7 @@
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
-"immagineDewalt": "",
+"immagineDewalt": "https://towntools.co.uk/cdn/shop/files/e9191a47-4cb8-43ed-be81-925f6bc5f3bd_1200x1200.jpg?v=1744476099",
 "soloLink": true,
 "sottotitolo": "Fori di grande diametro per impianti",
 "descrizione": "Sega a tazza per fori di grande diametro, puliti e precisi, per passaggi di impianti, scatole elettriche e faretti: le bimetalliche lavorano legno, metallo e plastica, le diamantate e in metallo duro anche piastrelle, gres e materiali abrasivi. Questo modello (10507836) ha diametro 60 mm.",
@@ -47520,13 +47795,16 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCB182_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Batteria al litio originale con indicatore di carica",
-"descrizione": "Batteria al litio originale, compatibile con tutti gli utensili della stessa piattaforma, con indicatore del livello di carica. Dati principali: capacità batteria 4,0 Ah.\n\nPiattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT.",
+"descrizione": "Batteria al litio originale, compatibile con tutti gli utensili della stessa piattaforma, con indicatore del livello di carica. Dati principali: capacità batteria 4,0 Ah, peso 0,63 kg, larghezza 8,0 cm.\n\nPiattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCB182",
 "Tipologia: Batteria al litio originale con indicatore di carica",
 "Tensione: 18 V",
 "Capacità batteria: 4,0 Ah",
+"Lunghezza: 11,51 cm",
+"Peso: 0,63 kg",
+"Larghezza: 8,0 cm",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "",
@@ -47812,12 +48090,18 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCD740N_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Foratura e avvitatura di precisione",
-"descrizione": "Un trapano avvitatore professionale è l'utensile che si usa di più in cantiere e in officina: fora legno, metallo e plastica e avvita viti di ogni misura con il controllo preciso della frizione.\n\nPiattaforma 18V: compatibile con tutte le batterie della stessa gamma.",
+"descrizione": "Un trapano avvitatore professionale è l'utensile che si usa di più in cantiere e in officina: fora legno, metallo e plastica e avvita viti di ogni misura con il controllo preciso della frizione. Dati principali: velocità massima 2000 giri/min, velocità a vuoto 2000, peso 1,47 kg.\n\nPiattaforma 18V: compatibile con tutte le batterie della stessa gamma.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCD740N",
 "Tipologia: Foratura e avvitatura di precisione",
 "Tensione: 18 V",
+"Motore: a spazzole",
+"Velocità massima: 2000 giri/min",
+"Velocità a vuoto: 2000",
+"Lunghezza: 11,43 cm",
+"Peso: 1,47 kg",
+"Larghezza: 31,45 cm",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "",
@@ -48138,7 +48422,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCD791NT_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Foratura e avvitatura di precisione",
-"descrizione": "Un trapano avvitatore professionale è l'utensile che si usa di più in cantiere e in officina: fora legno, metallo e plastica e avvita viti di ogni misura con il controllo preciso della frizione.\n\nPiattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina in valigetta TSTAK, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
+"descrizione": "Un trapano avvitatore professionale è l'utensile che si usa di più in cantiere e in officina: fora legno, metallo e plastica e avvita viti di ogni misura con il controllo preciso della frizione. Dati principali: velocità massima 2000 giri/min, velocità a vuoto 2000, peso 1,3 kg.\n\nPiattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina in valigetta TSTAK, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCD791NT",
@@ -48148,6 +48432,10 @@
 "Batterie incluse: No (solo corpo)",
 "Caricabatterie: non incluso",
 "Valigetta: TSTAK",
+"Velocità massima: 2000 giri/min",
+"Velocità a vuoto: 2000",
+"Lunghezza: 17,5 cm",
+"Peso: 1,3 kg",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "Solo corpo macchina, valigetta TSTAK. Batterie e caricabatterie non incluse",
@@ -48431,7 +48719,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCD86MP2T_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Forare legno, metallo e muratura e avvitare",
-"descrizione": "Trapano avvitatore con funzione percussione: in un solo utensile hai l'avvitatore per viti e bulloni, il trapano per legno e metallo e la percussione per forare mattoni, blocchi e muratura leggera. Dati principali: capacità batteria 5 Ah.\n\nAvvita, fora legno e metallo e, con la percussione inserita, fora mattone e muratura. Piattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT.",
+"descrizione": "Trapano avvitatore con funzione percussione: in un solo utensile hai l'avvitatore per viti e bulloni, il trapano per legno e metallo e la percussione per forare mattoni, blocchi e muratura leggera. Dati principali: capacità batteria 5 Ah, posizioni frizione 14.\n\nAvvita, fora legno e metallo e, con la percussione inserita, fora mattone e muratura. Piattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCD86MP2T",
@@ -48439,6 +48727,7 @@
 "Tensione: 18 V",
 "Motore: Brushless (senza spazzole)",
 "Capacità batteria: 5 Ah",
+"Posizioni frizione: 14",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "",
@@ -48584,7 +48873,9 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCE0822D1R",
-"Tipologia: Tracciamento laser di linee e piani di riferimento"
+"Tipologia: Tracciamento laser di linee e piani di riferimento",
+"Tensione: 12V",
+"Magnetico: sì"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -48623,7 +48914,9 @@
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCE0825D1R",
-"Tipologia: Tracciamento laser di linee e piani di riferimento"
+"Tipologia: Tracciamento laser di linee e piani di riferimento",
+"Tensione: 12V",
+"Magnetico: sì"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -48848,7 +49141,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCF887N_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Avvitatura e serraggio ad alta coppia",
-"descrizione": "Avvitatore a impulsi per serrare e allentare viti e bulloni con una coppia molto superiore a un trapano avvitatore, senza contraccolpo sul polso.\n\nGli impulsi rotativi scaricano tutta la coppia sulla vite senza contraccolpi sul polso: ideale per viti lunghe, bulloni e strutture. Piattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
+"descrizione": "Avvitatore a impulsi per serrare e allentare viti e bulloni con una coppia molto superiore a un trapano avvitatore, senza contraccolpo sul polso. Dati principali: velocità massima 3250 giri/min, velocità a vuoto 3250, peso 0,9 kg.\n\nGli impulsi rotativi scaricano tutta la coppia sulla vite senza contraccolpi sul polso: ideale per viti lunghe, bulloni e strutture. Piattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCF887N",
@@ -48858,6 +49151,10 @@
 "Motore: Brushless (senza spazzole)",
 "Batterie incluse: No (solo corpo)",
 "Caricabatterie: non incluso",
+"Velocità massima: 3250 giri/min",
+"Velocità a vuoto: 3250",
+"Lunghezza: 13,41 cm",
+"Peso: 0,9 kg",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "Solo corpo macchina. Batterie e caricabatterie non incluse",
@@ -48996,7 +49293,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCF897N_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Avvitatura e serraggio ad alta coppia",
-"descrizione": "Avvitatore a impulsi per serrare e allentare viti e bulloni con una coppia molto superiore a un trapano avvitatore, senza contraccolpo sul polso.\n\nGli impulsi rotativi scaricano tutta la coppia sulla vite senza contraccolpi sul polso: ideale per viti lunghe, bulloni e strutture. Piattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
+"descrizione": "Avvitatore a impulsi per serrare e allentare viti e bulloni con una coppia molto superiore a un trapano avvitatore, senza contraccolpo sul polso. Dati principali: velocità massima 1900 giri/min, velocità a vuoto 1900, peso 2,6 kg.\n\nGli impulsi rotativi scaricano tutta la coppia sulla vite senza contraccolpi sul polso: ideale per viti lunghe, bulloni e strutture. Piattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCF897N",
@@ -49004,6 +49301,11 @@
 "Tensione: 18 V",
 "Batterie incluse: No (solo corpo)",
 "Caricabatterie: non incluso",
+"Motore: Brushless (senza spazzole)",
+"Velocità massima: 1900 giri/min",
+"Velocità a vuoto: 1900",
+"Lunghezza: 22,4 cm",
+"Peso: 2,6 kg",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "Solo corpo macchina. Batterie e caricabatterie non incluse",
@@ -49042,7 +49344,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCF899N_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Avvitatura e serraggio ad alta coppia",
-"descrizione": "Avvitatore a impulsi per serrare e allentare viti e bulloni con una coppia molto superiore a un trapano avvitatore, senza contraccolpo sul polso.\n\nGli impulsi rotativi scaricano tutta la coppia sulla vite senza contraccolpi sul polso: ideale per viti lunghe, bulloni e strutture. Piattaforma 18V: compatibile con tutte le batterie della stessa gamma. Fornito come solo corpo macchina, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
+"descrizione": "Avvitatore a impulsi per serrare e allentare viti e bulloni con una coppia molto superiore a un trapano avvitatore, senza contraccolpo sul polso. Dati principali: velocità massima 1900 giri/min, velocità a vuoto 1900, peso 2,9 kg.\n\nGli impulsi rotativi scaricano tutta la coppia sulla vite senza contraccolpi sul polso: ideale per viti lunghe, bulloni e strutture. Piattaforma 18V: compatibile con tutte le batterie della stessa gamma. Fornito come solo corpo macchina, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCF899N",
@@ -49050,6 +49352,12 @@
 "Tensione: 18 V",
 "Batterie incluse: No (solo corpo)",
 "Caricabatterie: non incluso",
+"Motore: Brushless (senza spazzole)",
+"Velocità massima: 1900 giri/min",
+"Velocità a vuoto: 1900",
+"Lunghezza: 25,25 cm",
+"Peso: 2,9 kg",
+"Larghezza: 10,8 cm",
 "Alimentazione: batteria 18V"
 ],
 "dotazione": "Solo corpo macchina. Batterie e caricabatterie non incluse",
@@ -49614,7 +49922,7 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCS570N_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Tagli dritti e precisi su legno e pannelli",
-"descrizione": "Sega circolare per tagli dritti, veloci e precisi su legno, pannelli e travi, con regolazione di profondità e inclinazione per tagli fino a 45°.\n\nPiattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
+"descrizione": "Sega circolare per tagli dritti, veloci e precisi su legno, pannelli e travi, con regolazione di profondità e inclinazione per tagli fino a 45°. Dati principali: velocità massima 5500 giri/min.\n\nPiattaforma DEWALT 18V XR: compatibile con tutte le batterie 18V XR e FLEXVOLT. Fornito come solo corpo macchina, senza batterie e caricabatterie: la scelta giusta se hai già le batterie della piattaforma.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCS570N",
@@ -49623,7 +49931,8 @@
 "Motore: Brushless (senza spazzole)",
 "Batterie incluse: No (solo corpo)",
 "Caricabatterie: non incluso",
-"Alimentazione: batteria 18V"
+"Alimentazione: batteria 18V",
+"Velocità massima: 5500 giri/min"
 ],
 "dotazione": "Solo corpo macchina. Batterie e caricabatterie non incluse",
 "disponibilita": "conferma",
@@ -50132,9 +50441,9 @@
 },
 {
 "id": 4808,
-"slug": "dewalt-smerigliatrice-angolare-dewalt-dw479-dw479",
+"slug": "dewalt-smerigliatrice-angolare-230-mm-dw479-dw479",
 "marca": "DEWALT",
-"nome": "Smerigliatrice angolare DEWALT DW479",
+"nome": "Smerigliatrice angolare 230 mm DW479",
 "modello": "DW479",
 "codice": "DW479-QS",
 "categoria": "Smerigliatrici e levigatrici",
@@ -50145,12 +50454,14 @@
 "immagineDewalt": "",
 "soloLink": true,
 "sottotitolo": "Taglio e sbavatura di metallo e materiali edili",
-"descrizione": "Smerigliatrice angolare per tagliare, sbavare e levigare metallo, pietra e materiali edili con dischi da taglio, da sbavo, lamellari e diamantati.\n\nTaglia e sbava ferro, inox, pietra e laterizi con dischi da taglio, da sbavo e lamellari. Alimentazione a rete 230 V: potenza costante senza pensieri di ricarica.",
+"descrizione": "Smerigliatrice angolare a filo DEWALT per dischi da 230 mm, per tagliare e sbavare ferro, pietra e materiali edili nei lavori pesanti.\n\nSi tratta di un modello storico DEWALT, oggi fuori produzione: l'articolo è disponibile solo fino a esaurimento e prima della spedizione ti confermiamo condizioni e dotazione. Come centro assistenza autorizzato possiamo comunque fornire i ricambi originali ancora disponibili.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DW479",
-"Tipologia: Taglio e sbavatura di metallo e materiali edili",
-"Alimentazione: rete 230 V"
+"Tipologia: Smerigliatrice angolare 230 mm",
+"Diametro disco: 230 mm",
+"Alimentazione: rete 230 V",
+"Stato: modello fuori produzione (fine scorte)"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
@@ -50272,13 +50583,17 @@
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWE315_1_1280.webp",
 "soloLink": true,
 "sottotitolo": "Tagliare, raschiare e levigare con un solo utensile",
-"descrizione": "Utensile multifunzione oscillante: taglia a filo, rimuove fughe e sigillanti, raschia e leviga in angoli e spazi dove altri utensili non arrivano. Questo modello (DWE315) ha potenza 300 W.\n\nAlimentazione a rete 230 V: potenza costante senza pensieri di ricarica.",
+"descrizione": "Utensile multifunzione oscillante: taglia a filo, rimuove fughe e sigillanti, raschia e leviga in angoli e spazi dove altri utensili non arrivano. Questo modello (DWE315) ha potenza 300 W. Inoltre: peso 2,32 kg, larghezza 15,56 cm.\n\nAlimentazione a rete 230 V: potenza costante senza pensieri di ricarica.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DWE315",
 "Tipologia: Tagliare, raschiare e levigare con un solo utensile",
 "Potenza assorbita: 300 W",
-"Alimentazione: rete 230 V"
+"Alimentazione: rete 230 V",
+"Tensione: 230V",
+"Lunghezza: 46,04 cm",
+"Peso: 2,32 kg",
+"Larghezza: 15,56 cm"
 ],
 "dotazione": "",
 "disponibilita": "conferma",
