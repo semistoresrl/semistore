@@ -14,12 +14,13 @@ export async function onRequestPost({ request, env }) {
   const rec = { id, ricevuta: now.toISOString(), stato: 'Richiesta dal sito', ...d };
   let salvata = false;
   if (env.RICHIESTE) { await env.RICHIESTE.put(`richiesta:${id}`, JSON.stringify(rec)); salvata = true; }
-  if (env.RESEND_API_KEY && env.EMAIL_TO) {
+  if (env.RESEND_API_KEY) {
+    const to = (env.EMAIL_TO || 'info@semistore.it').split(',');
     const testo = Object.entries(rec).map(([k, v]) => `${k}: ${v}`).join('\n');
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ from: env.EMAIL_FROM || 'Sito Semi Store <sito@semistore.it>', to: env.EMAIL_TO.split(','), reply_to: d.email || undefined, subject: `Assistenza ${id} · ${d.modello} · ${d.nome}`, text: testo }),
+      body: JSON.stringify({ from: env.EMAIL_FROM || 'Sito Semi Store <onboarding@resend.dev>', to, reply_to: d.email || undefined, subject: `Assistenza ${id} · ${d.modello} · ${d.nome}`, text: testo }),
     });
     salvata = salvata || r.ok;
   }
