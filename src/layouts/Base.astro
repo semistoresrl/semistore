@@ -78,7 +78,6 @@ const nav = [
         <b class="ftr-brand">SEMI STORE</b>
         <span>{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</span>
         <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br /><a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
-        {SITO.orari.length > 0 && <span>{SITO.orari.map((o) => <>{o.giorni} {o.ore}<br /></>)}</span>}
       </div>
       <div class="col"><b>Negozio</b><a href="/catalogo/">Catalogo</a><a href="/condizioni-di-vendita/">Spedizioni e resi</a><a href="/condizioni-di-vendita/#pagamenti">Pagamenti</a></div>
       <div class="col"><b>Assistenza</b><a href="/assistenza/">Richiedi riparazione</a><a href="/assistenza/#stato">Stato riparazione</a><a href="/assistenza/#preventivo">Preventivo</a></div>
