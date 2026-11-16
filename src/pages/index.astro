@@ -11,7 +11,7 @@ const evidenza = ['DCD805P2T', 'DCF850P2T', 'DCG405P2', 'DCF900P2T', 'DCH273P2T'
 const trend = evidenza.filter((p) => fotoDi(p.slug));
 const cats = Object.entries(prodotti.reduce((a, p) => ((a[p.categoria] = (a[p.categoria] || 0) + 1), a), {} as Record<string, number>))
   .sort((a, b) => b[1] - a[1]);
-const sigla: Record<string, string> = { 'Trapani e avvitatori': 'TR', 'Tassellatori e demolitori': 'TS', 'Smerigliatrici e levigatrici': 'SM', 'Seghe e troncatrici': 'SG', 'Batterie': 'BT', 'Kit': 'KT', 'Misura e laser': 'MI', 'Contenitori': 'ST', 'Giardino': 'GI', 'Altri utensili': 'AU' };
+const sigla: Record<string, string> = { 'Trapani e avvitatori': 'TR', 'Tassellatori e demolitori': 'TS', 'Smerigliatrici e levigatrici': 'SM', 'Seghe e troncatrici': 'SG', 'Batterie e caricabatterie': 'BT', 'Kit': 'KT', 'Misura e laser': 'MI', 'Contenitori e organizzazione': 'ST', 'Giardino': 'GI', 'Altri utensili': 'AU', 'Punte e inserti': 'PI', 'Lame, dischi e abrasivi': 'LD', 'Chiodatrici e fissaggio': 'CH', 'Accessori per elettroutensili': 'AC', 'Aspirazione e pulizia': 'AS', 'Utensili manuali': 'UM', 'Compressori e aria compressa': 'CO' };
 // Anteprime animate delle categorie: 4 foto ufficiali che si alternano con un leggero zoom
 const anteprima = (c: string) => {
   const foto = prodotti.filter((p) => p.categoria === c).map((p) => fotoDi(p.slug, 400) || (p.kit ? p.kit.find((k: any) => k.u)?.u : undefined)).filter(Boolean) as string[];
@@ -20,7 +20,7 @@ const anteprima = (c: string) => {
   while (uniche.length < 4) uniche.push(uniche[uniche.length % Math.max(1, uniche.length)]);
   return uniche;
 };
-const slugCat = (c: string) => c.toLowerCase().split(' ')[0];
+const slugCat = (c: string) => c.toLowerCase().split(/[ ,]/)[0];
 const piattaforme = [
   { v: '12V', n: 'XR 12V', d: 'Compatti e leggeri, per installatori e spazi stretti.', q: '12v' },
   { v: '18V', n: 'XR 18V', d: 'La gamma più ampia: il sistema di riferimento per il professionista.', q: '18v' },
@@ -98,7 +98,7 @@ const passi = [
     <h2 class="h2" style="color:#fff">Scegli la tua piattaforma</h2>
     <div class="plat-g">
       {piattaforme.map((p) => (
-        <a href={`/catalogo/?q=${p.q}`} class="plat-c"><span class="plat-v">{p.v}</span><b>{p.n}</b><span>{p.d}</span><span class="plat-l">Vedi la gamma →</span></a>
+        <a href={`/catalogo/?volt=${p.q}`} class="plat-c"><span class="plat-v">{p.v}</span><b>{p.n}</b><span>{p.d}</span><span class="plat-l">Vedi la gamma →</span></a>
       ))}
     </div>
   </div></section>

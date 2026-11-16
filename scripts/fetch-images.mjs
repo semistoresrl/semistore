@@ -34,6 +34,8 @@ let ok = 0, salt = 0, ko = 0;
 await Promise.all(prodotti.map(async (p) => {
   const big = path.join(dir, `${p.slug}-800.webp`);
   if (await esiste(big)) { salt++; return; }
+  // prodotti importati dal listino: si usa direttamente la foto ufficiale, senza scaricarla
+  if (p.soloLink) { salt++; return; }
   // prova prima una foto locale messa a mano (public/img/originali/<slug>.jpg|png)
   let buf = null;
   for (const ext of ['jpg', 'jpeg', 'png', 'webp']) {

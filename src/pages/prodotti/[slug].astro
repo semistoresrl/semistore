@@ -16,10 +16,11 @@ const titolo = `${p.marca} ${p.modello ? p.modello + ' ' : ''}${p.nome}`.replace
 const specs = (p.caratteristiche || []).map((s) => { const i = s.indexOf(': '); return i > 0 && i < 40 ? [s.slice(0, i), s.slice(i + 2)] : ['', s]; });
 const risparmio = p.prezzoListino && p.prezzoListino > p.prezzo ? Math.round((1 - p.prezzo / p.prezzoListino) * 100) : 0;
 const ld = productLd(p, img);
+const conferma = p.disponibilita === 'conferma';
 ---
 <Base title={titolo} description={`${p.sottotitolo ? p.sottotitolo + '. ' : ''}${p.marca} ${p.modello || ''} a ${euro(p.prezzo)}: spedizione o ritiro a ${SITO.citta}, garanzia gestita da centro assistenza autorizzato.`} image={img} jsonld={ld}>
   <div class="wrap">
-    <nav aria-label="Percorso" class="bc"><a href="/">Home</a> / <a href="/catalogo/">Catalogo</a> / <a href={`/catalogo/?cat=${p.categoria.toLowerCase().split(' ')[0]}`}>{p.categoria}</a></nav>
+    <nav aria-label="Percorso" class="bc"><a href="/">Home</a> / <a href="/catalogo/">Catalogo</a> / <a href={`/catalogo/?cat=${p.categoria.toLowerCase().split(/[ ,]/)[0]}`}>{p.categoria}</a></nav>
     <div class="pd">
       <div class="card pd-img">
         {img ? <img src={img} width="800" height="800" alt={titolo} fetchpriority="high" /> : p.kit ? <KitFoto pezzi={p.kit} alt={titolo} /> : <span class="mono" style="font-size:40px;color:#c9c6bc;font-weight:700">{p.modello || p.marca}</span>}
@@ -38,7 +39,10 @@ const ld = productLd(p, img);
         </div>
         <p id="ok" hidden class="okmsg" role="status">Aggiunto. <a class="ul" href="/carrello/">Vai al carrello</a></p>
         <ul class="pd-l">
-          <li>Spedizione in {SITO.spedizione.giorni} giorni lavorativi, gratis sopra {euro(SITO.spedizione.gratisDa)}</li>
+          {conferma
+            ? <li><b>Disponibilità su conferma:</b> dopo l'ordine ti contattiamo entro 1 giorno lavorativo per confermare disponibilità e tempi. Se il prodotto non è disponibile ti rimborsiamo subito l'intero importo.</li>
+            : <li>Spedizione in {SITO.spedizione.giorni} giorni lavorativi, gratis sopra {euro(SITO.spedizione.gratisDa)}</li>}
+          {conferma && <li>Spedizione gratis sopra {euro(SITO.spedizione.gratisDa)}, tempi indicati alla conferma</li>}
           <li>Ritiro gratuito in negozio a {SITO.citta}</li>
           <li>Garanzia e riparazioni gestite direttamente da noi, centro autorizzato</li>
           <li>Hai dubbi su batterie o kit? <a class="ul" href={`tel:${SITO.telefonoLink}`}>Chiamaci</a></li>

@@ -6,7 +6,7 @@ const { p, eager = false } = Astro.props;
 const img = fotoDi(p.slug, 400);
 const srcset = fotoLocale(p.slug) ? `/img/prodotti/${p.slug}-400.webp 400w, /img/prodotti/${p.slug}-800.webp 800w` : undefined;
 ---
-<a href={`/prodotti/${p.slug}/`} class="pc card" data-marca={p.marca} data-cat={p.categoria} data-text={`${p.nome} ${p.modello} ${p.marca} ${p.categoria}`.toLowerCase()}>
+<a href={`/prodotti/${p.slug}/`} class="pc card" data-marca={p.marca} data-cat={p.categoria} data-volt={p.volt || ''} data-text={`${p.nome} ${p.modello} ${p.marca} ${p.categoria}`.toLowerCase()}>
   <span class="pc-img">
     {img
       ? <img src={img} srcset={srcset} sizes="(max-width:600px) 50vw, 260px" width="400" height="400" alt={p.nome} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager ? 'high' : undefined} />
@@ -16,7 +16,7 @@ const srcset = fotoLocale(p.slug) ? `/img/prodotti/${p.slug}-400.webp 400w, /img
   <span class="pc-b">
     {p.modello && <span class="mono pc-code">{p.modello}</span>}
     <b class="pc-n">{p.nome}</b>
-    <span class="pc-f"><span class="pc-pr">{euro(p.prezzo)}</span><span class="pc-ok">Disponibile</span></span>
+    <span class="pc-f"><span class="pc-pr">{euro(p.prezzo)}</span>{p.disponibilita === 'conferma' ? <span class="pc-ok pc-cf">Su conferma</span> : <span class="pc-ok">Disponibile</span>}</span>
   </span>
 </a>
 <style>
@@ -30,5 +30,5 @@ const srcset = fotoLocale(p.slug) ? `/img/prodotti/${p.slug}-400.webp 400w, /img
   .pc-b{padding:16px;display:flex;flex-direction:column;gap:6px;flex:1}
   .pc-code{font-size:12px;color:var(--mut)}.pc-n{font-size:16px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
   .pc-f{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:8px}
-  .pc-pr{font-size:21px;font-weight:900}.pc-ok{font-size:12px;font-weight:700;color:var(--ok)}
+  .pc-pr{font-size:21px;font-weight:900}.pc-ok{font-size:12px;font-weight:700;color:var(--ok)}.pc-cf{color:var(--mut)}
 </style>
