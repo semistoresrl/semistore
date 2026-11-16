@@ -34,10 +34,10 @@ export const SITO = {
 };
 
 export const GOOGLE = {
-  // formato ufficiale Google Maps: funziona anche quando il link apre l'app Maps sul telefono
-  scheda: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`SE.M.I. srl ${SITO.indirizzo} ${SITO.citta}`)}&query_place_id=${SITO.googlePlaceId}`,
+  // link della scheda Google fornito dal cliente (16/11/2026): da qui si leggono e si lasciano le recensioni
+  scheda: 'https://www.google.com/maps/place/SE.M.I.+srl+Professional+vendita+e+assistenza+tecnica+BLACK%2BDECKER+DEWALT+STANLEY,+Viale+Guglielmo+Marconi,+225,+80020+Casavatore+NA/@40.8934602,14.2784996,15z/data=!4m6!3m5!1s0x133b0811259209a5:0x7d762bd1984670b0!8m2!3d40.8934602!4d14.2784996!16s%2Fg%2F1w9355gw',
   indicazioni: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${SITO.indirizzo}, ${SITO.cap} ${SITO.citta}`)}&destination_place_id=${SITO.googlePlaceId}`,
-  recensione: `https://search.google.com/local/writereview?placeid=${SITO.googlePlaceId}`,
+  recensione: 'https://www.google.com/maps/place/SE.M.I.+srl+Professional+vendita+e+assistenza+tecnica+BLACK%2BDECKER+DEWALT+STANLEY,+Viale+Guglielmo+Marconi,+225,+80020+Casavatore+NA/@40.8934602,14.2784996,15z/data=!4m6!3m5!1s0x133b0811259209a5:0x7d762bd1984670b0!8m2!3d40.8934602!4d14.2784996!16s%2Fg%2F1w9355gw',
 };
 
 export const euro = (cent) =>
