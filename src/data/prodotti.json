@@ -808,7 +808,8 @@
   "prezzo": 6000,
   "volt": "3.6V",
   "immagineOrigine": "http://semistore.it/public/icona/50794619_121707_CESOIA-BATTERIA-3.6V-GSL200-QW.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/GSL200_1.jpg"
  },
  {
   "id": 3723,
@@ -820,7 +821,8 @@
   "prezzo": 20000,
   "volt": "36V",
   "immagineOrigine": "http://semistore.it/public/icona/11231631_motosega-batteria-gkc3630l20.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/GKC3630L20_1.jpg"
  },
  {
   "id": 3707,
@@ -832,7 +834,8 @@
   "prezzo": 12000,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/81705874_LEVIGATRICE-NASTRO-720W-KA88-QS.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/KA88_1.jpg"
  },
  {
   "id": 3703,
@@ -844,7 +847,8 @@
   "prezzo": 6000,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/17344302_LEVIGATRICE-%20MOUSSE-120W-KA2000-QS.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/KA2000_1.jpg"
  },
  {
   "id": 3706,
@@ -856,7 +860,8 @@
   "prezzo": 5000,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/30656070_LEVIGATRICE-ORBITALE-150W-BEW220-QS.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/BEW220_1.jpg"
  },
  {
   "id": 3708,
@@ -868,7 +873,8 @@
   "prezzo": 7500,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/5469913_PISTOLA-TERMICA-KX2200K-QS.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/KX2200K_2.jpg"
  },
  {
   "id": 3705,
@@ -880,7 +886,8 @@
   "prezzo": 8300,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/61234683_36489505_SEGA-CIRCOLARE-1250W-CS1250L-QS.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/CS1250L_1.jpg"
  },
  {
   "id": 3724,
@@ -892,7 +899,8 @@
   "prezzo": 8500,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/50919741_smerigliatrice-angolare-kg2000.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/KG2000_1.jpg"
  },
  {
   "id": 3702,
@@ -904,7 +912,8 @@
   "prezzo": 10790,
   "volt": "18V",
   "immagineOrigine": "http://semistore.it/public/icona/5913943_TRAPANO-AVVITATORE-BDCHD18K-QW.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://www.blackanddecker.it/EMEA/PRODUCT/IMAGES/HIRES/BDCHD18K_1.jpg"
  },
  {
   "id": 3711,
