@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import { SITO } from '../data/sito.js';
-const q = encodeURIComponent(`${SITO.indirizzo}, ${SITO.cap} ${SITO.citta}`);
+import { SITO, GOOGLE } from '../data/sito.js';
+import ApertoOra from '../components/ApertoOra.astro';
 import VideoNegozio from '../components/VideoNegozio.astro';
 ---
 <Base title="Contatti e dove siamo" description={`Semi Store, ${SITO.indirizzo}, ${SITO.citta} (${SITO.provincia}). Telefono ${SITO.telefono}. Vendita e assistenza DEWALT.`}>
@@ -11,7 +11,8 @@ import VideoNegozio from '../components/VideoNegozio.astro';
       <div class="card box">
         <h2>Negozio e laboratorio</h2>
         <p style="margin:0">{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</p>
-        <a class="btn btn-k" href={`https://www.google.com/maps/search/?api=1&query=${q}`} rel="noopener">Indicazioni stradali</a>
+        <a class="btn btn-k" href={GOOGLE.indicazioni} target="_blank" rel="noopener">Indicazioni stradali</a>
+        <a class="btn btn-k" href={GOOGLE.scheda} target="_blank" rel="noopener">Apri su Google Maps</a>
       </div>
       <div class="card box">
         <h2>Scrivici o chiamaci</h2>
@@ -19,7 +20,14 @@ import VideoNegozio from '../components/VideoNegozio.astro';
         <a class="btn btn-k" href={`mailto:${SITO.email}`}>{SITO.email}</a>
         {SITO.whatsapp && <a class="btn btn-k" href={`https://wa.me/${SITO.whatsapp}`} rel="noopener">WhatsApp</a>}
       </div>
-      {SITO.orari.length > 0 && <div class="card box"><h2>Orari</h2>{SITO.orari.map((o) => <p style="margin:0"><b>{o.giorni}</b> {o.ore}</p>)}</div>}
+      {SITO.orari.length > 0 && (
+        <div class="card box">
+          <h2>Orari</h2>
+          <ApertoOra chiaro />
+          {SITO.orari.map((o) => <p style="margin:0"><b>{o.giorni}</b> {o.ore}</p>)}
+          <a class="btn btn-k" href={GOOGLE.recensione} target="_blank" rel="noopener">Lascia una recensione su Google</a>
+        </div>
+      )}
     </div>
   </section>
   <VideoNegozio titolo="Come arrivare" />

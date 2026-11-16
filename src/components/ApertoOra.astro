@@ -1,0 +1,37 @@
+---
+// Badge "Aperto ora / Chiuso" calcolato nel browser sull'ora italiana, dalle fasce in sito.js
+import { SITO } from '../data/sito.js';
+const { chiaro = false } = Astro.props;
+---
+<span class={`ao ${chiaro ? 'ao-l' : ''}`} data-fasce={JSON.stringify(SITO.fasce)}><i></i><span class="ao-t">{SITO.orari[0]?.giorni} {SITO.orari[0]?.ore}</span></span>
+<style>
+  .ao{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#fff}
+  .ao-l{color:var(--ink)}
+  .ao i{width:9px;height:9px;border-radius:50%;background:#9aa0a6;flex:none}
+  .ao.on i{background:#2ecc71;box-shadow:0 0 0 0 #2ecc7199;animation:aop 2s infinite}
+  .ao.off i{background:#e74c3c}
+  @keyframes aop{70%{box-shadow:0 0 0 8px #2ecc7100}100%{box-shadow:0 0 0 0 #2ecc7100}}
+  @media (prefers-reduced-motion:reduce){.ao.on i{animation:none}}
+</style>
+<script>
+  const giorni = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+  const min = (s) => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+  const ora = (s) => s.replace(/^0/, '');
+  document.querySelectorAll('.ao').forEach((el) => {
+    const fasce = JSON.parse(el.dataset.fasce || '{}');
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Rome', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+    const d = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(p.weekday);
+    const now = Number(p.hour) % 24 * 60 + Number(p.minute);
+    const oggi = fasce[d] || [];
+    const aperta = oggi.find(([a, b]) => now >= min(a) && now < min(b));
+    const t = el.querySelector('.ao-t');
+    if (aperta) { el.classList.add('on'); t.textContent = `Aperto ora · chiude alle ${ora(aperta[1])}`; return; }
+    el.classList.add('off');
+    const dopo = oggi.find(([a]) => min(a) > now);
+    if (dopo) { t.textContent = `Chiuso · riapre alle ${ora(dopo[0])}`; return; }
+    for (let k = 1; k <= 7; k++) {
+      const g = (d + k) % 7;
+      if (fasce[g]?.length) { t.textContent = `Chiuso · riapre ${k === 1 ? 'domani' : giorni[g]} alle ${ora(fasce[g][0][0])}`; return; }
+    }
+  });
+</script>

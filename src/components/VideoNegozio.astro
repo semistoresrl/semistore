@@ -1,8 +1,9 @@
 ---
 // Video del negozio: anteprima muta in loop (parte solo quando è visibile) + video completo con audio in una finestra.
-import { SITO } from '../data/sito.js';
+import { SITO, GOOGLE } from '../data/sito.js';
+import ApertoOra from './ApertoOra.astro';
 const { titolo = 'Vieni a trovarci', compatto = false } = Astro.props;
-const mappa = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${SITO.ragioneSociale} ${SITO.indirizzo}, ${SITO.cap} ${SITO.citta} ${SITO.provincia}`)}`;
+const mappa = GOOGLE.indicazioni;
 ---
 <section class={`vn ${compatto ? 'vn-c' : ''}`}>
   <div class="vn-in">
@@ -14,6 +15,7 @@ const mappa = `https://www.google.com/maps/dir/?api=1&destination=${encodeURICom
     <div class="vn-t">
       <span class="vn-k mono">Il negozio · {SITO.citta}</span>
       <h2>{titolo}</h2>
+      <ApertoOra />
       <p>Esposizione completa DEWALT, BLACK+DECKER e STANLEY, laboratorio di riparazione interno e ricambi originali. Passa a provare gli utensili o portaci il tuo in assistenza.</p>
       <ul class="vn-l">
         <li><b>Indirizzo</b><span>{SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia})</span></li>
@@ -23,6 +25,7 @@ const mappa = `https://www.google.com/maps/dir/?api=1&destination=${encodeURICom
       <div class="vn-b">
         <a class="btn btn-y" href={mappa} target="_blank" rel="noopener">Indicazioni stradali</a>
         <a class="btn btn-o" href={`tel:${SITO.telefonoLink}`}>Chiama</a>
+        <a class="btn btn-o" href={GOOGLE.scheda} target="_blank" rel="noopener">Recensioni su Google</a>
       </div>
     </div>
   </div>

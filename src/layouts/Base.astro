@@ -1,7 +1,7 @@
 ---
 import '@fontsource-variable/archivo';
 import font from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
-import { SITO } from '../data/sito.js';
+import { SITO, GOOGLE } from '../data/sito.js';
 interface Props { title: string; description?: string; image?: string; noindex?: boolean; jsonld?: object }
 const { title, description = 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (NA). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITO.url).href;
@@ -11,6 +11,8 @@ const org = {
   url: SITO.url, telephone: SITO.telefonoLink, email: SITO.email, vatID: 'IT' + SITO.piva,
   address: { '@type': 'PostalAddress', streetAddress: SITO.indirizzo, postalCode: SITO.cap, addressLocality: SITO.citta, addressRegion: SITO.provincia, addressCountry: 'IT' },
   sameAs: [SITO.instagram, SITO.facebook].filter(Boolean),
+  hasMap: GOOGLE.scheda,
+  openingHoursSpecification: Object.entries(SITO.fasce).flatMap(([g, f]) => f.map(([opens, closes]) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][Number(g)], opens, closes }))),
 };
 const path = Astro.url.pathname;
 const nav = [
@@ -76,12 +78,14 @@ const nav = [
         <b class="ftr-brand">SEMI STORE</b>
         <span>{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</span>
         <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br /><a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
+        {SITO.orari.length > 0 && <span>{SITO.orari.map((o) => <>{o.giorni} {o.ore}<br /></>)}</span>}
       </div>
       <div class="col"><b>Negozio</b><a href="/catalogo/">Catalogo</a><a href="/condizioni-di-vendita/">Spedizioni e resi</a><a href="/condizioni-di-vendita/#pagamenti">Pagamenti</a></div>
       <div class="col"><b>Assistenza</b><a href="/assistenza/">Richiedi riparazione</a><a href="/assistenza/#stato">Stato riparazione</a><a href="/assistenza/#preventivo">Preventivo</a></div>
       <div class="col"><b>Seguici</b>
         {SITO.instagram && <a href={SITO.instagram} rel="noopener">Instagram</a>}
         {SITO.facebook && <a href={SITO.facebook} rel="noopener">Facebook</a>}
+        <a href={GOOGLE.scheda} rel="noopener">Google Maps</a>
         {SITO.orari.length > 0 && <><b style="margin-top:12px">Orari</b>{SITO.orari.map((o) => <span>{o.giorni} {o.ore}</span>)}</>}
       </div>
     </div>
