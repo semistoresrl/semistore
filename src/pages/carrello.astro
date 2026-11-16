@@ -1,9 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
 import prodotti from '../data/prodotti.json';
-import foto from '../data/foto.json';
+import { fotoDi } from '../data/foto';
 import { SITO } from '../data/sito.js';
-const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.modello, pr: p.prezzo, img: (foto as Record<string, boolean>)[p.slug] }]));
+const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.modello, pr: p.prezzo, img: fotoDi(p.slug, 400) || '' }]));
 ---
 <Base title="Carrello" noindex>
   <section class="wrap sec">
@@ -40,7 +40,7 @@ const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.m
     const box = el('righe');
     if (!items.length) { box.innerHTML = '<p style="padding:24px;margin:0">Il carrello è vuoto. <a class="ul" href="/catalogo/">Vai al catalogo</a></p>'; }
     else box.innerHTML = items.map((i) => { const p = M[i.slug]; return `<div class="riga">
-      ${p.img ? `<img src="/img/prodotti/${i.slug}-400.webp" width="80" height="80" alt="">` : '<span class="ph"></span>'}
+      ${p.img ? `<img src="${p.img}" width="80" height="80" alt="">` : '<span class="ph"></span>'}
       <a href="/prodotti/${i.slug}/" class="rn"><b>${esc(p.n)}</b><small class="mono">${esc(p.m || '')}</small></a>
       <label class="rq"><span class="sr">Quantità</span><input type="number" min="0" max="20" value="${i.qty}" data-s="${i.slug}"></label>
       <b class="rp">${eur(p.pr * i.qty)}</b>

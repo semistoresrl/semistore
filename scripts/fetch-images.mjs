@@ -24,8 +24,12 @@ await Promise.all(prodotti.map(async (p) => {
     const f = `public/img/originali/${p.slug}.${ext}`;
     if (await esiste(f)) { buf = await fs.readFile(f); break; }
   }
-  if (!buf && p.immagineOrigine) {
-    for (const u of [p.immagineOrigine.replace('http://', 'https://'), p.immagineOrigine]) {
+  // poi la foto ufficiale DEWALT (fondo bianco), infine quella del vecchio sito
+  const fonti = [];
+  if (p.immagineDewalt) fonti.push(p.immagineDewalt);
+  if (p.immagineOrigine) fonti.push(p.immagineOrigine.replace('http://', 'https://'), p.immagineOrigine);
+  if (!buf && fonti.length) {
+    for (const u of fonti) {
       try {
         const r = await fetch(u, { signal: AbortSignal.timeout(20000), headers: { 'user-agent': 'Mozilla/5.0 (SemiStore build)' } });
         if (!r.ok) console.warn('Foto', p.slug, r.status, u);
@@ -48,6 +52,7 @@ await Promise.all(prodotti.map(async (p) => {
 }));
 
 const presenti = {};
-for (const p of prodotti) presenti[p.slug] = await esiste(path.join(dir, `${p.slug}-800.webp`));
+// true = WebP locale; se il download non riesce si usa direttamente la foto ufficiale DEWALT
+for (const p of prodotti) presenti[p.slug] = (await esiste(path.join(dir, `${p.slug}-800.webp`))) || p.immagineDewalt || false;
 await fs.writeFile('src/data/foto.json', JSON.stringify(presenti));
 console.log(`Foto: ${ok} nuove, ${salt} già presenti, ${ko} mancanti`);

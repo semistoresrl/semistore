@@ -2,15 +2,14 @@
 import Base from '../../layouts/Base.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import prodotti from '../../data/prodotti.json';
-import foto from '../../data/foto.json';
+import { fotoDi } from '../../data/foto';
 import { SITO, euro } from '../../data/sito.js';
 import { productLd } from '../../data/seo.js';
 export async function getStaticPaths() {
   return prodotti.map((prod) => ({ params: { slug: prod.slug }, props: { p: prod } }));
 }
 const { p } = Astro.props;
-const hasImg = (foto as Record<string, boolean>)[p.slug];
-const img = hasImg ? `/img/prodotti/${p.slug}-800.webp` : undefined;
+const img = fotoDi(p.slug);
 const simili = prodotti.filter((x) => x.categoria === p.categoria && x.slug !== p.slug).slice(0, 4);
 const titolo = `${p.nome}${p.modello ? ' ' + p.modello : ''}`;
 const ld = productLd(p, img);

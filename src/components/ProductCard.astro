@@ -1,13 +1,14 @@
 ---
 import { euro } from '../data/sito.js';
-import foto from '../data/foto.json';
+import { fotoDi, fotoLocale } from '../data/foto';
 const { p, eager = false } = Astro.props;
-const hasImg = (foto as Record<string, boolean>)[p.slug];
+const img = fotoDi(p.slug, 400);
+const srcset = fotoLocale(p.slug) ? `/img/prodotti/${p.slug}-400.webp 400w, /img/prodotti/${p.slug}-800.webp 800w` : undefined;
 ---
 <a href={`/prodotti/${p.slug}/`} class="pc card" data-marca={p.marca} data-cat={p.categoria} data-text={`${p.nome} ${p.modello} ${p.marca} ${p.categoria}`.toLowerCase()}>
   <span class="pc-img">
-    {hasImg
-      ? <img src={`/img/prodotti/${p.slug}-400.webp`} srcset={`/img/prodotti/${p.slug}-400.webp 400w, /img/prodotti/${p.slug}-800.webp 800w`} sizes="(max-width:600px) 50vw, 260px" width="400" height="400" alt={p.nome} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager ? 'high' : undefined} />
+    {img
+      ? <img src={img} srcset={srcset} sizes="(max-width:600px) 50vw, 260px" width="400" height="400" alt={p.nome} loading={eager ? 'eager' : 'lazy'} decoding="async" fetchpriority={eager ? 'high' : undefined} />
       : <span class="mono pc-ph">{p.modello || p.marca}</span>}
     <span class="pc-tags">{p.volt && <span class="t-k">{p.volt}</span>}<span class="t-w">{p.marca}</span></span>
   </span>

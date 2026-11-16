@@ -3,11 +3,11 @@ import Base from '../layouts/Base.astro';
 import ProductCard from '../components/ProductCard.astro';
 import prodotti from '../data/prodotti.json';
 import { SITO } from '../data/sito.js';
-import foto from '../data/foto.json';
+import { fotoDi } from '../data/foto';
 
 const evidenza = ['DCD805P2T', 'DCF900P2T', 'DCG405P2', 'DCB115P3', 'DCH273P2T', 'DCK2153P2T', 'DCS438E2T', 'DCE089D1G']
   .map((m) => prodotti.find((p) => p.modello === m)).filter(Boolean).slice(0, 8);
-const heroImg = evidenza[0] && (foto as Record<string, boolean>)[evidenza[0].slug] ? `/img/prodotti/${evidenza[0].slug}-800.webp` : '';
+const heroImg = (evidenza[0] && fotoDi(evidenza[0].slug)) || '';
 const cats = Object.entries(prodotti.reduce((a, p) => ((a[p.categoria] = (a[p.categoria] || 0) + 1), a), {} as Record<string, number>))
   .sort((a, b) => b[1] - a[1]);
 const sigla: Record<string, string> = { 'Trapani e avvitatori': 'TR', 'Tassellatori e demolitori': 'TS', 'Smerigliatrici e levigatrici': 'SM', 'Seghe e troncatrici': 'SG', 'Batterie': 'BT', 'Kit': 'KT', 'Misura e laser': 'MI', 'Contenitori': 'ST', 'Giardino': 'GI', 'Altri utensili': 'AU' };
