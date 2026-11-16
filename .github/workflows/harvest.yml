@@ -12,12 +12,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: node scripts/harvest/data5.mjs
+      - run: node scripts/harvest/img6.mjs
       - run: |
           git config user.name harvest-bot
           git config user.email harvest@users.noreply.github.com
           git checkout --orphan harvest-data
           git rm -rfq --cached .
-          git add -f harvest-out/r5.json harvest-out/d5.json
+          git add -f harvest-out/img6.json
           git commit -qm "harvest $(date -u +%FT%T)"
           git push -f origin harvest-data
