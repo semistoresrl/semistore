@@ -81,13 +81,14 @@
   "id": 3665,
   "slug": "dewalt-avvitatori-a-impulsi-1-4-3-velocita-206nm-18v-xr-5ah-dcf900p2t",
   "marca": "DEWALT",
-  "nome": "Avvitatori a impulsi 1/4 3 velocita' 206Nm 18V XR 5Ah",
-  "modello": "DCF900P2T",
+  "nome": "Avvitatore a impulsi 1/4\" compatto 3 velocità 206Nm 18V XR 5Ah",
+  "modello": "DCF850P2T",
   "categoria": "Trapani e avvitatori",
   "prezzo": 41000,
   "volt": "18V",
   "immagineOrigine": "http://semistore.it/public/icona/29493350_DCF900P2T_QW.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCF850P2T_K1_1280.webp"
  },
  {
   "id": 3664,
@@ -119,7 +120,7 @@
   "id": 3671,
   "slug": "dewalt-batteria-18v-xr-2-0ah-dcb115d3",
   "marca": "DEWALT",
-  "nome": "Batteria 18V XR 2.0Ah",
+  "nome": "Starter kit 3 batterie 18V XR 2Ah + caricabatterie DCB115",
   "modello": "DCB115D3",
   "categoria": "Batterie",
   "prezzo": 21300,
@@ -131,7 +132,7 @@
   "id": 3672,
   "slug": "dewalt-batteria-18v-xr-5-0ah-dcb115p3",
   "marca": "DEWALT",
-  "nome": "Batteria 18V XR 5.0Ah",
+  "nome": "Starter kit 3 batterie 18V XR 5Ah + caricabatterie DCB115",
   "modello": "DCB115P3",
   "categoria": "Batterie",
   "prezzo": 27500,
@@ -790,13 +791,14 @@
   "id": 3720,
   "slug": "dewalt-valigia-porta-attrezzi-con-doppio-cassetto-tstak",
   "marca": "DEWALT",
-  "nome": "Valigia porta attrezzi con doppio cassetto TSTAK",
-  "modello": "",
+  "nome": "Valigia porta attrezzi TSTAK IV con doppio cassetto",
+  "modello": "DWST1-70706",
   "categoria": "Contenitori",
   "prezzo": 5500,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/46960086_valigia-porta-attrezzi-doppio-cassetto-tstak-dwst-1.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWST1-70706_1_1280.webp"
  },
  {
   "id": 3704,
