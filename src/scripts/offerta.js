@@ -53,8 +53,9 @@ if (el.length) {
 
   const avvia = () => { mostra(true); aggiorna(); t = setInterval(aggiorna, 1000); };
 
-  if (modo() === 'prossima') avvia(); // prima dell'apertura la pagina DEWALT può non essere ancora online
-  else if (modo() === 'attiva') {
+  // date di apertura e chiusura entrambe note: valgono le date (la pagina DEWALT può essere lenta o bloccare i controlli)
+  if (modo() === 'prossima' || (ini && fin && modo() === 'attiva')) avvia();
+  else if (modo() === 'attiva') { // senza date: decide il controllo della pagina DEWALT
     fetch('/api/offerta').then((r) => (r.ok ? r.json() : { attiva: false })).catch(() => ({ attiva: false })).then((o) => {
       // appena aperta (prima mezz'ora) si fida della data: il controllo della pagina DEWALT ha 10 minuti di cache
       if (o.attiva || (ini && ora() - ini < 30 * 60 * 1000)) avvia();

@@ -1,4 +1,5 @@
 // GET /api/offerta -> { attiva, titolo, immagine }
+// Quando il negozio DEWALT è chiuso rimanda a /storeclosed.
 // Controlla che la pagina delle offerte DEWALT sia online e non risulti terminata.
 // Risposta tenuta in cache 10 minuti, così il sito DEWALT non viene interrogato a ogni visita.
 import { OFFERTA, scadenzaMs } from '../../src/data/offerta.js';
@@ -17,7 +18,7 @@ export async function onRequestGet({ request, waitUntil }) {
     try {
       const r = await fetch(OFFERTA.url, { redirect: 'follow', signal: AbortSignal.timeout(6000), headers: { 'user-agent': 'SemiStore-check/1.0' } });
       const html = r.ok ? (await r.text()).slice(0, 200000) : '';
-      const finita = !r.ok || FINITA.test(html.replace(/<script[\s\S]*?<\/script>/gi, ''));
+      const finita = !r.ok || /storeclosed/i.test(r.url) || FINITA.test(html.replace(/<script[\s\S]*?<\/script>/gi, ''));
       out = { attiva: !finita, titolo: meta(html, 'og:title'), immagine: meta(html, 'og:image') };
     } catch {
       out = { attiva: false };

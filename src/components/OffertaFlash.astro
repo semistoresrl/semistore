@@ -11,11 +11,12 @@ const foto = ['DCF850P2T', 'DCD805P2T', 'DCG405P2']
 {OFFERTA.attiva && (
   <section class="of-w" data-offerta data-scade={OFFERTA.scade} data-inizio={OFFERTA.inizio} hidden>
     <div class="wrap">
-      <a class="of" href={OFFERTA.url} target="_blank" rel="noopener" aria-label={`${OFFERTA.titolo}: apri le offerte`}>
+      <a class="of" href={OFFERTA.url} target="_blank" rel="noopener" aria-label={`Offerte Flash: ${OFFERTA.sottotitolo} Apri il negozio delle offerte`}>
         <span class="of-bg" aria-hidden="true"></span>
         <span class="of-t">
           <span class="of-k"><i aria-hidden="true"></i><span data-of-k>Offerta a tempo · attiva ora</span></span>
-          <b class="of-h">Offerte<br /><span>Flash</span> DEWALT</b>
+          <b class="of-h">Offerte<br /><span>Flash</span> ⚡</b>
+          {OFFERTA.marchi && <span class="of-m">{OFFERTA.marchi.join(' · ')}</span>}
           <span class="of-s" data-of-sotto>{OFFERTA.sottotitolo}</span>
           <span class="of-cd" data-of-box hidden>
             <span class="of-cd-l" data-of-lab>Termina tra</span>
@@ -30,7 +31,7 @@ const foto = ['DCF850P2T', 'DCD805P2T', 'DCG405P2']
         </span>
         <span class="of-v" aria-hidden="true">
           {foto.map((u, i) => <span class={`of-p of-p${i}`}><img src={u} alt="" loading="lazy" decoding="async" /></span>)}
-          <span class="of-badge">FLASH<small>SALE</small></span>
+          <span class="of-badge"><small>fino al</small>{OFFERTA.sconto || 'FLASH'}</span>
         </span>
       </a>
     </div>
@@ -69,8 +70,9 @@ const foto = ['DCF850P2T', 'DCD805P2T', 'DCG405P2']
   .of-p1{width:38%;aspect-ratio:1;left:0;bottom:0;transform:rotate(-8deg);animation:off 6s -2s ease-in-out infinite}
   .of-p2{width:38%;aspect-ratio:1;right:0;bottom:6%;transform:rotate(7deg);animation:off 6s -4s ease-in-out infinite}
   @keyframes off{50%{translate:0 -8px}}
-  .of-badge{position:absolute;z-index:3;right:4%;top:0;width:96px;height:96px;border-radius:50%;background:#ff3b30;color:#fff;display:grid;place-content:center;text-align:center;font-weight:900;font-size:20px;line-height:1;transform:rotate(12deg);box-shadow:0 10px 24px #0005}
-  .of-badge small{font-size:13px;letter-spacing:.2em}
+  .of-badge{position:absolute;z-index:3;right:4%;top:0;width:104px;height:104px;border-radius:50%;background:#e30613;color:#fff;display:grid;place-content:center;text-align:center;font-weight:900;font-size:28px;line-height:1;transform:rotate(12deg);box-shadow:0 10px 24px #0005}
+  .of-badge small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+  .of-m{font-weight:900;font-size:clamp(14px,1.6vw,18px);letter-spacing:.06em;color:#fff;border-top:2px solid var(--y);padding-top:8px}
   @media (max-width:760px){
     .of{grid-template-columns:1fr;min-height:0;gap:8px}
     .of-v{order:-1;height:200px}

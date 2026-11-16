@@ -46,7 +46,7 @@ const nav = [
   <a class="skip" href="#main">Vai al contenuto</a>
   {OFFERTA.attiva && (
     <a class="of-bar" href={OFFERTA.url} target="_blank" rel="noopener" data-offerta data-scade={OFFERTA.scade} data-inizio={OFFERTA.inizio} hidden>
-      <span class="wrap"><b>⚡ {OFFERTA.titolo}</b> <span class="of-bar-s" data-of-bar-s>prezzi speciali a tempo limitato</span> <span class="of-bar-cd mono" data-of-cd hidden></span> <u>Scopri →</u></span>
+      <span class="wrap"><b>⚡ Offerte Flash {OFFERTA.sconto ? `fino al ${OFFERTA.sconto}` : ''}</b> <span class="of-bar-s" data-of-bar-s>prezzi speciali a tempo limitato</span> <span class="of-bar-cd mono" data-of-cd hidden></span> <u>Scopri →</u></span>
     </a>
   )}
   <div class="strip"><div class="wrap row between">
