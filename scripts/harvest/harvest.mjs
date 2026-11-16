@@ -24,7 +24,7 @@ const base = (c) => c.replace(/-(XJ|QZ|QS|QW|IT|GB|LX|KS|B5|B6|0|1)$/i, '');
 async function one(t) {
   const out = {};
   const c = t.c, b = base(c);
-  if (t.b === 'USAG') {
+  if (t.b === 'USAG') { return out;
     const q = (t.n.match(/USAG\s+(.+)$/) || [])[1] || c;
     for (const query of [c, q]) {
       const s = await get(`https://usag.it/it/search/view/${encodeURIComponent(query).replace(/%20/g, '+')}`);
@@ -35,13 +35,8 @@ async function one(t) {
   }
   const site = { DEWALT: ['www.dewalt.it', 'assets.dewalt.it'], 'BLACK+DECKER': ['www.blackanddecker.it', 'assets.blackanddecker.it'], STANLEY: ['www.stanley.it', 'assets.stanley.it'], LENOX: ['www.lenoxtools.com', null] }[t.b] || ['www.dewalt.it', 'assets.dewalt.it'];
   const sites = /^DT|^DE|^DW/.test(c) && t.b !== 'DEWALT' ? [site, ['www.dewalt.it', 'assets.dewalt.it']] : [site];
-  for (const [w] of sites) {
-    for (const u of [`https://${w}/it-it/product/${c.toLowerCase()}`, `https://${w}/it-it/product/${b.toLowerCase()}`]) {
-      const p = await get(u);
-      if (p && /\/product\//.test(p.url)) { Object.assign(out, parse(p)); break; }
-    }
-    if (out.url) break;
-  }
+  const pu = IDX[c.toUpperCase()] || IDX[b.toUpperCase()];
+  if (pu) { const p = await get(pu); if (p) { Object.assign(out, parse(p)); if (!rawDone) { rawDone = true; debug.raw = p.html.slice(0, 200000); } } }
   if (!t.img) {
     const cand = [];
     for (const [w, a] of sites) {
@@ -52,11 +47,36 @@ async function one(t) {
   }
   return out;
 }
-const res = {}; let i = 0;
+const SM = {};
+async function sitemapUrls(host) {
+  const seen = new Set(), out = [];
+  const rob = await get(`https://${host}/robots.txt`);
+  let queue = rob ? [...rob.html.matchAll(/Sitemap:\s*(\S+)/gi)].map((m) => m[1]) : [];
+  if (!queue.length) queue = [`https://${host}/sitemap.xml`];
+  while (queue.length && seen.size < 200) {
+    const u = queue.shift(); if (seen.has(u)) continue; seen.add(u);
+    const r = await get(u); if (!r) continue;
+    for (const m of r.html.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)) {
+      const l = m[1].replace(/&amp;/g, '&');
+      if (/\.xml(\?|$)/.test(l)) queue.push(l); else out.push(l);
+    }
+  }
+  return { sitemaps: [...seen], urls: out };
+}
+for (const h of ['www.dewalt.it', 'www.blackanddecker.it', 'www.stanley.it', 'www.lenoxtools.com']) SM[h] = await sitemapUrls(h);
+const IDX = {};
+for (const [h, v] of Object.entries(SM)) for (const u of v.urls) {
+  const m = u.match(/\/product\/([^/?#]+)/i); if (!m) continue;
+  const code = decodeURIComponent(m[1]).toUpperCase();
+  IDX[code] ??= u; IDX[code.replace(/-(XJ|QZ|QS|QW|IT|GB|LX|KS|B5|B6)$/i, '')] ??= u;
+}
+const debug = { sitemaps: Object.fromEntries(Object.entries(SM).map(([h, v]) => [h, { n: v.urls.length, maps: v.sitemaps.slice(0, 20), sample: v.urls.filter((u) => /product/i.test(u)).slice(0, 15) }])), idx: Object.keys(IDX).length };
+const res = {}; let i = 0; let rawDone = false;
 const t0 = Date.now();
 async function worker() { while (i < todo.length && Date.now() - t0 < 40 * 60e3) { const t = todo[i++]; res[t.k] = await one(t); } }
 await Promise.all(Array.from({ length: 10 }, worker));
 await fs.mkdir('harvest-out', { recursive: true });
 await fs.writeFile('harvest-out/result.json', JSON.stringify(res));
+await fs.writeFile('harvest-out/debug.json', JSON.stringify(debug));
 const n = Object.values(res);
 console.log('pagine', n.filter((x) => x.url).length, 'foto nuove', n.filter((x) => x.img).length, 'su', todo.length);
