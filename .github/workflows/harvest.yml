@@ -1,0 +1,23 @@
+name: harvest
+on:
+  push:
+    branches: [harvest]
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/harvest/harvest.mjs
+      - run: |
+          git config user.name harvest-bot
+          git config user.email harvest@users.noreply.github.com
+          git checkout --orphan harvest-data
+          git rm -rfq --cached .
+          git add -f harvest-out/result.json
+          git commit -qm "harvest $(date -u +%FT%T)"
+          git push -f origin harvest-data
