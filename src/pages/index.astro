@@ -164,7 +164,6 @@ const passi = [
   .cat-v::after{content:'';position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--y);transform-origin:left;animation:catbar 2s infinite linear;animation-delay:calc(0s - var(--d))}
   @keyframes catv{0%{opacity:0;transform:scale(1.25) translateX(8%)}4%{opacity:1}25%{opacity:1;transform:scale(1) translateX(-6%)}29%{opacity:0;transform:scale(.95) translateX(-10%)}100%{opacity:0}}
   @keyframes catbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-  .cat:hover .cat-v img{animation-duration:5s}.cat:hover .cat-v::after{animation-duration:1.25s}
   /* chi ha "riduci animazioni" attivo vede comunque il cambio foto, solo senza movimento */
   @media (prefers-reduced-motion:reduce){.cat-v img{animation-name:catfade}.cat-v::after{display:none}}
   @keyframes catfade{0%{opacity:0}4%{opacity:1}25%{opacity:1}29%{opacity:0}100%{opacity:0}}
