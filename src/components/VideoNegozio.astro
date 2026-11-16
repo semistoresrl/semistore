@@ -8,7 +8,7 @@ const mappa = GOOGLE.indicazioni;
 <section class={`vn ${compatto ? 'vn-c' : ''}`}>
   <div class="vn-in">
     <button type="button" class="vn-v" data-vn-open aria-label="Guarda il video del negozio, 22 secondi, con audio">
-      <video class="vn-prev" src="/video/negozio-anteprima.mp4" poster="/video/negozio-poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <video class="vn-prev" src="/video/negozio-anteprima.mp4" poster="/video/negozio-poster.jpg" muted autoplay loop playsinline preload="metadata" disablepictureinpicture disableremoteplayback aria-hidden="true"></video>
       <span class="vn-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>
       <span class="vn-lab"><b>Guarda il negozio</b><span>0:22 · con audio</span></span>
     </button>
@@ -65,10 +65,16 @@ const mappa = GOOGLE.indicazioni;
     const prev = sec.querySelector('.vn-prev');
     const dlg = sec.querySelector('dialog');
     const full = sec.querySelector('.vn-full');
-    // l'anteprima parte solo quando è sullo schermo (e non con "riduci animazioni")
-    const ridotto = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prev && !ridotto && 'IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => { e.isIntersecting ? prev.play().catch(() => {}) : prev.pause(); }, { threshold: 0.35 }).observe(prev);
+    // l'anteprima (muta, 9 secondi in loop) parte quando è sullo schermo e si ferma quando esce
+    if (prev) {
+      prev.muted = true; prev.defaultMuted = true; prev.playsInline = true;
+      const avvia = () => { prev.preload = 'auto'; const p = prev.play(); if (p) p.catch(() => {}); };
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([e]) => { e.isIntersecting ? avvia() : prev.pause(); }, { threshold: 0.2 }).observe(prev);
+      } else avvia();
+      // alcuni telefoni bloccano l'avvio automatico finché l'utente non tocca la pagina
+      const sblocca = () => { if (prev.paused) avvia(); };
+      ['touchstart', 'scroll', 'pointerdown'].forEach((ev) => window.addEventListener(ev, sblocca, { once: true, passive: true }));
     }
     sec.querySelector('[data-vn-open]')?.addEventListener('click', () => {
       dlg.showModal(); full.currentTime = 0; full.play().catch(() => {});
