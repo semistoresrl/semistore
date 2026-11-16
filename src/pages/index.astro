@@ -7,7 +7,7 @@ import { fotoDi } from '../data/foto';
 
 const evidenza = ['DCD805P2T', 'DCF850P2T', 'DCG405P2', 'DCF900P2T', 'DCH273P2T', 'DCK2050E2T', 'DCS438E2T', 'DCE089D1G']
   .map((m) => prodotti.find((p) => p.modello === m)).filter(Boolean).slice(0, 8);
-const heroImg = (evidenza[0] && fotoDi(evidenza[0].slug)) || '';
+const trend = evidenza.filter((p) => fotoDi(p.slug));
 const cats = Object.entries(prodotti.reduce((a, p) => ((a[p.categoria] = (a[p.categoria] || 0) + 1), a), {} as Record<string, number>))
   .sort((a, b) => b[1] - a[1]);
 const sigla: Record<string, string> = { 'Trapani e avvitatori': 'TR', 'Tassellatori e demolitori': 'TS', 'Smerigliatrici e levigatrici': 'SM', 'Seghe e troncatrici': 'SG', 'Batterie': 'BT', 'Kit': 'KT', 'Misura e laser': 'MI', 'Contenitori': 'ST', 'Giardino': 'GI', 'Altri utensili': 'AU' };
@@ -46,14 +46,24 @@ const passi = [
       </div>
       <div class="hero-v">
         <div class="hero-bg" aria-hidden="true"></div>
-        {heroImg ? <img src={heroImg} width="800" height="800" alt="" fetchpriority="high" /> : <span class="hero-ph mono" aria-hidden="true">18V XR</span>}
-        {evidenza[0] && (
-          <a class="hero-tag" href={`/prodotti/${evidenza[0].slug}/`}>
-            <span class="mono hero-tag-c">{evidenza[0].modello}</span>
-            <span class="hero-tag-n">{evidenza[0].nome}</span>
-            <b class="hero-tag-p">{euro(evidenza[0].prezzo)}</b>
-          </a>
-        )}
+        <span class="hero-lab mono">I più richiesti</span>
+        <div class="trend" id="trend" tabindex="0" aria-label="Prodotti più richiesti, scorri per vederli">
+          {trend.map((p, i) => (
+            <a class="tr-s" href={`/prodotti/${p.slug}/`} aria-label={`${p.nome} ${p.modello}, ${euro(p.prezzo)}`}>
+              <span class="tr-img"><img src={fotoDi(p.slug)} width="800" height="800" alt="" loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async" /></span>
+              <span class="hero-tag">
+                <span class="mono hero-tag-c">{p.modello}</span>
+                <span class="hero-tag-n">{p.nome}</span>
+                <b class="hero-tag-p">{euro(p.prezzo)}</b>
+              </span>
+            </a>
+          ))}
+        </div>
+        <div class="tr-nav" aria-hidden="true">
+          <button type="button" class="tr-b" data-dir="-1" tabindex="-1">‹</button>
+          <span class="tr-dots">{trend.map((_, i) => <i class={i === 0 ? 'on' : ''}></i>)}</span>
+          <button type="button" class="tr-b" data-dir="1" tabindex="-1">›</button>
+        </div>
       </div>
     </div>
   </section>
@@ -123,13 +133,23 @@ const passi = [
   .hero-t p{margin:0;font-size:18px;color:#c9cbcf;max-width:520px}
   .hero-v{position:relative;min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center}
   .hero-bg{position:absolute;inset:24px 0 24px 36px;background:var(--y);border-radius:18px;transform:skewX(-6deg)}
-  .hero-v img{position:relative;width:78%;max-width:440px;aspect-ratio:1;object-fit:contain;background:#fff;border-radius:14px;padding:20px;box-shadow:0 30px 60px #0007}
-  .hero-ph{position:relative;width:70%;aspect-ratio:1;background:var(--ink2);border-radius:14px;display:grid;place-items:center;color:var(--y);font-size:clamp(40px,7vw,72px);font-weight:700;box-shadow:0 30px 60px #0007}
-  .hero-tag{position:relative;margin-top:-34px;display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:center;width:min(78%,440px);background:var(--ink);color:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 14px 30px #0006;text-decoration:none}
+  .hero-tag{position:relative;margin:-34px auto 0;display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:center;width:min(78%,440px);background:var(--ink);color:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 14px 30px #0006;text-decoration:none}
   .hero-tag:hover{color:#fff}
   .hero-tag-c{grid-row:span 2;background:var(--y);color:var(--ink);font-weight:700;font-size:13px;padding:6px 9px;border-radius:6px}
   .hero-tag-n{font-size:14px;line-height:1.25;color:#e6e7e9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .hero-tag-p{font-size:16px;color:var(--y)}
+  .hero-v{gap:12px}
+  .hero-lab{position:relative;align-self:flex-start;margin-left:13%;background:var(--ink);color:var(--y);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:6px}
+  .trend{position:relative;width:100%;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}
+  .trend::-webkit-scrollbar{display:none}
+  .tr-s{flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;text-decoration:none;color:inherit;padding:0 4px 18px}
+  .tr-img{width:78%;max-width:440px;aspect-ratio:1;background:#fff;border-radius:14px;padding:20px;box-shadow:0 30px 60px #0007;display:block}
+  .tr-img img{width:100%;height:100%;object-fit:contain}
+  .tr-s .hero-tag{width:min(78%,440px)}
+  .tr-nav{position:relative;display:flex;align-items:center;gap:14px}
+  .tr-b{width:36px;height:36px;border-radius:50%;border:0;background:var(--ink);color:var(--y);font-size:22px;line-height:1;cursor:pointer}
+  .tr-dots{display:flex;gap:6px}.tr-dots i{width:7px;height:7px;border-radius:4px;background:#0006;transition:width .2s,background .2s}.tr-dots i.on{width:20px;background:var(--ink)}
+  @media (max-width:560px){.tr-b{display:none}}
   .trust{background:#fff;border-bottom:1px solid var(--line)}
   .trust-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;padding-top:22px;padding-bottom:22px}
   .trust-in div{display:flex;flex-direction:column;border-left:3px solid var(--y);padding-left:12px}.trust-in span{font-size:13px;color:var(--mut)}
@@ -155,3 +175,20 @@ const passi = [
   .step{background:var(--ink);color:#fff;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}.step .mono{color:var(--y);font-weight:700}.step span:last-child{font-size:13px;color:var(--mut-d)}
   .ass-f{padding:28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 50px #0002}
 </style>
+<script>
+  const box = document.getElementById('trend');
+  if (box) {
+    const dots = [...document.querySelectorAll('.tr-dots i')];
+    const n = box.children.length;
+    const cur = () => Math.round(box.scrollLeft / box.clientWidth);
+    const go = (i) => box.scrollTo({ left: ((i + n) % n) * box.clientWidth });
+    box.addEventListener('scroll', () => { const c = cur(); dots.forEach((d, k) => d.classList.toggle('on', k === c)); }, { passive: true });
+    document.querySelectorAll('.tr-b').forEach((b) => b.addEventListener('click', () => go(cur() + Number(b.dataset.dir))));
+    box.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') go(cur() + 1); if (e.key === 'ArrowLeft') go(cur() - 1); });
+    // scorre da solo ogni 5 secondi finché l'utente non lo tocca
+    const ridotto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let fermo = ridotto;
+    ['pointerdown', 'touchstart', 'wheel', 'keydown', 'focusin'].forEach((ev) => box.addEventListener(ev, () => (fermo = true), { passive: true }));
+    setInterval(() => { if (!fermo && !document.hidden) go(cur() + 1); }, 5000);
+  }
+</script>
