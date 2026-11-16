@@ -52,7 +52,7 @@ async function sitemapUrls(host) {
   const seen = new Set(), out = [];
   const rob = await get(`https://${host}/robots.txt`);
   let queue = rob ? [...rob.html.matchAll(/Sitemap:\s*(\S+)/gi)].map((m) => m[1]) : [];
-  if (!queue.length) queue = [`https://${host}/sitemap.xml`];
+  queue.push(`https://${host}/sitemap.xml`, `https://${host}/it-it/product/sitemap.xml`);
   while (queue.length && seen.size < 200) {
     const u = queue.shift(); if (seen.has(u)) continue; seen.add(u);
     const r = await get(u); if (!r) continue;
@@ -66,11 +66,10 @@ async function sitemapUrls(host) {
 for (const h of ['www.dewalt.it', 'www.blackanddecker.it', 'www.stanley.it', 'www.lenoxtools.com']) SM[h] = await sitemapUrls(h);
 const IDX = {};
 for (const [h, v] of Object.entries(SM)) for (const u of v.urls) {
-  const m = u.match(/\/product\/([^/?#]+)/i); if (!m) continue;
-  const code = decodeURIComponent(m[1]).toUpperCase();
-  IDX[code] ??= u; IDX[code.replace(/-(XJ|QZ|QS|QW|IT|GB|LX|KS|B5|B6)$/i, '')] ??= u;
+  const seg = decodeURIComponent(u.split(/[?#]/)[0].replace(/\/$/, '')).split('/').slice(-2).join('/').toUpperCase();
+  for (const m of seg.matchAll(/[A-Z]{1,6}\d[A-Z0-9]*(?:-[A-Z0-9]{1,3})?/g)) { const code = m[0]; IDX[code] ??= u; IDX[code.replace(/-(XJ|QZ|QS|QW|IT|GB|LX|KS|B5|B6)$/i, '')] ??= u; }
 }
-const debug = { sitemaps: Object.fromEntries(Object.entries(SM).map(([h, v]) => [h, { n: v.urls.length, maps: v.sitemaps.slice(0, 20), sample: v.urls.filter((u) => /product/i.test(u)).slice(0, 15) }])), idx: Object.keys(IDX).length };
+const debug = { sitemaps: Object.fromEntries(Object.entries(SM).map(([h, v]) => [h, { n: v.urls.length, maps: v.sitemaps.slice(0, 20), sample: v.urls.slice(0, 5).concat(v.urls.filter((u) => /dcd|dcf|dt\d|ka\d|bdc/i.test(u)).slice(0, 25)) }])), idx: Object.keys(IDX).length };
 const res = {}; let i = 0; let rawDone = false;
 const t0 = Date.now();
 async function worker() { while (i < todo.length && Date.now() - t0 < 40 * 60e3) { const t = todo[i++]; res[t.k] = await one(t); } }
