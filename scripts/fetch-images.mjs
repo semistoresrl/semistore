@@ -5,6 +5,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+// Il vecchio sito ha il certificato HTTPS scaduto: lo accettiamo SOLO per scaricare le sue foto pubbliche.
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const prodotti = JSON.parse(await fs.readFile('src/data/prodotti.json', 'utf8'));
 const dir = 'public/img/prodotti';
@@ -23,11 +25,12 @@ await Promise.all(prodotti.map(async (p) => {
     if (await esiste(f)) { buf = await fs.readFile(f); break; }
   }
   if (!buf && p.immagineOrigine) {
-    for (const u of [p.immagineOrigine, p.immagineOrigine.replace('http://', 'https://')]) {
+    for (const u of [p.immagineOrigine.replace('http://', 'https://'), p.immagineOrigine]) {
       try {
-        const r = await fetch(u, { signal: AbortSignal.timeout(15000) });
+        const r = await fetch(u, { signal: AbortSignal.timeout(20000), headers: { 'user-agent': 'Mozilla/5.0 (SemiStore build)' } });
+        if (!r.ok) console.warn('Foto', p.slug, r.status, u);
         if (r.ok) { buf = Buffer.from(await r.arrayBuffer()); break; }
-      } catch {}
+      } catch (e) { console.warn('Foto', p.slug, e.cause?.code || e.message); }
     }
   }
   if (!buf) { ko++; return; }
