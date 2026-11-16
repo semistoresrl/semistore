@@ -925,7 +925,8 @@
   "prezzo": 17900,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/86077517_levigatrice-muro-sfmee500s-qs.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.stanley.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/SFMEE500S_1_1680.webp"
  },
  {
   "id": 3710,
@@ -937,6 +938,7 @@
   "prezzo": 17900,
   "volt": "",
   "immagineOrigine": "http://semistore.it/public/icona/521487_martello-rotante-fme1250k-qs.jpg",
-  "nota": ""
+  "nota": "",
+  "immagineDewalt": "https://assets.stanley.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/FME1250K_1_1680.webp"
  }
 ]
