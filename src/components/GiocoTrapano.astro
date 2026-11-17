@@ -1,0 +1,751 @@
+---
+// Minigioco in home: "Trapano Slalom". Il trapano fora la tavola e deve evitare viti, chiodi e piastre.
+// 8 livelli + sfida infinita, funziona con dito (trascina), mouse (segue il puntatore) e tastiera (frecce/WASD).
+// Si avvia solo quando la sezione arriva sullo schermo, quindi non pesa sul caricamento della home.
+import { urlCategoria } from '../data/catalogo';
+const linkTrapani = urlCategoria('Trapani e avvitatori');
+---
+<section class="gm" id="gioco" aria-labelledby="gm-h">
+  <div class="wrap gm-in">
+    <div class="gm-t">
+      <span class="kicker gm-k">Pausa caffè · minigioco</span>
+      <h2 id="gm-h" class="gm-h">Trapano<br /><span>Slalom</span></h2>
+      <p>Guida il trapano lungo la tavola senza prendere viti, chiodi e piastre. Raccogli i dadi per fare punti e le batterie per recuperare una vita. 8 livelli sempre più veloci, poi la sfida infinita.</p>
+      <ul class="gm-c">
+        <li><span class="gm-ic" aria-hidden="true">☝</span><span><b>Telefono</b>trascina il dito sulla tavola</span></li>
+        <li><span class="gm-ic" aria-hidden="true">🖱</span><span><b>PC</b>muovi il mouse oppure usa frecce / WASD</span></li>
+        <li><span class="gm-ic" aria-hidden="true">⏸</span><span><b>Pausa</b>tasto P, Esc o il pulsante in alto</span></li>
+      </ul>
+      <div class="gm-rec"><span>Il tuo record</span><b class="mono" data-g-best>0</b></div>
+      <a class="gm-cta" href={linkTrapani}>Quelli veri? Trapani e avvitatori in negozio →</a>
+    </div>
+
+    <div class="gm-f" data-g-frame>
+      <canvas class="gm-cv" width="360" height="540" aria-label="Area di gioco Trapano Slalom" role="img"></canvas>
+      <button type="button" class="gm-p" data-g-pause aria-label="Pausa" hidden><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg></button>
+      <button type="button" class="gm-s" data-g-mute aria-label="Audio attivo" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="gm-s-on" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="gm-s-off" d="M16 9l6 6M22 9l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+
+      <!-- schermate sopra la tavola -->
+      <div class="gm-o" data-g-screen="menu">
+        <div class="gm-box">
+          <span class="gm-badge">SEMI · GAMES</span>
+          <b class="gm-tt">Trapano Slalom</b>
+          <span class="gm-sub">Scegli il livello</span>
+          <div class="gm-lv" data-g-levels></div>
+          <button type="button" class="gm-b gm-b-y" data-g-go>Gioca</button>
+        </div>
+      </div>
+      <div class="gm-o" data-g-screen="intro" hidden>
+        <div class="gm-box">
+          <span class="gm-badge" data-g-intro-n>Livello 1</span>
+          <b class="gm-tt" data-g-intro-t>Primo foro</b>
+          <span class="gm-sub" data-g-intro-d></span>
+          <button type="button" class="gm-b gm-b-y" data-g-start>Via!</button>
+        </div>
+      </div>
+      <div class="gm-o" data-g-screen="pause" hidden>
+        <div class="gm-box">
+          <b class="gm-tt">Pausa</b>
+          <button type="button" class="gm-b gm-b-y" data-g-resume>Riprendi</button>
+          <button type="button" class="gm-b" data-g-retry>Ricomincia livello</button>
+          <button type="button" class="gm-b gm-b-g" data-g-menu>Livelli</button>
+        </div>
+      </div>
+      <div class="gm-o" data-g-screen="win" hidden>
+        <div class="gm-box">
+          <span class="gm-badge">Livello superato</span>
+          <div class="gm-st" data-g-stars aria-hidden="true"><i></i><i></i><i></i></div>
+          <b class="gm-tt" data-g-win-t>Ottimo lavoro!</b>
+          <span class="gm-sc">Punti <b class="mono" data-g-win-s>0</b></span>
+          <span class="gm-new" data-g-win-rec hidden>Nuovo record!</span>
+          <button type="button" class="gm-b gm-b-y" data-g-next>Livello successivo</button>
+          <button type="button" class="gm-b gm-b-g" data-g-menu>Livelli</button>
+        </div>
+      </div>
+      <div class="gm-o" data-g-screen="over" hidden>
+        <div class="gm-box">
+          <span class="gm-badge gm-badge-r">Punta spezzata</span>
+          <b class="gm-tt">Hai preso una vite!</b>
+          <span class="gm-sc">Punti <b class="mono" data-g-over-s>0</b></span>
+          <span class="gm-new" data-g-over-rec hidden>Nuovo record!</span>
+          <button type="button" class="gm-b gm-b-y" data-g-retry>Riprova</button>
+          <button type="button" class="gm-b gm-b-g" data-g-menu>Livelli</button>
+          <a class="gm-lk" href={linkTrapani}>Serve un trapano vero? Guarda i modelli →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .gm{background:var(--ink);color:#fff;padding:clamp(40px,7vw,80px) 0;overflow:hidden}
+  .gm-in{display:grid;grid-template-columns:1fr auto;gap:clamp(24px,5vw,64px);align-items:center}
+  .gm-t{display:flex;flex-direction:column;gap:16px;max-width:520px}
+  .gm-k{color:var(--y)}
+  .gm-h{margin:0;font-size:clamp(40px,6vw,72px);line-height:.9;text-transform:uppercase}
+  .gm-h span{color:var(--y)}
+  .gm-t p{margin:0;color:#c9cbcf;font-size:16px}
+  .gm-c{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:14px;overflow:hidden}
+  .gm-c li{display:flex;gap:14px;align-items:center;padding:12px 16px}
+  .gm-c li+li{border-top:1px solid #ffffff14}
+  .gm-c li>span:last-child{display:flex;flex-direction:column;font-size:15px;line-height:1.3;color:#dcdde0}
+  .gm-c b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9aa0a6}
+  .gm-ic{flex:none;width:36px;height:36px;border-radius:10px;background:#f5b8001f;display:grid;place-items:center;font-size:17px;filter:grayscale(1) brightness(2)}
+  .gm-rec{display:flex;align-items:baseline;gap:12px}
+  .gm-rec span{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9aa0a6}
+  .gm-rec b{font-size:28px;color:var(--y)}
+  .gm-cta{color:#fff;font-weight:800;text-decoration:underline;text-decoration-color:var(--y);text-underline-offset:4px;align-self:flex-start}
+  .gm-cta:hover{color:var(--y)}
+
+  .gm-f{position:relative;width:min(400px,calc((100svh - 60px) * 2 / 3),100%);aspect-ratio:2/3;border-radius:20px;overflow:hidden;background:#c99a5b;box-shadow:0 30px 70px #000a,0 0 0 4px #2b2e33,0 0 0 6px var(--y);user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  .gm-cv{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+  .gm-p,.gm-s{position:absolute;top:10px;width:36px;height:36px;border-radius:10px;border:0;background:#15171acc;color:#fff;display:grid;place-items:center;cursor:pointer;z-index:3}
+  .gm-p{right:10px}.gm-s{right:52px}
+  .gm-p[hidden]{display:none}
+  .gm-p:hover,.gm-s:hover{background:#15171a}
+  .gm-s .gm-s-off{display:none}
+  .gm-s[aria-pressed="true"] .gm-s-on{display:none}.gm-s[aria-pressed="true"] .gm-s-off{display:inline}
+
+  .gm-o{position:absolute;inset:0;z-index:4;display:grid;place-items:center;padding:18px;background:#15171a8c;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:gmin .25s ease-out}
+  .gm-o[hidden]{display:none}
+  @keyframes gmin{from{opacity:0}to{opacity:1}}
+  .gm-box{width:100%;max-width:300px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:#15171af2;border:1px solid #ffffff1f;border-radius:18px;padding:22px 18px;box-shadow:0 20px 50px #0009;animation:gmup .3s cubic-bezier(.2,.9,.3,1.3)}
+  @keyframes gmup{from{transform:translateY(14px) scale(.96)}to{transform:none}}
+  .gm-badge{font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--y);color:var(--ink);padding:4px 10px;border-radius:99px}
+  .gm-badge-r{background:#e5484d;color:#fff}
+  .gm-tt{font-size:26px;line-height:1;text-transform:uppercase;font-weight:900}
+  .gm-sub{color:#b9bbbf;font-size:14px}
+  .gm-sc{color:#b9bbbf;font-size:15px}.gm-sc b{color:#fff;font-size:22px;margin-left:6px}
+  .gm-new{color:var(--y);font-weight:800;font-size:14px;animation:gmpulse 1s infinite alternate}
+  @keyframes gmpulse{to{transform:scale(1.08)}}
+  .gm-b{width:100%;min-height:46px;border-radius:10px;border:1px solid #ffffff26;background:#ffffff12;color:#fff;font:inherit;font-weight:800;font-size:16px;cursor:pointer;transition:transform .12s,filter .12s}
+  .gm-b:hover{filter:brightness(1.15)}.gm-b:active{transform:scale(.97)}
+  .gm-b-y{background:var(--y);border-color:var(--y);color:var(--ink)}
+  .gm-b-g{background:transparent}
+  .gm-b:focus-visible,.gm-lv :global(.gm-l:focus-visible),.gm-p:focus-visible,.gm-s:focus-visible{outline:3px solid var(--y);outline-offset:2px}
+  .gm-lk{color:#dcdde0;font-size:13px;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+  .gm-lk:hover{color:var(--y)}
+
+  .gm-lv{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;margin:4px 0 6px}
+  .gm-lv :global(.gm-l){position:relative;aspect-ratio:1;border-radius:10px;border:1px solid #ffffff26;background:#ffffff0f;color:#fff;font:inherit;font-weight:900;font-size:19px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0}
+  .gm-lv :global(.gm-l small){font-size:9px;letter-spacing:1px;color:var(--y);line-height:1}
+  .gm-lv :global(.gm-l[aria-pressed="true"]){background:var(--y);color:var(--ink);border-color:var(--y)}
+  .gm-lv :global(.gm-l[aria-pressed="true"] small){color:var(--ink)}
+  .gm-lv :global(.gm-l:disabled){opacity:.35;cursor:not-allowed}
+  .gm-lv :global(.gm-l.gm-l-inf){grid-column:1/-1;aspect-ratio:auto;min-height:40px;flex-direction:row;gap:8px;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+
+  .gm-st{display:flex;gap:6px}
+  .gm-st i{width:34px;height:34px;background:#ffffff26;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+  .gm-st i.on{background:var(--y);animation:gmstar .45s cubic-bezier(.2,.9,.3,1.5) both}
+  .gm-st i.on:nth-child(2){animation-delay:.15s}.gm-st i.on:nth-child(3){animation-delay:.3s}
+  @keyframes gmstar{from{transform:scale(0) rotate(-40deg)}to{transform:none}}
+
+  @media (max-width:820px){
+    .gm-in{grid-template-columns:1fr}
+    .gm-t{max-width:none}
+    .gm-f{justify-self:center;width:min(100%,calc((100svh - 40px) * 2 / 3))}
+    .gm-c{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){.gm-o,.gm-box,.gm-new,.gm-st i.on{animation:none}}
+</style>
+
+<script>
+  type Ob = { k: string; x: number; y: number; r: number; w?: number; h?: number; vx?: number; a?: number; t?: number; hit?: boolean };
+  type Pt = { x: number; y: number; vx: number; vy: number; life: number; max: number; c: string; s: number };
+  type Lv = { n: string; d: string; v: number; len: number; gap: [number, number]; p: Record<string, number> };
+
+  const W = 360, H = 540, TIP_R = 6;
+  // Livelli: velocità (px/s), lunghezza della tavola, distanza tra un ostacolo e l'altro, probabilità degli schemi
+  const LV: Lv[] = [
+    { n: 'Primo foro', d: 'Poche viti, prendi la mano.', v: 150, len: 2600, gap: [150, 210], p: { vite: 6, coppia: 2, dado: 3 } },
+    { n: 'Chiodi sparsi', d: 'Arrivano i chiodi: piccoli ma cattivi.', v: 170, len: 3000, gap: [135, 190], p: { vite: 5, coppia: 3, chiodi: 3, dado: 3 } },
+    { n: 'Fila di viti', d: 'Trova il varco nelle file di viti.', v: 185, len: 3300, gap: [130, 180], p: { vite: 4, coppia: 3, chiodi: 3, fila: 3, dado: 3, batt: 1 } },
+    { n: 'Viti vaganti', d: 'Alcune viti scivolano sulla tavola.', v: 200, len: 3600, gap: [125, 175], p: { vite: 3, coppia: 2, chiodi: 3, fila: 3, mobile: 4, dado: 3, batt: 1 } },
+    { n: 'Piastre d\'acciaio', d: 'Le piastre non si forano: girale intorno.', v: 215, len: 3900, gap: [120, 170], p: { vite: 3, chiodi: 3, fila: 3, mobile: 3, piastra: 4, dado: 3, batt: 1 } },
+    { n: 'Zig zag', d: 'File sfalsate: cambia lato al volo.', v: 230, len: 4200, gap: [115, 160], p: { vite: 2, chiodi: 3, fila: 3, zigzag: 4, mobile: 3, piastra: 3, dado: 3, batt: 1 } },
+    { n: 'Cantiere', d: 'Di tutto un po\', e più veloce.', v: 250, len: 4600, gap: [110, 150], p: { vite: 3, coppia: 2, chiodi: 3, fila: 3, zigzag: 3, mobile: 4, piastra: 3, dado: 3, batt: 1 } },
+    { n: 'Maestro', d: 'Il livello finale. Buona fortuna!', v: 275, len: 5200, gap: [105, 140], p: { vite: 3, chiodi: 3, fila: 4, zigzag: 4, mobile: 4, piastra: 4, dado: 3, batt: 1 } },
+  ];
+  const INF: Lv = { n: 'Sfida infinita', d: 'Quanto lontano arrivi? La velocità sale sempre.', v: 190, len: Infinity, gap: [130, 175], p: { ...LV[7].p } };
+
+  const KEY = 'semi-gioco-v1';
+  type Save = { sbl: number; stelle: Record<string, number>; best: number; muto: boolean };
+  const load = (): Save => {
+    try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && typeof s.sbl === 'number') return { stelle: {}, best: 0, muto: false, ...s }; } catch {}
+    return { sbl: 1, stelle: {}, best: 0, muto: false };
+  };
+  const store = (s: Save) => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} };
+
+  // generatore pseudo-casuale con seme: ogni livello ha sempre la stessa tavola
+  const mulberry = (a: number) => () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+
+  // Safari/Chrome vecchi senza roundRect: versione semplice
+  const RR = CanvasRenderingContext2D.prototype as any;
+  if (!RR.roundRect) RR.roundRect = function (x: number, y: number, w: number, h: number, r: number | number[]) {
+    const q = Math.min(Array.isArray(r) ? r[0] : r, w / 2, h / 2);
+    this.moveTo(x + q, y); this.arcTo(x + w, y, x + w, y + h, q); this.arcTo(x + w, y + h, x, y + h, q); this.arcTo(x, y + h, x, y, q); this.arcTo(x, y, x + w, y, q); this.closePath();
+  };
+
+  function init(sec: HTMLElement) {
+    const frame = sec.querySelector<HTMLElement>('[data-g-frame]')!;
+    const cv = sec.querySelector<HTMLCanvasElement>('canvas')!;
+    const ctx = cv.getContext('2d')!;
+    const $ = <T extends HTMLElement>(s: string) => sec.querySelector<T>(s)!;
+    const $$ = (s: string) => Array.from(sec.querySelectorAll<HTMLElement>(s));
+    const screens = $$('[data-g-screen]');
+    const pauseBtn = $<HTMLButtonElement>('[data-g-pause]');
+    const muteBtn = $<HTMLButtonElement>('[data-g-mute]');
+    const bestEl = $('[data-g-best]');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fmt = (n: number) => Math.floor(n).toLocaleString('it-IT');
+
+    const save = load();
+    bestEl.textContent = fmt(save.best);
+
+    // ---------- dimensioni / nitidezza ----------
+    let scale = 1, dpr = 1;
+    const resize = () => {
+      const r = cv.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr);
+      scale = cv.width / W;
+      if (!wood || wood.width !== Math.round(W * scale)) wood = makeWood();
+      if (state !== 'play') draw();
+    };
+
+    // ---------- tavola di legno (texture generata, ripetibile in verticale) ----------
+    const TH = 720;
+    let wood: HTMLCanvasElement | null = null;
+    function makeWood() {
+      const c = document.createElement('canvas');
+      c.width = Math.round(W * scale); c.height = Math.round(TH * scale);
+      const g = c.getContext('2d')!; g.scale(scale, scale);
+      const rnd = mulberry(7);
+      const tavole = [[0, 124, '#d9a865'], [124, 118, '#cf9b57'], [242, 118, '#dcad6b']] as const;
+      for (const [x0, w, col] of tavole) {
+        g.fillStyle = col; g.fillRect(x0, 0, w, TH);
+        // venature: linee ondulate, periodiche sull'altezza della texture così si ripete senza stacchi
+        for (let i = 0; i < 26; i++) {
+          const bx = x0 + rnd() * w, amp = 2 + rnd() * 6, k = 1 + Math.floor(rnd() * 3), ph = rnd() * 6.28;
+          g.strokeStyle = `rgba(120,70,25,${0.06 + rnd() * 0.12})`; g.lineWidth = 0.6 + rnd() * 1.4;
+          g.beginPath();
+          for (let y = 0; y <= TH; y += 8) {
+            const x = bx + Math.sin((y / TH) * Math.PI * 2 * k + ph) * amp;
+            y ? g.lineTo(x, y) : g.moveTo(x, y);
+          }
+          g.stroke();
+        }
+        // nodi del legno
+        for (let i = 0; i < (rnd() < 0.5 ? 1 : 0); i++) {
+          const nx = x0 + 20 + rnd() * (w - 40), ny = 60 + rnd() * (TH - 120), rx = 4 + rnd() * 4;
+          for (let j = 3; j >= 0; j--) {
+            g.strokeStyle = `rgba(110,60,20,${0.05 + j * 0.02})`; g.lineWidth = 1.2;
+            g.beginPath(); g.ellipse(nx, ny, rx + j * 4, (rx + j * 4) * 2.2, 0, 0, Math.PI * 2); g.stroke();
+          }
+          g.fillStyle = 'rgba(95,50,15,.4)'; g.beginPath(); g.ellipse(nx, ny, rx, rx * 2, 0, 0, Math.PI * 2); g.fill();
+        }
+        // fuga tra le tavole
+        g.fillStyle = 'rgba(70,40,10,.45)'; g.fillRect(x0 + w - 1.5, 0, 1.5, TH);
+        g.fillStyle = 'rgba(255,240,210,.25)'; g.fillRect(x0, 0, 1, TH);
+      }
+      return c;
+    }
+
+    // ---------- audio (sintetizzato, niente file) ----------
+    let ac: AudioContext | null = null, hum: OscillatorNode | null = null, humG: GainNode | null = null;
+    const audio = () => {
+      if (save.muto) return null;
+      if (!ac) {
+        try {
+          ac = new (window.AudioContext || (window as any).webkitAudioContext)();
+          hum = ac.createOscillator(); hum.type = 'sawtooth'; hum.frequency.value = 95;
+          const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520;
+          humG = ac.createGain(); humG.gain.value = 0;
+          hum.connect(lp).connect(humG).connect(ac.destination); hum.start();
+        } catch { ac = null; }
+      }
+      if (ac && ac.state === 'suspended') ac.resume();
+      return ac;
+    };
+    const tone = (f: number, d: number, type: OscillatorType = 'sine', vol = 0.12, f2?: number, delay = 0) => {
+      const a = audio(); if (!a) return;
+      const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g).connect(a.destination); o.start(t); o.stop(t + d + 0.02);
+    };
+    const setHum = (on: boolean) => { if (humG && ac) humG.gain.setTargetAtTime(on && !save.muto ? 0.03 : 0, ac.currentTime, 0.08); };
+    const sfx = {
+      hit: () => { tone(220, 0.35, 'square', 0.12, 60); tone(1400, 0.12, 'sawtooth', 0.05, 300); },
+      nut: () => { tone(880, 0.08, 'sine', 0.1); tone(1320, 0.12, 'sine', 0.1, undefined, 0.06); },
+      batt: () => { [523, 659, 784].forEach((f, i) => tone(f, 0.12, 'triangle', 0.1, undefined, i * 0.07)); },
+      win: () => { [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.22, 'triangle', 0.12, undefined, i * 0.1)); },
+      over: () => { [392, 330, 262].forEach((f, i) => tone(f, 0.25, 'square', 0.07, undefined, i * 0.14)); },
+    };
+    const vib = (ms: number) => { try { navigator.vibrate?.(ms); } catch {} };
+    const syncMute = () => { muteBtn.setAttribute('aria-pressed', String(save.muto)); muteBtn.setAttribute('aria-label', save.muto ? 'Audio disattivato' : 'Audio attivo'); };
+    syncMute();
+    muteBtn.addEventListener('click', () => { save.muto = !save.muto; store(save); syncMute(); if (!save.muto) audio(); setHum(state === 'play'); });
+
+    // ---------- stato di gioco ----------
+    let state: 'menu' | 'intro' | 'play' | 'pause' | 'win' | 'over' = 'menu';
+    let lvIdx = Math.min(save.sbl, LV.length) - 1, sel = lvIdx;
+    let L: Lv = LV[0], rnd = mulberry(1);
+    let dist = 0, speed = 0, nextAt = 0, score = 0, lives = 3, inv = 0, shake = 0, t = 0, finishY: number | null = null, flash = 0;
+    let obs: Ob[] = [], parts: Pt[] = [], trail: { x: number; y: number }[] = [], pops: { x: number; y: number; s: string; life: number }[] = [];
+    const drill = { x: W / 2, y: H * 0.72, tx: W / 2, ty: H * 0.72, tilt: 0 };
+    const isInf = () => L === INF;
+
+    const show = (name: string | null) => {
+      screens.forEach((s) => (s.hidden = s.dataset.gScreen !== name));
+      pauseBtn.hidden = name !== null;
+      const box = screens.find((s) => s.dataset.gScreen === name);
+      box?.querySelector<HTMLElement>('.gm-b-y')?.focus({ preventScroll: true });
+    };
+
+    // griglia livelli
+    const lvWrap = $('[data-g-levels]');
+    const buildLevels = () => {
+      lvWrap.innerHTML = '';
+      LV.forEach((l, i) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'gm-l';
+        const st = save.stelle[i] || 0, open = i < save.sbl;
+        b.disabled = !open; b.setAttribute('aria-pressed', String(i === sel));
+        b.setAttribute('aria-label', open ? `Livello ${i + 1}: ${l.n}, ${st} stelle` : `Livello ${i + 1} bloccato`);
+        b.innerHTML = open ? `${i + 1}<small>${'★'.repeat(st)}${'☆'.repeat(3 - st)}</small>` : `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3h1v10H6V11zm2 0h6V8a3 3 0 0 0-6 0z" fill="currentColor"/></svg>`;
+        b.addEventListener('click', () => { sel = i; buildLevels(); $('[data-g-go]').focus(); });
+        lvWrap.appendChild(b);
+      });
+      const inf = document.createElement('button'); inf.type = 'button'; inf.className = 'gm-l gm-l-inf';
+      const infOpen = save.sbl > LV.length;
+      inf.disabled = !infOpen; inf.setAttribute('aria-pressed', String(sel === -1));
+      inf.innerHTML = infOpen ? '∞ Sfida infinita' : '🔒 Sfida infinita · dopo il liv. 8';
+      inf.addEventListener('click', () => { sel = -1; buildLevels(); $('[data-g-go]').focus(); });
+      lvWrap.appendChild(inf);
+    };
+
+    const openIntro = (i: number) => {
+      lvIdx = i; L = i < 0 ? INF : LV[i];
+      $('[data-g-intro-n]').textContent = i < 0 ? 'Modalità extra' : `Livello ${i + 1} di ${LV.length}`;
+      $('[data-g-intro-t]').textContent = L.n;
+      $('[data-g-intro-d]').textContent = L.d;
+      reset(); state = 'intro'; show('intro'); draw();
+    };
+
+    const reset = () => {
+      rnd = mulberry(lvIdx < 0 ? (Date.now() & 0xffff) : 1000 + lvIdx * 7919);
+      dist = 0; speed = L.v; nextAt = 260; score = 0; lives = 3; inv = 0; shake = 0; finishY = null; flash = 0;
+      obs = []; parts = []; trail = []; pops = [];
+      drill.x = drill.tx = W / 2; drill.y = drill.ty = H * 0.72; drill.tilt = 0;
+      // un paio di ostacoli già visibili, per far capire subito il gioco
+      spawn(-40);
+    };
+
+    const start = () => { audio(); state = 'play'; show(null); setHum(true); last = performance.now(); loop(); };
+    const pause = () => { if (state !== 'play') return; state = 'pause'; setHum(false); show('pause'); };
+    const resume = () => { if (state !== 'pause') return; start(); };
+
+    // ---------- generazione ostacoli ----------
+    const M = 26; // margine dai bordi
+    const between = (a: number, b: number) => a + rnd() * (b - a);
+    const pick = () => {
+      const p = L.p; let tot = 0; for (const k in p) tot += p[k];
+      let r = rnd() * tot; for (const k in p) { r -= p[k]; if (r <= 0) return k; } return 'vite';
+    };
+    const screw = (x: number, y: number, r = between(11, 14)): Ob => ({ k: 'vite', x, y, r, a: rnd() * Math.PI });
+    // restituisce l'altezza occupata dallo schema, per distanziare il successivo
+    function spawn(y: number): number {
+      const k = pick();
+      const lvl = lvIdx < 0 ? 8 : lvIdx + 1;
+      switch (k) {
+        case 'vite': obs.push(screw(between(M, W - M), y)); return 0;
+        case 'coppia': {
+          const x = between(M, W - M - 120);
+          obs.push(screw(x, y), screw(x + between(70, 120), y - between(0, 40))); return 40;
+        }
+        case 'chiodi': {
+          const cx = between(50, W - 50), n = 3 + Math.floor(rnd() * 3);
+          for (let i = 0; i < n; i++) obs.push({ k: 'chiodo', x: cx + between(-34, 34), y: y - between(0, 50), r: 6, a: rnd() * 6 });
+          return 50;
+        }
+        case 'fila': {
+          const gapW = Math.max(78, 118 - lvl * 4), gx = between(M + 10, W - M - 10 - gapW);
+          for (let x = 16; x < W; x += 34) if (x < gx - 6 || x > gx + gapW + 6) obs.push(screw(x, y, 12));
+          if (rnd() < 0.6) obs.push({ k: 'dado', x: gx + gapW / 2, y, r: 10, a: 0 });
+          return 70;
+        }
+        case 'zigzag': {
+          const gapW = Math.max(84, 120 - lvl * 4), left = rnd() < 0.5;
+          for (let row = 0; row < 2; row++) {
+            const l = row ? !left : left, gx = l ? M : W - M - gapW, yy = y - row * 150;
+            for (let x = 16; x < W; x += 34) if (x < gx - 6 || x > gx + gapW + 6) obs.push(screw(x, yy, 12));
+          }
+          return 190;
+        }
+        case 'mobile': {
+          const v = between(45, 70 + lvl * 8) * (rnd() < 0.5 ? -1 : 1);
+          obs.push({ ...screw(between(M + 20, W - M - 20), y, 13), k: 'mobile', vx: v }); return 20;
+        }
+        case 'piastra': {
+          const w = between(90, 150), x = between(M - 10, W - M - w + 10);
+          obs.push({ k: 'piastra', x, y: y - 26, w, h: 28, r: 0 }); return 40;
+        }
+        case 'dado': obs.push({ k: 'dado', x: between(M + 10, W - M - 10), y, r: 10, a: 0 }); return 0;
+        case 'batt': if (lives < 3 || rnd() < 0.3) obs.push({ k: 'batt', x: between(M + 10, W - M - 10), y, r: 11 }); return 0;
+      }
+      return 0;
+    }
+
+    // ---------- particelle ----------
+    const burst = (x: number, y: number, n: number, cols: string[], sp = 160, s = 2.5) => {
+      for (let i = 0; i < n; i++) {
+        const a = Math.random() * Math.PI * 2, v = sp * (0.3 + Math.random() * 0.9), life = 0.3 + Math.random() * 0.5;
+        parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life, max: life, c: cols[(Math.random() * cols.length) | 0], s: s * (0.5 + Math.random()) });
+      }
+    };
+
+    // ---------- collisioni ----------
+    const hitCircle = (o: Ob, x: number, y: number, r: number) => (o.x - x) ** 2 + (o.y - y) ** 2 < (o.r + r) ** 2;
+    const hitRect = (o: Ob, x: number, y: number, r: number) => {
+      const cx = Math.max(o.x, Math.min(x, o.x + o.w!)), cy = Math.max(o.y, Math.min(y, o.y + o.h!));
+      return (cx - x) ** 2 + (cy - y) ** 2 < r * r;
+    };
+
+    // ---------- aggiornamento ----------
+    const keys = new Set<string>();
+    function update(dt: number) {
+      t += dt;
+      if (isInf()) speed = Math.min(380, L.v + dist / 90); // nella sfida infinita accelera
+      const dy = speed * dt;
+      dist += dy;
+      score += dy * 0.05 * (isInf() ? 1.5 : 1 + lvIdx * 0.15);
+
+      // movimento da tastiera
+      const kv = 360 * dt;
+      if (keys.has('l')) drill.tx -= kv; if (keys.has('r')) drill.tx += kv;
+      if (keys.has('u')) drill.ty -= kv; if (keys.has('d')) drill.ty += kv;
+      drill.tx = Math.max(16, Math.min(W - 16, drill.tx));
+      drill.ty = Math.max(H * 0.42, Math.min(H - 100, drill.ty));
+      const px = drill.x;
+      const f = 1 - Math.pow(0.0005, dt); // inseguimento morbido ma reattivo
+      drill.x += (drill.tx - drill.x) * f; drill.y += (drill.ty - drill.y) * f;
+      drill.tilt += (((drill.x - px) / Math.max(dt, 0.001)) * 0.0012 - drill.tilt) * Math.min(1, dt * 12);
+      drill.tilt = Math.max(-0.35, Math.min(0.35, drill.tilt));
+
+      // solco nel legno
+      for (const p of trail) p.y += dy;
+      trail.push({ x: drill.x, y: drill.y });
+      while (trail.length && trail[0].y > H + 20) trail.shift();
+      if (trail.length > 400) trail.splice(0, trail.length - 400);
+
+      // segatura dalla punta
+      if (Math.random() < 0.8) {
+        const a = Math.PI / 2 + (Math.random() - 0.5) * 2.4, v = 40 + Math.random() * 60;
+        parts.push({ x: drill.x, y: drill.y + 2, vx: Math.cos(a) * v, vy: Math.sin(a) * v + speed * 0.3, life: 0.5, max: 0.5, c: Math.random() < 0.5 ? '#f2d3a0' : '#e6bc7c', s: 1.2 + Math.random() * 1.6 });
+      }
+
+      // nuovi ostacoli
+      if (dist < L.len) {
+        while (dist >= nextAt) { const h = spawn(-30); nextAt += between(L.gap[0], L.gap[1]) + h; }
+      } else if (finishY === null) finishY = -30;
+      if (finishY !== null) {
+        finishY += dy;
+        if (finishY >= drill.y) return win();
+      }
+
+      for (const o of obs) {
+        o.y += dy;
+        if (o.k === 'mobile') { o.x += o.vx! * dt; if (o.x < M || o.x > W - M) { o.vx = -o.vx!; o.x = Math.max(M, Math.min(W - M, o.x)); } o.a! += o.vx! * dt * 0.08; }
+        if (o.k === 'dado') o.a! += dt * 2;
+      }
+      obs = obs.filter((o) => o.y < H + 60 && !o.hit);
+
+      // collisioni con la punta
+      inv = Math.max(0, inv - dt);
+      for (const o of obs) {
+        const isRect = o.k === 'piastra';
+        if (!(isRect ? hitRect(o, drill.x, drill.y, TIP_R) : hitCircle(o, drill.x, drill.y, TIP_R))) continue;
+        if (o.k === 'dado') { o.hit = true; score += 10; sfx.nut(); burst(o.x, o.y, 12, ['#f5b800', '#ffe27a', '#fff']); pops.push({ x: o.x, y: o.y, s: '+10', life: 0.8 }); continue; }
+        if (o.k === 'batt') { o.hit = true; sfx.batt(); burst(o.x, o.y, 14, ['#3ddc84', '#b6f5cf', '#fff']); if (lives < 3) { lives++; pops.push({ x: o.x, y: o.y, s: '+1 vita', life: 0.9 }); } else { score += 50; pops.push({ x: o.x, y: o.y, s: '+50', life: 0.9 }); } continue; }
+        if (inv > 0) continue;
+        lives--; inv = 1.4; shake = reduce ? 0 : 0.35; flash = 0.25;
+        sfx.hit(); vib(90);
+        burst(drill.x, drill.y, 26, ['#fff6c2', '#ffcf3a', '#ff8a1e', '#ff5a1e'], 260, 2.2);
+        if (!isRect) { o.hit = true; burst(o.x, o.y, 8, ['#c9ced6', '#8b929c'], 120, 2); }
+        if (lives <= 0) return over();
+      }
+
+      for (const p of parts) { p.x += p.vx * dt; p.y += p.vy * dt + dy * 0.6; p.vx *= 0.92; p.vy *= 0.92; p.life -= dt; }
+      parts = parts.filter((p) => p.life > 0);
+      for (const p of pops) { p.y -= 40 * dt; p.life -= dt; }
+      pops = pops.filter((p) => p.life > 0);
+      shake = Math.max(0, shake - dt); flash = Math.max(0, flash - dt);
+    }
+
+    const recordCheck = (el: string) => {
+      const rec = score > save.best;
+      if (rec) { save.best = Math.floor(score); bestEl.textContent = fmt(save.best); }
+      $(el).hidden = !rec;
+    };
+    function win() {
+      state = 'win'; setHum(false); sfx.win(); vib(40);
+      score += lives * 100;
+      const stars = lives;
+      save.stelle[lvIdx] = Math.max(save.stelle[lvIdx] || 0, stars);
+      save.sbl = Math.max(save.sbl, lvIdx + 2);
+      recordCheck('[data-g-win-rec]'); store(save);
+      $$('[data-g-stars] i').forEach((s, i) => s.classList.toggle('on', i < stars));
+      $('[data-g-win-s]').textContent = fmt(score);
+      const fine = lvIdx === LV.length - 1;
+      $('[data-g-win-t]').textContent = fine ? 'Sei un maestro del trapano!' : ['Al pelo!', 'Bel lavoro!', 'Perfetto!'][stars - 1];
+      $('[data-g-next]').textContent = fine ? 'Prova la sfida infinita' : 'Livello successivo';
+      show('win');
+    }
+    function over() {
+      state = 'over'; setHum(false); sfx.over(); vib(200);
+      recordCheck('[data-g-over-rec]'); store(save);
+      $('[data-g-over-s]').textContent = fmt(score);
+      show('over'); draw();
+    }
+
+    // ---------- disegno ----------
+    const metal = (x: number, y: number, r: number) => {
+      const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.35, r * 0.1, x, y, r);
+      g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, '#d5dae0'); g.addColorStop(1, '#7d848d'); return g;
+    };
+    const shadow = (x: number, y: number, rx: number, ry: number, a = 0.28) => { ctx.fillStyle = `rgba(60,30,5,${a})`; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); };
+
+    function drawScrew(o: Ob) {
+      shadow(o.x + 3, o.y + 4, o.r, o.r * 0.9);
+      ctx.fillStyle = 'rgba(80,45,10,.5)'; ctx.beginPath(); ctx.arc(o.x, o.y, o.r + 2, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = metal(o.x, o.y, o.r); ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(60,65,72,.8)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.save(); ctx.translate(o.x, o.y); ctx.rotate(o.a || 0);
+      ctx.strokeStyle = '#3f454d'; ctx.lineWidth = Math.max(2.4, o.r * 0.22); ctx.lineCap = 'round';
+      const s = o.r * 0.55; ctx.beginPath(); ctx.moveTo(-s, 0); ctx.lineTo(s, 0); ctx.moveTo(0, -s); ctx.lineTo(0, s); ctx.stroke();
+      ctx.restore();
+      if (o.k === 'mobile') { // scia di movimento
+        ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 2; const dir = Math.sign(o.vx || 1);
+        for (let i = 1; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(o.x - dir * (o.r + 4 * i), o.y - 5); ctx.lineTo(o.x - dir * (o.r + 4 * i), o.y + 5); ctx.stroke(); }
+      }
+    }
+    function drawNail(o: Ob) {
+      shadow(o.x + 2, o.y + 3, 6, 5);
+      ctx.fillStyle = metal(o.x, o.y, o.r); ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = 'rgba(60,65,72,.7)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.beginPath(); ctx.arc(o.x - 1.8, o.y - 1.8, 1.6, 0, Math.PI * 2); ctx.fill();
+    }
+    function drawPlate(o: Ob) {
+      const { x, y, w, h } = o as Required<Ob>;
+      ctx.fillStyle = 'rgba(60,30,5,.3)'; ctx.fillRect(x + 4, y + 5, w, h);
+      const g = ctx.createLinearGradient(x, y, x, y + h); g.addColorStop(0, '#d3d8de'); g.addColorStop(0.5, '#a9b0b9'); g.addColorStop(1, '#8a929c');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect(x, y, w, h, 4); ctx.fill();
+      ctx.strokeStyle = '#6b727c'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,.18)'; // effetto acciaio spazzolato
+      for (let i = x + 6; i < x + w - 4; i += 5) { ctx.beginPath(); ctx.moveTo(i, y + 3); ctx.lineTo(i + 3, y + h - 3); ctx.stroke(); }
+      // strisce di pericolo
+      ctx.save(); ctx.beginPath(); ctx.rect(x + 4, y + h / 2 - 3, w - 8, 6); ctx.clip();
+      ctx.fillStyle = '#15171a'; ctx.fillRect(x, y + h / 2 - 3, w, 6); ctx.fillStyle = '#f5b800';
+      for (let i = x - 10; i < x + w; i += 12) { ctx.beginPath(); ctx.moveTo(i, y + h / 2 + 3); ctx.lineTo(i + 6, y + h / 2 - 3); ctx.lineTo(i + 12, y + h / 2 - 3); ctx.lineTo(i + 6, y + h / 2 + 3); ctx.fill(); }
+      ctx.restore();
+      for (const [cx, cy] of [[x + 6, y + 6], [x + w - 6, y + 6], [x + 6, y + h - 6], [x + w - 6, y + h - 6]]) { ctx.fillStyle = metal(cx, cy, 3); ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2); ctx.fill(); }
+    }
+    function drawNut(o: Ob) {
+      const bob = Math.sin(t * 4 + o.x) * 1.5;
+      shadow(o.x + 3, o.y + 5, 9, 7, 0.22);
+      ctx.save(); ctx.translate(o.x, o.y + bob); ctx.rotate(o.a || 0);
+      ctx.fillStyle = '#f5b800'; ctx.strokeStyle = '#8a6600'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2; ctx.lineTo(Math.cos(a) * o.r, Math.sin(a) * o.r); } ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#c99a5b'; ctx.beginPath(); ctx.arc(0, 0, o.r * 0.42, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.restore();
+      // bagliore
+      const gl = 0.25 + Math.sin(t * 6) * 0.15; ctx.strokeStyle = `rgba(255,235,150,${gl})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(o.x, o.y + bob, o.r + 5, 0, Math.PI * 2); ctx.stroke();
+    }
+    function drawBatt(o: Ob) {
+      const bob = Math.sin(t * 4 + o.x) * 1.5, x = o.x - 8, y = o.y - 12 + bob;
+      shadow(o.x + 3, o.y + 6, 10, 7, 0.22);
+      ctx.fillStyle = '#15171a'; ctx.beginPath(); ctx.roundRect(x, y, 16, 24, 3); ctx.fill();
+      ctx.fillRect(x + 5, y - 3, 6, 3);
+      ctx.fillStyle = '#3ddc84'; for (let i = 0; i < 3; i++) ctx.fillRect(x + 3, y + 4 + i * 6.5, 10, 4.5);
+      const gl = 0.3 + Math.sin(t * 6) * 0.2; ctx.strokeStyle = `rgba(61,220,132,${gl})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(o.x, o.y + bob, 17, 0, Math.PI * 2); ctx.stroke();
+    }
+    function drawFinish(y: number) {
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(0, y + 3, W, 16);
+      const s = 12; for (let x = 0; x < W; x += s) for (let r = 0; r < 2; r++) { ctx.fillStyle = ((x / s + r) % 2) ? '#15171a' : '#fff'; ctx.fillRect(x, y + r * 7, s, 7); }
+      ctx.fillStyle = '#f5b800'; ctx.font = '900 13px "Archivo Variable",system-ui,sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('TRAGUARDO', W / 2, y - 6);
+    }
+    function drawTrail() {
+      if (trail.length < 2) return;
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      const path = () => { ctx.beginPath(); ctx.moveTo(trail[0].x, trail[0].y); for (let i = 1; i < trail.length; i++) ctx.lineTo(trail[i].x, trail[i].y); };
+      path(); ctx.strokeStyle = 'rgba(255,235,200,.45)'; ctx.lineWidth = 15; ctx.stroke();
+      path(); ctx.strokeStyle = '#7a4a1e'; ctx.lineWidth = 11; ctx.stroke();
+      path(); ctx.strokeStyle = '#4e2c0f'; ctx.lineWidth = 6; ctx.stroke();
+    }
+    function drawDrill() {
+      const { x, y } = drill;
+      if (inv > 0 && Math.floor(inv * 12) % 2 === 0) ctx.globalAlpha = 0.45;
+      // ombra
+      ctx.save(); ctx.translate(x + 10, y + 14); ctx.rotate(drill.tilt);
+      ctx.fillStyle = 'rgba(50,25,5,.3)'; ctx.beginPath(); ctx.roundRect(-20, 30, 40, 66, 12); ctx.fill(); ctx.restore();
+      ctx.save(); ctx.translate(x, y); ctx.rotate(drill.tilt);
+      // punta elicoidale che gira
+      ctx.fillStyle = '#b8bec6'; ctx.beginPath(); ctx.moveTo(0, -3); ctx.lineTo(3.5, 4); ctx.lineTo(3.5, 26); ctx.lineTo(-3.5, 26); ctx.lineTo(-3.5, 4); ctx.closePath(); ctx.fill();
+      ctx.save(); ctx.beginPath(); ctx.rect(-3.5, 2, 7, 24); ctx.clip();
+      ctx.strokeStyle = '#5d646d'; ctx.lineWidth = 1.6; const off = (t * 60) % 6;
+      for (let i = -6; i < 30; i += 6) { ctx.beginPath(); ctx.moveTo(-4, i + off); ctx.lineTo(4, i + off - 4); ctx.stroke(); }
+      ctx.restore();
+      // mandrino
+      const gc = ctx.createLinearGradient(-11, 0, 11, 0); gc.addColorStop(0, '#1d2024'); gc.addColorStop(0.5, '#4a4f57'); gc.addColorStop(1, '#1d2024');
+      ctx.fillStyle = gc; ctx.beginPath(); ctx.roundRect(-9, 24, 18, 18, [3, 3, 2, 2]); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 1; for (let i = 27; i < 41; i += 3) { ctx.beginPath(); ctx.moveTo(-8, i); ctx.lineTo(8, i); ctx.stroke(); }
+      ctx.fillStyle = '#2b2e33'; ctx.fillRect(-12, 40, 24, 5);
+      // corpo giallo
+      const gb = ctx.createLinearGradient(-19, 0, 19, 0); gb.addColorStop(0, '#c99400'); gb.addColorStop(0.35, '#ffd23a'); gb.addColorStop(0.6, '#f5b800'); gb.addColorStop(1, '#a87b00');
+      ctx.fillStyle = gb; ctx.beginPath(); ctx.roundRect(-18, 44, 36, 52, [8, 8, 14, 14]); ctx.fill();
+      ctx.strokeStyle = '#8a6600'; ctx.lineWidth = 1; ctx.stroke();
+      // fasce nere laterali e prese d'aria
+      ctx.fillStyle = '#15171a'; ctx.beginPath(); ctx.roundRect(-18, 60, 6, 30, 3); ctx.fill(); ctx.beginPath(); ctx.roundRect(12, 60, 6, 30, 3); ctx.fill();
+      ctx.fillStyle = 'rgba(21,23,26,.85)'; for (let i = 0; i < 4; i++) ctx.fillRect(-7, 66 + i * 6, 14, 2.5);
+      // selettore e luce LED
+      ctx.fillStyle = '#15171a'; ctx.beginPath(); ctx.roundRect(-8, 50, 16, 8, 3); ctx.fill();
+      ctx.fillStyle = '#f5b800'; ctx.fillRect(-2, 52, 4, 4);
+      ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.roundRect(-13, 46, 4, 14, 2); ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = 1;
+      // alone sulla punta per vedere bene dov'è
+      ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.arc(x, y, TIP_R + 4, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+    }
+    function drawHud() {
+      const font = (s: number, w = 800) => `${w} ${s}px "Archivo Variable",system-ui,sans-serif`;
+      ctx.fillStyle = 'rgba(21,23,26,.78)'; ctx.beginPath(); ctx.roundRect(10, 10, W - 120, 36, 10); ctx.fill();
+      ctx.fillStyle = '#f5b800'; ctx.font = font(13, 900); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.fillText(isInf() ? '∞' : `LIV ${lvIdx + 1}`, 20, 28);
+      // barra avanzamento (o velocità nella sfida infinita)
+      const bx = 66, bw = W - 120 - 66, by = 24;
+      ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.beginPath(); ctx.roundRect(bx, by, bw, 8, 4); ctx.fill();
+      const pr = isInf() ? (speed - L.v) / (380 - L.v) : Math.min(1, dist / L.len);
+      if (pr > 0) { ctx.fillStyle = '#f5b800'; ctx.beginPath(); ctx.roundRect(bx, by, Math.max(8, bw * pr), 8, 4); ctx.fill(); }
+      // punteggio e vite
+      ctx.fillStyle = 'rgba(21,23,26,.78)'; ctx.beginPath(); ctx.roundRect(10, 52, 104, 28, 8); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = font(15, 900); ctx.fillText(fmt(score), 20, 66.5);
+      ctx.beginPath(); ctx.roundRect(W - 88, 52, 78, 28, 8); ctx.fillStyle = 'rgba(21,23,26,.78)'; ctx.fill();
+      for (let i = 0; i < 3; i++) {
+        const hx = W - 76 + i * 23, on = i < lives;
+        ctx.fillStyle = on ? '#f5b800' : 'rgba(255,255,255,.2)';
+        ctx.beginPath(); ctx.moveTo(hx, 58); ctx.lineTo(hx + 4, 62); ctx.lineTo(hx + 4, 75); ctx.lineTo(hx - 4, 75); ctx.lineTo(hx - 4, 62); ctx.closePath(); ctx.fill();
+        if (on) { ctx.strokeStyle = '#8a6600'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(hx - 4, 66); ctx.lineTo(hx + 4, 63); ctx.moveTo(hx - 4, 71); ctx.lineTo(hx + 4, 68); ctx.stroke(); }
+      }
+      ctx.textBaseline = 'alphabetic';
+    }
+
+    function draw() {
+      if (!wood) return;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      let sx = 0, sy = 0;
+      if (shake > 0) { sx = (Math.random() - 0.5) * 10 * shake / 0.35; sy = (Math.random() - 0.5) * 10 * shake / 0.35; }
+      ctx.setTransform(scale, 0, 0, scale, sx * scale, sy * scale);
+      // legno che scorre
+      const off = dist % TH;
+      ctx.drawImage(wood, 0, 0, wood.width, wood.height, 0, off - TH, W, TH);
+      ctx.drawImage(wood, 0, 0, wood.width, wood.height, 0, off, W, TH);
+      // ombra ai bordi (profondità)
+      const vg = ctx.createLinearGradient(0, 0, W, 0); vg.addColorStop(0, 'rgba(60,30,5,.35)'); vg.addColorStop(0.08, 'rgba(60,30,5,0)'); vg.addColorStop(0.92, 'rgba(60,30,5,0)'); vg.addColorStop(1, 'rgba(60,30,5,.35)');
+      ctx.fillStyle = vg; ctx.fillRect(-10, -10, W + 20, H + 20);
+
+      drawTrail();
+      if (finishY !== null) drawFinish(finishY);
+      for (const o of obs) {
+        if (o.k === 'vite' || o.k === 'mobile') drawScrew(o);
+        else if (o.k === 'chiodo') drawNail(o);
+        else if (o.k === 'piastra') drawPlate(o);
+        else if (o.k === 'dado') drawNut(o);
+        else if (o.k === 'batt') drawBatt(o);
+      }
+      for (const p of parts) { ctx.globalAlpha = Math.max(0, p.life / p.max); ctx.fillStyle = p.c; ctx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s); }
+      ctx.globalAlpha = 1;
+      drawDrill();
+      ctx.textAlign = 'center'; ctx.font = '900 15px "Archivo Variable",system-ui,sans-serif';
+      for (const p of pops) { ctx.globalAlpha = Math.min(1, p.life * 2); ctx.fillStyle = '#15171a'; ctx.fillText(p.s, p.x + 1, p.y + 1); ctx.fillStyle = '#fff'; ctx.fillText(p.s, p.x, p.y); }
+      ctx.globalAlpha = 1;
+      if (flash > 0) { ctx.fillStyle = `rgba(229,72,77,${flash * 1.2})`; ctx.fillRect(-10, -10, W + 20, H + 20); }
+      if (state !== 'menu') drawHud();
+    }
+
+    let last = 0, raf = 0;
+    function loop() {
+      cancelAnimationFrame(raf);
+      const step = (now: number) => {
+        if (state !== 'play') { draw(); return; }
+        const dt = Math.min(0.033, (now - last) / 1000); last = now;
+        update(dt); draw();
+        if (state === 'play') raf = requestAnimationFrame(step); else draw();
+      };
+      raf = requestAnimationFrame(step);
+    }
+
+    // ---------- comandi ----------
+    const toLocal = (e: PointerEvent) => { const r = cv.getBoundingClientRect(); return { x: ((e.clientX - r.left) / r.width) * W, y: ((e.clientY - r.top) / r.height) * H }; };
+    let drag: { id: number; px: number; py: number; dx: number; dy: number } | null = null;
+    cv.addEventListener('pointerdown', (e) => {
+      if (state !== 'play') return;
+      const p = toLocal(e);
+      if (e.pointerType === 'mouse') { drill.tx = p.x; drill.ty = p.y; return; }
+      e.preventDefault(); cv.setPointerCapture(e.pointerId);
+      drag = { id: e.pointerId, px: p.x, py: p.y, dx: drill.tx, dy: drill.ty }; // trascinamento relativo: il dito non copre il trapano
+    });
+    cv.addEventListener('pointermove', (e) => {
+      if (state !== 'play') return;
+      const p = toLocal(e);
+      if (e.pointerType === 'mouse') { drill.tx = p.x; drill.ty = p.y; return; }
+      if (!drag || drag.id !== e.pointerId) return;
+      drill.tx = drag.dx + (p.x - drag.px) * 1.25; drill.ty = drag.dy + (p.y - drag.py) * 1.25;
+      drill.tx = Math.max(16, Math.min(W - 16, drill.tx)); drill.ty = Math.max(H * 0.42, Math.min(H - 100, drill.ty));
+      // se si arriva al bordo, si riparte da lì senza "zona morta"
+      drag.dx = drill.tx - (p.x - drag.px) * 1.25; drag.dy = drill.ty - (p.y - drag.py) * 1.25;
+    });
+    const endDrag = (e: PointerEvent) => { if (drag && drag.id === e.pointerId) drag = null; };
+    cv.addEventListener('pointerup', endDrag); cv.addEventListener('pointercancel', endDrag);
+
+    const map: Record<string, string> = { ArrowLeft: 'l', a: 'l', A: 'l', ArrowRight: 'r', d: 'r', D: 'r', ArrowUp: 'u', w: 'u', W: 'u', ArrowDown: 'd', s: 'd', S: 'd' };
+    window.addEventListener('keydown', (e) => {
+      if (state === 'play') {
+        const k = map[e.key];
+        if (k) { keys.add(k); e.preventDefault(); return; }
+        if (e.key === 'p' || e.key === 'P' || e.key === 'Escape' || e.key === ' ') { e.preventDefault(); pause(); }
+      } else if (state === 'pause' && (e.key === 'p' || e.key === 'P' || e.key === 'Escape')) { e.preventDefault(); resume(); }
+    });
+    window.addEventListener('keyup', (e) => { const k = map[e.key]; if (k) keys.delete(k); });
+    window.addEventListener('blur', () => { keys.clear(); pause(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+
+    pauseBtn.addEventListener('click', pause);
+    $('[data-g-go]').addEventListener('click', () => { audio(); openIntro(sel); scrollIn(); });
+    $('[data-g-start]').addEventListener('click', start);
+    $('[data-g-resume]').addEventListener('click', resume);
+    $$('[data-g-retry]').forEach((b) => b.addEventListener('click', () => openIntro(lvIdx)));
+    $$('[data-g-menu]').forEach((b) => b.addEventListener('click', () => { state = 'menu'; setHum(false); sel = save.sbl > LV.length ? -1 : save.sbl - 1; buildLevels(); show('menu'); }));
+    $('[data-g-next]').addEventListener('click', () => openIntro(lvIdx === LV.length - 1 ? -1 : lvIdx + 1));
+    // su telefono porta il gioco al centro dello schermo quando si inizia
+    const scrollIn = () => { if (matchMedia('(max-width:820px)').matches) frame.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' }); };
+
+    // si mette in pausa da solo se si scorre via
+    new IntersectionObserver(([en]) => { if (!en.isIntersecting) pause(); }, { threshold: 0.35 }).observe(frame);
+
+    new ResizeObserver(resize).observe(cv);
+    resize();
+    // anteprima animata del menu: qualche ostacolo fermo sulla tavola
+    L = LV[0]; lvIdx = 0; reset(); for (let i = 0; i < 4; i++) spawn(60 + i * 110);
+    drill.y = drill.ty = H * 0.78;
+    lvIdx = Math.min(save.sbl, LV.length) - 1; sel = save.sbl > LV.length ? -1 : lvIdx;
+    buildLevels(); draw();
+  }
+
+  // il gioco si prepara solo quando la sezione sta per comparire
+  document.querySelectorAll<HTMLElement>('.gm').forEach((sec) => {
+    const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { io.disconnect(); init(sec); } }, { rootMargin: '300px' });
+    io.observe(sec);
+  });
+</script>

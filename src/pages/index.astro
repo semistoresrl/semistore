@@ -8,6 +8,7 @@ import OffertaFlash from '../components/OffertaFlash.astro';
 import VideoNegozio from '../components/VideoNegozio.astro';
 import RecensioniGoogle from '../components/RecensioniGoogle.astro';
 import HeroSlider from '../components/HeroSlider.astro';
+import GiocoTrapano from '../components/GiocoTrapano.astro';
 import { urlCategoria } from '../data/catalogo';
 
 const evidenza = ['DCD805P2T', 'DCF850P2T', 'DCG405P2', 'DCF900P2T', 'DCH273P2T', 'DCK2050E2T', 'DCS438E2T', 'DCE089D1G']
@@ -141,6 +142,8 @@ const vantaggi = [
     <div class="sec-h"><h2 class="h2">Prodotti più popolari</h2><a href="/catalogo/" class="ul">Vai al catalogo</a></div>
     <div class="grid-p">{popolari.map((p) => <ProductCard p={p} />)}</div>
   </div></section>
+
+  <GiocoTrapano />
 
   <section class="wrap mr">
     <h2 class="mr-h">I nostri marchi</h2>
