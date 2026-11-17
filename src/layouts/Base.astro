@@ -25,7 +25,7 @@ const nav = [
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>{fullTitle}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
@@ -53,7 +53,7 @@ const nav = [
     <span>Rivenditore e Centro Assistenza Autorizzato DEWALT</span>
     <span class="row gap"><span>Spedizione in {SITO.spedizione.giorni} giorni lavorativi</span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a></span>
   </div></div>
-  <header class="hdr">
+  <header class="hdr" id="hdr">
     <div class="wrap row hdr-in">
       <a href="/" class="logo" aria-label="Semi Store, home">
         <span class="logo-s" aria-hidden="true">S</span>
@@ -66,7 +66,7 @@ const nav = [
         <form action="/catalogo/" method="get" role="search" class="search">
           <label for="q" class="sr">Cerca</label>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9a9ca1" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
-          <input id="q" name="q" type="search" placeholder="Cerca modello, es. DCD805" autocomplete="off" />
+          <input id="q" name="q" type="search" enterkeyhint="search" placeholder="Cerca modello, es. DCD805" autocomplete="off" />
         </form>
         <a href="/carrello/" class="btn-cart" aria-label="Carrello">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/></svg>
@@ -75,6 +75,18 @@ const nav = [
       </div>
     </div>
   </header>
+  <div class="hdr-sub">
+    <div class="wrap">
+      <form action="/catalogo/" method="get" role="search" class="search">
+        <label for="q2" class="sr">Cerca</label>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9a9ca1" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input id="q2" name="q" type="search" placeholder="Cerca modello, es. DCD805" autocomplete="off" enterkeyhint="search" />
+      </form>
+      <nav aria-label="Principale (mobile)" class="nav">
+        {nav.map(([h, l]) => <a href={h} aria-current={path === h ? 'page' : undefined}>{l}</a>)}
+      </nav>
+    </div>
+  </div>
 
   <main id="main"><slot /></main>
 
@@ -114,11 +126,13 @@ const nav = [
   :root{--ink:#15171a;--ink2:#23262b;--line-d:#33373d;--y:#f5b800;--y-d:#8a6600;--bg:#f4f3ef;--card:#fff;--line:#e3e1da;--mut:#5c5f65;--mut-d:#b9bbbf;--ok:#1a7a43;--r:14px}
   *,*::before,*::after{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Archivo Variable',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5}
+  body{margin:0;overflow-x:clip;background:var(--bg);color:var(--ink);font-family:'Archivo Variable',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5}
   img{max-width:100%;height:auto;display:block}
   a{color:inherit;text-decoration:none}a:hover{color:var(--y-d)}
-  h1,h2,h3{line-height:1;margin:0;font-weight:900;letter-spacing:-.01em}
-  .wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+  h1,h2,h3{line-height:1;margin:0;font-weight:900;letter-spacing:-.01em;overflow-wrap:break-word}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 max(20px,env(safe-area-inset-right)) 0 max(20px,env(safe-area-inset-left))}
+  @media (min-width:1600px){.wrap{max-width:1400px}}
+  @media (max-width:360px){.wrap{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}}
   .row{display:flex;flex-wrap:wrap;align-items:center}.between{justify-content:space-between}.gap{gap:8px 24px}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
   .skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;z-index:99;background:var(--y);padding:8px 12px}
@@ -127,24 +141,39 @@ const nav = [
   .of-bar{display:block;background:var(--ink);color:#fff;font-size:14px;text-align:center;border-bottom:2px solid var(--y)}.of-bar:hover{color:#fff}.of-bar[hidden]{display:none}.of-bar .wrap{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 12px;padding-top:8px;padding-bottom:8px}.of-bar b{color:var(--y);text-transform:uppercase;letter-spacing:.04em}.of-bar u{font-weight:800;color:var(--y)}.of-bar-cd b{color:#fff}@media (max-width:560px){.of-bar-s{display:none}}
   .strip{background:var(--y);font-size:13px;font-weight:700}.strip .wrap{padding-top:7px;padding-bottom:7px;gap:4px 24px}
   .hdr{background:var(--ink);color:#fff;position:sticky;top:0;z-index:20}
+  /* telefono in orizzontale: lo schermo è basso, l'header non resta fisso */
+  @media (max-height:500px) and (min-width:861px){.hdr{position:relative}}
   .hdr-in{gap:14px 28px;padding-top:14px;padding-bottom:14px}
   .logo{display:flex;align-items:center;gap:12px;color:#fff}.logo:hover{color:#fff}
   .logo-s{width:40px;height:40px;background:var(--y);color:var(--ink);display:grid;place-items:center;font-weight:900;font-size:20px;border-radius:6px;transform:skewX(-8deg)}
-  .logo-t{display:flex;flex-direction:column;line-height:1.05}.logo-t b{font-size:20px;letter-spacing:.04em}.logo-t small{font-size:11px;color:var(--mut-d);letter-spacing:.18em}
+  .logo-t{display:flex;flex-direction:column;line-height:1.05}.logo-t b{font-size:20px;letter-spacing:.04em}.logo-t small{white-space:nowrap;font-size:11px;color:var(--mut-d);letter-spacing:.18em}
   .nav{display:flex;flex-wrap:wrap;gap:4px 22px;font-weight:600;font-size:15px}.nav a{color:#fff;padding:10px 0}.nav a:hover,.nav a[aria-current]{color:var(--y)}
-  .hdr-act{flex:1 1 240px;display:flex;gap:10px;justify-content:flex-end;align-items:center}
-  .search{flex:1 1 200px;max-width:320px;display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:8px;padding:0 12px;height:44px}
-  .search input{flex:1;min-width:0;background:transparent;border:0;color:#fff;font:inherit;font-size:14px;outline:none}
+  .hdr-act{flex:1 1 180px;min-width:0;display:flex;gap:10px;justify-content:flex-end;align-items:center}
+  .search{flex:1 1 120px;min-width:0;max-width:320px;display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:8px;padding:0 12px;height:44px}
+  .search input{flex:1;min-width:0;background:transparent;border:0;color:#fff;font:inherit;font-size:16px;outline:none}
   .btn-cart{height:44px;padding:0 14px;border-radius:8px;background:var(--y);color:var(--ink);display:flex;align-items:center;gap:8px;font-weight:800}.btn-cart:hover{color:var(--ink)}
-  @media (max-width:720px){.nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap}.hdr-act{flex-basis:100%}.search{max-width:none}.strip .wrap>span:first-child{display:none}}
+    @media (min-width:861px) and (max-width:1100px){.hdr-in{flex-wrap:nowrap;gap:14px 18px}.nav{flex-wrap:nowrap;gap:4px 16px;font-size:14px}.nav a{white-space:nowrap}}
+  .hdr-sub{display:none}
+  @media (max-width:860px){
+    /* telefono e tablet piccoli: resta fissa solo la riga logo + carrello; ricerca e menu sono nel blocco sotto e scorrono via */
+    .hdr-in{flex-wrap:nowrap;justify-content:space-between;padding-top:10px;padding-bottom:10px}
+    .hdr .nav,.hdr .search{display:none}.hdr-act{flex:0 0 auto}
+    .hdr-sub{display:block;background:var(--ink);color:#fff;border-top:1px solid #ffffff12}
+    .hdr-sub .wrap{display:flex;flex-direction:column;gap:4px;padding-top:10px}
+    .hdr-sub .search{flex:0 0 44px;max-width:none;width:100%}
+    .hdr-sub .nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:0 20px;-webkit-mask:linear-gradient(90deg,#000 85%,transparent);mask:linear-gradient(90deg,#000 85%,transparent)}.hdr-sub .nav::-webkit-scrollbar{display:none}.hdr-sub .nav a{white-space:nowrap;padding:10px 0 12px}
+  }
+  @media (max-width:720px){.strip .wrap>span:first-child{display:none}}
+  @media (max-width:480px){.strip .wrap{justify-content:center}.strip .gap>span:first-child{display:none}}
+  @media (max-width:360px){.logo{gap:8px}.logo-s{width:34px;height:34px;font-size:17px}.logo-t b{font-size:17px}.logo-t small{font-size:9px;letter-spacing:.12em}.btn-cart{padding:0 12px}.of-bar{font-size:13px}}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;border-radius:8px;font-weight:800;font-size:16px;border:0;cursor:pointer;font-family:inherit}
   .btn-y{background:var(--y);color:var(--ink)}.btn-y:hover{color:var(--ink);filter:brightness(1.05)}
   .btn-k{background:var(--ink);color:#fff}.btn-k:hover{color:var(--y)}
   .btn-o{border:1px solid #4a4e55;color:#fff;background:transparent}.btn-o:hover{color:var(--y)}
   .btn[disabled]{opacity:.5;cursor:not-allowed}
   .kicker{font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.14em;font-weight:700;text-transform:uppercase}
-  .sec{padding-top:56px;padding-bottom:56px}.sec-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:24px}
-  .h2{font-size:clamp(30px,4.5vw,44px);text-transform:uppercase}
+  .sec{padding-top:clamp(36px,6vw,56px);padding-bottom:clamp(36px,6vw,56px)}.sec-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:24px}
+  .h2{font-size:clamp(23px,3.6vw + 12px,44px);text-transform:uppercase}
   .ul{font-weight:700;border-bottom:2px solid var(--y);padding-bottom:2px}
   .grid-p{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(230px,44vw),1fr));gap:12px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
@@ -152,9 +181,15 @@ const nav = [
   .field input,.field select,.field textarea{min-height:48px;border:1px solid #cfccc2;border-radius:8px;padding:10px 14px;font:inherit;font-size:16px;font-weight:400;background:#fff;color:var(--ink)}
   .field textarea{min-height:110px;resize:vertical}
   .ftr{background:var(--ink);color:#c9cbcf;margin-top:40px}.ftr a{color:#c9cbcf}.ftr a:hover{color:var(--y)}
-  .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:28px;padding-top:52px;padding-bottom:28px}
+  .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:28px;padding-top:52px;padding-bottom:28px}
   .col{display:flex;flex-direction:column;gap:8px;font-size:14px}.col b{color:#fff}.ftr-brand{font-size:22px;letter-spacing:.04em}
-  .legal{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#9a9ca1;border-top:1px solid #2e3238;padding-top:18px;padding-bottom:26px}
-  .wa{position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;background:#1a7a43;color:#fff;display:grid;place-items:center;box-shadow:0 10px 30px #0004;z-index:30}.wa:hover{color:#fff}
-  .prose{max-width:760px}.prose h2{font-size:24px;margin:32px 0 10px}.prose p,.prose li{color:#33363b}
+  .legal{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#9a9ca1;border-top:1px solid #2e3238;padding-top:18px;padding-bottom:calc(26px + env(safe-area-inset-bottom))}
+  .wa{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:#1a7a43;color:#fff;display:grid;place-items:center;box-shadow:0 10px 30px #0004;z-index:30}.wa:hover{color:#fff}
+  .prose{max-width:760px}
+  /* niente effetti "hover" bloccati dopo il tocco su telefoni e tablet */
+  @media (hover:none){.card:hover,.pc:hover,.of:hover,.vn-a:hover{transform:none!important}}
+  /* pieghevoli aperti a cavallo della cerniera (Surface Duo, Fold, Trifold in modalità doppio schermo): due colonne ai lati della piega */
+  @media (horizontal-viewport-segments:2){
+    .hero-in,.pd,.ass-in,.ag,.cart,.vn-in{grid-template-columns:1fr 1fr!important;column-gap:calc(env(viewport-segment-left 1 0,0px) - env(viewport-segment-right 0 0,0px) + 40px)!important}
+  }.prose h2{font-size:24px;margin:32px 0 10px}.prose p,.prose li{color:#33363b}
 </style>

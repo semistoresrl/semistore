@@ -132,10 +132,10 @@ const passi = [
 
 <style>
   .hero{background:var(--ink);color:#fff;overflow:hidden}
-  .hero-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:40px;align-items:center;padding-top:56px;padding-bottom:72px}
+  .hero-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:40px;align-items:center;padding-top:56px;padding-bottom:72px}
   .hero-t{display:flex;flex-direction:column;gap:22px}
   .tag{align-self:flex-start;color:var(--y);border:1px solid #f5b80066;padding:6px 10px;border-radius:4px;font-weight:500}
-  h1{font-size:clamp(40px,6.4vw,72px);line-height:.95;text-transform:uppercase}h1 span{color:var(--y)}
+  h1{font-size:clamp(40px,5.6vw,72px);line-height:.95;text-transform:uppercase}@media (max-width:600px){h1{font-size:clamp(28px,10.4vw,48px)}.hero-in{padding-top:32px;padding-bottom:40px;gap:28px}.hero-t p{font-size:16px}.hero-v{min-height:0}}h1 span{color:var(--y)}
   .hero-t p{margin:0;font-size:18px;color:#c9cbcf;max-width:520px}
   .hero-v{position:relative;min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center}
   .hero-bg{position:absolute;inset:24px 0 24px 36px;background:var(--y);border-radius:18px;transform:skewX(-6deg)}
@@ -157,9 +157,9 @@ const passi = [
   .tr-dots{display:flex;gap:6px}.tr-dots i{width:7px;height:7px;border-radius:4px;background:#ffffff40;transition:width .2s,background .2s}.tr-dots i.on{width:20px;background:var(--y)}
   @media (max-width:560px){.tr-b{display:none}}
   .trust{background:#fff;border-bottom:1px solid var(--line)}
-  .trust-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;padding-top:22px;padding-bottom:22px}
+  .trust-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:16px;padding-top:22px;padding-bottom:22px}
   .trust-in div{display:flex;flex-direction:column;border-left:3px solid var(--y);padding-left:12px}.trust-in span{font-size:13px;color:var(--mut)}
-  .cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr));gap:12px}
   .cat{padding:20px;min-height:140px;display:flex;flex-direction:column;justify-content:space-between;gap:16px}.cat b{font-size:19px}
   .cat-s{width:48px;height:48px;border-radius:10px;background:var(--ink);color:var(--y);display:grid;place-items:center;font-weight:700}
   .cat-n{font-size:13px;color:var(--mut);font-weight:600}
@@ -175,14 +175,15 @@ const passi = [
   @keyframes catfade{0%{opacity:0}4%{opacity:1}25%{opacity:1}29%{opacity:0}100%{opacity:0}}
   @media (max-width:560px){.cats{grid-template-columns:1fr 1fr;gap:10px}.cat{padding:14px;min-height:0;gap:10px}.cat-v{margin:-14px -14px 0;height:120px}.cat b{font-size:15px;line-height:1.25}.cat-s{width:36px;height:36px;font-size:13px}.cat-n{font-size:12px}}
   .plat{background:var(--ink);border-radius:20px;padding:clamp(24px,5vw,48px);display:flex;flex-direction:column;gap:14px}
-  .plat-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:12px}
+  .plat-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:14px;margin-top:12px}
   .plat-c{background:var(--ink2);border:1px solid var(--line-d);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:10px;color:#fff}.plat-c span{color:var(--mut-d);font-size:14px}.plat-c:hover{color:#fff;border-color:var(--y)}
   .plat-v{font-size:52px;font-weight:900;color:var(--y)!important;line-height:1}.plat-l{color:var(--y)!important;font-weight:700}
-  .ass{background:var(--y)}.ass-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:40px;align-items:center;padding-top:64px;padding-bottom:64px}
-  .ass-t{display:flex;flex-direction:column;gap:20px}.ass-t h2{font-size:clamp(34px,5vw,52px);text-transform:uppercase;line-height:.95}
+  .ass{background:var(--y)}.ass-in{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:40px;align-items:center;padding-top:64px;padding-bottom:64px}
+  .ass-t{display:flex;flex-direction:column;gap:20px}.ass-t h2{font-size:clamp(28px,5vw,52px);text-transform:uppercase;line-height:.95}
   .steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .step{background:var(--ink);color:#fff;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}.step .mono{color:var(--y);font-weight:700}.step span:last-child{font-size:13px;color:var(--mut-d)}
-  .ass-f{padding:28px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 50px #0002}
+  @media (max-width:360px){.steps{grid-template-columns:1fr}}
+  .ass-f{padding:clamp(18px,5vw,28px);display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 50px #0002}
 </style>
 <script>
   const box = document.getElementById('trend');
