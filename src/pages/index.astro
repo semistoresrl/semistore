@@ -52,7 +52,7 @@ const passi = [
         <div class="trend" id="trend" tabindex="0" aria-label="Prodotti più richiesti, scorri per vederli">
           {trend.map((p, i) => (
             <a class="tr-s" href={`/prodotti/${p.slug}/`} aria-label={`${p.nome} ${p.modello}, ${euro(p.prezzo)}`}>
-              <span class="tr-img"><img src={fotoDi(p.slug)} width="800" height="800" alt="" loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async" /></span>
+              <span class="tr-img"><img src={fotoDi(p.slug)} width="800" height="800" alt="" data-ph={p.modello} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async" /></span>
               <span class="hero-tag">
                 <span class="mono hero-tag-c">{p.modello}</span>
                 <span class="hero-tag-n">{p.nome}</span>

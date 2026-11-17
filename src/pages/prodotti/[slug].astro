@@ -23,7 +23,7 @@ const conferma = p.disponibilita === 'conferma';
     <nav aria-label="Percorso" class="bc"><a href="/">Home</a> / <a href="/catalogo/">Catalogo</a> / <a href={`/catalogo/?cat=${p.categoria.toLowerCase().split(/[ ,]/)[0]}`}>{p.categoria}</a></nav>
     <div class="pd">
       <div class="card pd-img">
-        {img ? <img src={img} width="800" height="800" alt={titolo} fetchpriority="high" /> : p.kit ? <KitFoto pezzi={p.kit} alt={titolo} /> : <span class="mono" style="font-size:40px;color:#c9c6bc;font-weight:700">{p.modello || p.marca}</span>}
+        {img ? <img src={img} width="800" height="800" alt={titolo} data-ph={p.modello || p.marca} fetchpriority="high" /> : p.kit ? <KitFoto pezzi={p.kit} alt={titolo} /> : <span class="mono" style="font-size:40px;color:#c9c6bc;font-weight:700">{p.modello || p.marca}</span>}
       </div>
       <div class="pd-i">
         <span class="row" style="gap:8px">{p.volt && <span class="pill k">{p.volt}</span>}<span class="pill">{p.marca}</span><span class="pill">{p.categoria}</span></span>

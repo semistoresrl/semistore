@@ -41,6 +41,8 @@ const nav = [
   {image && <meta property="og:image" content={new URL(image, SITO.url).href} />}
   <script type="application/ld+json" set:html={JSON.stringify(org)} />
   {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
+  <!-- Foto rotte (link esterni morti): niente testo alternativo sotto i bollini, si mostra il codice prodotto o si nasconde l'immagine -->
+  <script is:inline>addEventListener('error',function(e){var i=e.target;if(!i||i.tagName!=='IMG'||i.dataset.ko)return;i.dataset.ko='1';var t=i.getAttribute('data-ph');if(t){var s=document.createElement('span');s.className='img-ph mono';s.textContent=t;i.replaceWith(s)}else{i.style.visibility='hidden'}},true)</script>
 </head>
 <body>
   <a class="skip" href="#main">Vai al contenuto</a>
@@ -127,7 +129,8 @@ const nav = [
   *,*::before,*::after{box-sizing:border-box}
   html{-webkit-text-size-adjust:100%}
   body{margin:0;overflow-x:clip;background:var(--bg);color:var(--ink);font-family:'Archivo Variable',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5}
-  img{max-width:100%;height:auto;display:block}
+  img{max-width:100%;height:auto;display:block;color:transparent}
+  .img-ph{font-weight:700;font-size:24px;color:#c9c6bc;display:grid;place-items:center;width:100%;height:100%;text-align:center;word-break:break-all}
   a{color:inherit;text-decoration:none}a:hover{color:var(--y-d)}
   h1,h2,h3{line-height:1;margin:0;font-weight:900;letter-spacing:-.01em;overflow-wrap:break-word}
   .wrap{max-width:1240px;margin:0 auto;padding:0 max(20px,env(safe-area-inset-right)) 0 max(20px,env(safe-area-inset-left))}
