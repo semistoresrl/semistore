@@ -65,34 +65,28 @@ const piattaformeF = [
 ];
 const marchi = [['DEWALT', 'dewalt'], ['STANLEY', 'stanley'], ['BLACK+DECKER', 'blackdecker'], ['USAG', 'usag'], ['LENOX', 'lenox']].map(([n, q]) => [n, q, prodotti.filter((p) => p.marca === n).length]);
 const vantaggi = [
-  ['Centro autorizzato DEWALT', 'garanzie e riparazioni gestite in sede', '<path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>'],
-  [`Spedizione gratuita`, `sopra ${euro(SITO.spedizione.gratisDa)}, in ${SITO.spedizione.giorni} giorni lavorativi`, '<path d="M3 6h11v9H3zM14 9h4l3 3v3h-7"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>'],
-  ['Prezzi sotto listino', 'sconti sul listino ufficiale, ritiro gratis in negozio', '<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>'],
-  ['Assistenza vera', 'esperti al banco e al telefono, prima e dopo l\'acquisto', '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4" height="6" rx="1.5"/><rect x="17" y="13" width="4" height="6" rx="1.5"/><path d="M19 19c0 1.5-2 2-5 2"/>'],
+  ['Centro autorizzato', 'Riparazioni e garanzie DEWALT in sede', '/assistenza/', '<path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>'],
+  ['Spedizione gratis', `Sopra ${euro(SITO.spedizione.gratisDa).replace(',00', '')} · ${SITO.spedizione.giorni} giorni`, '/condizioni-di-vendita/', '<path d="M3 6h11v9H3zM14 9h4l3 3v3h-7"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>'],
+  ['Sotto listino', 'Prezzi scontati sul listino ufficiale', '/catalogo/', '<path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/>'],
+  ['Parla con noi', `Tel. ${SITO.telefono}`, `tel:${SITO.telefonoLink}`, '<path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/>'],
 ];
 ---
 <Base title={SITO.nome}>
   <HeroSlider />
 
   <section class="vt"><div class="wrap">
-    <div class="vt-box">
-      <h2 class="vt-h">Oltre <span>{String(prodotti.length).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</span> prodotti professionali e originali</h2>
-      <div class="vt-g">
-        {vantaggi.map(([t, d, ic]) => (
-          <div class="vt-i"><span class="vt-ic"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={ic}></svg></span><span><b>{t}</b><small>{d}</small></span></div>
-        ))}
-      </div>
+    <div class="vt-g">
+      {vantaggi.map(([t, d, h, ic]) => (
+        <a class="vt-i" href={h}>
+          <span class="vt-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={ic}></svg></span>
+          <span class="vt-t"><b>{t}</b><small>{d}</small></span>
+        </a>
+      ))}
     </div>
-    <div class="vt-r">
-      <a class="vt-c vt-g-rev" href="#recensioni" hidden data-voto>
-        <span class="vt-ec">Eccellente</span><span class="vt-st" aria-hidden="true">★★★★★</span>
-        <span class="vt-sub"><b data-voto-v></b> su Google · <span data-voto-n></span></span>
-      </a>
-      <a class="vt-c" href="/assistenza/">
-        <img class="vt-bad" src="/favicon.svg" alt="" width="52" height="52" />
-        <span><b>Centro Assistenza Autorizzato DEWALT</b><small>dal 1997 a Casavatore · ricambi originali</small></span>
-      </a>
-    </div>
+    <a class="vt-rev" href="#recensioni" hidden data-voto>
+      <svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+      <b data-voto-v></b><span class="vt-st" aria-hidden="true">★★★★★</span><span class="vt-n" data-voto-n></span><span class="vt-ar" aria-hidden="true">→</span>
+    </a>
   </div></section>
 
   <OffertaFlash />
@@ -184,20 +178,17 @@ const vantaggi = [
   .ass-f{padding:clamp(18px,5vw,28px);display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 50px #0002}
 
   .vt{background:#fff;border-bottom:1px solid var(--line)}
-  .vt .wrap{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:20px;padding-top:28px;padding-bottom:28px}
-  .vt-h{font-size:clamp(22px,3vw,34px);text-transform:uppercase;line-height:1.05;margin-bottom:18px}.vt-h span{background:var(--y);padding:0 6px;border-radius:4px}
-  .vt-g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}
-  .vt-i{display:flex;gap:12px;align-items:center}.vt-i b{display:block;font-size:16px;line-height:1.2}.vt-i small{display:block;color:var(--mut);font-size:13.5px;line-height:1.3}
-  .vt-ic{flex:0 0 52px;height:52px;border-radius:12px;background:var(--ink);color:var(--y);display:grid;place-items:center}
-  .vt-r{display:flex;flex-direction:column;gap:12px;justify-content:center}
-  .vt-c{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px 18px}.vt-c:hover{color:inherit;border-color:var(--y)}
-  .vt-c[hidden]{display:none}
-  .vt-ec{font-size:26px;font-weight:900;text-transform:uppercase;color:var(--y-d)}.vt-st{font-size:26px;color:var(--y);letter-spacing:2px;line-height:1}
-  .vt-sub{flex-basis:100%;font-size:15px;color:var(--mut)}.vt-sub b{color:var(--ink)}
-  .vt-bad{flex:0 0 52px;height:52px}
-  .vt-c small{display:block;color:var(--mut);font-size:13.5px}
-  @media (max-width:860px){.vt .wrap{grid-template-columns:1fr}}
-  @media (max-width:520px){.vt .wrap{padding-top:20px;padding-bottom:20px;gap:12px}.vt-h{font-size:21px;margin-bottom:14px}.vt-g{gap:12px 10px}.vt-i{gap:8px}.vt-i b{font-size:13.5px}.vt-i small{display:none}.vt-ic{flex:0 0 38px;height:38px;border-radius:9px}.vt-ic svg{width:22px;height:22px}.vt-c{padding:12px 14px}.vt-ec,.vt-st{font-size:20px}.vt-r>.vt-c:not([data-voto]) small{display:none}}
+  .vt .wrap{display:flex;flex-direction:column;gap:12px;padding-top:18px;padding-bottom:18px}
+  .vt-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .vt-i{display:flex;gap:12px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px;transition:border-color .15s,transform .15s}
+  .vt-i:hover{color:inherit;border-color:var(--y);transform:translateY(-1px)}
+  .vt-ic{flex:0 0 42px;height:42px;border-radius:50%;background:var(--y);color:var(--ink);display:grid;place-items:center}
+  .vt-t{min-width:0;display:flex;flex-direction:column;line-height:1.2}.vt-t b{font-size:15px}.vt-t small{color:var(--mut);font-size:13px;margin-top:2px}
+  .vt-rev{align-self:center;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:14px}
+  .vt-rev[hidden]{display:none}.vt-rev:hover{color:inherit;border-color:var(--y)}
+  .vt-rev b{font-size:16px}.vt-st{color:#f5b400;letter-spacing:1px}.vt-n{color:var(--mut)}.vt-ar{font-weight:800}
+  @media (max-width:900px){.vt-g{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:420px){.vt-i{flex-direction:column;align-items:flex-start;gap:8px;padding:12px}.vt-ic{flex-basis:auto;width:38px;height:38px}.vt-t b{font-size:14.5px}.vt-t small{font-size:12.5px}}
   .ct{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
   .ct-c{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 10px 16px;transition:transform .15s,box-shadow .15s}
   .ct-c:hover{color:inherit;transform:translateY(-2px);box-shadow:0 12px 26px #0001;border-color:var(--y)}
@@ -251,8 +242,8 @@ const vantaggi = [
   const box = document.querySelector<HTMLElement>('[data-voto]');
   if (box) fetch('/api/google').then((r) => r.json()).then((g) => {
     if (!g.ok || !g.voto || g.voto < 4.5) return;
-    box.querySelector('[data-voto-v]')!.textContent = g.voto.toFixed(1).replace('.', ',') + '/5';
-    box.querySelector('[data-voto-n]')!.textContent = `${g.totale} recensioni`;
+    box.querySelector('[data-voto-v]')!.textContent = g.voto.toFixed(1).replace('.', ',');
+    box.querySelector('[data-voto-n]')!.textContent = `${g.totale} recensioni su Google`;
     box.hidden = false;
   }).catch(() => {});
 </script>
