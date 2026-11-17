@@ -5,23 +5,6 @@ on:
 permissions:
   contents: write
 jobs:
-  img:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm i --no-save --ignore-scripts=false sharp@0.33
-      - run: node scripts/harvest/media.mjs img
-      - run: |
-          git config user.name harvest-bot
-          git config user.email harvest@users.noreply.github.com
-          git checkout --orphan harvest-img
-          git rm -rfq --cached .
-          git add -f harvest-out/img
-          git commit -qm "img $(date -u +%FT%T)"
-          git push -f origin harvest-img
   vid:
     runs-on: ubuntu-latest
     timeout-minutes: 45

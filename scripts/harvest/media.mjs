@@ -20,7 +20,7 @@ async function img(t) {
     okI++;
   } catch { koI++; }
 }
-async function video(t) {
+async function video(t, tent = 0) {
   const b = base(t.m || t.c); if (b.length < 5 || !/\d/.test(b) || t.b === 'USAG') return;
   const q = `${t.b === 'BLACK+DECKER' ? 'Black Decker' : t.b} ${b}`;
   try {
@@ -33,13 +33,13 @@ async function video(t) {
     const key = norm(b);
     const hit = out.find((v) => norm(v.t).includes(key) && !/#shorts/i.test(v.t) && v.len && v.len.split(':').length <= 2 && Number(v.len.split(':')[0]) < 30);
     if (hit) { vids[t.k] = hit; okV++; }
-  } catch (e) { vids[t.k] = { err: String(e).slice(0, 60) }; }
+  } catch (e) { if (tent < 3) { await sleep(30000 * (tent + 1)); return video(t, tent + 1); } vids[t.k] = { err: String(e).slice(0, 60) }; }
 }
 let i = 0;
 async function wi() { while (i < todo.length) await img(todo[i++]); }
 let j = 0;
-async function wv() { while (j < todo.length && Date.now() - T0 < 38 * 60e3) { await video(todo[j++]); await sleep(300); } }
+async function wv() { while (j < todo.length && Date.now() - T0 < 38 * 60e3) { await video(todo[j++]); await sleep(2500); } }
 if (MODE === 'img') await Promise.all(Array.from({ length: 10 }, wi));
-else { const iv = setInterval(() => fs.writeFile('harvest-out/videos.json', JSON.stringify(vids)), 60000); await Promise.all(Array.from({ length: 4 }, wv)); clearInterval(iv); }
+else { const iv = setInterval(() => fs.writeFile('harvest-out/videos.json', JSON.stringify(vids)), 60000); await Promise.all(Array.from({ length: 1 }, wv)); clearInterval(iv); }
 await fs.writeFile('harvest-out/videos.json', JSON.stringify({ ...vids, _done: j }));
 console.log('immagini', okI, 'errori', koI, 'video', okV);
