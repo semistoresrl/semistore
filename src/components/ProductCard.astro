@@ -23,13 +23,13 @@ const srcset = fotoLocale(p.slug) ? `/img/prodotti/${p.slug}-400.webp 400w, /img
     </span>
   </span>
 </a>
-<style>
+<style is:global>
   .pc{display:flex;flex-direction:column;overflow:hidden;transition:transform .15s,box-shadow .15s}
   .pc[hidden]{display:none}
   .pc:hover{color:inherit;transform:translateY(-2px);box-shadow:0 14px 30px #0001}
   .pc-img{position:relative;aspect-ratio:1;background:#fff;display:grid;place-items:center;padding:44px 14px 14px;border-bottom:1px solid var(--line)}
   .pc-img img,.pc-img .kit{width:100%;height:100%;min-height:0;object-fit:contain}.pc-img{grid-template-rows:minmax(0,1fr)}
-  .pc-ph{font-weight:700;font-size:24px;color:#c9c6bc}
+  .pc-ph{font-weight:700;font-size:24px;color:#8a867b}
   .pc-tags{position:absolute;top:12px;left:12px;right:12px;display:flex;flex-wrap:wrap;gap:6px;z-index:1;pointer-events:none}
   .t-k,.t-w{font-size:11px;font-weight:800;padding:4px 8px;border-radius:4px}.t-k{background:var(--ink);color:var(--y)}.t-w{background:#fff;border:1px solid var(--line)}
   .pc-b{padding:16px;display:flex;flex-direction:column;gap:6px;flex:1}

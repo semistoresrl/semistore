@@ -2,16 +2,18 @@
 import Base from '../layouts/Base.astro';
 import ProductCard from '../components/ProductCard.astro';
 import prodotti from '../data/prodotti.json';
-const ordine = ['Trapani e avvitatori', 'Tassellatori e demolitori', 'Smerigliatrici e levigatrici', 'Seghe e troncatrici', 'Kit', 'Batterie e caricabatterie', 'Giardino', 'Chiodatrici e fissaggio', 'Misura e laser', 'Aspirazione e pulizia', 'Compressori e aria compressa', 'Altri utensili', 'Contenitori e organizzazione', 'Utensili manuali', 'Accessori per elettroutensili', 'Punte e inserti', 'Lame, dischi e abrasivi'];
-const pos = (c: string) => { const i = ordine.indexOf(c); return i < 0 ? 99 : i; };
-const lista = [...prodotti].sort((a, b) => (a.auto ? 1 : 0) - (b.auto ? 1 : 0) || (a.marca === 'DEWALT' ? 0 : 1) - (b.marca === 'DEWALT' ? 0 : 1) || pos(a.categoria) - pos(b.categoria) || b.prezzo - a.prezzo);
+import { ordinati, urlCategoria, ORDINE_CAT } from '../data/catalogo';
+// Nell'HTML ci sono solo i primi 48 prodotti (pagina leggera e veloce); il resto arriva da /indice.json quando si filtra o si scorre.
+const PAG = 48;
+const lista = ordinati;
 const cats = [...new Set(prodotti.map((p) => p.categoria))].sort((a, b) => a.localeCompare(b, 'it'));
 const marche = [...new Set(prodotti.map((p) => p.marca))];
 const volts = ['12V', '18V', '36V', '54V', '230V'].filter((v) => prodotti.some((p) => p.volt === v));
 ---
 <Base title="Catalogo" description="Catalogo utensili DEWALT, BLACK+DECKER e STANLEY: trapani, avvitatori, tassellatori, smerigliatrici, batterie e kit. Acquisto online o ritiro a Casavatore.">
   <section class="wrap sec">
-    <div class="sec-h"><h1 class="h2">Catalogo</h1><span id="n" class="cnt" aria-live="polite">{lista.length} prodotti</span></div>
+    <div class="sec-h"><h1 class="h2">Catalogo</h1><span id="n" class="cnt" aria-live="polite" data-tot={lista.length}>{lista.length} prodotti</span></div>
+    <nav class="cchips" aria-label="Categorie">{ORDINE_CAT.filter((c) => cats.includes(c)).map((c) => <a href={urlCategoria(c)}>{c}</a>)}</nav>
     <div class="flt card">
       <label class="field">Cerca<input id="fq" type="search" placeholder="Nome o codice, es. DCF900" /></label>
       <label class="field">Categoria<select id="fc"><option value="">Tutte</option>{cats.map((c) => <option value={c}>{c}</option>)}</select></label>
@@ -19,15 +21,17 @@ const volts = ['12V', '18V', '36V', '54V', '230V'].filter((v) => prodotti.some((
       <label class="field">Alimentazione<select id="fv"><option value="">Tutte</option>{volts.map((v) => <option value={v}>{v === '230V' ? 'A filo 230V' : v === '54V' ? '54V FLEXVOLT' : v + ' a batteria'}</option>)}</select></label>
       <label class="field">Ordina<select id="fo"><option value="">Consigliati</option><option value="asc">Prezzo crescente</option><option value="desc">Prezzo decrescente</option></select></label>
     </div>
-    <div class="grid-p" id="g">{lista.map((p, i) => <ProductCard p={p} eager={i < 4} />)}</div>
-    <div style="text-align:center;margin-top:24px"><button class="btn" id="piu" hidden>Mostra altri prodotti</button></div>
+    <div class="grid-p" id="g">{lista.slice(0, PAG).map((p, i) => <ProductCard p={p} eager={i < 4} />)}</div>
+    <div style="text-align:center;margin-top:24px"><button class="btn btn-k" id="piu">Mostra altri prodotti</button></div>
     <p id="vuoto" hidden class="card" style="padding:24px">Nessun prodotto trovato. Cerchi un modello che non vedi? <a class="ul" href="/contatti/">Chiedicelo</a>: lo ordiniamo noi.</p>
   </section>
 </Base>
 <script>
+  import { card, indice, cerca } from '../scripts/card.js';
   const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
-  const g = document.getElementById('g')!; const cards = [...g.children] as HTMLElement[];
-  const prezzo = (c: HTMLElement) => Number(c.querySelector('.pc-pr')?.textContent?.replace(/[^\d,]/g, '').replace(',', '.'));
+  const g = document.getElementById('g')!;
+  const piu = document.getElementById('piu') as HTMLButtonElement;
+  const PAG = 48; let lim = PAG; let tutti: any[] | null = null; let mostrati = g.children.length;
   const u = new URL(location.href);
   const catQ = (u.searchParams.get('cat') || '').toLowerCase();
   if (catQ) { const o = [...$('fc').options].find((o) => o.value.toLowerCase().replace(',', '').startsWith(catQ.replace(',', ''))); if (o) $('fc').value = o.value; }
@@ -35,27 +39,30 @@ const volts = ['12V', '18V', '36V', '54V', '230V'].filter((v) => prodotti.some((
   if (mq) { const o = [...$('fm').options].find((o) => o.value.toLowerCase().replace(/[^a-z]/g, '') === mq); if (o) $('fm').value = o.value; }
   $('fq').value = u.searchParams.get('q') || '';
   if (u.searchParams.get('volt')) $('fv').value = (u.searchParams.get('volt') || '').toUpperCase();
-  const PAG = 48; let lim = PAG;
-  function run() {
-    const q = $('fq').value.trim().toLowerCase().split(/\s+/).filter(Boolean), c = $('fc').value, m = $('fm').value, o = $('fo').value, v = $('fv').value;
-    let n = 0;
-    const sorted = o ? [...cards].sort((a, b) => (o === 'asc' ? 1 : -1) * (prezzo(a) - prezzo(b))) : cards;
-    g.append(...sorted);
-    for (const el of sorted) {
-      const ok = (!c || el.dataset.cat === c) && (!m || el.dataset.marca === m) && (!v || el.dataset.volt === v) && q.every((w) => el.dataset.text!.replace(/\s/g, '').includes(w) || el.dataset.text!.includes(w));
-      if (ok) n++;
-      el.hidden = !ok || n > lim;
-    }
-    (document.getElementById('piu') as HTMLElement).hidden = n <= lim;
-    $('n').textContent = `${n} prodott${n === 1 ? 'o' : 'i'}`; (document.getElementById('vuoto') as HTMLElement).hidden = n > 0;
+  const filtrato = () => $('fq').value.trim() || $('fc').value || $('fm').value || $('fv').value || $('fo').value;
+  async function run(reset = true) {
+    if (!filtrato() && reset && lim === PAG && !tutti) { $('n').textContent = `${$('n').dataset.tot} prodotti`; return; }
+    tutti ||= await indice();
+    const c = $('fc').value, m = $('fm').value, v = $('fv').value, o = $('fo').value;
+    let r = cerca(tutti!, $('fq').value).filter((x) => (!c || x.c === c) && (!m || x.b === m) && (!v || x.v === v));
+    if (o) r = [...r].sort((a, b) => (o === 'asc' ? 1 : -1) * (a.p - b.p));
+    if (reset) { g.innerHTML = r.slice(0, lim).map(card).join(''); mostrati = Math.min(lim, r.length); }
+    else { g.insertAdjacentHTML('beforeend', r.slice(mostrati, lim).map(card).join('')); mostrati = Math.min(lim, r.length); }
+    piu.hidden = r.length <= lim;
+    $('n').textContent = `${r.length} prodott${r.length === 1 ? 'o' : 'i'}`; (document.getElementById('vuoto') as HTMLElement).hidden = r.length > 0;
     const p = new URLSearchParams(); if ($('fq').value) p.set('q', $('fq').value); if (c) p.set('cat', c.toLowerCase().split(' ')[0]); if (m) p.set('marca', m.toLowerCase().replace(/[^a-z]/g, '')); if (v) p.set('volt', v.toLowerCase());
     history.replaceState(null, '', p.size ? `?${p}` : location.pathname);
   }
-  ['fq', 'fc', 'fm', 'fo', 'fv'].forEach((id) => $(id).addEventListener('input', () => { lim = PAG; run(); }));
-  document.getElementById('piu')!.addEventListener('click', () => { lim += PAG; run(); });
-  run();
+  let t: any;
+  ['fq', 'fc', 'fm', 'fo', 'fv'].forEach((id) => $(id).addEventListener('input', () => { lim = PAG; clearTimeout(t); t = setTimeout(() => run(), id === 'fq' ? 150 : 0); }));
+  piu.addEventListener('click', () => { lim += PAG; run(false); });
+  if (filtrato()) run();
+  // precarica l'elenco completo quando il browser è libero
+  ('requestIdleCallback' in window ? (window as any).requestIdleCallback : setTimeout)(() => indice());
 </script>
 <style>
   .cnt{color:var(--mut);font-weight:600}
+  .cchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:4px}.cchips::-webkit-scrollbar{display:none}
+  .cchips a{flex:0 0 auto;padding:9px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:14px;font-weight:700;white-space:nowrap}.cchips a:hover{border-color:var(--y);color:var(--ink)}
   .flt{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:12px;padding:16px;margin-bottom:20px}
 </style>

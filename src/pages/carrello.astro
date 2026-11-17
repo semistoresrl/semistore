@@ -1,9 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import prodotti from '../data/prodotti.json';
-import { fotoDi } from '../data/foto';
 import { SITO } from '../data/sito.js';
-const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.modello, pr: p.prezzo, img: fotoDi(p.slug, 400) || (p.kit ? p.kit[0].u : '') }]));
 ---
 <Base title="Carrello" noindex>
   <section class="wrap sec">
@@ -11,6 +8,7 @@ const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.m
     <div class="cart">
       <div id="righe" class="card righe"><p style="padding:20px;margin:0">Caricamento…</p></div>
       <aside class="card tot">
+        <div class="fs" id="fs" hidden><span id="fs-t"></span><span class="fs-b"><i id="fs-i"></i></span></div>
         <div class="row between"><span>Subtotale</span><b id="sub">–</b></div>
         <fieldset class="cons">
           <legend>Consegna</legend>
@@ -26,12 +24,14 @@ const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.m
     </div>
   </section>
 </Base>
-<script define:vars={{ mini, sp: SITO.spedizione }}>
-  window.__MINI = mini; window.__SP = sp;
+<script define:vars={{ sp: SITO.spedizione }}>
+  window.__SP = sp;
 </script>
 <script>
   import { read, setQty, clear } from '../scripts/cart.js';
-  const M = (window as any).__MINI, SP = (window as any).__SP;
+  import { indice } from '../scripts/card.js';
+  const SP = (window as any).__SP;
+  let M: Record<string, any> = {};
   const eur = (c: number) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(c / 100);
   const el = (id: string) => document.getElementById(id)!;
   const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -39,15 +39,21 @@ const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.m
     const items = read().filter((i) => M[i.slug]);
     const box = el('righe');
     if (!items.length) { box.innerHTML = '<p style="padding:24px;margin:0">Il carrello è vuoto. <a class="ul" href="/catalogo/">Vai al catalogo</a></p>'; }
-    else box.innerHTML = items.map((i) => { const p = M[i.slug]; return `<div class="riga">
+    else box.innerHTML = items.map((i) => { const x = M[i.slug], p = { n: x.n, m: x.m, pr: x.p, img: x.i }; return `<div class="riga">
       ${p.img ? `<img src="${p.img}" width="80" height="80" alt="">` : '<span class="ph"></span>'}
       <a href="/prodotti/${i.slug}/" class="rn"><b>${esc(p.n)}</b><small class="mono">${esc(p.m || '')}</small></a>
       <label class="rq"><span class="sr">Quantità</span><input type="number" min="0" max="20" value="${i.qty}" data-s="${i.slug}"></label>
       <b class="rp">${eur(p.pr * i.qty)}</b>
       <button class="rx" data-x="${i.slug}" aria-label="Rimuovi">✕</button></div>`; }).join('');
-    const sub = items.reduce((t, i) => t + M[i.slug].pr * i.qty, 0);
+    const sub = items.reduce((t, i) => t + M[i.slug].p * i.qty, 0);
     const ritiro = (document.querySelector('input[name=cons]:checked') as HTMLInputElement).value === 'ritiro';
     const sped = !items.length || ritiro || sub >= SP.gratisDa ? 0 : SP.costo;
+    // barra "spedizione gratuita": quanto manca alla soglia
+    const manca = SP.gratisDa - sub, fs = el('fs');
+    fs.hidden = !items.length || ritiro;
+    el('fs-t').innerHTML = manca > 0 ? `Ti mancano <b>${eur(manca)}</b> per la spedizione gratuita` : '<b>Spedizione gratuita</b> sbloccata ✓';
+    (el('fs-i') as HTMLElement).style.width = Math.min(100, (sub / SP.gratisDa) * 100) + '%';
+    fs.classList.toggle('ok', manca <= 0);
     el('sub').textContent = eur(sub); el('sped').textContent = sped ? eur(sped) : 'Gratis'; el('tot').textContent = eur(sub + sped);
     (el('paga') as HTMLButtonElement).disabled = !items.length;
   }
@@ -64,9 +70,12 @@ const mini = Object.fromEntries(prodotti.map((p) => [p.slug, { n: p.nome, m: p.m
     } catch (e: any) { el('err').textContent = 'Non riusciamo ad avviare il pagamento: ' + e.message + '. Riprova o chiamaci.'; el('err').hidden = false; b.disabled = false; b.textContent = 'Paga in sicurezza'; }
   });
   if (new URL(location.href).searchParams.get('svuota')) clear();
-  render();
+  el('righe').innerHTML = '<p style="padding:20px;margin:0">Caricamento…</p>';
+  indice().then((l: any[]) => { M = Object.fromEntries(l.map((x) => [x.s, x])); render(); }).catch(() => { el('righe').innerHTML = '<p style="padding:20px;margin:0">Non riusciamo a caricare il carrello: ricarica la pagina.</p>'; });
 </script>
 <style is:global>
+  .fs{display:flex;flex-direction:column;gap:8px;background:#fff8dc;border:1px solid #f5b80066;border-radius:10px;padding:12px;font-size:14px}.fs.ok{background:#e8f5ec;border-color:#1a7a4344}
+  .fs-b{height:8px;border-radius:4px;background:#0000000f;overflow:hidden}.fs-b i{display:block;height:100%;background:var(--y);border-radius:4px;transition:width .3s}.fs.ok .fs-b i{background:var(--ok)}
   .cart{display:grid;grid-template-columns:minmax(0,2fr) minmax(min(280px,100%),1fr);gap:20px;align-items:start}
   @media (max-width:820px){.cart{grid-template-columns:1fr}}
   .righe{overflow:hidden}

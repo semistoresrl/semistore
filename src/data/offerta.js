@@ -27,3 +27,7 @@ function oraRoma(s) {
   const qui = new Date(new Date(utc).toLocaleString('en-US', { timeZone: 'UTC' }));
   return utc - (roma - qui);
 }
+
+// Al momento del build l'offerta è da mostrare? (date note e non ancora scaduta) -> la copertina esce già nell'HTML,
+// così la pagina non "salta" quando lo script la mostra. Alla scadenza la nasconde lo script.
+export const visibileAlBuild = () => !!(OFFERTA.attiva && OFFERTA.inizio && OFFERTA.scade && Date.now() < scadenzaMs());

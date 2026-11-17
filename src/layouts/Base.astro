@@ -1,12 +1,15 @@
 ---
-import { OFFERTA } from '../data/offerta.js';
+import { OFFERTA, visibileAlBuild } from '../data/offerta.js';
+const ofVis = visibileAlBuild();
 import '@fontsource-variable/archivo';
 import font from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
 import { SITO, GOOGLE } from '../data/sito.js';
+import { urlCategoria } from '../data/catalogo';
 interface Props { title: string; description?: string; image?: string; noindex?: boolean; jsonld?: object }
 const { title, description = 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (NA). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITO.url).href;
-const fullTitle = title === SITO.nome ? `${SITO.nome} · DEWALT Casavatore` : `${title} · ${SITO.nome}`;
+const fullTitle = title === SITO.nome ? `${SITO.nome} · Rivenditore e Centro Assistenza DEWALT a Napoli` : `${title} · ${SITO.nome}`;
+const sito = { '@context': 'https://schema.org', '@type': 'WebSite', name: SITO.nome, url: SITO.url + '/', potentialAction: { '@type': 'SearchAction', target: `${SITO.url}/catalogo/?q={search_term_string}`, 'query-input': 'required name=search_term_string' } };
 const org = {
   '@context': 'https://schema.org', '@type': 'HardwareStore', name: SITO.nome, legalName: SITO.ragioneSociale,
   url: SITO.url, telephone: SITO.telefonoLink, email: SITO.email, vatID: 'IT' + SITO.piva,
@@ -17,7 +20,7 @@ const org = {
 };
 const path = Astro.url.pathname;
 const nav = [
-  ['/catalogo/', 'Prodotti'], ['/catalogo/?cat=batterie', 'Batterie'], ['/catalogo/?cat=kit', 'Kit'],
+  ['/catalogo/', 'Prodotti'], [urlCategoria('Trapani e avvitatori'), 'Trapani'], [urlCategoria('Batterie e caricabatterie'), 'Batterie'], [urlCategoria('Kit'), 'Kit'],
   ['/assistenza/', 'Assistenza'], ['/contatti/', 'Contatti'],
 ];
 ---
@@ -42,6 +45,7 @@ const nav = [
   <meta property="og:locale" content="it_IT" />
   <meta property="og:image" content={new URL(image || '/og-semi.png', SITO.url).href} />
   <script type="application/ld+json" set:html={JSON.stringify(org)} />
+  {Astro.url.pathname === '/' && <script type="application/ld+json" set:html={JSON.stringify(sito)} />}
   {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
   <!-- Foto rotte (link esterni morti): niente testo alternativo sotto i bollini, si mostra il codice prodotto o si nasconde l'immagine -->
   <script is:inline>addEventListener('error',function(e){var i=e.target;if(!i||i.tagName!=='IMG'||i.dataset.ko)return;i.dataset.ko='1';var t=i.getAttribute('data-ph');if(t){var s=document.createElement('span');s.className='img-ph mono';s.textContent=t;i.replaceWith(s)}else{i.style.visibility='hidden'}},true)</script>
@@ -49,8 +53,8 @@ const nav = [
 <body>
   <a class="skip" href="#main">Vai al contenuto</a>
   {OFFERTA.attiva && (
-    <a class="of-bar" href={OFFERTA.url} target="_blank" rel="noopener" data-offerta data-scade={OFFERTA.scade} data-inizio={OFFERTA.inizio} hidden>
-      <span class="wrap"><b>⚡ Offerte Flash {OFFERTA.sconto ? `fino al ${OFFERTA.sconto}` : ''}</b> <span class="of-bar-s" data-of-bar-s>prezzi speciali a tempo limitato</span> <span class="of-bar-cd mono" data-of-cd hidden></span> <u>Scopri →</u></span>
+    <a class="of-bar" href={OFFERTA.url} target="_blank" rel="noopener" data-offerta data-scade={OFFERTA.scade} data-inizio={OFFERTA.inizio} hidden={!ofVis}>
+      <span class="wrap"><b>⚡ Offerte Flash {OFFERTA.sconto ? `fino al ${OFFERTA.sconto}` : ''}</b> <span class="of-bar-s" data-of-bar-s>prezzi speciali a tempo limitato</span> <span class="of-bar-cd mono" data-of-cd hidden={!ofVis}>{ofVis ? <>Termina tra <b>…</b></> : null}</span> <u>Scopri →</u></span>
     </a>
   )}
   <div class="strip"><div class="wrap row between">
@@ -69,7 +73,7 @@ const nav = [
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9a9ca1" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
           <input id="q" name="q" type="search" enterkeyhint="search" placeholder="Cerca modello, es. DCD805" autocomplete="off" />
         </form>
-        <a href="/carrello/" class="btn-cart" aria-label="Carrello">
+        <a href="/carrello/" class="btn-cart"><span class="sr">Carrello, articoli: </span>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/><circle cx="10" cy="20" r="1.3"/><circle cx="18" cy="20" r="1.3"/></svg>
           <span data-cart-count>0</span>
         </a>
@@ -98,6 +102,7 @@ const nav = [
         <span>{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</span>
         <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br /><a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
       </div>
+      <div class="col"><b>Categorie</b>{['Trapani e avvitatori', 'Tassellatori e demolitori', 'Smerigliatrici e levigatrici', 'Seghe e troncatrici', 'Batterie e caricabatterie', 'Misura e laser'].map((c) => <a href={urlCategoria(c)}>{c}</a>)}</div>
       <div class="col"><b>Negozio</b><a href="/catalogo/">Catalogo</a><a href="/condizioni-di-vendita/">Spedizioni e resi</a><a href="/condizioni-di-vendita/#pagamenti">Pagamenti</a></div>
       <div class="col"><b>Assistenza</b><a href="/assistenza/">Richiedi riparazione</a><a href="/assistenza/#stato">Stato riparazione</a><a href="/assistenza/#preventivo">Preventivo</a></div>
       <div class="col"><b>Seguici</b>
@@ -120,6 +125,7 @@ const nav = [
     upd(); addEventListener('cart:change', upd); addEventListener('storage', upd);
   </script>
   <script>import '../scripts/offerta.js';</script>
+  <script>import '../scripts/suggerimenti.js';</script>
 </body>
 </html>
 
@@ -129,7 +135,7 @@ const nav = [
   html{-webkit-text-size-adjust:100%}
   body{margin:0;overflow-x:clip;background:var(--bg);color:var(--ink);font-family:'Archivo Variable',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.5}
   img{max-width:100%;height:auto;display:block;color:transparent}
-  .img-ph{font-weight:700;font-size:24px;color:#c9c6bc;display:grid;place-items:center;width:100%;height:100%;text-align:center;word-break:break-all}
+  .img-ph{font-weight:700;font-size:24px;color:#8a867b;display:grid;place-items:center;width:100%;height:100%;text-align:center;word-break:break-all}
   a{color:inherit;text-decoration:none}a:hover{color:var(--y-d)}
   h1,h2,h3{line-height:1;margin:0;font-weight:900;letter-spacing:-.01em;overflow-wrap:break-word}
   .wrap{max-width:1240px;margin:0 auto;padding:0 max(20px,env(safe-area-inset-right)) 0 max(20px,env(safe-area-inset-left))}
@@ -151,6 +157,15 @@ const nav = [
   .nav{display:flex;flex-wrap:wrap;gap:4px 22px;font-weight:600;font-size:15px}.nav a{color:#fff;padding:10px 0}.nav a:hover,.nav a[aria-current]{color:var(--y)}
   .hdr-act{flex:1 1 180px;min-width:0;display:flex;gap:10px;justify-content:flex-end;align-items:center}
   .search{flex:1 1 120px;min-width:0;max-width:320px;display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:8px;padding:0 12px;height:44px}
+  .search{position:relative}
+  .sug{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:40;background:#fff;color:var(--ink);border-radius:12px;box-shadow:0 18px 40px #0004;overflow:hidden;min-width:min(380px,calc(100vw - 40px))}
+  .sug a{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line)}
+  .sug a:hover,.sug a.on{background:#fff8dc;color:var(--ink)}
+  .sug img,.sug-ph{width:48px;height:48px;object-fit:contain;background:#fff;border-radius:6px}
+  .sug-t{min-width:0}.sug-t b{display:block;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sug-t small{color:var(--mut);font-size:12px}
+  .sug-p{font-size:14px;white-space:nowrap}
+  .sug .sug-all{display:block;text-align:center;font-weight:800;font-size:14px;padding:12px;border:0;background:var(--bg)}
+  .sug-0{margin:0;padding:14px;font-size:14px}.sug-0 a{display:inline;padding:0;border:0;text-decoration:underline}
   .search input{flex:1;min-width:0;background:transparent;border:0;color:#fff;font:inherit;font-size:16px;outline:none}
   .btn-cart{height:44px;padding:0 14px;border-radius:8px;background:var(--y);color:var(--ink);display:flex;align-items:center;gap:8px;font-weight:800}.btn-cart:hover{color:var(--ink)}
     @media (min-width:861px) and (max-width:1100px){.hdr-in{flex-wrap:nowrap;gap:14px 18px}.nav{flex-wrap:nowrap;gap:4px 16px;font-size:14px}.nav a{white-space:nowrap}}
@@ -183,7 +198,7 @@ const nav = [
   .field textarea{min-height:110px;resize:vertical}
   .ftr{background:var(--ink);color:#c9cbcf;margin-top:40px}.ftr a{color:#c9cbcf}.ftr a:hover{color:var(--y)}
   .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:28px;padding-top:52px;padding-bottom:28px}
-  .col{display:flex;flex-direction:column;gap:8px;font-size:14px}.col b{color:#fff}.ftr-brand{font-size:22px;letter-spacing:.04em}
+  .col{display:flex;flex-direction:column;gap:8px;font-size:14px}.col a{display:inline-block;padding:3px 0;min-height:24px}.col b{color:#fff}.ftr-brand{font-size:22px;letter-spacing:.04em}
   .legal{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#9a9ca1;border-top:1px solid #2e3238;padding-top:18px;padding-bottom:calc(26px + env(safe-area-inset-bottom))}
   .wa{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:#1a7a43;color:#fff;display:grid;place-items:center;box-shadow:0 10px 30px #0004;z-index:30}.wa:hover{color:#fff}
   .prose{max-width:760px}

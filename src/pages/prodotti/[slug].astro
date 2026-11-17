@@ -6,6 +6,7 @@ import { fotoDi } from '../../data/foto';
 import KitFoto from '../../components/KitFoto.astro';
 import { SITO, euro } from '../../data/sito.js';
 import { productLd } from '../../data/seo.js';
+import { urlCategoria } from '../../data/catalogo';
 export async function getStaticPaths() {
   return prodotti.map((prod) => ({ params: { slug: prod.slug }, props: { p: prod } }));
 }
@@ -15,15 +16,22 @@ const simili = prodotti.filter((x) => x.categoria === p.categoria && x.slug !== 
 const titolo = `${p.marca} ${p.modello ? p.modello + ' ' : ''}${p.nome}`.replace(/\s+/g, ' ');
 const specs = (p.caratteristiche || []).map((s) => { const i = s.indexOf(': '); return i > 0 && i < 40 ? [s.slice(0, i), s.slice(i + 2)] : ['', s]; });
 const risparmio = p.prezzoListino && p.prezzoListino > p.prezzo ? Math.round((1 - p.prezzo / p.prezzoListino) * 100) : 0;
-const ld = productLd(p, img);
+const ld = [productLd(p, img), { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+  { '@type': 'ListItem', position: 1, name: 'Home', item: SITO.url + '/' },
+  { '@type': 'ListItem', position: 2, name: p.categoria, item: SITO.url + urlCategoria(p.categoria) },
+  { '@type': 'ListItem', position: 3, name: p.nome, item: `${SITO.url}/prodotti/${p.slug}/` } ] }];
 const conferma = p.disponibilita === 'conferma';
+// Utensile "solo corpo" DEWALT: suggerisci batterie e caricabatterie compatibili
+const soloCorpo = p.marca === 'DEWALT' && /solo corpo/i.test(p.nome + ' ' + (p.sottotitolo || ''));
+const comp: Record<string, string[]> = { '18V': ['DCB1104P3', 'DCB184', 'DCB115'], '54V': ['DCB118T2', 'DCB547', 'DCB118'], '12V': ['DCB126', 'DCB124', 'DCB112'] };
+const batterie = soloCorpo && comp[p.volt] ? comp[p.volt].map((m) => prodotti.find((x) => x.modello === m)).filter(Boolean) : [];
 const LINGUE: Record<string, string> = { en: 'inglese', fr: 'francese', de: 'tedesco', es: 'spagnolo', pt: 'portoghese', nl: 'olandese', pl: 'polacco', cs: 'ceco', sk: 'slovacco', hu: 'ungherese', ro: 'rumeno', bg: 'bulgaro', el: 'greco', ru: 'russo', uk: 'ucraino', tr: 'turco', sv: 'svedese', th: 'thailandese', vi: 'vietnamita', id: 'indonesiano', ko: 'coreano' };
 const vTit = p.video ? (p.video.it || p.video.t) : '';
 const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] || 'lingua straniera') : '';
 ---
 <Base title={titolo} description={`${p.sottotitolo ? p.sottotitolo + '. ' : ''}${p.marca} ${p.modello || ''} a ${euro(p.prezzo)}: spedizione o ritiro a ${SITO.citta}, garanzia gestita da centro assistenza autorizzato.`} image={img} jsonld={ld}>
   <div class="wrap">
-    <nav aria-label="Percorso" class="bc"><a href="/">Home</a> / <a href="/catalogo/">Catalogo</a> / <a href={`/catalogo/?cat=${p.categoria.toLowerCase().split(/[ ,]/)[0]}`}>{p.categoria}</a></nav>
+    <nav aria-label="Percorso" class="bc"><a href="/">Home</a> / <a href="/catalogo/">Catalogo</a> / <a href={urlCategoria(p.categoria)}>{p.categoria}</a></nav>
     <div class="pd">
       <div class="card pd-img">
         {img ? <img src={img} width="800" height="800" alt={titolo} data-ph={p.modello || p.marca} fetchpriority="high" /> : p.kit ? <KitFoto pezzi={p.kit} alt={titolo} /> : <span class="mono" style="font-size:40px;color:#c9c6bc;font-weight:700">{p.modello || p.marca}</span>}
@@ -41,6 +49,22 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
           <button class="btn btn-y" id="add" data-slug={p.slug} style="flex:1">Aggiungi al carrello</button>
         </div>
         <p id="ok" hidden class="okmsg" role="status">Aggiunto. <a class="ul" href="/carrello/">Vai al carrello</a></p>
+        {batterie.length > 0 && (
+          <div class="bat">
+            <b>È un solo corpo: ti servono batterie e caricabatterie?</b>
+            <span>Se non le hai già, ecco quelle compatibili:</span>
+            {batterie.map((x: any) => (
+              <a href={`/prodotti/${x.slug}/`} class="bat-r">
+                {fotoDi(x.slug, 400) && <img src={fotoDi(x.slug, 400)} alt="" width="56" height="56" loading="lazy" />}
+                <span><b>{x.nome}</b><small>{x.modello}</small></span><b>{euro(x.prezzo)}</b>
+              </a>
+            ))}
+          </div>
+        )}
+        <div class="sbar" id="sbar" aria-hidden="true">
+          <span class="sbar-t"><b>{euro(p.prezzo)}</b><small>{p.modello || p.marca}</small></span>
+          <button type="button" class="btn btn-y" id="add2" tabindex="-1">Aggiungi al carrello</button>
+        </div>
         <ul class="pd-l">
           {conferma
             ? <li><b>Disponibilità su conferma:</b> dopo l'ordine ti contattiamo entro 1 giorno lavorativo per confermare disponibilità e tempi. Se il prodotto non è disponibile ti rimborsiamo subito l'intero importo.</li>
@@ -99,8 +123,18 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
     const q = Math.max(1, Math.min(20, Number((document.getElementById('qty') as HTMLInputElement).value) || 1));
     add(b.dataset.slug!, q); (document.getElementById('ok') as HTMLElement).hidden = false;
   });
+  // barra "Aggiungi al carrello" fissa in basso su telefono, quando il pulsante principale non si vede più
+  const sbar = document.getElementById('sbar')!;
+  document.getElementById('add2')!.addEventListener('click', () => { add(b.dataset.slug!, 1); const t = document.getElementById('add2')!; t.textContent = 'Aggiunto ✓'; setTimeout(() => (location.href = '/carrello/'), 400); });
+  let raf = 0;
+  addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; sbar.classList.toggle('on', b.getBoundingClientRect().bottom < 0); }); }, { passive: true });
 </script>
 <style>
+  .bat{display:flex;flex-direction:column;gap:8px;background:#fff8dc;border:1px solid #f5b80066;border-radius:12px;padding:14px;font-size:14px}
+  .bat-r{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;background:#fff;border-radius:10px;padding:6px 10px 6px 6px;border:1px solid var(--line)}.bat-r:hover{border-color:var(--y);color:var(--ink)}
+  .bat-r img{width:56px;height:56px;object-fit:contain}.bat-r small{display:block;color:var(--mut);font-size:12px}.bat-r span b{font-size:13.5px;line-height:1.25;display:block}
+  .sbar{display:none}
+  @media (max-width:760px){.sbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:25;gap:12px;align-items:center;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);box-shadow:0 -10px 30px #0002;transform:translateY(110%);transition:transform .25s}.sbar.on{transform:none}.sbar .btn{flex:1;min-height:48px}.sbar-t{display:flex;flex-direction:column;line-height:1.1}.sbar-t b{font-size:20px}.sbar-t small{color:var(--mut);font-size:12px}}
   .bc{font-size:14px;color:var(--mut);padding:20px 0}.bc a{text-decoration:underline}
   .pd{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:36px;align-items:start}
   .pd-img{aspect-ratio:1;display:grid;place-items:center;padding:24px}.pd-img img{width:100%;height:100%;object-fit:contain}

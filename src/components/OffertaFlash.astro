@@ -1,7 +1,8 @@
 ---
 // Copertina cliccabile delle Offerte Flash DEWALT (in home). Nascosta di default:
 // si mostra solo se /api/offerta dice che l'offerta è attiva e "scade" non è passato.
-import { OFFERTA } from '../data/offerta.js';
+import { OFFERTA, visibileAlBuild } from '../data/offerta.js';
+const ofVis = visibileAlBuild();
 import prodotti from '../data/prodotti.json';
 import { fotoDi } from '../data/foto';
 const foto = ['DCF850P2T', 'DCD805P2T', 'DCG405P2']
@@ -9,16 +10,16 @@ const foto = ['DCF850P2T', 'DCD805P2T', 'DCG405P2']
   .map((p: any) => fotoDi(p.slug, 400) || p.immagineDewalt).filter(Boolean).slice(0, 3);
 ---
 {OFFERTA.attiva && (
-  <section class="of-w" data-offerta data-scade={OFFERTA.scade} data-inizio={OFFERTA.inizio} hidden>
+  <section class="of-w" data-offerta data-scade={OFFERTA.scade} data-inizio={OFFERTA.inizio} hidden={!ofVis}>
     <div class="wrap">
-      <a class="of" href={OFFERTA.url} target="_blank" rel="noopener" aria-label={`Offerte Flash: ${OFFERTA.sottotitolo} Apri il negozio delle offerte`}>
+      <a class="of" href={OFFERTA.url} target="_blank" rel="noopener">
         <span class="of-bg" aria-hidden="true"></span>
         <span class="of-t">
           <span class="of-k"><i aria-hidden="true"></i><span data-of-k>Offerta a tempo · attiva ora</span></span>
           <b class="of-h">Offerte<br /><span>Flash</span> ⚡</b>
           {OFFERTA.marchi && <span class="of-m">{OFFERTA.marchi.join(' · ')}</span>}
           <span class="of-s" data-of-sotto>{OFFERTA.sottotitolo}</span>
-          <span class="of-cd" data-of-box hidden>
+          <span class="of-cd" data-of-box hidden={!ofVis}>
             <span class="of-cd-l" data-of-lab>Termina tra</span>
             <span class="of-cd-r mono">
               <span><b data-u="g">00</b><small>giorni</small></span><i>:</i>

@@ -8,6 +8,7 @@ import OffertaFlash from '../components/OffertaFlash.astro';
 import VideoNegozio from '../components/VideoNegozio.astro';
 import RecensioniGoogle from '../components/RecensioniGoogle.astro';
 import HeroSlider from '../components/HeroSlider.astro';
+import { urlCategoria } from '../data/catalogo';
 
 const evidenza = ['DCD805P2T', 'DCF850P2T', 'DCG405P2', 'DCF900P2T', 'DCH273P2T', 'DCK2050E2T', 'DCS438E2T', 'DCE089D1G']
   .map((m) => prodotti.find((p) => p.modello === m)).filter(Boolean).slice(0, 8);
@@ -100,7 +101,7 @@ const vantaggi = [
     <div class="sec-h"><h2 class="h2">Categorie più popolari</h2><a href="/catalogo/" class="ul">Scopri tutte le categorie</a></div>
     <div class="ct">
       {catOrd.map((c, i) => (
-        <a href={`/catalogo/?cat=${slugCat(c)}`} class="ct-c" style={`--d:${(i * 1.3) % 8}s`}>
+        <a href={urlCategoria(c)} class="ct-c" style={`--d:${(i * 1.3) % 8}s`}>
           <span class="ct-i">{fotoAnim(c).length ? fotoAnim(c).map((u, k) => <img src={u} alt="" width="400" height="400" loading="lazy" decoding="async" style={`animation-delay:calc(${k * 2}s - var(--d))`} />) : <span class="mono">{sigla[c] || 'AU'}</span>}</span>
           <b>{c}</b><small>{nCat[c]} articoli</small>
         </a>
@@ -119,8 +120,8 @@ const vantaggi = [
   <section class="wrap bn">
     <a class="bn-a" href="/assistenza/">
       <span class="bn-st" aria-hidden="true">
-        <img src="/img/hero/dch273nt.webp" alt="" loading="lazy" decoding="async" style="left:4%;top:6%;width:46%;--r:-8deg" />
-        <img src="/img/hero/dcg405nt.webp" alt="" loading="lazy" decoding="async" style="left:44%;top:30%;width:54%;--r:6deg" />
+        <img src="/img/hero/dch273nt-400.webp" alt="" loading="lazy" decoding="async" style="left:4%;top:6%;width:46%;--r:-8deg" />
+        <img src="/img/hero/dcg405nt-400.webp" alt="" loading="lazy" decoding="async" style="left:44%;top:30%;width:54%;--r:6deg" />
       </span>
       <span class="bn-t">
         <b>Utensile fermo? Lo rimettiamo in piedi</b>

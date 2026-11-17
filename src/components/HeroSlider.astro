@@ -30,7 +30,7 @@ const slide: { tema: string; k: string; h: string; p: string; cta: string[]; cta
             <span class="hs-glow"></span>
             {s.ghost && <span class="hs-gh">{s.ghost}</span>}
             {s.pezzi.map(([f, x, y, w, r = 0, z = 1], k) => (
-              <img src={`/img/hero/${f}.webp`} alt="" class="hs-p" style={`left:${x}%;top:${y}%;width:${w}%;--r:${r}deg;z-index:${z};--k:${k}`} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 && k === 1 ? 'high' : undefined} decoding="async" />
+              <img src={`/img/hero/${f}.webp`} srcset={`/img/hero/${f}-400.webp 400w, /img/hero/${f}.webp 800w`} sizes={`(max-width:760px) ${Math.round(w)}vw, ${Math.round(w * 6.4)}px`} alt="" class="hs-p" style={`left:${x}%;top:${y}%;width:${w}%;--r:${r}deg;z-index:${z};--k:${k}`} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 && k === 1 ? 'high' : undefined} decoding="async" />
             ))}
             {s.badge && <span class="hs-bd"><b>DEWALT</b><span>Centro assistenza<br />autorizzato</span></span>}
           </div>
@@ -81,6 +81,7 @@ const slide: { tema: string; k: string; h: string; p: string; cta: string[]; cta
   .hs-gh{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;font-size:clamp(120px,22vw,280px);line-height:1;color:#ffffff0a;-webkit-text-stroke:2px #ffffff26;letter-spacing:-.04em}
   .hs-p{position:absolute;height:auto;transform:rotate(var(--r));filter:drop-shadow(0 18px 22px #0009) drop-shadow(0 4px 6px #0005);animation:hsin .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--k) * 90ms)}
   .hs-yellow .hs-p{filter:drop-shadow(0 18px 20px #0006)}
+  .hs-s:first-child .hs-p{animation:none}
   @keyframes hsin{from{opacity:0;transform:translateY(18px) rotate(var(--r)) scale(.94)}}
   .hs-bd{position:absolute;right:2%;top:2%;z-index:9;width:clamp(96px,10vw,132px);aspect-ratio:1;border-radius:50%;background:var(--ink);color:#fff;border:4px solid var(--y);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:clamp(10px,1vw,12.5px);line-height:1.15;font-weight:700;transform:rotate(8deg);box-shadow:0 10px 24px #0005}
   .hs-bd b{color:var(--y);font-size:1.45em;letter-spacing:.02em}
