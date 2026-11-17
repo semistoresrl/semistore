@@ -18,7 +18,7 @@ export async function onRequestPost({ request, env }) {
   const sub = items.reduce((t, i) => t + i.p.prezzo * i.q, 0);
   const origin = new URL(request.url).origin;
 
-  // codice premio del minigioco (−15%, una volta sola)
+  // codice premio del minigioco (−10%, una volta sola)
   const codice = String(body.codice || '').trim().toUpperCase().replace(/\s+/g, '');
   let premio = null;
   if (codice) {
@@ -77,6 +77,7 @@ export async function onRequestPost({ request, env }) {
     if (!coupon) return json({ error: 'sconto momentaneamente non disponibile' }, 502);
     f.set('discounts[0][coupon]', coupon);
     f.set('metadata[codice_sconto]', codice);
+    if (premio.email) f.set('customer_email', premio.email); // il codice vale con l'email con cui è stato registrato
   }
 
   const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -90,12 +91,12 @@ export async function onRequestPost({ request, env }) {
   return json({ url: s.url });
 }
 
-// Coupon Stripe del 15% per i vincitori del minigioco: lo crea la prima volta che serve.
+// Coupon Stripe del 10% per i vincitori del minigioco: lo crea la prima volta che serve.
 async function couponGioco(env) {
-  const id = 'SEMI-GIOCO-15', h = { authorization: `Bearer ${env.STRIPE_SECRET_KEY}` };
+  const id = 'SEMI-GIOCO-10', h = { authorization: `Bearer ${env.STRIPE_SECRET_KEY}` };
   const g = await fetch(`https://api.stripe.com/v1/coupons/${id}`, { headers: h });
   if (g.ok) return id;
-  const f = new URLSearchParams({ id, percent_off: '15', duration: 'once', name: 'Premio Trapano Slalom −15%' });
+  const f = new URLSearchParams({ id, percent_off: '10', duration: 'once', name: 'Premio Trapano Slalom −10%' });
   const c = await fetch('https://api.stripe.com/v1/coupons', { method: 'POST', headers: { ...h, 'content-type': 'application/x-www-form-urlencoded' }, body: f });
   if (!c.ok) { console.error('Stripe coupon', (await c.json()).error?.message); return null; }
   return id;

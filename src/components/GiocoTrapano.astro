@@ -7,18 +7,24 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
 ---
 <section class="gm" id="gioco" aria-labelledby="gm-h">
   <div class="wrap gm-in">
-    <div class="gm-t">
-      <span class="kicker gm-k">Pausa caffè · minigioco</span>
-      <h2 id="gm-h" class="gm-h">Trapano<br /><span>Slalom</span></h2>
-      <p>Guida il trapano lungo la tavola senza prendere viti, chiodi e piastre. Raccogli i dadi per fare punti e le batterie per recuperare una vita. 5 livelli sempre più veloci e difficili, con la musica che sale insieme a te.</p>
-      <div class="gm-pz"><b>−15%</b><span>Completa tutti i 5 livelli e vinci un <strong>codice sconto del 15%</strong> da usare sul sito.</span></div>
-      <ul class="gm-c">
-        <li><span class="gm-ic" aria-hidden="true">☝</span><span><b>Telefono</b>trascina il dito sulla tavola</span></li>
-        <li><span class="gm-ic" aria-hidden="true">🖱</span><span><b>PC</b>muovi il mouse oppure usa frecce / WASD</span></li>
-        <li><span class="gm-ic" aria-hidden="true">⏸</span><span><b>Pausa</b>tasto P, Esc o il pulsante in alto</span></li>
+    <header class="gm-hd">
+      <div>
+        <span class="gm-k"><i aria-hidden="true"></i>Minigioco · 5 livelli</span>
+        <h2 id="gm-h" class="gm-h">Trapano <span>Slalom</span></h2>
+      </div>
+      <div class="gm-pz" role="note" aria-label="Premio: 10% di sconto a chi completa il gioco">
+        <b>−10%</b><small>in premio</small>
+      </div>
+    </header>
+
+    <div class="gm-side">
+      <p>Schiva viti, chiodi e piastre d'acciaio, raccogli dadi e batterie. Ogni livello è più veloce del precedente, e la musica sale con te.</p>
+      <div class="gm-win"><b>Finisci il livello 5</b><span>registrati con la tua email e ricevi un codice sconto del 10% da usare sul sito.</span></div>
+      <ul class="gm-c" aria-label="Comandi">
+        <li><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 11V5a2 2 0 0 1 4 0v5h3a3 3 0 0 1 3 3v3a6 6 0 0 1-6 6h-1a6 6 0 0 1-5.2-3L5 14a1.8 1.8 0 0 1 3-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Trascina il dito</li>
+        <li><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Mouse o frecce</li>
+        <li><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>P per la pausa</li>
       </ul>
-      <div class="gm-rec"><span>Il tuo record</span><b class="mono" data-g-best>0</b></div>
-      <a class="gm-cta" href={linkTrapani}>Quelli veri? Trapani e avvitatori in negozio →</a>
     </div>
 
     <div class="gm-f" data-g-frame>
@@ -31,7 +37,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
         <div class="gm-box">
           <span class="gm-badge">SEMI · GAMES</span>
           <b class="gm-tt">Trapano Slalom</b>
-          <span class="gm-sub">Supera il livello 5 e vinci il <b style="color:var(--y)">15% di sconto</b></span>
+          <span class="gm-sub">Supera il livello 5 e vinci il <b style="color:var(--y)">10% di sconto</b></span>
           <span class="gm-mine" data-g-mine hidden></span>
           <div class="gm-lv" data-g-levels></div>
           <button type="button" class="gm-b gm-b-y" data-g-go>Gioca</button>
@@ -60,13 +66,29 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
           <b class="gm-tt" data-g-win-t>Ottimo lavoro!</b>
           <span class="gm-sc">Punti <b class="mono" data-g-win-s>0</b></span>
           <span class="gm-new" data-g-win-rec hidden>Nuovo record!</span>
-          <div class="gm-prize" data-g-prize hidden>
-            <span class="gm-prize-k">Hai vinto il 15% di sconto</span>
-            <button type="button" class="gm-code mono" data-g-code aria-label="Copia il codice sconto">…</button>
-            <small data-g-prize-m>Tocca per copiare. Nel carrello si applica da solo.</small>
-            <a class="gm-b gm-b-w" href="/catalogo/">Usalo ora nel catalogo</a>
-          </div>
+          <button type="button" class="gm-b gm-b-y gm-claim" data-g-claim hidden>🎁 Ritira il tuo 10% di sconto</button>
           <button type="button" class="gm-b gm-b-y" data-g-next>Livello successivo</button>
+          <button type="button" class="gm-b gm-b-g" data-g-menu>Livelli</button>
+        </div>
+      </div>
+      <div class="gm-o" data-g-screen="premio" hidden>
+        <form class="gm-box gm-form" data-g-form novalidate>
+          <span class="gm-badge">Premio −10%</span>
+          <b class="gm-tt">Ritira il tuo sconto</b>
+          <span class="gm-sub">Registrati con la tua email: ti inviamo il codice da usare sul sito.</span>
+          <label class="gm-fl"><span>La tua email</span><input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="nome@email.it" maxlength="120" /></label>
+          <label class="gm-chk"><input type="checkbox" name="privacy" required /><span>Ho letto l'<a href="/privacy/" target="_blank" rel="noopener">informativa privacy</a> <b>*</b></span></label>
+          <label class="gm-chk"><input type="checkbox" name="offerte" /><span>Voglio ricevere offerte e novità di Semi Store (facoltativo)</span></label>
+          <p class="gm-err" data-g-ferr role="alert" hidden></p>
+          <button class="gm-b gm-b-y" type="submit" data-g-send>Ricevi il codice</button>
+          <button type="button" class="gm-b gm-b-g" data-g-menu>Più tardi</button>
+        </form>
+        <div class="gm-box" data-g-done hidden>
+          <span class="gm-badge">Registrazione completata</span>
+          <b class="gm-tt" data-g-done-t>Controlla la tua email</b>
+          <span class="gm-sub" data-g-done-d></span>
+          <button type="button" class="gm-code mono" data-g-code aria-label="Copia il codice sconto" hidden></button>
+          <a class="gm-b gm-b-y gm-b-a" href="/catalogo/">Vai al catalogo</a>
           <button type="button" class="gm-b gm-b-g" data-g-menu>Livelli</button>
         </div>
       </div>
@@ -82,39 +104,57 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
         </div>
       </div>
     </div>
+
+    <div class="gm-ft">
+      <span class="gm-rec">Record <b class="mono" data-g-best>0</b></span>
+      <a class="gm-cta" href={linkTrapani}>Trapani veri in negozio <span aria-hidden="true">→</span></a>
+    </div>
   </div>
 </section>
 
 <style>
-  .gm{background:var(--ink);color:#fff;padding:clamp(40px,7vw,80px) 0;overflow:hidden}
-  .gm-in{display:grid;grid-template-columns:1fr auto;gap:clamp(24px,5vw,64px);align-items:center}
-  .gm-t{display:flex;flex-direction:column;gap:16px;max-width:520px}
-  .gm-k{color:var(--y)}
-  .gm-h{margin:0;font-size:clamp(40px,6vw,72px);line-height:.9;text-transform:uppercase}
-  .gm-h span{color:var(--y)}
-  .gm-t p{margin:0;color:#c9cbcf;font-size:16px}
-  .gm-c{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:14px;overflow:hidden}
-  .gm-c li{display:flex;gap:14px;align-items:center;padding:12px 16px}
-  .gm-c li+li{border-top:1px solid #ffffff14}
-  .gm-c li>span:last-child{display:flex;flex-direction:column;font-size:15px;line-height:1.3;color:#dcdde0}
-  .gm-c b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9aa0a6}
-  .gm-ic{flex:none;width:36px;height:36px;border-radius:10px;background:#f5b8001f;display:grid;place-items:center;font-size:17px;filter:grayscale(1) brightness(2)}
-  .gm-rec{display:flex;align-items:baseline;gap:12px}
-  .gm-rec span{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9aa0a6}
-  .gm-rec b{font-size:28px;color:var(--y)}
-  .gm-pz{display:flex;gap:14px;align-items:center;background:var(--y);color:var(--ink);border-radius:14px;padding:12px 16px}
-  .gm-pz b{font-size:30px;font-weight:900;line-height:1;flex:none}.gm-pz span{font-size:15px;line-height:1.35}
-  .gm-mine{font-size:13px;color:#dcdde0}.gm-mine b{color:var(--y)}
-  .gm-prize{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;background:#f5b8001a;border:1px dashed var(--y);border-radius:14px;padding:12px}
-  .gm-prize[hidden]{display:none}
-  .gm-prize-k{font-weight:900;color:var(--y);text-transform:uppercase;font-size:14px;letter-spacing:.04em}
-  .gm-code{font-size:21px;font-weight:800;letter-spacing:.06em;background:#fff;color:var(--ink);border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
-  .gm-prize small{color:#b9bbbf;font-size:12px}
-  .gm-b.gm-b-w{display:grid;place-items:center;text-decoration:none;background:#fff;color:var(--ink);border-color:#fff}.gm-b.gm-b-w:hover{color:var(--ink)}
-  .gm-cta{color:#fff;font-weight:800;text-decoration:underline;text-decoration-color:var(--y);text-underline-offset:4px;align-self:flex-start}
-  .gm-cta:hover{color:var(--y)}
+  .gm{position:relative;background:radial-gradient(120% 80% at 85% 10%,#f5b8001a,transparent 60%),var(--ink);color:#fff;padding:clamp(28px,6vw,72px) 0;overflow:hidden}
+  .gm-in{display:grid;grid-template-columns:minmax(0,640px) auto;justify-content:space-between;align-content:center;grid-template-areas:'hd f' 'side f' 'ft f';grid-template-rows:auto auto 1fr;column-gap:clamp(32px,6vw,80px);row-gap:22px;align-items:start}
+  .gm-hd{grid-area:hd;display:flex;align-items:flex-end;gap:22px;align-self:end}
+  .gm-k{display:inline-flex;align-items:center;gap:8px;font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#9aa0a6}
+  .gm-k i{width:8px;height:8px;border-radius:50%;background:var(--y);box-shadow:0 0 0 4px #f5b80033;animation:gmdot 1.6s infinite}
+  @keyframes gmdot{50%{box-shadow:0 0 0 7px #f5b80000}}
+  .gm-h{margin:6px 0 0;font-size:clamp(40px,4.8vw,64px);line-height:.92;text-transform:uppercase;letter-spacing:-.01em}
+  .gm-h span{display:block;color:var(--y)}
+  .gm-box.gm-form{text-align:left;align-items:stretch}.gm-form .gm-badge,.gm-form .gm-tt,.gm-form .gm-sub{align-self:center;text-align:center}
+  .gm-fl{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9aa0a6;margin-top:4px}
+  .gm-fl input{min-height:46px;border-radius:10px;border:1px solid #ffffff33;background:#fff;color:var(--ink);padding:0 12px;font:inherit;font-size:16px;font-weight:600;letter-spacing:0;text-transform:none}
+  .gm-fl input:focus{outline:3px solid var(--y);outline-offset:1px}
+  .gm-chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.35;color:#dcdde0;cursor:pointer}
+  .gm-chk input{flex:none;width:20px;height:20px;margin:0;accent-color:var(--y)}
+  .gm-chk a{color:var(--y)}.gm-chk b{color:var(--y)}
+  .gm-err{margin:0;color:#ff8a8f;font-size:13px;font-weight:700}
+  .gm-err[hidden]{display:none}
+  .gm-b-a{display:grid;place-items:center;text-decoration:none}.gm-b-a:hover{color:var(--ink)}
+  .gm-claim{animation:gmpulse .9s infinite alternate}
+  .gm-code{font-size:22px;font-weight:800;letter-spacing:.06em;background:var(--y);color:var(--ink);border:2px dashed var(--ink);outline:2px solid var(--y);border-radius:10px;padding:10px 16px;cursor:pointer;margin:4px 0}
+  .gm-claim[hidden],.gm-code[hidden],[data-g-done][hidden],.gm-form[hidden]{display:none}
+  .gm-mine-b{background:none;border:0;padding:0;font:inherit;font-size:13px;color:var(--y);font-weight:800;text-decoration:underline;cursor:pointer}
+  .gm-pz{flex:none;margin-bottom:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;width:104px;height:104px;border-radius:18px;background:var(--y);color:var(--ink);transform:rotate(6deg);box-shadow:0 12px 30px #f5b8003d,inset 0 0 0 4px var(--y),inset 0 0 0 6px #15171a33;position:relative}
+  .gm-pz::before,.gm-pz::after{content:'';position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--ink);translate:0 -50%}
+  .gm-pz::before{left:-7px}.gm-pz::after{right:-7px}
+  .gm-pz b{font-size:30px;font-weight:900;line-height:1;letter-spacing:-.03em}
+  .gm-pz small{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+  .gm-side{grid-area:side;display:flex;flex-direction:column;gap:18px;max-width:500px}
+  .gm-side p{margin:0;color:#c9cbcf;font-size:17px;line-height:1.5}
+  .gm-win{display:flex;flex-direction:column;gap:2px;padding:14px 16px;border-left:3px solid var(--y);background:#ffffff08;border-radius:0 12px 12px 0}
+  .gm-win b{font-size:16px}.gm-win span{color:#b9bbbf;font-size:15px}
+  .gm-c{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+  .gm-c li{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:99px;background:#ffffff0d;border:1px solid #ffffff1a;font-size:14px;font-weight:600;color:#dcdde0}
+  .gm-c svg{color:var(--y)}
+  .gm-ft{grid-area:ft;display:flex;align-items:center;justify-content:space-between;gap:16px;max-width:500px;padding-top:18px;border-top:1px solid #ffffff14}
+  .gm-rec{display:flex;align-items:baseline;gap:10px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9aa0a6}
+  .gm-rec b{font-size:24px;color:var(--y);letter-spacing:0}
+  .gm-cta{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:#fff;font-weight:800;font-size:15px;text-decoration:none;padding:10px 14px;border-radius:10px;background:#ffffff12;border:1px solid #ffffff1f;transition:background .15s}
+  .gm-cta span{color:var(--y);transition:transform .15s}
+  .gm-cta:hover{color:#fff;background:#ffffff22}.gm-cta:hover span{transform:translateX(3px)}
 
-  .gm-f{position:relative;width:min(400px,calc((100svh - 60px) * 2 / 3),100%);aspect-ratio:2/3;border-radius:20px;overflow:hidden;background:#c99a5b;box-shadow:0 30px 70px #000a,0 0 0 4px #2b2e33,0 0 0 6px var(--y);user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  .gm-f{grid-area:f;position:relative;width:min(400px,calc((100svh - 60px) * 2 / 3),100%);aspect-ratio:2/3;border-radius:20px;overflow:hidden;background:#c99a5b;box-shadow:0 30px 70px #000a,0 0 0 4px #2b2e33,0 0 0 6px var(--y);user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
   .gm-cv{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
   .gm-p,.gm-s{position:absolute;top:10px;width:36px;height:36px;border-radius:10px;border:0;background:#15171acc;color:#fff;display:grid;place-items:center;cursor:pointer;z-index:3}
   .gm-p{right:10px}.gm-s{right:52px}
@@ -158,12 +198,21 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
   @keyframes gmstar{from{transform:scale(0) rotate(-40deg)}to{transform:none}}
 
   @media (max-width:820px){
-    .gm-in{grid-template-columns:1fr}
-    .gm-t{max-width:none}
+    .gm-in{grid-template-columns:1fr;grid-template-areas:'hd' 'f' 'ft';grid-template-rows:auto;row-gap:16px}
+    .gm-side{display:none}
+    .gm-hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .gm-h{font-size:clamp(30px,9vw,40px);margin-top:4px}
+    .gm-h span{display:inline}
+    .gm-k{font-size:11px;letter-spacing:.12em}
+    .gm-pz{width:76px;height:76px;border-radius:14px;transform:rotate(5deg)}
+    .gm-pz b{font-size:22px}.gm-pz small{font-size:9px}
+    .gm-pz::before,.gm-pz::after{width:10px;height:10px}.gm-pz::before{left:-5px}.gm-pz::after{right:-5px}
     .gm-f{justify-self:center;width:min(100%,calc((100svh - 40px) * 2 / 3))}
-    .gm-c{display:none}
+    .gm-ft{max-width:none;border-top:0;padding-top:0}
+    .gm-cta{font-size:14px;padding:9px 12px}
   }
-  @media (prefers-reduced-motion:reduce){.gm-o,.gm-box,.gm-new,.gm-st i.on{animation:none}}
+  @media (max-width:360px){.gm-h{font-size:27px}.gm-pz{width:66px;height:66px}.gm-pz b{font-size:19px}}
+  @media (prefers-reduced-motion:reduce){.gm-k i,.gm-o,.gm-box,.gm-new,.gm-st i.on{animation:none}}
 </style>
 
 <script>
@@ -175,16 +224,16 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
   // Livelli: velocità (px/s), lunghezza della tavola, distanza tra un ostacolo e l'altro, probabilità degli schemi
   // 5 livelli, sempre più duri: velocità che cresce anche dentro al livello, ostacoli più fitti, varchi più stretti
   const LV: Lv[] = [
-    { n: 'Riscaldamento', d: 'Viti e chiodi sparsi: prendi la mano, ma non distrarti.', v: 185, len: 5200, gap: [105, 145], p: { vite: 6, coppia: 4, chiodi: 3, dado: 3, batt: 1 } },
-    { n: 'Cantiere aperto', d: 'File di viti e viti che scivolano. Si accelera.', v: 225, len: 6800, gap: [92, 125], p: { vite: 4, coppia: 3, chiodi: 3, fila: 4, mobile: 3, dado: 3, batt: 1 } },
-    { n: 'Acciaio', d: 'Piastre, strettoie e zig zag: niente pause.', v: 265, len: 8200, gap: [80, 108], p: { vite: 3, coppia: 2, chiodi: 3, fila: 4, zigzag: 3, mobile: 4, piastra: 3, stretto: 3, dado: 3, batt: 1 } },
-    { n: 'Turno di notte', d: 'Varchi stretti, viti velocissime.', v: 300, len: 9600, gap: [70, 95], p: { vite: 3, coppia: 3, chiodi: 3, fila: 4, zigzag: 4, mobile: 5, piastra: 3, stretto: 4, dado: 3, batt: 1 } },
-    { n: 'Maestro', d: 'Il livello finale. Solo per mani d\'acciaio.', v: 335, len: 11500, gap: [60, 84], p: { vite: 3, coppia: 3, chiodi: 3, fila: 5, zigzag: 5, mobile: 6, piastra: 3, stretto: 5, dado: 3, batt: 1 } },
+    { n: 'Riscaldamento', d: 'Viti e chiodi sparsi: prendi la mano.', v: 165, len: 4200, gap: [130, 180], p: { vite: 6, coppia: 3, chiodi: 3, dado: 3, batt: 1 } },
+    { n: 'Cantiere aperto', d: 'File di viti e viti che scivolano. Si accelera.', v: 190, len: 5000, gap: [115, 160], p: { vite: 4, coppia: 3, chiodi: 3, fila: 3, mobile: 3, dado: 3, batt: 1 } },
+    { n: 'Acciaio', d: 'Arrivano piastre, strettoie e zig zag.', v: 215, len: 5800, gap: [105, 145], p: { vite: 3, coppia: 2, chiodi: 3, fila: 3, zigzag: 2, mobile: 3, piastra: 3, stretto: 2, dado: 3, batt: 2 } },
+    { n: 'Turno di notte', d: 'Varchi più stretti e viti più veloci.', v: 240, len: 6600, gap: [95, 130], p: { vite: 3, coppia: 3, chiodi: 3, fila: 3, zigzag: 3, mobile: 4, piastra: 3, stretto: 3, dado: 3, batt: 2 } },
+    { n: 'Maestro', d: 'L\'ultimo livello: tieni duro fino al traguardo!', v: 265, len: 7600, gap: [88, 118], p: { vite: 3, coppia: 3, chiodi: 3, fila: 4, zigzag: 3, mobile: 4, piastra: 3, stretto: 3, dado: 3, batt: 2 } },
   ];
-  const INF: Lv = { n: 'Sfida infinita', d: 'Quanto lontano arrivi? La velocità sale sempre.', v: 280, len: Infinity, gap: [62, 86], p: { ...LV[4].p } };
+  const INF: Lv = { n: 'Sfida infinita', d: 'Quanto lontano arrivi? La velocità sale sempre.', v: 230, len: Infinity, gap: [92, 124], p: { ...LV[4].p } };
 
   const KEY = 'semi-gioco-v2';
-  type Save = { sbl: number; stelle: Record<string, number>; best: number; muto: boolean; codice?: string };
+  type Save = { sbl: number; stelle: Record<string, number>; best: number; muto: boolean; codice?: string; email?: string; pend?: { b: string; t: number } };
   const load = (): Save => {
     try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && typeof s.sbl === 'number') return { stelle: {}, best: 0, muto: false, ...s }; } catch {}
     // dalla vecchia versione (8 livelli) si tengono solo l'audio e un eventuale codice già vinto
@@ -418,26 +467,53 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
         .then((r) => r.json()).then((j) => { biglietto = j.biglietto || ''; }).catch(() => {});
       go();
     };
-    const showMine = () => { const m = $('[data-g-mine]'); m.hidden = !save.codice; if (save.codice) m.innerHTML = `Il tuo codice: <b class="mono">${save.codice}</b>`; };
+    // ---------- premio: registrazione obbligatoria con email ----------
+    const PEND_MS = 2 * 3600e3; // il premio vinto si può ritirare entro 2 ore
+    const pendOk = () => !!save.pend && Date.now() - save.pend.t < PEND_MS;
+    const showMine = () => {
+      const m = $('[data-g-mine]');
+      if (pendOk()) { m.hidden = false; m.innerHTML = '<button type="button" class="gm-mine-b" data-g-claim-m>🎁 Hai un premio da ritirare</button>'; m.querySelector('button')!.addEventListener('click', openPremio); }
+      else if (save.codice) { m.hidden = false; m.innerHTML = `Il tuo codice: <b class="mono">${save.codice}</b>`; }
+      else if (save.email) { m.hidden = false; m.innerHTML = `Codice inviato a <b>${save.email.replace(/[<>&"]/g, '')}</b>`; }
+      else m.hidden = true;
+    };
     showMine();
-    const prizeBox = $('[data-g-prize]'), codeBtn = $<HTMLButtonElement>('[data-g-code]'), prizeMsg = $('[data-g-prize-m]');
-    async function premio() {
-      prizeBox.hidden = false; codeBtn.textContent = '…'; prizeMsg.textContent = 'Generazione del codice…';
-      try {
-        const r = await fetch('/api/premio', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ fase: 'fine', biglietto }) });
-        const j = await r.json();
-        if (!r.ok || !j.codice) throw new Error(j.error || '');
-        save.codice = j.codice; store(save); showMine();
-        codeBtn.textContent = j.codice; prizeMsg.textContent = 'Tocca per copiare. Nel carrello si applica da solo.';
-      } catch (e: any) {
-        codeBtn.textContent = save.codice || 'Riprova';
-        prizeMsg.textContent = save.codice ? 'Ecco il codice che hai già vinto.' : (e.message || 'Non riusciamo a generare il codice ora: scrivici su WhatsApp con uno screenshot.');
-      }
+    const form = $<HTMLFormElement>('[data-g-form]'), done = $('[data-g-done]'), ferr = $('[data-g-ferr]'), send = $<HTMLButtonElement>('[data-g-send]');
+    const codeBtn = $<HTMLButtonElement>('[data-g-code]'), doneD = $('[data-g-done-d]');
+    function openPremio() {
+      form.hidden = false; done.hidden = true; ferr.hidden = true;
+      state = 'menu'; show('premio');
+      const em = form.elements.namedItem('email') as HTMLInputElement;
+      if (save.email && !em.value) em.value = save.email;
+      em.focus({ preventScroll: true });
     }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const em = (form.elements.namedItem('email') as HTMLInputElement).value.trim();
+      const privacy = (form.elements.namedItem('privacy') as HTMLInputElement).checked;
+      const offerte = (form.elements.namedItem('offerte') as HTMLInputElement).checked;
+      const err = (t: string) => { ferr.textContent = t; ferr.hidden = false; };
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em)) return err('Inserisci un indirizzo email valido.');
+      if (!privacy) return err('Per ricevere il codice devi accettare l\'informativa privacy.');
+      if (!pendOk()) return err('Il premio è scaduto: rigioca l\'ultimo livello per vincerne un altro.');
+      ferr.hidden = true; send.disabled = true; send.textContent = 'Invio in corso…';
+      try {
+        const r = await fetch('/api/premio', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ fase: 'fine', biglietto: save.pend!.b, email: em, privacy, offerte }) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.error || 'Non riusciamo a registrarti ora. Riprova tra poco o scrivici su WhatsApp.');
+        save.email = em; delete save.pend;
+        if (j.codice) { save.codice = j.codice; codeBtn.hidden = false; codeBtn.textContent = j.codice; $('[data-g-done-t]').textContent = 'Ecco il tuo codice'; doneD.textContent = 'Tocca per copiarlo. Nel carrello si applica da solo; al pagamento usa la stessa email.'; }
+        else { codeBtn.hidden = true; $('[data-g-done-t]').textContent = 'Controlla la tua email'; doneD.textContent = `${j.gia ? 'Avevi già vinto: ti abbiamo rimandato' : 'Ti abbiamo inviato'} il codice a ${em}. Se non lo trovi, guarda nello spam.`; }
+        store(save); showMine();
+        form.hidden = true; done.hidden = false; vib(40);
+      } catch (x: any) { err(x.message); }
+      send.disabled = false; send.textContent = 'Ricevi il codice';
+    });
     codeBtn.addEventListener('click', async () => {
       const c = codeBtn.textContent || ''; if (!c.startsWith('GIOCO-')) return;
-      try { await navigator.clipboard.writeText(c); prizeMsg.textContent = 'Codice copiato ✓'; } catch { prizeMsg.textContent = 'Seleziona e copia il codice.'; }
+      try { await navigator.clipboard.writeText(c); doneD.textContent = 'Codice copiato ✓'; } catch { doneD.textContent = 'Seleziona e copia il codice.'; }
     });
+    $('[data-g-claim]').addEventListener('click', openPremio);
     const pause = () => { if (state !== 'play') return; state = 'pause'; setHum(false); show('pause'); };
     const resume = () => { if (state !== 'pause') return; go(); };
 
@@ -448,7 +524,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
       const p = L.p; let tot = 0; for (const k in p) tot += p[k];
       let r = rnd() * tot; for (const k in p) { r -= p[k]; if (r <= 0) return k; } return 'vite';
     };
-    const screw = (x: number, y: number, r = between(11, 14) + (lvIdx < 0 ? 5 : lvIdx) * 0.5): Ob => ({ k: 'vite', x, y, r, a: rnd() * Math.PI });
+    const screw = (x: number, y: number, r = between(11, 14) + (lvIdx < 0 ? 5 : lvIdx) * 0.3): Ob => ({ k: 'vite', x, y, r, a: rnd() * Math.PI });
     // restituisce l'altezza occupata dallo schema, per distanziare il successivo
     function spawn(y: number): number {
       const k = pick();
@@ -465,21 +541,21 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
           return 50;
         }
         case 'fila': {
-          const gapW = Math.max(62, 108 - lvl * 8), gx = between(M + 10, W - M - 10 - gapW);
+          const gapW = Math.max(78, 116 - lvl * 6), gx = between(M + 10, W - M - 10 - gapW);
           for (let x = 16; x < W; x += 34) if (x < gx - 6 || x > gx + gapW + 6) obs.push(screw(x, y, 12));
           if (rnd() < 0.6) obs.push({ k: 'dado', x: gx + gapW / 2, y, r: 10, a: 0 });
           return 70;
         }
         case 'zigzag': {
-          const gapW = Math.max(66, 112 - lvl * 8), left = rnd() < 0.5;
+          const gapW = Math.max(82, 120 - lvl * 6), left = rnd() < 0.5;
           for (let row = 0; row < 2; row++) {
-            const l = row ? !left : left, gx = l ? M : W - M - gapW, yy = y - row * Math.max(110, 170 - lvl * 12);
+            const l = row ? !left : left, gx = l ? M : W - M - gapW, yy = y - row * Math.max(140, 190 - lvl * 10);
             for (let x = 16; x < W; x += 34) if (x < gx - 6 || x > gx + gapW + 6) obs.push(screw(x, yy, 12));
           }
           return 190;
         }
         case 'mobile': {
-          const v = between(55 + lvl * 10, 85 + lvl * 25) * (rnd() < 0.5 ? -1 : 1);
+          const v = between(45 + lvl * 6, 70 + lvl * 14) * (rnd() < 0.5 ? -1 : 1);
           obs.push({ ...screw(between(M + 20, W - M - 20), y, 13), k: 'mobile', vx: v }); return 20;
         }
         case 'piastra': {
@@ -487,7 +563,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
           obs.push({ k: 'piastra', x, y: y - 26, w, h: 28, r: 0 }); return 40;
         }
         case 'stretto': { // due piastre dai lati con un varco stretto in mezzo
-          const gw = Math.max(46, 78 - lvl * 6), gx = between(40, W - 40 - gw);
+          const gw = Math.max(66, 92 - lvl * 5), gx = between(40, W - 40 - gw);
           obs.push({ k: 'piastra', x: -8, y: y - 26, w: gx + 8, h: 28, r: 0 }, { k: 'piastra', x: gx + gw, y: y - 26, w: W - gx - gw + 8, h: 28, r: 0 });
           return 50;
         }
@@ -516,8 +592,8 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
     const keys = new Set<string>();
     function update(dt: number) {
       t += dt;
-      // la velocità cresce anche dentro al livello (fino a +30% vicino al traguardo); nella sfida infinita non si ferma
-      speed = isInf() ? Math.min(520, L.v + dist / 70) : L.v * (1 + 0.3 * Math.min(1, dist / L.len));
+      // la velocità cresce anche dentro al livello (fino a +20% vicino al traguardo); nella sfida infinita non si ferma
+      speed = isInf() ? Math.min(460, L.v + dist / 80) : L.v * (1 + 0.2 * Math.min(1, dist / L.len));
       music(); // la musica segue il ritmo della partita
       const dy = speed * dt;
       dist += dy;
@@ -532,7 +608,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
       const px = drill.x;
       const f = 1 - Math.pow(0.0005, dt); // inseguimento morbido ma reattivo
       // velocità massima del trapano: niente scatti istantanei col mouse, serve anticipare
-      const vmax = 620 * dt;
+      const vmax = 760 * dt;
       drill.x += Math.max(-vmax, Math.min(vmax, (drill.tx - drill.x) * f)); drill.y += Math.max(-vmax, Math.min(vmax, (drill.ty - drill.y) * f));
       drill.tilt += (((drill.x - px) / Math.max(dt, 0.001)) * 0.0012 - drill.tilt) * Math.min(1, dt * 12);
       drill.tilt = Math.max(-0.35, Math.min(0.35, drill.tilt));
@@ -551,7 +627,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
 
       // nuovi ostacoli
       if (dist < L.len) {
-        while (dist >= nextAt) { const h = spawn(-30); nextAt += between(L.gap[0], L.gap[1]) * (isInf() ? Math.max(0.75, 1 - dist / 40000) : 1 - 0.18 * dist / L.len) + h; }
+        while (dist >= nextAt) { const h = spawn(-30); nextAt += between(L.gap[0], L.gap[1]) * (isInf() ? Math.max(0.8, 1 - dist / 40000) : 1 - 0.12 * dist / L.len) + h; }
       } else if (finishY === null) finishY = -30;
       if (finishY !== null) {
         finishY += dy;
@@ -573,7 +649,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
         if (o.k === 'dado') { o.hit = true; score += 10; sfx.nut(); burst(o.x, o.y, 12, ['#f5b800', '#ffe27a', '#fff']); pops.push({ x: o.x, y: o.y, s: '+10', life: 0.8 }); continue; }
         if (o.k === 'batt') { o.hit = true; sfx.batt(); burst(o.x, o.y, 14, ['#3ddc84', '#b6f5cf', '#fff']); if (lives < 3) { lives++; pops.push({ x: o.x, y: o.y, s: '+1 vita', life: 0.9 }); } else { score += 50; pops.push({ x: o.x, y: o.y, s: '+50', life: 0.9 }); } continue; }
         if (inv > 0) continue;
-        lives--; inv = 1.1; shake = reduce ? 0 : 0.35; flash = 0.25;
+        lives--; inv = 1.3; shake = reduce ? 0 : 0.35; flash = 0.25;
         sfx.hit(); vib(90);
         burst(drill.x, drill.y, 26, ['#fff6c2', '#ffcf3a', '#ff8a1e', '#ff5a1e'], 260, 2.2);
         if (!isRect) { o.hit = true; burst(o.x, o.y, 8, ['#c9ced6', '#8b929c'], 120, 2); }
@@ -604,9 +680,10 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
       const fine = lvIdx === LV.length - 1;
       $('[data-g-win-t]').textContent = fine ? 'Sei un maestro del trapano!' : ['Al pelo!', 'Bel lavoro!', 'Perfetto!'][stars - 1];
       $('[data-g-next]').textContent = fine ? 'Prova la sfida infinita' : 'Livello successivo';
-      prizeBox.hidden = true;
+      const claim = $('[data-g-claim]');
+      if (fine && biglietto) { save.pend = { b: biglietto, t: Date.now() }; store(save); showMine(); }
+      claim.hidden = !(fine && pendOk());
       show('win');
-      if (fine) premio();
     }
     function over() {
       state = 'over'; setHum(false); sfx.over(); vib(200);
@@ -733,7 +810,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
       // barra avanzamento (o velocità nella sfida infinita)
       const bx = 66, bw = W - 120 - 66, by = 24;
       ctx.fillStyle = 'rgba(255,255,255,.15)'; ctx.beginPath(); ctx.roundRect(bx, by, bw, 8, 4); ctx.fill();
-      const pr = isInf() ? (speed - L.v) / (520 - L.v) : Math.min(1, dist / L.len);
+      const pr = isInf() ? (speed - L.v) / (460 - L.v) : Math.min(1, dist / L.len);
       if (pr > 0) { ctx.fillStyle = '#f5b800'; ctx.beginPath(); ctx.roundRect(bx, by, Math.max(8, bw * pr), 8, 4); ctx.fill(); }
       // punteggio e vite
       ctx.fillStyle = 'rgba(21,23,26,.78)'; ctx.beginPath(); ctx.roundRect(10, 52, 104, 28, 8); ctx.fill();
