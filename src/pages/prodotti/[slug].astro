@@ -58,10 +58,12 @@ const conferma = p.disponibilita === 'conferma';
           <table class="pd-t"><tbody>{specs.map(([k, v]) => <tr>{k ? <><th scope="row">{k}</th><td>{v}</td></> : <td colspan="2">{v}</td>}</tr>)}</tbody></table></div>}
         {p.dotazione && <div class="pd-d"><h2 class="h2">Nella confezione</h2><p>{p.dotazione.replace(/\.$/, '')}.</p></div>}
         {p.video && <div class="pd-d"><h2 class="h2">Video</h2>
-          <button class="yt" data-id={p.video.id} aria-label={`Guarda il video: ${p.video.t}`}>
-            <img src={`https://i.ytimg.com/vi/${p.video.id}/hqdefault.jpg`} alt="" width="480" height="360" loading="lazy" decoding="async" />
-            <span class="yt-p" aria-hidden="true"></span>
-          </button>
+          <div class="yt-w"><div class="yt-box">
+            <button class="yt" data-id={p.video.id} aria-label={`Guarda il video: ${p.video.t}`}>
+              <img src={`https://i.ytimg.com/vi/${p.video.id}/hqdefault.jpg`} alt="" width="480" height="360" loading="lazy" decoding="async" />
+              <span class="yt-p" aria-hidden="true"></span>
+            </button>
+          </div></div>
           <p class="yt-t">{p.video.t}{p.video.ch && <> · <span>{p.video.ch}</span></>}</p></div>}
         {p.consiglio && <div class="pd-d pd-tip"><h2 class="h2">Il consiglio del nostro tecnico</h2><p>{p.consiglio}</p></div>}
       </section>
@@ -70,12 +72,23 @@ const conferma = p.disponibilita === 'conferma';
   </div>
 </Base>
 <script>
-  document.querySelectorAll<HTMLButtonElement>('.yt').forEach((b) => b.addEventListener('click', () => {
-    const f = document.createElement('iframe');
-    f.src = `https://www.youtube-nocookie.com/embed/${b.dataset.id}?autoplay=1&rel=0`;
-    f.allow = 'autoplay; encrypted-media; picture-in-picture'; f.allowFullscreen = true; f.title = 'Video prodotto';
-    b.replaceWith(f); f.className = 'yt';
-  }));
+  let ytObs: IntersectionObserver | null = null;
+  document.addEventListener('click', (ev) => {
+    const t = ev.target as HTMLElement;
+    const play = t.closest<HTMLButtonElement>('.yt'), close = t.closest('.yt-x');
+    if (play) {
+      const box = play.parentElement as HTMLElement, wrap = box.parentElement as HTMLElement;
+      box.dataset.thumb = box.innerHTML;
+      box.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${play.dataset.id}?autoplay=1&rel=0&playsinline=1&modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Video prodotto"></iframe><button class="yt-x" aria-label="Chiudi video">×</button>`;
+      box.classList.add('yt-on');
+      ytObs?.disconnect();
+      ytObs = new IntersectionObserver(([e]) => box.classList.toggle('yt-float', !e.isIntersecting && box.classList.contains('yt-on')), { threshold: 0.25 });
+      ytObs.observe(wrap);
+    } else if (close) {
+      const box = close.parentElement as HTMLElement;
+      ytObs?.disconnect(); box.classList.remove('yt-on', 'yt-float'); box.innerHTML = box.dataset.thumb || '';
+    }
+  });
   import { add } from '../../scripts/cart.js';
   const b = document.getElementById('add')!;
   b.addEventListener('click', () => {
@@ -102,9 +115,19 @@ const conferma = p.disponibilita === 'conferma';
   .pd-v li::before{content:'';position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:4px;background:var(--y) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12l5 5L20 7' fill='none' stroke='%23111' stroke-width='3'/%3E%3C/svg%3E") center/12px no-repeat}
   .pd-tags{margin:12px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}.pd-tags li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:600}
   .pd-tip{background:#fff;border:1px solid var(--line);border-left:4px solid var(--y);border-radius:12px;padding:18px 20px}.pd-tip .h2{font-size:20px}
-  .yt{position:relative;display:block;width:100%;max-width:720px;aspect-ratio:16/9;margin-top:12px;border:0;padding:0;border-radius:12px;overflow:hidden;background:#000;cursor:pointer}
-  .yt img{width:100%;height:100%;object-fit:cover;opacity:.9}
-  .yt-p{position:absolute;inset:0;margin:auto;width:72px;height:50px;border-radius:12px;background:#e00 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z' fill='white'/%3E%3C/svg%3E") center/26px no-repeat}
   .yt-t{font-size:14px!important;color:var(--mut)}
   .pd-l{margin:8px 0 0;padding:16px 16px 16px 34px;background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+</style>
+<style is:global>
+  .yt-w{width:100%;max-width:760px;aspect-ratio:16/9;margin-top:12px}
+  .yt-box{position:relative;width:100%;height:100%;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 10px 30px #0002}
+  .yt-box .yt{display:block;width:100%;height:100%;border:0;padding:0;background:#000;cursor:pointer}
+  .yt-box .yt img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+  .yt-box .yt:hover img{transform:scale(1.03)}
+  .yt-box .yt-p{position:absolute;inset:0;margin:auto;width:76px;height:54px;border-radius:14px;background:#f00 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 5v14l11-7z' fill='white'/%3E%3C/svg%3E") center/28px no-repeat;box-shadow:0 6px 20px #0006}
+  .yt-box iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .yt-x{display:none;position:absolute;top:6px;right:6px;z-index:2;width:30px;height:30px;border-radius:50%;border:0;background:#000c;color:#fff;font-size:20px;line-height:30px;cursor:pointer}
+  .yt-box.yt-float{position:fixed;z-index:60;right:14px;bottom:14px;width:min(360px,62vw);height:auto;aspect-ratio:16/9;border-radius:12px;box-shadow:0 18px 40px #0006;animation:ytin .25s ease-out}
+  .yt-box.yt-float .yt-x{display:block}
+  @keyframes ytin{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
 </style>
