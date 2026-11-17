@@ -7,7 +7,7 @@
 import fs from 'node:fs/promises';
 
 const KEY = process.env.YT_KEY;
-if (!KEY) { console.error('Manca YT_KEY'); process.exit(1); }
+if (!KEY) { console.log('YT_KEY non impostata: ricerca saltata (vedi istruzioni nel workflow)'); process.exit(0); }
 const MAX = Number(process.env.MAX || 90);
 const PROD = 'src/data/prodotti.json';
 const LOG = 'src/data/video-cercati.json';
