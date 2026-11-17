@@ -5,20 +5,38 @@ on:
 permissions:
   contents: write
 jobs:
-  run:
+  img:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i --no-save --ignore-scripts=false sharp@0.33
+      - run: node scripts/harvest/media.mjs img
+      - run: |
+          git config user.name harvest-bot
+          git config user.email harvest@users.noreply.github.com
+          git checkout --orphan harvest-img
+          git rm -rfq --cached .
+          git add -f harvest-out/img
+          git commit -qm "img $(date -u +%FT%T)"
+          git push -f origin harvest-img
+  vid:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: npm i --no-save sharp@0.33
-      - run: node scripts/harvest/media.mjs
-      - run: |
+      - run: node scripts/harvest/media.mjs vid
+      - if: always()
+        run: |
           git config user.name harvest-bot
           git config user.email harvest@users.noreply.github.com
-          git checkout --orphan harvest-data
+          git checkout --orphan harvest-vid
           git rm -rfq --cached .
-          git add -f harvest-out/videos.json harvest-out/img
-          git commit -qm "harvest $(date -u +%FT%T)"
-          git push -f origin harvest-data
+          git add -f harvest-out/videos.json
+          git commit -qm "vid $(date -u +%FT%T)"
+          git push -f origin harvest-vid

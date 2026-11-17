@@ -1,5 +1,7 @@
 import fs from 'node:fs/promises';
 import sharp from 'sharp';
+const MODE = process.argv[2];
+const T0 = Date.now();
 const todo = JSON.parse(await fs.readFile('scripts/harvest/todo7.json', 'utf8'));
 const UA = { 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36', 'accept-language': 'it-IT,it;q=0.9' };
 await fs.mkdir('harvest-out/img', { recursive: true });
@@ -22,7 +24,7 @@ async function video(t) {
   const b = base(t.m || t.c); if (b.length < 5 || !/\d/.test(b) || t.b === 'USAG') return;
   const q = `${t.b === 'BLACK+DECKER' ? 'Black Decker' : t.b} ${b}`;
   try {
-    const r = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&hl=it&gl=IT`, { headers: UA, signal: AbortSignal.timeout(20000) });
+    const r = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&hl=it&gl=IT`, { headers: UA, signal: AbortSignal.timeout(12000) });
     const h = await r.text();
     const m = h.match(/var ytInitialData = (\{[\s\S]*?\});<\/script>/); if (!m) { vids[t.k] = { err: r.status }; return; }
     const out = [];
@@ -36,7 +38,8 @@ async function video(t) {
 let i = 0;
 async function wi() { while (i < todo.length) await img(todo[i++]); }
 let j = 0;
-async function wv() { while (j < todo.length) { await video(todo[j++]); await sleep(700); } }
-await Promise.all([...Array.from({ length: 8 }, wi), ...Array.from({ length: 2 }, wv)]);
-await fs.writeFile('harvest-out/videos.json', JSON.stringify(vids));
+async function wv() { while (j < todo.length && Date.now() - T0 < 38 * 60e3) { await video(todo[j++]); await sleep(300); } }
+if (MODE === 'img') await Promise.all(Array.from({ length: 10 }, wi));
+else { const iv = setInterval(() => fs.writeFile('harvest-out/videos.json', JSON.stringify(vids)), 60000); await Promise.all(Array.from({ length: 4 }, wv)); clearInterval(iv); }
+await fs.writeFile('harvest-out/videos.json', JSON.stringify({ ...vids, _done: j }));
 console.log('immagini', okI, 'errori', koI, 'video', okV);
