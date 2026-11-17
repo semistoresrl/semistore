@@ -14,7 +14,7 @@ const org = {
   '@context': 'https://schema.org', '@type': 'HardwareStore', name: SITO.nome, legalName: SITO.ragioneSociale,
   url: SITO.url, telephone: SITO.telefonoLink, email: SITO.email, vatID: 'IT' + SITO.piva,
   address: { '@type': 'PostalAddress', streetAddress: SITO.indirizzo, postalCode: SITO.cap, addressLocality: SITO.citta, addressRegion: SITO.provincia, addressCountry: 'IT' },
-  sameAs: [SITO.instagram, SITO.facebook].filter(Boolean),
+  sameAs: [SITO.instagram, SITO.facebook, SITO.tiktok, GOOGLE.scheda].filter(Boolean),
   hasMap: GOOGLE.scheda,
   openingHoursSpecification: Object.entries(SITO.fasce).flatMap(([g, f]) => f.map(([opens, closes]) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][Number(g)], opens, closes }))),
 };
@@ -136,6 +136,7 @@ const nav = [
       <div class="col"><b>Seguici</b>
         {SITO.instagram && <a href={SITO.instagram} rel="noopener">Instagram</a>}
         {SITO.facebook && <a href={SITO.facebook} rel="noopener">Facebook</a>}
+        {SITO.tiktok && <a href={SITO.tiktok} rel="noopener">TikTok</a>}
         <a href={GOOGLE.scheda} rel="noopener">Google Maps</a>
         {SITO.orari.length > 0 && <><b style="margin-top:12px">Orari</b>{SITO.orari.map((o) => <span>{o.giorni} {o.ore}</span>)}</>}
       </div>

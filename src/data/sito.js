@@ -28,7 +28,9 @@ export const SITO = {
   // Scheda Google Business "SE.M.I. srl Professional"
   googlePlaceId: 'ChIJpQmSJREIOxMRsHBGmNErdn0',
   instagram: 'https://www.instagram.com/semistore.it',
-  facebook: 'https://www.facebook.com/profile.php?id=61555435472986',
+  // pagina Facebook collegata a Metricool (id 101931669444798), 17/11/2026
+  facebook: 'https://www.facebook.com/101931669444798',
+  tiktok: 'https://www.tiktok.com/@se.m.i.store',
   spedizione: { costo: 990, gratisDa: 9900, giorni: '2–4' }, // centesimi
   url: 'https://semistore.it',
 };
