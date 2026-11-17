@@ -5,10 +5,10 @@ import { SITO } from '../../src/data/sito.js';
 
 export async function onRequestGet({ request, env, waitUntil }) {
   const cache = caches.default;
-  const chiave = new Request(new URL('/api/google?v=1', request.url).href);
+  const chiave = new Request(new URL('/api/google?v=2', request.url).href);
   const hit = await cache.match(chiave);
   if (hit) return hit;
-  let out = { ok: false };
+  let out = { ok: false, chiave: !!env.GOOGLE_PLACES_KEY };
   if (env.GOOGLE_PLACES_KEY) {
     try {
       const r = await fetch(`https://places.googleapis.com/v1/places/${SITO.googlePlaceId}?languageCode=it&regionCode=IT`, {
@@ -36,6 +36,6 @@ export async function onRequestGet({ request, env, waitUntil }) {
     } catch (e) { out.errore = 'rete'; }
   }
   const res = new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': `public, max-age=${out.ok ? 43200 : 600}` } });
-  waitUntil(cache.put(chiave, res.clone()));
+  if (out.ok) waitUntil(cache.put(chiave, res.clone()));
   return res;
 }
