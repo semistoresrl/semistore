@@ -115,6 +115,7 @@ const nav = [
     </nav>
     <div class="mn-f">
       <a href={`tel:${SITO.telefonoLink}`} class="btn btn-y">Chiama {SITO.telefono}</a>
+      {SITO.whatsapp && <a href={`https://wa.me/${SITO.whatsapp}`} target="_blank" rel="noopener" class="btn btn-wa"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2a9.93 9.93 0 0 0-8.5 15.05L2 22l5.08-1.5A9.94 9.94 0 1 0 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3.02.9.9-2.94-.2-.31a8.17 8.17 0 1 1 6.82 3.68zm4.5-6.1c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.13-.16.24-.64.8-.79.96-.14.17-.29.19-.54.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.71-1.33.08-.17.04-.31-.02-.43l-.76-1.83c-.2-.48-.4-.41-.56-.42h-.47a.9.9 0 0 0-.66.3 2.76 2.76 0 0 0-.86 2.05 4.8 4.8 0 0 0 1 2.54 10.96 10.96 0 0 0 4.2 3.71c1.56.68 2.18.73 2.96.61.48-.07 1.46-.6 1.67-1.18.2-.58.2-1.07.14-1.18-.06-.1-.22-.16-.47-.28z"/></svg> Scrivici su WhatsApp</a>}
       <a href={GOOGLE.indicazioni} target="_blank" rel="noopener" class="btn btn-o">Indicazioni per il negozio</a>
       <span>{SITO.indirizzo}, {SITO.citta} ({SITO.provincia})</span>
     </div>
@@ -127,7 +128,7 @@ const nav = [
       <div class="col">
         <img class="ftr-logo" src="/logo.svg" alt="Semi Store" width="374" height="120" loading="lazy" />
         <span>{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</span>
-        <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br /><a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
+        <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br />{SITO.whatsapp && <><a href={`https://wa.me/${SITO.whatsapp}`} target="_blank" rel="noopener">WhatsApp {SITO.whatsapp.slice(2).replace(/(\d{3})(\d{3})(\d+)/, '$1 $2 $3')}</a><br /></>}<a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
       </div>
       <div class="col"><b>Categorie</b>{['Trapani e avvitatori', 'Tassellatori e demolitori', 'Smerigliatrici e levigatrici', 'Seghe e troncatrici', 'Batterie e caricabatterie', 'Misura e laser'].map((c) => <a href={urlCategoria(c)}>{c}</a>)}</div>
       <div class="col"><b>Negozio</b><a href="/catalogo/">Catalogo</a><a href="/condizioni-di-vendita/">Spedizioni e resi</a><a href="/condizioni-di-vendita/#pagamenti">Pagamenti</a></div>
@@ -145,7 +146,7 @@ const nav = [
       <span><a href="/privacy/">Privacy</a> · <a href="/condizioni-di-vendita/">Condizioni di vendita</a></span>
     </div>
   </footer>
-  {SITO.whatsapp && <a class="wa" href={`https://wa.me/${SITO.whatsapp}`} aria-label="Scrivici su WhatsApp" rel="noopener"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21l1.7-5A8.5 8.5 0 1 1 8 19.3z"/></svg></a>}
+  {SITO.whatsapp && <a class="wa" href={`https://wa.me/${SITO.whatsapp}?text=${encodeURIComponent('Ciao Semi, vorrei un\'informazione')}`} target="_blank" aria-label="Scrivici su WhatsApp" rel="noopener"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2a9.93 9.93 0 0 0-8.5 15.05L2 22l5.08-1.5A9.94 9.94 0 1 0 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3.02.9.9-2.94-.2-.31a8.17 8.17 0 1 1 6.82 3.68zm4.5-6.1c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.13-.16.24-.64.8-.79.96-.14.17-.29.19-.54.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.71-1.33.08-.17.04-.31-.02-.43l-.76-1.83c-.2-.48-.4-.41-.56-.42h-.47a.9.9 0 0 0-.66.3 2.76 2.76 0 0 0-.86 2.05 4.8 4.8 0 0 0 1 2.54 10.96 10.96 0 0 0 4.2 3.71c1.56.68 2.18.73 2.96.61.48-.07 1.46-.6 1.67-1.18.2-.58.2-1.07.14-1.18-.06-.1-.22-.16-.47-.28z"/></svg></a>}
   <script>
     import { count } from '../scripts/cart.js';
     const upd = () => document.querySelectorAll('[data-cart-count]').forEach((e) => (e.textContent = String(count())));
@@ -257,7 +258,9 @@ const nav = [
   .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:28px;padding-top:52px;padding-bottom:28px}
   .col{display:flex;flex-direction:column;gap:8px;font-size:14px}.col a{display:inline-block;padding:3px 0;min-height:24px}.col b{color:#fff}.ftr-brand{font-size:22px;letter-spacing:.04em}
   .legal{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:12px;color:#9a9ca1;border-top:1px solid #2e3238;padding-top:18px;padding-bottom:calc(26px + env(safe-area-inset-bottom))}
-  .wa{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:#1a7a43;color:#fff;display:grid;place-items:center;box-shadow:0 10px 30px #0004;z-index:30}.wa:hover{color:#fff}
+  .btn-wa{background:#25d366;color:#fff}.btn-wa:hover{color:#fff;filter:brightness(1.05)}
+  .sbar-on .wa{bottom:calc(84px + env(safe-area-inset-bottom))}
+  .wa{transition:bottom .25s;position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;display:grid;place-items:center;box-shadow:0 10px 30px #0004;z-index:30}.wa:hover{color:#fff}
   .prose{max-width:760px}
   /* niente effetti "hover" bloccati dopo il tocco su telefoni e tablet */
   @media (hover:none){.card:hover,.pc:hover,.of:hover,.vn-a:hover{transform:none!important}}

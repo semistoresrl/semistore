@@ -72,7 +72,7 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
           {conferma && <li>Spedizione gratis sopra {euro(SITO.spedizione.gratisDa)}, tempi indicati alla conferma</li>}
           <li>Ritiro gratuito in negozio a {SITO.citta}</li>
           <li>Garanzia e riparazioni gestite direttamente da noi, centro autorizzato</li>
-          <li>Hai dubbi su batterie o kit? <a class="ul" href={`tel:${SITO.telefonoLink}`}>Chiamaci</a></li>
+          <li>Hai dubbi su batterie o kit? <a class="ul" href={`tel:${SITO.telefonoLink}`}>Chiamaci</a>{SITO.whatsapp && <> o <a class="ul" target="_blank" rel="noopener" href={`https://wa.me/${SITO.whatsapp}?text=${encodeURIComponent(`Ciao Semi, vorrei informazioni su ${p.marca} ${p.modello || ''} ${p.nome} (${SITO.url}/prodotti/${p.slug}/)`)}`}>scrivici su WhatsApp</a></>}</li>
         </ul>
       </div>
     </div>
@@ -127,7 +127,7 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
   const sbar = document.getElementById('sbar')!;
   document.getElementById('add2')!.addEventListener('click', () => { add(b.dataset.slug!, 1); const t = document.getElementById('add2')!; t.textContent = 'Aggiunto ✓'; setTimeout(() => (location.href = '/carrello/'), 400); });
   let raf = 0;
-  addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; sbar.classList.toggle('on', b.getBoundingClientRect().bottom < 0); }); }, { passive: true });
+  addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; const v = b.getBoundingClientRect().bottom < 0; sbar.classList.toggle('on', v); document.body.classList.toggle('sbar-on', v && innerWidth <= 760); }); }, { passive: true });
 </script>
 <style>
   .bat{display:flex;flex-direction:column;gap:8px;background:#fff8dc;border:1px solid #f5b80066;border-radius:12px;padding:14px;font-size:14px}

@@ -19,7 +19,7 @@ import RecensioniGoogle from '../components/RecensioniGoogle.astro';
         <h2>Scrivici o chiamaci</h2>
         <a class="btn btn-y" href={`tel:${SITO.telefonoLink}`}>Chiama {SITO.telefono}</a>
         <a class="btn btn-k" href={`mailto:${SITO.email}`}>{SITO.email}</a>
-        {SITO.whatsapp && <a class="btn btn-k" href={`https://wa.me/${SITO.whatsapp}`} rel="noopener">WhatsApp</a>}
+        {SITO.whatsapp && <a class="btn btn-wa" href={`https://wa.me/${SITO.whatsapp}`} target="_blank" rel="noopener">WhatsApp {SITO.whatsapp.slice(2).replace(/(\d{3})(\d{3})(\d+)/, '$1 $2 $3')}</a>}
       </div>
       {SITO.orari.length > 0 && (
         <div class="card box">

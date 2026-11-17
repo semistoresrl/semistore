@@ -10,7 +10,7 @@ export const SITO = {
   provincia: 'NA',
   telefono: '081 553 6604',
   telefonoLink: '+390815536604',
-  whatsapp: '', // es. '39333xxxxxxx' (senza +). Vuoto = pulsante nascosto
+  whatsapp: '393756266947', // es. '39333xxxxxxx' (senza +). Vuoto = pulsante nascosto
   email: 'info@semistore.it',
   // Orari presi dalla scheda Google Business il 16/11/2026: se cambiano lì, aggiornarli anche qui.
   orari: [
