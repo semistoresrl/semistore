@@ -5,7 +5,7 @@ import { SITO } from '../../src/data/sito.js';
 
 export async function onRequestGet({ request, env, waitUntil }) {
   const cache = caches.default;
-  const chiave = new Request(new URL('/api/google?v=2', request.url).href);
+  const chiave = new Request(new URL('/api/google?v=3', request.url).href);
   const hit = await cache.match(chiave);
   if (hit) return hit;
   let out = { ok: false, chiave: !!env.GOOGLE_PLACES_KEY };
@@ -23,7 +23,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
           totale: j.userRatingCount || 0,
           link: j.googleMapsUri || null,
           orari: j.regularOpeningHours?.weekdayDescriptions || [],
-          recensioni: (j.reviews || []).filter((x) => (x.text?.text || x.originalText?.text)).slice(0, 5).map((x) => ({
+          recensioni: (j.reviews || []).filter((x) => { const t = (x.text?.text || x.originalText?.text || '').trim(); return x.rating >= 4 && t.length >= 40 && !/\?\s*$|vorrei sapere/i.test(t); }).slice(0, 5).map((x) => ({
             nome: x.authorAttribution?.displayName || 'Cliente Google',
             foto: x.authorAttribution?.photoUri || null,
             profilo: x.authorAttribution?.uri || null,
