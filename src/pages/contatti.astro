@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import { SITO, GOOGLE } from '../data/sito.js';
 import ApertoOra from '../components/ApertoOra.astro';
 import VideoNegozio from '../components/VideoNegozio.astro';
+import RecensioniGoogle from '../components/RecensioniGoogle.astro';
 ---
 <Base title="Contatti e dove siamo" description={`Semi Store, ${SITO.indirizzo}, ${SITO.citta} (${SITO.provincia}). Telefono ${SITO.telefono}. Vendita e assistenza DEWALT.`}>
   <section class="wrap sec">
@@ -29,7 +30,9 @@ import VideoNegozio from '../components/VideoNegozio.astro';
         </div>
       )}
     </div>
+    <div class="map card"><iframe src={GOOGLE.mappa} title="Mappa: Semi Store a Casavatore" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
   </section>
+  <RecensioniGoogle />
   <VideoNegozio titolo="Come arrivare" />
 </Base>
-<style>.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:20px}.box{padding:24px;display:flex;flex-direction:column;gap:14px}.box h2{font-size:22px}</style>
+<style>.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:20px}.box{padding:24px;display:flex;flex-direction:column;gap:14px}.box h2{font-size:22px}.map{margin-top:20px;overflow:hidden;padding:0;aspect-ratio:16/7;min-height:300px}.map iframe{width:100%;height:100%;border:0;display:block}</style>

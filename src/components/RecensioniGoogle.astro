@@ -1,0 +1,49 @@
+---
+// Valutazione e ultime recensioni della scheda Google (caricate da /api/google, nascoste se non disponibili)
+import { GOOGLE } from '../data/sito.js';
+---
+<section class="rg wrap sec" hidden data-scrivi={GOOGLE.recensione}>
+  <div class="rg-h">
+    <div>
+      <p class="rg-k">Recensioni Google</p>
+      <h2 class="h2">Cosa dicono di noi</h2>
+    </div>
+    <a class="rg-sum" target="_blank" rel="noopener"><b class="rg-v"></b><span class="rg-s"></span><span class="rg-n"></span></a>
+  </div>
+  <div class="rg-l"></div>
+  <a class="btn btn-k rg-w" href={GOOGLE.recensione} target="_blank" rel="noopener">Lascia una recensione</a>
+</section>
+<script>
+  const sec = document.querySelector<HTMLElement>('.rg');
+  const stelle = (n: number) => '★★★★★'.slice(0, Math.round(n)) + '☆☆☆☆☆'.slice(0, 5 - Math.round(n));
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  if (sec) fetch('/api/google').then((r) => r.json()).then((g) => {
+    if (!g.ok || !g.voto) return;
+    const sum = sec.querySelector<HTMLAnchorElement>('.rg-sum')!;
+    sum.href = g.link || sec.dataset.scrivi!;
+    sec.querySelector('.rg-v')!.textContent = g.voto.toFixed(1).replace('.', ',');
+    sec.querySelector('.rg-s')!.textContent = stelle(g.voto);
+    sec.querySelector('.rg-n')!.textContent = `${g.totale} recensioni`;
+    sec.querySelector('.rg-l')!.innerHTML = g.recensioni.map((x: any) => `
+      <figure class="rg-c card">
+        <div class="rg-a">${x.foto ? `<img src="${esc(x.foto)}" alt="" width="36" height="36" loading="lazy" referrerpolicy="no-referrer">` : `<span class="rg-i">${esc(x.nome[0] || 'G')}</span>`}
+          <div><b>${esc(x.nome)}</b><small>${esc(x.quando)}</small></div></div>
+        <div class="rg-st">${stelle(x.voto)}</div>
+        <blockquote>${esc(x.testo)}</blockquote>
+      </figure>`).join('');
+    sec.hidden = false;
+  }).catch(() => {});
+</script>
+<style>
+  .rg-h{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .rg-k{margin:0 0 4px;font-weight:700;color:var(--mut);font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+  .rg-sum{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 16px}
+  .rg-v{font-size:24px}.rg-s,.rg-st{color:#f5b400;letter-spacing:2px}.rg-n{color:var(--mut);font-size:14px}
+  .rg-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:16px}
+  .rg-c{margin:0;padding:18px;display:flex;flex-direction:column;gap:8px}
+  .rg-a{display:flex;gap:10px;align-items:center}.rg-a img,.rg-i{width:36px;height:36px;border-radius:50%}
+  .rg-i{display:grid;place-items:center;background:var(--y);font-weight:800}
+  .rg-a small{display:block;color:var(--mut);font-size:13px}
+  .rg-c blockquote{margin:0;font-size:15px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+  .rg-w{margin-top:20px}
+</style>

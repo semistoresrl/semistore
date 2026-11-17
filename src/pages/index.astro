@@ -6,6 +6,7 @@ import { SITO, euro } from '../data/sito.js';
 import { fotoDi } from '../data/foto';
 import OffertaFlash from '../components/OffertaFlash.astro';
 import VideoNegozio from '../components/VideoNegozio.astro';
+import RecensioniGoogle from '../components/RecensioniGoogle.astro';
 
 const evidenza = ['DCD805P2T', 'DCF850P2T', 'DCG405P2', 'DCF900P2T', 'DCH273P2T', 'DCK2050E2T', 'DCS438E2T', 'DCE089D1G']
   .map((m) => prodotti.find((p) => p.modello === m)).filter(Boolean).slice(0, 8);
@@ -112,6 +113,7 @@ const passi = [
   </div></section>
 
   <VideoNegozio />
+  <RecensioniGoogle />
 
   <section class="ass"><div class="wrap ass-in">
     <div class="ass-t">
