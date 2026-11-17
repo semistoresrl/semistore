@@ -18,6 +18,20 @@ export async function onRequestPost({ request, env }) {
   const sub = items.reduce((t, i) => t + i.p.prezzo * i.q, 0);
   const origin = new URL(request.url).origin;
 
+  // codice premio del minigioco (−15%, una volta sola)
+  const codice = String(body.codice || '').trim().toUpperCase().replace(/\s+/g, '');
+  let premio = null;
+  if (codice) {
+    premio = env.RICHIESTE && /^GIOCO-[A-Z0-9]{7}$/.test(codice) ? await env.RICHIESTE.get('premio:' + codice, 'json') : null;
+    if (!premio) return json({ error: 'codice sconto non valido o scaduto' }, 400);
+    if (premio.sessione && !premio.pagato) { // controlla se il tentativo precedente è stato pagato
+      const r0 = await fetch(`https://api.stripe.com/v1/checkout/sessions/${premio.sessione}`, { headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}` } });
+      const s0 = r0.ok ? await r0.json() : null;
+      if (s0?.status === 'complete') { premio.pagato = new Date().toISOString(); await env.RICHIESTE.put('premio:' + codice, JSON.stringify(premio), { expirationTtl: 60 * 86400 }); }
+    }
+    if (premio.pagato) return json({ error: 'codice sconto già utilizzato' }, 400);
+  }
+
   const f = new URLSearchParams();
   f.set('mode', 'payment');
   f.set('locale', 'it');
@@ -58,6 +72,13 @@ export async function onRequestPost({ request, env }) {
     f.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '4');
   }
 
+  if (premio) {
+    const coupon = await couponGioco(env);
+    if (!coupon) return json({ error: 'sconto momentaneamente non disponibile' }, 502);
+    f.set('discounts[0][coupon]', coupon);
+    f.set('metadata[codice_sconto]', codice);
+  }
+
   const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
     headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'content-type': 'application/x-www-form-urlencoded' },
@@ -65,5 +86,17 @@ export async function onRequestPost({ request, env }) {
   });
   const s = await r.json();
   if (!r.ok) { console.error('Stripe', s.error?.message); return json({ error: 'pagamento non disponibile' }, 502); }
+  if (premio) await env.RICHIESTE.put('premio:' + codice, JSON.stringify({ ...premio, sessione: s.id }), { expirationTtl: 60 * 86400 });
   return json({ url: s.url });
+}
+
+// Coupon Stripe del 15% per i vincitori del minigioco: lo crea la prima volta che serve.
+async function couponGioco(env) {
+  const id = 'SEMI-GIOCO-15', h = { authorization: `Bearer ${env.STRIPE_SECRET_KEY}` };
+  const g = await fetch(`https://api.stripe.com/v1/coupons/${id}`, { headers: h });
+  if (g.ok) return id;
+  const f = new URLSearchParams({ id, percent_off: '15', duration: 'once', name: 'Premio Trapano Slalom −15%' });
+  const c = await fetch('https://api.stripe.com/v1/coupons', { method: 'POST', headers: { ...h, 'content-type': 'application/x-www-form-urlencoded' }, body: f });
+  if (!c.ok) { console.error('Stripe coupon', (await c.json()).error?.message); return null; }
+  return id;
 }

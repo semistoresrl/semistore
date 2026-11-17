@@ -15,6 +15,12 @@ import { SITO } from '../data/sito.js';
           <label><input type="radio" name="cons" value="spedizione" checked /> Spedizione ({SITO.spedizione.giorni} giorni)</label>
           <label><input type="radio" name="cons" value="ritiro" /> Ritiro in negozio a {SITO.citta} (gratis)</label>
         </fieldset>
+        <details class="cod" id="cod">
+          <summary>Hai un codice sconto?</summary>
+          <div class="cod-r"><input id="cod-i" class="mono" placeholder="GIOCO-XXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Codice sconto" /><button type="button" id="cod-b" class="btn">Applica</button></div>
+          <small id="cod-m" role="status"></small>
+        </details>
+        <div class="row between" id="sc-r" hidden><span>Sconto premio −<span id="sc-p">15</span>%</span><b id="sc" style="color:var(--ok)">–</b></div>
         <div class="row between"><span>Consegna</span><b id="sped">–</b></div>
         <div class="row between big"><span>Totale</span><b id="tot">–</b></div>
         <button id="paga" class="btn btn-y" disabled>Paga in sicurezza</button>
@@ -32,6 +38,7 @@ import { SITO } from '../data/sito.js';
   import { indice } from '../scripts/card.js';
   const SP = (window as any).__SP;
   let M: Record<string, any> = {};
+  let codice = '', pct = 0;
   const eur = (c: number) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(c / 100);
   const el = (id: string) => document.getElementById(id)!;
   const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -54,7 +61,9 @@ import { SITO } from '../data/sito.js';
     el('fs-t').innerHTML = manca > 0 ? `Ti mancano <b>${eur(manca)}</b> per la spedizione gratuita` : '<b>Spedizione gratuita</b> sbloccata ✓';
     (el('fs-i') as HTMLElement).style.width = Math.min(100, (sub / SP.gratisDa) * 100) + '%';
     fs.classList.toggle('ok', manca <= 0);
-    el('sub').textContent = eur(sub); el('sped').textContent = sped ? eur(sped) : 'Gratis'; el('tot').textContent = eur(sub + sped);
+    const sc = codice ? Math.round(sub * pct / 100) : 0;
+    el('sc-r').hidden = !sc; el('sc').textContent = '−' + eur(sc);
+    el('sub').textContent = eur(sub); el('sped').textContent = sped ? eur(sped) : 'Gratis'; el('tot').textContent = eur(sub - sc + sped);
     (el('paga') as HTMLButtonElement).disabled = !items.length;
   }
   el('righe').addEventListener('change', (e) => { const t = e.target as HTMLInputElement; if (t.dataset.s) { setQty(t.dataset.s, Math.round(Number(t.value))); render(); } });
@@ -64,11 +73,26 @@ import { SITO } from '../data/sito.js';
     const b = el('paga') as HTMLButtonElement; b.disabled = true; b.textContent = 'Un attimo…'; el('err').hidden = true;
     try {
       const consegna = (document.querySelector('input[name=cons]:checked') as HTMLInputElement).value;
-      const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: read(), consegna }) });
+      const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: read(), consegna, codice }) });
       const j = await r.json(); if (!r.ok || !j.url) throw new Error(j.error || 'Errore');
       location.href = j.url;
     } catch (e: any) { el('err').textContent = 'Non riusciamo ad avviare il pagamento: ' + e.message + '. Riprova o chiamaci.'; el('err').hidden = false; b.disabled = false; b.textContent = 'Paga in sicurezza'; }
   });
+  // codice sconto (premio del minigioco in home): si compila da solo se è stato vinto su questo dispositivo
+  const codM = el('cod-m'), codI = el('cod-i') as HTMLInputElement;
+  async function applica(c: string, zitto = false) {
+    c = c.trim().toUpperCase(); if (!c) return;
+    codM.textContent = 'Controllo…'; codM.className = '';
+    try {
+      const j = await (await fetch('/api/premio?codice=' + encodeURIComponent(c))).json();
+      if (j.valido) { codice = c; pct = j.sconto; el('sc-p').textContent = String(pct); codM.textContent = `Codice applicato: −${pct}% sui prodotti ✓`; codM.className = 'ok'; (el('cod') as HTMLDetailsElement).open = true; }
+      else { codice = ''; pct = 0; codM.textContent = zitto ? '' : (j.usato ? 'Questo codice è già stato usato.' : 'Codice non valido o scaduto.'); codM.className = 'no'; }
+    } catch { codM.textContent = 'Non riusciamo a controllare il codice ora.'; codM.className = 'no'; }
+    render();
+  }
+  el('cod-b').addEventListener('click', () => applica(codI.value));
+  codI.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applica(codI.value); } });
+  try { const g = JSON.parse(localStorage.getItem('semi-gioco-v1') || 'null'); if (g?.codice) { codI.value = g.codice; applica(g.codice, true); } } catch {}
   if (new URL(location.href).searchParams.get('svuota')) clear();
   el('righe').innerHTML = '<p style="padding:20px;margin:0">Caricamento…</p>';
   indice().then((l: any[]) => { M = Object.fromEntries(l.map((x) => [x.s, x])); render(); }).catch(() => { el('righe').innerHTML = '<p style="padding:20px;margin:0">Non riusciamo a caricare il carrello: ricarica la pagina.</p>'; });
@@ -88,5 +112,6 @@ import { SITO } from '../data/sito.js';
   .tot{padding:20px;display:flex;flex-direction:column;gap:14px;position:sticky;top:96px}
   @media (max-width:820px),(max-height:500px){.tot{position:static}}
   .cons{border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}.cons label{display:flex;gap:8px;align-items:center;min-height:32px}
+  .cod summary{cursor:pointer;font-weight:700;font-size:14px}.cod-r{display:flex;gap:8px;margin-top:10px}.cod-r input{flex:1;min-width:0;min-height:44px;border:1px solid #cfccc2;border-radius:8px;padding:0 10px;font-size:15px;text-transform:uppercase}.cod-r .btn{min-height:44px;padding:0 16px;background:var(--ink);color:#fff}.cod small{display:block;margin-top:6px;font-size:13px}.cod small.ok{color:var(--ok);font-weight:700}.cod small.no{color:#b3261e}
   .big{font-size:20px;border-top:1px solid var(--line);padding-top:12px}.err{color:#b3261e;margin:0;font-weight:600}
 </style>
