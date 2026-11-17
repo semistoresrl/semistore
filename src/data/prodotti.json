@@ -35,7 +35,12 @@
 "Aspirazione da utensile",
 "Officina"
 ],
-"consiglio": "Per polveri di cemento, legno duro e cartongesso scegli la classe M: trattiene le polveri fini pericolose."
+"consiglio": "Per polveri di cemento, legno duro e cartongesso scegli la classe M: trattiene le polveri fini pericolose.",
+"video": {
+"id": "kFLY95ptEic",
+"t": "DeWALT DCV584L 18V XR AC/DC L Class 7.5L Wet & Dry Vacuum Skin",
+"ch": "New Local Tools"
+}
 },
 {
 "id": 3678,
@@ -123,7 +128,12 @@
 "Officina e manutenzione mezzi",
 "Posa di scaffalature e staffaggi"
 ],
-"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi."
+"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi.",
+"video": {
+"id": "EKB6RG8OvQE",
+"t": "DeWalt DCF801D2 12V XR wiercenie w drewnie wiertłem udarowym 22mm",
+"ch": "Wujek Tester"
+}
 },
 {
 "id": 3729,
@@ -339,7 +349,12 @@
 "Officina e manutenzione mezzi",
 "Posa di scaffalature e staffaggi"
 ],
-"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi."
+"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi.",
+"video": {
+"id": "7LRkrp272Qo",
+"t": "DEWALT DCF900P2T-B1 20V Max Brushless 1/2\" High Torque Impact Wrench with Hog Ring Anvil",
+"ch": "Leeden Hercules"
+}
 },
 {
 "id": 3666,
@@ -465,7 +480,12 @@
 "impieghi": [
 "Chi compra utensili solo corpo",
 "Ampliare la piattaforma"
-]
+],
+"video": {
+"id": "lVz5OmLhjog",
+"t": "Dewalt DCB115P3 Φορτιστής Σετ με 3 Μπαταρίες 18V",
+"ch": "Dagiopoulos"
+}
 },
 {
 "id": 3693,
@@ -504,7 +524,12 @@
 "Imballaggi e pallet",
 "Cartongesso e impianti"
 ],
-"consiglio": "Usa sempre chiodi originali del tipo e dell'inclinazione indicati: chiodi non compatibili causano inceppamenti."
+"consiglio": "Usa sempre chiodi originali del tipo e dell'inclinazione indicati: chiodi non compatibili causano inceppamenti.",
+"video": {
+"id": "BcWEulWnT80",
+"t": "Pros React: DEWALT® 20V MAX* XR® Cordless Concrete Nailer (DCN890P2)",
+"ch": "DEWALT TV"
+}
 },
 {
 "id": 3709,
@@ -512,7 +537,7 @@
 "marca": "DEWALT",
 "nome": "Elettrosega 54V XR FLEXVOLT Brushless barra 40 cm – kit batteria 9,0 Ah",
 "modello": "DCM575X1",
-"categoria": "Seghe e troncatrici",
+"categoria": "Giardino",
 "prezzo": 58500,
 "volt": "54V",
 "immagineOrigine": "http://semistore.it/public/icona/3298587_59319705_elettrosega-54v-flexvolt-con-barra-40cm-dcm575x1.jpg",
@@ -538,7 +563,12 @@
 "Legna da ardere",
 "Manutenzione del verde"
 ],
-"consiglio": "Controlla tensione della catena e livello dell'olio prima di ogni utilizzo."
+"consiglio": "Controlla tensione della catena e livello dell'olio prima di ogni utilizzo.",
+"video": {
+"id": "aIcVf5dq02A",
+"t": "DeWalt DCM575X1 CUT 54v FLex Volt",
+"ch": "Wujek Tester"
+}
 },
 {
 "id": 3712,
@@ -788,7 +818,12 @@
 "Impiantisti",
 "Manutentori"
 ],
-"consiglio": "Con un kit avvii la tua piattaforma: tutti gli utensili successivi puoi prenderli in versione solo corpo."
+"consiglio": "Con un kit avvii la tua piattaforma: tutti gli utensili successivi puoi prenderli in versione solo corpo.",
+"video": {
+"id": "EL26r4zCJBE",
+"t": "Unboxing DeWalt DCK2110L2T 12V 2 x 3Ah XR Brushless Sub Compact Drill Driver - Bob The Tool Man",
+"ch": "Bob The Tool Man"
+}
 },
 {
 "id": 3735,
@@ -826,7 +861,12 @@
 "Pensili e mobili",
 "Impianti"
 ],
-"consiglio": "Il raggio verde è fino a 4 volte più visibile del rosso: preferiscilo in ambienti molto illuminati."
+"consiglio": "Il raggio verde è fino a 4 volte più visibile del rosso: preferiscilo in ambienti molto illuminati.",
+"video": {
+"id": "0NK1YlWR3z8",
+"t": "DeWalt DCE079D1G-GB Self-Levelling Rotary Laser Level - Green",
+"ch": "Machine Mart"
+}
 },
 {
 "id": 3667,
@@ -867,7 +907,12 @@
 "Nautica",
 "Superfici verniciate"
 ],
-"consiglio": "Lavora a bassa velocità per stendere la pasta e alza i giri solo per la lucidatura finale."
+"consiglio": "Lavora a bassa velocità per stendere la pasta e alza i giri solo per la lucidatura finale.",
+"video": {
+"id": "Pz9mE9askm4",
+"t": "Lucidatrice a velocità variabile DeWALT DWP849X da 7\"/9\" con avviamento graduale - Recensione",
+"ch": "Tools In Action"
+}
 },
 {
 "id": 3688,
@@ -910,7 +955,12 @@
 "Demolizioni",
 "Carotaggi a percussione"
 ],
-"consiglio": "Per fori oltre 30 mm usa corone e punte SDS-Max a 4 taglienti."
+"consiglio": "Per fori oltre 30 mm usa corone e punte SDS-Max a 4 taglienti.",
+"video": {
+"id": "9I1D34q4p1k",
+"t": "Dewalt D25733K SDS Max Combination Hammer | AABTools Industrial Supplies",
+"ch": "AABTools UAE"
+}
 },
 {
 "id": 3661,
@@ -1005,7 +1055,12 @@
 "Rasanti e autolivellanti",
 "Vernici e resine"
 ],
-"consiglio": "Avvia a bassa velocità e aumenta gradualmente per evitare schizzi."
+"consiglio": "Avvia a bassa velocità e aumenta gradualmente per evitare schizzi.",
+"video": {
+"id": "MQzzkvpXH2Y",
+"t": "DEWALT DWD241-QS 1800W Mixer Review 2025 | Power & Control",
+"ch": "Mister Worker®"
+}
 },
 {
 "id": 3698,
@@ -1087,7 +1142,12 @@
 "Rilievi",
 "Preventivi",
 "Posa e arredamento"
-]
+],
+"video": {
+"id": "p-RMuCScVdE",
+"t": "DeWalt DW03101-XJ Laser Range Finder 100m",
+"ch": "Power Tool World"
+}
 },
 {
 "id": 3699,
@@ -1167,7 +1227,7 @@
 "marca": "DEWALT",
 "nome": "Rifilatore per cartongesso 18V XR Brushless – solo corpo",
 "modello": "DCE555N",
-"categoria": "Smerigliatrici e levigatrici",
+"categoria": "Altri utensili",
 "prezzo": 22100,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/52898806_REFILATORE-PER-CARTONGESSO-DCE555N-XJ.jpg",
@@ -1187,7 +1247,12 @@
 "Peso solo corpo: 0,75 kg"
 ],
 "dotazione": "Guida di profondità, pinze da 3,2 mm (1/8\") e 6,4 mm (1/4\"), fresa per cartongesso 3,2 mm, adattatore per aspirazione. Senza batterie e caricabatterie",
-"disponibilita": "conferma"
+"disponibilita": "conferma",
+"video": {
+"id": "MZnORDd_vA8",
+"t": "DeWALT 18V XR Brushless Drywall Cut Out Tool Skin - DCE555N-XJ",
+"ch": "TradeTools"
+}
 },
 {
 "id": 3674,
@@ -1532,7 +1597,7 @@
 "marca": "DEWALT",
 "nome": "Tagliapiastrelle ad acqua 110 mm 1300 W",
 "modello": "DWC410",
-"categoria": "Utensili manuali",
+"categoria": "Seghe e troncatrici",
 "prezzo": 23700,
 "volt": "230V",
 "immagineOrigine": "http://semistore.it/public/icona/50034732_TAGLIAPIASTRELLE-AD-ACQUA-DWC410-QS.jpg",
@@ -2365,7 +2430,7 @@
 "marca": "DEWALT",
 "nome": "Utensile multifunzione oscillante 300 W con set accessori",
 "modello": "DWE315KT",
-"categoria": "Smerigliatrici e levigatrici",
+"categoria": "Altri utensili",
 "prezzo": 27400,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/86164492_utensile-multi-funzione-ad-oscillazione-300w-dwe315kt-qs.jpg",
@@ -2403,7 +2468,7 @@
 "marca": "DEWALT",
 "nome": "Utensile multifunzione 18V XR Brushless – solo corpo",
 "modello": "DCS356NT",
-"categoria": "Smerigliatrici e levigatrici",
+"categoria": "Altri utensili",
 "prezzo": 27400,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/10407657_UTENSILE-MULTIFUNZIONE-DCS356NT-XJ.jpg",
@@ -2516,7 +2581,7 @@
 "marca": "BLACK+DECKER",
 "nome": "Elettrosega a batteria 36V barra 30 cm – kit batteria 2,0 Ah",
 "modello": "GKC3630L20",
-"categoria": "Seghe e troncatrici",
+"categoria": "Giardino",
 "prezzo": 20000,
 "volt": "36V",
 "immagineOrigine": "http://semistore.it/public/icona/11231631_motosega-batteria-gkc3630l20.jpg",
@@ -2653,7 +2718,7 @@
 "marca": "BLACK+DECKER",
 "nome": "Pistola termica 2000 W con accessori in valigetta",
 "modello": "KX2200K",
-"categoria": "Contenitori e organizzazione",
+"categoria": "Altri utensili",
 "prezzo": 7500,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/5469913_PISTOLA-TERMICA-KX2200K-QS.jpg",
@@ -8190,7 +8255,7 @@
 "nome": "Radio da cantiere con caricabatterie e Bluetooth",
 "modello": "DCR027",
 "codice": "DCR027-QW",
-"categoria": "Batterie e caricabatterie",
+"categoria": "Altri utensili",
 "prezzo": 32900,
 "volt": "",
 "immagineOrigine": "",
@@ -12331,7 +12396,7 @@
 "nome": "Gambe di supporto per tagliapiastrelle D24000",
 "modello": "D240001",
 "codice": "D240001-XJ",
-"categoria": "Seghe e troncatrici",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 11800,
 "volt": "",
 "immagineOrigine": "",
@@ -15042,7 +15107,7 @@
 "nome": "Pinza da 6 mm",
 "modello": "DE6272",
 "codice": "DE6272-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 4400,
 "volt": "",
 "immagineOrigine": "",
@@ -15077,7 +15142,7 @@
 "nome": "Pinza da 8 mm (DE6274)",
 "modello": "DE6274",
 "codice": "DE6274-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 3700,
 "volt": "",
 "immagineOrigine": "",
@@ -15112,7 +15177,7 @@
 "nome": "Pinza da 12 mm",
 "modello": "DE6277",
 "codice": "DE6277-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 4400,
 "volt": "",
 "immagineOrigine": "",
@@ -15148,7 +15213,7 @@
 "nome": "Pinza da 8 mm (DE6260)",
 "modello": "DE6260",
 "codice": "DE6260-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 4300,
 "volt": "",
 "immagineOrigine": "",
@@ -15183,7 +15248,7 @@
 "nome": "Pinza da 6 mm con dado",
 "modello": "DE6950",
 "codice": "DE6950-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 3200,
 "volt": "",
 "immagineOrigine": "",
@@ -15218,7 +15283,7 @@
 "nome": "Pinza da 8 mm con dado",
 "modello": "DE6952",
 "codice": "DE6952-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 3200,
 "volt": "",
 "immagineOrigine": "",
@@ -15678,7 +15743,7 @@
 "nome": "Coppia staffe per fissaggio troncatrice",
 "modello": "DE7025",
 "codice": "DE7025-XJ",
-"categoria": "Seghe e troncatrici",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 8400,
 "volt": "",
 "immagineOrigine": "",
@@ -15802,7 +15867,7 @@
 "nome": "Set di aspirazione a 3 vie (DE7778)",
 "modello": "DE7778",
 "codice": "DE7778-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Aspirazione e pulizia",
 "prezzo": 7300,
 "volt": "",
 "immagineOrigine": "",
@@ -15946,7 +16011,7 @@
 "nome": "Set di aspirazione a 3 vie (D271054)",
 "modello": "D271054",
 "codice": "D271054-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Aspirazione e pulizia",
 "prezzo": 8700,
 "volt": "",
 "immagineOrigine": "",
@@ -16127,7 +16192,7 @@
 "nome": "Carrello per trasporto e piano di lavoro per sega a banco DWE7491-QS",
 "modello": "DWE74911",
 "codice": "DWE74911-XJ",
-"categoria": "Seghe e troncatrici",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 23800,
 "volt": "",
 "immagineOrigine": "",
@@ -16455,7 +16520,7 @@
 "nome": "Kit pulizia pavimenti per aspiratori con 2 tubi in metallo, bocchetta e spazzola",
 "modello": "DWV9350",
 "codice": "DWV9350-XJ",
-"categoria": "Kit",
+"categoria": "Aspirazione e pulizia",
 "prezzo": 6800,
 "volt": "",
 "immagineOrigine": "",
@@ -17031,7 +17096,7 @@
 "nome": "Cestello porta utensili con base in polipropilene",
 "modello": "DWST82990-1",
 "codice": "DWST82990-1",
-"categoria": "Accessori per elettroutensili",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 8800,
 "volt": "",
 "immagineOrigine": "",
@@ -22859,7 +22924,7 @@
 "nome": "Prolunga SDS-Max per corone 180 mm",
 "modello": "DT6770",
 "codice": "DT6770-QZ",
-"categoria": "Accessori per elettroutensili",
+"categoria": "Punte e inserti",
 "prezzo": 9500,
 "volt": "",
 "immagineOrigine": "",
@@ -22894,7 +22959,7 @@
 "nome": "Prolunga SDS-Max per corone 400 mm",
 "modello": "DT6771",
 "codice": "DT6771-QZ",
-"categoria": "Accessori per elettroutensili",
+"categoria": "Punte e inserti",
 "prezzo": 11900,
 "volt": "",
 "immagineOrigine": "",
@@ -22929,7 +22994,7 @@
 "nome": "Prolunga SDS-Max per corone 155 mm",
 "modello": "DT6772",
 "codice": "DT6772-QZ",
-"categoria": "Accessori per elettroutensili",
+"categoria": "Punte e inserti",
 "prezzo": 3800,
 "volt": "",
 "immagineOrigine": "",
@@ -22964,7 +23029,7 @@
 "nome": "Prolunga SDS-Max per corone 280 mm",
 "modello": "DT6773",
 "codice": "DT6773-QZ",
-"categoria": "Accessori per elettroutensili",
+"categoria": "Punte e inserti",
 "prezzo": 15600,
 "volt": "",
 "immagineOrigine": "",
@@ -23005,7 +23070,7 @@
 "nome": "Mandrino autoserrante professionale",
 "modello": "DT7002",
 "codice": "DT7002-QZ",
-"categoria": "Accessori per elettroutensili",
+"categoria": "Punte e inserti",
 "prezzo": 2300,
 "volt": "",
 "immagineOrigine": "",
@@ -26653,7 +26718,7 @@
 "nome": "Mandrino standard codolo 13 mm per seghe a tazza 32–210 mm",
 "modello": "DT90369",
 "codice": "DT90369-QZ",
-"categoria": "Accessori per elettroutensili",
+"categoria": "Punte e inserti",
 "prezzo": 2100,
 "volt": "",
 "immagineOrigine": "",
@@ -33283,7 +33348,7 @@
 "nome": "Set 8 accessori per utensile multifunzione per tagliare e levigare",
 "modello": "DT20731",
 "codice": "DT20731-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 9000,
 "volt": "",
 "immagineOrigine": "",
@@ -34074,7 +34139,7 @@
 "nome": "Disco diamantato a corona segmentata saldato al laser",
 "modello": "DT3741",
 "codice": "DT3741-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 7600,
 "volt": "",
 "immagineOrigine": "",
@@ -34111,7 +34176,7 @@
 "nome": "Disco diamantato a corona segmentata Ø 115 mm per materiali edili",
 "modello": "DT3701",
 "codice": "DT3701-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 1280,
 "volt": "",
 "immagineOrigine": "",
@@ -34149,7 +34214,7 @@
 "nome": "Disco diamantato turbo a corona continua per scanalature",
 "modello": "DT3702",
 "codice": "DT3702-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 1370,
 "volt": "",
 "immagineOrigine": "",
@@ -34191,7 +34256,7 @@
 "nome": "Disco diamantato a corona segmentata Ø 125 mm per materiali edili",
 "modello": "DT3711",
 "codice": "DT3711-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 1510,
 "volt": "",
 "immagineOrigine": "",
@@ -34234,7 +34299,7 @@
 "nome": "Disco diamantato a corona segmentata per malta",
 "modello": "DT3703",
 "codice": "DT3703-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 1100,
 "volt": "",
 "immagineOrigine": "",
@@ -34271,7 +34336,7 @@
 "nome": "Disco diamantato a corona continua per ceramica",
 "modello": "DT3733",
 "codice": "DT3733-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 6200,
 "volt": "",
 "immagineOrigine": "",
@@ -34313,7 +34378,7 @@
 "nome": "Disco diamantato a corona continua per pietra e cemento",
 "modello": "DT3734",
 "codice": "DT3734-XJ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 7600,
 "volt": "",
 "immagineOrigine": "",
@@ -34400,7 +34465,7 @@
 "nome": "Disco diamantato a corona continua per taglio a secco e a umido",
 "modello": "DT3715",
 "codice": "DT3715-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 5900,
 "volt": "",
 "immagineOrigine": "",
@@ -34626,7 +34691,7 @@
 "nome": "Tazza diamantata 125 mm corona doppia",
 "modello": "DT3796",
 "codice": "DT3796-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 9400,
 "volt": "",
 "immagineOrigine": "",
@@ -36651,7 +36716,7 @@
 "nome": "Assortimento avvitatura",
 "modello": "DT7969",
 "codice": "DT7969-QZ",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 3100,
 "volt": "",
 "immagineOrigine": "",
@@ -38188,7 +38253,7 @@
 "nome": "Cutter 18 mm autobloccante con cursore, con rotella bloccalama in punta",
 "modello": "DWHT0-10249",
 "codice": "DWHT0-10249",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 2000,
 "volt": "",
 "immagineOrigine": "",
@@ -38304,7 +38369,7 @@
 "nome": "Seghetto per metallo 5 in 1",
 "modello": "DWHT0-20547",
 "codice": "DWHT0-20547",
-"categoria": "Utensili manuali",
+"categoria": "Seghe e troncatrici",
 "prezzo": 3900,
 "volt": "",
 "immagineOrigine": "",
@@ -38342,7 +38407,7 @@
 "nome": "Morsetto a barra medio 150 mm",
 "modello": "DWHT0-83139",
 "codice": "DWHT0-83139",
-"categoria": "Altri utensili",
+"categoria": "Utensili manuali",
 "prezzo": 1960,
 "volt": "",
 "immagineOrigine": "",
@@ -38379,7 +38444,7 @@
 "nome": "Morsetto a barra grande 150 mm",
 "modello": "DWHT0-83192",
 "codice": "DWHT0-83192",
-"categoria": "Altri utensili",
+"categoria": "Utensili manuali",
 "prezzo": 2800,
 "volt": "",
 "immagineOrigine": "",
@@ -38416,7 +38481,7 @@
 "nome": "Morsetto a barra grande 300 mm",
 "modello": "DWHT0-83193",
 "codice": "DWHT0-83193",
-"categoria": "Altri utensili",
+"categoria": "Utensili manuali",
 "prezzo": 3100,
 "volt": "",
 "immagineOrigine": "",
@@ -38453,7 +38518,7 @@
 "nome": "Set 50 pezzi chiavi a bussola ed accessori attacco 1/4\"",
 "modello": "DWMT81610-0",
 "codice": "DWMT81610-0",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 8300,
 "volt": "",
 "immagineOrigine": "",
@@ -38876,7 +38941,7 @@
 "nome": "Set 6 pezzi giraviti FATMAX",
 "modello": "0-65-428",
 "codice": "0-65-428",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 4000,
 "volt": "",
 "immagineOrigine": "",
@@ -41116,7 +41181,7 @@
 "nome": "Powerfile belt 13 mm white alox 60g",
 "modello": "STA33311",
 "codice": "STA33311-XJ",
-"categoria": "Smerigliatrici e levigatrici",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 610,
 "volt": "",
 "immagineOrigine": "",
@@ -41157,7 +41222,7 @@
 "nome": "Powerfile belt 13 mm white alox 40g",
 "modello": "STA33376",
 "codice": "STA33376-XJ",
-"categoria": "Smerigliatrici e levigatrici",
+"categoria": "Lame, dischi e abrasivi",
 "prezzo": 610,
 "volt": "",
 "immagineOrigine": "",
@@ -41198,7 +41263,7 @@
 "nome": "Coltelli TCT per pialletto 82 × 5,5 × 1,1 mm",
 "modello": "STA35007",
 "codice": "STA35007-XJ",
-"categoria": "Utensili manuali",
+"categoria": "Accessori per elettroutensili",
 "prezzo": 1530,
 "volt": "",
 "immagineOrigine": "",
@@ -41399,7 +41464,7 @@
 "nome": "Morsetti in plastica, confezione 16 pezzi",
 "modello": "STHT0-83094",
 "codice": "STHT0-83094",
-"categoria": "Altri utensili",
+"categoria": "Utensili manuali",
 "prezzo": 1270,
 "volt": "",
 "immagineOrigine": "",
@@ -42005,7 +42070,7 @@
 "nome": "Assortimento con pinza universale, pinza a becchi mezzotondi diritti e tronchese a tagliente diagonale (3 pz) USAG 150 AX/SE3",
 "modello": "U01500201",
 "codice": "U01500201",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 10000,
 "volt": "",
 "immagineOrigine": "",
@@ -42280,7 +42345,7 @@
 "nome": "Serie di 8 chiavi combinate USAG 285 DS8",
 "modello": "U02850863",
 "codice": "U02850863",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 7900,
 "volt": "",
 "immagineOrigine": "",
@@ -42318,7 +42383,7 @@
 "nome": "Serie di 16 chiavi combinate USAG 285 J/B16",
 "modello": "U02851740",
 "codice": "U02851740",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 12500,
 "volt": "",
 "immagineOrigine": "",
@@ -42356,7 +42421,7 @@
 "nome": "Chiavi combinate a cricchetto con anello di tenuta USAG 285 KA 10",
 "modello": "U02856010",
 "codice": "U02856010",
-"categoria": "Trapani e avvitatori",
+"categoria": "Utensili manuali",
 "prezzo": 1640,
 "volt": "",
 "immagineOrigine": "",
@@ -42395,7 +42460,7 @@
 "nome": "Chiavi combinate a cricchetto con anello di tenuta USAG 285 KA 13",
 "modello": "U02856013",
 "codice": "U02856013",
-"categoria": "Trapani e avvitatori",
+"categoria": "Utensili manuali",
 "prezzo": 1790,
 "volt": "",
 "immagineOrigine": "",
@@ -42434,7 +42499,7 @@
 "nome": "Serie di 7 giraviti per viti con intaglio e impronta a croce PHILLIPS USAG 322 SH7",
 "modello": "U03220254",
 "codice": "U03220254",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 3800,
 "volt": "",
 "immagineOrigine": "",
@@ -42619,7 +42684,7 @@
 "nome": "Serie di 6 estrattori conici USAG 458 S6",
 "modello": "U04580012",
 "codice": "U04580012",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 2800,
 "volt": "",
 "immagineOrigine": "",
@@ -42657,7 +42722,7 @@
 "nome": "Modulo in termoformato assortito (4 pz) USAG 519/127N",
 "modello": "U05190716",
 "codice": "U05190716",
-"categoria": "Punte e inserti",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 11400,
 "volt": "",
 "immagineOrigine": "",
@@ -42693,7 +42758,7 @@
 "nome": "Modulo in termoformato assortito (8 pz) USAG 519/280T",
 "modello": "U05190727",
 "codice": "U05190727",
-"categoria": "Punte e inserti",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 15900,
 "volt": "",
 "immagineOrigine": "",
@@ -42729,7 +42794,7 @@
 "nome": "Modulo in termoformato assortito (8 pz) USAG 519/382F",
 "modello": "U05190742",
 "codice": "U05190742",
-"categoria": "Punte e inserti",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 10200,
 "volt": "",
 "immagineOrigine": "",
@@ -42765,7 +42830,7 @@
 "nome": "Modulo in termoformato assortito (11 pz) USAG 519/252A1",
 "modello": "U05190821",
 "codice": "U05190821",
-"categoria": "Punte e inserti",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 11800,
 "volt": "",
 "immagineOrigine": "",
@@ -42801,7 +42866,7 @@
 "nome": "Vaschetta portaminuteria (12 scomparti) USAG 519 SKV6",
 "modello": "U05190827",
 "codice": "U05190827",
-"categoria": "Utensili manuali",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 1420,
 "volt": "",
 "immagineOrigine": "",
@@ -42839,7 +42904,7 @@
 "nome": "Modulo in spugna bicolore assortito (7 pz) USAG 519 M 324STX",
 "modello": "U05190911",
 "codice": "U05190911",
-"categoria": "Punte e inserti",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 11700,
 "volt": "",
 "immagineOrigine": "",
@@ -42875,7 +42940,7 @@
 "nome": "Modulo in spugna bicolore assortito (17 pz) USAG 519 M 285A1",
 "modello": "U05190921",
 "codice": "U05190921",
-"categoria": "Punte e inserti",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 19000,
 "volt": "",
 "immagineOrigine": "",
@@ -42911,7 +42976,7 @@
 "nome": "Modulo in spugna bicolore assortito (5 pz) USAG 519 M 285A2",
 "modello": "U05190943",
 "codice": "U05190943",
-"categoria": "Punte e inserti",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 15700,
 "volt": "",
 "immagineOrigine": "",
@@ -42947,7 +43012,7 @@
 "nome": "Modulo in spugna bicolore assortito (5 pz) USAG 519 M 150AX",
 "modello": "U05190965",
 "codice": "U05190965",
-"categoria": "Lame, dischi e abrasivi",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 17300,
 "volt": "",
 "immagineOrigine": "",
@@ -42983,7 +43048,7 @@
 "nome": "Assortimento in cassetta di lamiera con bussole esagonali e poligonali (35 pz) USAG 519 M 612 CLA",
 "modello": "U05190988",
 "codice": "U05190988",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 47600,
 "volt": "",
 "immagineOrigine": "",
@@ -43021,7 +43086,7 @@
 "nome": "Assortimento in cassetta di ABS con bussole esagonali (23 pz) USAG 606 1/2 EA",
 "modello": "U06060302",
 "codice": "U06060302",
-"categoria": "Punte e inserti",
+"categoria": "Utensili manuali",
 "prezzo": 26100,
 "volt": "",
 "immagineOrigine": "",
@@ -43322,7 +43387,7 @@
 "nome": "Avvolgitubo aria 10 mm USAG",
 "modello": "U09390004",
 "codice": "U09390004",
-"categoria": "Utensili manuali",
+"categoria": "Compressori e aria compressa",
 "prezzo": 34000,
 "volt": "",
 "immagineOrigine": "",
@@ -43473,7 +43538,12 @@
 "Carpenteria leggera",
 "Fori in legno e metallo"
 ],
-"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile."
+"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile.",
+"video": {
+"id": "X7Ovpxv-s-c",
+"t": "Black&Decker   CS3651LC",
+"ch": "Short Tools Show Off"
+}
 },
 {
 "id": 4642,
@@ -43511,7 +43581,12 @@
 "Casa",
 "Auto",
 "Ufficio"
-]
+],
+"video": {
+"id": "CjNUmde5kU0",
+"t": "Black & Decker CUA525BHP-GB 2-in-1 Cordless Multi Power Pet Vacuum Cleaner - Grey/Purple",
+"ch": "Robert Dyas"
+}
 },
 {
 "id": 4643,
@@ -43690,7 +43765,12 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"video": {
+"id": "Pn_-C4l7q3Y",
+"t": "DPN9033SM - 90mm 33° constructietacker voor papiergebonden en draadgebonden nagels van DeWALT",
+"ch": "DEWALT Belgie"
+}
 },
 {
 "id": 4649,
@@ -43925,7 +44005,7 @@
 "nome": "Sega da giardino 10,8V con 2 lame extra",
 "modello": "GKC108X",
 "codice": "GKC108X-QW",
-"categoria": "Lame, dischi e abrasivi",
+"categoria": "Giardino",
 "prezzo": 8600,
 "volt": "12V",
 "immagineOrigine": "",
@@ -46775,10 +46855,10 @@
 "id": 4726,
 "slug": "black-decker-martello-blck-decker-behs03k",
 "marca": "BLACK+DECKER",
-"nome": "Martello blck & decker",
+"nome": "Martello perforatore BLACK+DECKER",
 "modello": "BEHS03K",
 "codice": "BEHS03K-QS",
-"categoria": "Utensili manuali",
+"categoria": "Tassellatori e demolitori",
 "prezzo": 13400,
 "volt": "",
 "immagineOrigine": "",
@@ -47342,7 +47422,7 @@
 "nome": "Levigatrice multifunzione 200 W",
 "modello": "BEW200",
 "codice": "BEW200-QS",
-"categoria": "Altri utensili",
+"categoria": "Smerigliatrici e levigatrici",
 "prezzo": 6300,
 "volt": "230V",
 "immagineOrigine": "",
@@ -50168,7 +50248,7 @@
 "nome": "Mandrino per seghe a tazza da 32 a 210 mm, attacco 13 mm",
 "modello": "DT8288",
 "codice": "DT8288-QZ",
-"categoria": "Accessori per elettroutensili",
+"categoria": "Punte e inserti",
 "prezzo": 1790,
 "volt": "",
 "immagineOrigine": "",
@@ -52828,7 +52908,7 @@
 "nome": "Vaschetta portaminuteria (4 scomparti) USAG 519 SK692V",
 "modello": "U05190832",
 "codice": "U05190832",
-"categoria": "Utensili manuali",
+"categoria": "Contenitori e organizzazione",
 "prezzo": 1160,
 "volt": "",
 "immagineOrigine": "",
