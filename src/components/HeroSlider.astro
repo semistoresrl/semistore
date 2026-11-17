@@ -1,40 +1,45 @@
 ---
-// Banner a scorrimento in cima alla home: foto vere del negozio e del laboratorio (dal video) + una slide prodotti.
-// Scorre da solo ogni 6 secondi, si ferma appena l'utente lo tocca. Per cambiare testi o foto basta modificare "slide".
+// Banner a scorrimento in cima alla home: composizioni con le foto ufficiali scontornate (public/img/hero/<modello>.webp).
+// Scorre da solo ogni 6 secondi, si ferma appena l'utente lo tocca. Testi e prodotti si cambiano in "slide".
+// Ogni prodotto: [file, x%, y%, larghezza%, rotazione°, livello] dentro un riquadro 5:4.
 import prodotti from '../data/prodotti.json';
-import { fotoDi } from '../data/foto';
-import { euro } from '../data/sito.js';
 
-const tot = prodotti.length;
+const fmt = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const tot = fmt(prodotti.length);
 const n18 = prodotti.filter((p) => p.volt === '18V').length;
-const pick = (m: string) => prodotti.find((p) => p.modello === m);
-const collage = ['DCD805P2T', 'DCG405P2', 'DCF850P2T'].map(pick).filter((p) => p && fotoDi(p.slug)) as any[];
-const daPrezzo = Math.min(...collage.map((p) => p.prezzo));
+const n54 = prodotti.filter((p) => p.volt === '54V').length;
 
-const slide = [
-  { img: '/img/hero/negozio.webp', pos: '30% 50%', k: 'Negozio DEWALT · Casavatore', h: `Oltre ${String(tot).replace(/\B(?=(\d{3})+(?!\d))/g, '.')} utensili professionali`, p: 'DEWALT, STANLEY e BLACK+DECKER sotto il prezzo di listino. Spedizione in tutta Italia o ritiro in negozio.', cta: ['Scopri il catalogo', '/catalogo/'], cta2: ['Vieni a trovarci', '/contatti/'] },
-  { img: '/img/hero/officina.webp', pos: '78% 40%', k: 'Centro assistenza autorizzato', h: 'Ripariamo noi, con ricambi originali', p: 'Laboratorio interno, garanzie DEWALT gestite in sede e preventivo prima di ogni intervento.', cta: ['Richiedi una riparazione', '/assistenza/'], cta2: ['Segui la riparazione', '/assistenza/#stato'] },
-  { collage: true, k: 'I più richiesti', h: 'Il cantiere parte da qui', p: `Trapano, avvitatore a impulsi e smerigliatrice 18V XR con batterie 5 Ah. Da ${euro(daPrezzo)}.`, cta: ['Vedi i prodotti', '/catalogo/?volt=18v'] },
-  { img: '/img/hero/xr18v.webp', pos: '65% 50%', k: 'Sistema XR 18V', h: 'Una batteria, tutti gli utensili', p: `${n18} utensili e accessori 18V XR compatibili: compri la batteria una volta e la usi su tutto.`, cta: ['Scegli il tuo 18V', '/catalogo/?volt=18v'] },
+type Pezzo = [string, number, number, number, number?, number?];
+const slide: { tema: string; k: string; h: string; p: string; cta: string[]; cta2?: string[]; ghost?: string; badge?: boolean; pezzi: Pezzo[] }[] = [
+  { tema: 'dark', k: 'Negozio DEWALT · Casavatore', h: `Oltre ${tot} utensili professionali`, p: 'DEWALT, STANLEY e BLACK+DECKER sotto il prezzo di listino. Spedizione in tutta Italia o ritiro in negozio.', cta: ['Scopri il catalogo', '/catalogo/'], cta2: ['Vieni a trovarci', '/contatti/'],
+    pezzi: [['dcf850nt', 4, 14, 25, -10, 2], ['dcd996nt', 30, 0, 42, 0, 3], ['dcg405nt', 50, 46, 48, 8, 4], ['dcb184', 6, 64, 36, -5, 5]] },
+  { tema: 'yellow', k: 'Centro assistenza autorizzato', h: 'Ripariamo noi, con ricambi originali', p: 'Laboratorio interno, garanzie DEWALT gestite in sede e preventivo prima di ogni intervento.', cta: ['Richiedi una riparazione', '/assistenza/'], cta2: ['Segui la riparazione', '/assistenza/#stato'], badge: true,
+    pezzi: [['dch273nt', 2, 4, 44, -6, 2], ['dcs573nt', 44, 22, 52, 4, 3], ['dcf922nt', 32, 44, 22, 8, 4]] },
+  { tema: 'dark', k: 'Sistema XR 18V', h: 'Una batteria, tutti gli utensili', p: `${n18} utensili 18V XR compatibili: compri la batteria una volta e la usi su tutto.`, cta: ['Scegli il tuo 18V', '/catalogo/?volt=18v'], ghost: '18V',
+    pezzi: [['dcd805nt', 2, 0, 27, -12, 2], ['dcf850nt', 74, 0, 18, 12, 2], ['dcb184', 22, 28, 56, 0, 4], ['dcg405nt', 0, 66, 38, -6, 5], ['dcs573nt', 64, 56, 34, 6, 5]] },
+  { tema: 'dark', k: 'FLEXVOLT 54V', h: 'La potenza del filo, senza filo', p: `${n54} prodotti FLEXVOLT per seghe, smerigliatrici e lavori pesanti. Le batterie vanno anche sui 18V.`, cta: ['Scopri FLEXVOLT', '/catalogo/?volt=54v'], ghost: '54V',
+    pezzi: [['dcm575x1', 0, 4, 62, -8, 2], ['dcg418nt', 54, 2, 44, 8, 3], ['dcb548', 26, 36, 48, 0, 4], ['dcb118', 62, 70, 32, 4, 5]] },
 ];
 ---
 <section class="hs" aria-roledescription="carosello" aria-label="In primo piano">
   <div class="hs-t" id="hs" tabindex="0">
     {slide.map((s, i) => (
-      <div class={`hs-s ${s.collage ? 'hs-c' : ''}`} role="group" aria-roledescription="slide" aria-label={`${i + 1} di ${slide.length}`}>
-        {s.img && <img class="hs-bg" src={s.img} alt="" width="1280" height="528" style={`object-position:${s.pos}`} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 ? 'high' : undefined} decoding="async" />}
-        {s.collage && (
-          <span class="hs-col" aria-hidden="true">
-            {collage.map((p, k) => <img src={fotoDi(p.slug)} alt="" width="800" height="800" loading="lazy" decoding="async" class={`hs-p hs-p${k}`} />)}
-          </span>
-        )}
+      <div class={`hs-s hs-${s.tema}`} role="group" aria-roledescription="slide" aria-label={`${i + 1} di ${slide.length}`}>
         <div class="wrap hs-in">
+          <div class="hs-st" aria-hidden="true">
+            <span class="hs-glow"></span>
+            {s.ghost && <span class="hs-gh">{s.ghost}</span>}
+            {s.pezzi.map(([f, x, y, w, r = 0, z = 1], k) => (
+              <img src={`/img/hero/${f}.webp`} alt="" class="hs-p" style={`left:${x}%;top:${y}%;width:${w}%;--r:${r}deg;z-index:${z};--k:${k}`} loading={i === 0 ? 'eager' : 'lazy'} fetchpriority={i === 0 && k === 1 ? 'high' : undefined} decoding="async" />
+            ))}
+            {s.badge && <span class="hs-bd"><b>DEWALT</b><span>Centro assistenza<br />autorizzato</span></span>}
+          </div>
           <div class="hs-txt">
             <span class="hs-k">{s.k}</span>
             {i === 0 ? <h1>{s.h}</h1> : <h2>{s.h}</h2>}
             <p>{s.p}</p>
             <div class="hs-b">
-              <a class="btn btn-y" href={s.cta[1]}>{s.cta[0]}</a>
+              <a class="btn hs-c1" href={s.cta[1]}>{s.cta[0]}</a>
               {s.cta2 && <a class="btn hs-o" href={s.cta2[1]}>{s.cta2[0]}</a>}
             </div>
           </div>
@@ -51,44 +56,52 @@ const slide = [
   .hs{position:relative;background:var(--ink);color:#fff}
   .hs-t{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain}
   .hs-t::-webkit-scrollbar{display:none}
-  .hs-s{position:relative;flex:0 0 100%;scroll-snap-align:start;min-height:clamp(440px,42vw,560px);display:flex;align-items:center;overflow:hidden;isolation:isolate}
-  .hs-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
-  .hs-s:not(.hs-c)::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#15171af2 0%,#15171acc 38%,#15171a33 70%,#15171a00 100%)}
-  .hs-in{width:100%}
-  .hs-txt{max-width:560px;display:flex;flex-direction:column;gap:16px;padding:48px 0 64px}
+  .hs-s{position:relative;flex:0 0 100%;scroll-snap-align:start;overflow:hidden;isolation:isolate}
+  .hs-dark{background:radial-gradient(120% 90% at 78% 40%,#2c3036 0%,#15171a 62%)}
+  .hs-dark::before{content:'';position:absolute;z-index:-1;right:-8%;top:-20%;width:46%;height:140%;background:var(--y);transform:skewX(-14deg)}
+  .hs-dark::after{content:'';position:absolute;z-index:-1;right:40%;top:-20%;width:3%;height:140%;background:var(--y);transform:skewX(-14deg)}
+  .hs-yellow{background:var(--y);color:var(--ink)}
+  .hs-yellow::before{content:'';position:absolute;z-index:-1;inset:0;background:repeating-linear-gradient(-45deg,#0000 0 26px,#0000000b 26px 52px)}
+  .hs-yellow::after{content:'';position:absolute;z-index:-1;right:-6%;top:-20%;width:44%;height:140%;background:var(--ink);transform:skewX(-14deg)}
+  .hs-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);align-items:center;gap:24px;min-height:clamp(440px,40vw,560px);padding-top:28px;padding-bottom:56px}
+  .hs-txt{order:-1;display:flex;flex-direction:column;gap:16px;max-width:560px}
   .hs-k{align-self:flex-start;background:var(--y);color:var(--ink);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;border-radius:4px}
-  .hs h1,.hs h2{font-size:clamp(34px,4.6vw,60px);line-height:.98;text-transform:uppercase;font-weight:900}
-  .hs p{margin:0;font-size:18px;color:#e2e3e5;max-width:480px}
+  .hs-yellow .hs-k{background:var(--ink);color:var(--y)}
+  .hs h1,.hs h2{font-size:clamp(34px,4.4vw,60px);line-height:.98;text-transform:uppercase;font-weight:900}
+  .hs p{margin:0;font-size:18px;color:#d9dadd;max-width:480px}.hs-yellow p{color:#2b2d31}
   .hs-b{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
-  .hs-o{border:1px solid #ffffff66;color:#fff;background:#15171a66;backdrop-filter:blur(4px)}.hs-o:hover{color:var(--y)}
-  /* slide prodotti: fondo giallo come le confezioni DEWALT */
-  .hs-c{background:var(--y);color:var(--ink)}
-  .hs-c::after{content:'';position:absolute;inset:0;z-index:-2;background:repeating-linear-gradient(-45deg,#0000 0 22px,#00000008 22px 44px)}
-  .hs-c p{color:#2b2d31}.hs-c .hs-k{background:var(--ink);color:var(--y)}
-  .hs-c .hs-o{color:var(--ink);border-color:#15171a55;background:transparent}
-  .hs-col{position:absolute;right:max(20px,calc(50% - 600px));top:50%;transform:translateY(-50%);width:min(52%,620px);aspect-ratio:1.35;z-index:-1}
-  .hs-p{position:absolute;background:#fff;border-radius:18px;padding:16px;box-shadow:0 24px 50px #0003;object-fit:contain}
-  .hs-p0{width:52%;left:24%;top:4%;z-index:2}
-  .hs-p1{width:40%;left:0;bottom:2%;transform:rotate(-5deg)}
-  .hs-p2{width:40%;right:0;bottom:2%;transform:rotate(5deg)}
+  .hs-c1{background:var(--y);color:var(--ink)}.hs-c1:hover{color:var(--ink);filter:brightness(1.06)}
+  .hs-yellow .hs-c1{background:var(--ink);color:var(--y)}.hs-yellow .hs-c1:hover{color:#fff}
+  .hs-o{border:1px solid #ffffff55;color:#fff;background:transparent}.hs-o:hover{color:var(--y)}
+  .hs-yellow .hs-o{border-color:#15171a66;color:var(--ink)}
+  /* palco con i prodotti */
+  .hs-st{position:relative;width:100%;aspect-ratio:5/4;max-width:640px;justify-self:center}
+  .hs-glow{position:absolute;inset:12% 10%;border-radius:50%;background:radial-gradient(closest-side,#fff7d688,#f5b80022 55%,#0000);filter:blur(8px)}
+  .hs-yellow .hs-glow{background:radial-gradient(closest-side,#ffffff99,#fff0 70%)}
+  .hs-gh{position:absolute;inset:0;display:grid;place-items:center;font-weight:900;font-size:clamp(120px,22vw,280px);line-height:1;color:#ffffff0a;-webkit-text-stroke:2px #ffffff26;letter-spacing:-.04em}
+  .hs-p{position:absolute;height:auto;transform:rotate(var(--r));filter:drop-shadow(0 18px 22px #0009) drop-shadow(0 4px 6px #0005);animation:hsin .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--k) * 90ms)}
+  .hs-yellow .hs-p{filter:drop-shadow(0 18px 20px #0006)}
+  @keyframes hsin{from{opacity:0;transform:translateY(18px) rotate(var(--r)) scale(.94)}}
+  .hs-bd{position:absolute;right:2%;top:2%;z-index:9;width:clamp(96px,10vw,132px);aspect-ratio:1;border-radius:50%;background:var(--ink);color:#fff;border:4px solid var(--y);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:clamp(10px,1vw,12.5px);line-height:1.15;font-weight:700;transform:rotate(8deg);box-shadow:0 10px 24px #0005}
+  .hs-bd b{color:var(--y);font-size:1.45em;letter-spacing:.02em}
   .hs-a{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:0;background:#ffffffe6;color:var(--ink);font-size:28px;line-height:1;cursor:pointer;box-shadow:0 6px 18px #0003;z-index:2}
   .hs-prev{left:14px}.hs-next{right:14px}
   .hs-dots{position:absolute;left:0;right:0;bottom:18px;display:flex;justify-content:center;gap:7px;z-index:2}
-  .hs-dots i{width:8px;height:8px;border-radius:4px;background:#ffffff80;box-shadow:0 0 0 1px #0002;transition:width .2s,background .2s}.hs-dots i.on{width:24px;background:var(--y)}
+  .hs-dots i{width:8px;height:8px;border-radius:4px;background:#ffffff80;box-shadow:0 0 0 1px #0003;transition:width .2s,background .2s}.hs-dots i.on{width:24px;background:var(--y)}
+  @media (max-width:1300px){.hs-a{display:none}}
   @media (max-width:760px){
-    /* telefono: foto in alto, testo sotto su fondo scuro sfumato */
-    .hs-s{min-height:0;flex-direction:column;align-items:stretch;justify-content:flex-end;padding-top:min(56vw,300px)}
-    .hs-bg{height:min(72vw,380px)}
-    .hs-s:not(.hs-c)::before{background:linear-gradient(180deg,#15171a00 0,#15171a00 min(30vw,150px),#15171a min(70vw,370px))}
-    .hs-txt{padding:0 0 52px;gap:12px}
+    /* telefono: prodotti sopra, testo sotto */
+    .hs-in{grid-template-columns:1fr;gap:6px;min-height:0;padding-top:14px;padding-bottom:50px}
+    .hs-txt{order:0;gap:12px}
+    .hs-st{max-width:440px}
+    .hs-dark::before{right:-34%;top:-10%;width:84%;height:56%}
+    .hs-dark::after{right:56%;top:-10%;width:6%;height:56%}
+    .hs-yellow::after{right:-34%;top:-10%;width:76%;height:56%}
     .hs h1,.hs h2{font-size:clamp(28px,8.6vw,40px)}
     .hs p{font-size:15.5px}
     .hs-b .btn{flex:1 1 auto;min-height:46px;padding:0 16px;font-size:15px}
-    .hs-col{position:relative;right:auto;top:auto;transform:none;width:calc(100% - 40px);margin:-28px auto 8px;aspect-ratio:1.5}
-    .hs-c{padding-top:24px}
-    .hs-a{display:none}
   }
-  @media (prefers-reduced-motion:reduce){.hs-t{scroll-behavior:auto}}
+  @media (prefers-reduced-motion:reduce){.hs-t{scroll-behavior:auto}.hs-p{animation:none}}
 </style>
 
 <script>

@@ -103,11 +103,14 @@ const vantaggi = [
 
   <section class="wrap bn">
     <a class="bn-a" href="/assistenza/">
-      <img style="object-position:58% 55%" src="/img/hero/riparazione.webp" alt="Tecnico Semi che ripara una smerigliatrice DEWALT in laboratorio" width="1280" height="528" loading="lazy" decoding="async" />
+      <span class="bn-st" aria-hidden="true">
+        <img src="/img/hero/dch273nt.webp" alt="" loading="lazy" decoding="async" style="left:4%;top:6%;width:46%;--r:-8deg" />
+        <img src="/img/hero/dcg405nt.webp" alt="" loading="lazy" decoding="async" style="left:44%;top:30%;width:54%;--r:6deg" />
+      </span>
       <span class="bn-t">
         <b>Utensile fermo? Lo rimettiamo in piedi</b>
         <span>Diagnosi in laboratorio, ricambi originali e preventivo prima di riparare. In garanzia non paghi.</span>
-        <span class="btn btn-y">Richiedi assistenza</span>
+        <span class="btn btn-k">Richiedi assistenza</span>
       </span>
     </a>
     <div class="bn-p">
@@ -194,11 +197,11 @@ const vantaggi = [
   .ct-all{background:var(--ink);color:#fff;border-color:var(--ink)}.ct-all:hover{color:#fff}.ct-all .ct-i>span{width:64px;height:64px;border-radius:50%;background:var(--y);color:var(--ink);display:grid;place-items:center;font-size:30px}.ct-all small{color:var(--mut-d)}
   @media (max-width:560px){.ct{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ct-c{padding:8px 6px 12px;border-radius:12px}.ct-c b{font-size:12.5px}.ct-c small{font-size:11px}}
   .bn{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:16px;padding-top:8px}
-  .bn-a{position:relative;border-radius:20px;overflow:hidden;min-height:420px;display:flex;align-items:flex-end;color:#fff;isolation:isolate}.bn-a:hover{color:#fff}
-  .bn-a img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .5s}.bn-a:hover img{transform:scale(1.04)}
-  .bn-a::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#15171a00 30%,#15171ad9 72%)}
+  .bn-a{position:relative;border-radius:20px;overflow:hidden;min-height:420px;display:flex;flex-direction:column;justify-content:flex-end;color:var(--ink);background:var(--y);isolation:isolate}.bn-a:hover{color:var(--ink)}
+  .bn-a::after{content:'';position:absolute;inset:0;z-index:-2;background:repeating-linear-gradient(-45deg,#0000 0 24px,#0000000b 24px 48px)}
+  .bn-st{position:relative;display:block;width:100%;aspect-ratio:1.7/1;max-width:520px;align-self:center;margin-top:16px}.bn-st img{position:absolute;transform:rotate(var(--r));filter:drop-shadow(0 16px 18px #0006);transition:transform .4s}.bn-a:hover .bn-st img{transform:rotate(var(--r)) scale(1.04)}
   .bn-t{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:24px;width:100%}
-  .bn-t b{font-size:clamp(24px,3vw,32px);line-height:1.05;font-weight:900;text-shadow:0 2px 10px #0008}.bn-t>span:not(.btn){color:#e6e7e9;max-width:440px}
+  .bn-t b{font-size:clamp(24px,3vw,32px);line-height:1.05;font-weight:900;text-transform:uppercase}.bn-t>span:not(.btn){color:#2b2d31;max-width:440px}
   .bn-t .btn{width:min(100%,360px);margin-top:4px}
   .bn-p{border-radius:20px;overflow:hidden;background:var(--ink);display:flex;flex-direction:column;min-height:340px}
   .bn-pg{flex:1;display:grid;grid-template-columns:repeat(3,1fr)}
