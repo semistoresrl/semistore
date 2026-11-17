@@ -4,7 +4,7 @@
 // GET  ?codice=GIOCO-XXXXXX       -> il carrello controlla se il codice è valido
 // Usa il KV RICHIESTE e come segreto PREMIO_SEGRETO (se manca, ADMIN_TOKEN).
 const SCONTO = 15;
-const MIN_S = 17, MAX_S = 15 * 60, VALIDO_GG = 60;
+const MIN_S = 25, MAX_S = 15 * 60, VALIDO_GG = 60;
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 const enc = new TextEncoder();
 const hex = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
