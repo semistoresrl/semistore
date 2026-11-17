@@ -1,0 +1,29 @@
+# Ogni notte cerca video YouTube in italiano per i prodotti (vedi scripts/video-italiani.mjs)
+# e pubblica le modifiche. Serve il secret YT_KEY (chiave YouTube Data API v3) nelle impostazioni del repository.
+name: Video in italiano
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: video-italiani
+jobs:
+  cerca:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - run: node scripts/video-italiani.mjs
+        env:
+          YT_KEY: ${{ secrets.YT_KEY }}
+      - name: Pubblica se ci sono novità
+        run: |
+          if git diff --quiet; then echo "Nessuna novità"; exit 0; fi
+          git config user.name "semistore-bot"
+          git config user.email "semistore-bot@users.noreply.github.com"
+          git add src/data/prodotti.json src/data/video-cercati.json
+          git commit -m "Video in italiano: aggiornamento automatico"
+          git push
