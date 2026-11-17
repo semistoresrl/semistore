@@ -6,7 +6,7 @@
 "nome": "Aspiratore solidi e liquidi 18V XR classe L 7,5 l",
 "modello": "DCV584L",
 "categoria": "Aspirazione e pulizia",
-"prezzo": 34700,
+"prezzo": 29600,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/8066959_ASPIRATORE-SOLIDI-LIQUIDI-DCV584L-QW.jpg",
 "nota": "",
@@ -42,7 +42,8 @@
 "ch": "Prove elettroutensili per legno.",
 "it": "Dewalt DCV 584 L, aspirapolvere",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3678,
@@ -51,7 +52,7 @@
 "nome": "Avvitatore a impulsi 1/2\" 18V XR Brushless 1355 Nm – solo corpo",
 "modello": "DCF900NT",
 "categoria": "Trapani e avvitatori",
-"prezzo": 41400,
+"prezzo": 35200,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/15603274_AVVITATORE-IMPULSI%20-1355-DCF900NT-XJ.jpg",
 "nota": "",
@@ -85,7 +86,8 @@
 "Officina e manutenzione mezzi",
 "Posa di scaffalature e staffaggi"
 ],
-"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi."
+"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3727,
@@ -189,7 +191,7 @@
 "nome": "Avvitatore a impulsi 1/2\" 18V XR Brushless 813 Nm Hog Ring – solo corpo",
 "modello": "DCF891NT",
 "categoria": "Trapani e avvitatori",
-"prezzo": 32800,
+"prezzo": 28500,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/79075259_AVVITATORE-IMPULSI-1-2-DCF891NT-XJ.jpg",
 "nota": "",
@@ -230,7 +232,8 @@
 "ch": "CIB Partners",
 "it": "Avvitatore a impulsi DEWALT 18V con Precision Wrench Control | DCF891NT",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3682,
@@ -239,7 +242,7 @@
 "nome": "Avvitatore per cartongesso 18V XR Brushless – solo corpo",
 "modello": "DCF620NT",
 "categoria": "Trapani e avvitatori",
-"prezzo": 27400,
+"prezzo": 23300,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/97101992_AVVITATORE-CARTONGESSO-DCF620NT-XJ.jpg",
 "nota": "",
@@ -279,7 +282,8 @@
 "ch": "B+M isol Tortalla",
 "it": "DEWALT - DCF620D2K-QW Avvitatore per cartongesso.",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3665,
@@ -288,7 +292,7 @@
 "nome": "Avvitatore a impulsi 1/4\" 18V XR Brushless 205 Nm – kit 2 batterie 5,0 Ah",
 "modello": "DCF850P2T",
 "categoria": "Trapani e avvitatori",
-"prezzo": 48700,
+"prezzo": 41400,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/29493350_DCF900P2T_QW.jpg",
 "nota": "",
@@ -329,7 +333,8 @@
 "ch": "DEWALT® EMEA-ANZ",
 "it": "DEWALT® ITALY |AVVITATORE IMPULSI COMPATTO 1/4\" XR 18V -  DCF850",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3664,
@@ -338,7 +343,7 @@
 "nome": "Avvitatore a impulsi 1/2\" 18V XR Brushless 1355 Nm – kit 2 batterie 5,0 Ah",
 "modello": "DCF900P2T",
 "categoria": "Trapani e avvitatori",
-"prezzo": 65400,
+"prezzo": 54900,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/41048831_DCF900P2T_QW.jpg",
 "nota": "",
@@ -381,7 +386,8 @@
 "ch": "Leeden Hercules",
 "it": "DEWALT DCF900P2T: avvitatore a impulsi 1/2\" brushless ad alta coppia con anello Hog Ring",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3666,
@@ -390,7 +396,7 @@
 "nome": "Avvitatore a impulsi 1/2\" 18V XR Brushless 812 Nm – kit 2 batterie 5,0 Ah",
 "modello": "DCF891P2T",
 "categoria": "Trapani e avvitatori",
-"prezzo": 60900,
+"prezzo": 51700,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/39512271_DCF891P2T-QW.jpg",
 "nota": "",
@@ -425,7 +431,8 @@
 "Officina e manutenzione mezzi",
 "Posa di scaffalature e staffaggi"
 ],
-"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi."
+"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3671,
@@ -523,7 +530,7 @@
 "nome": "Chiodatrice per cemento 18V XR Brushless – kit 2 batterie 5,0 Ah",
 "modello": "DCN890P2",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 112100,
+"prezzo": 95300,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/59608096_CHIODATRICE-PER-CEMENTO-DCN890P2-QW.jpg",
 "nota": "",
@@ -560,7 +567,8 @@
 "ch": "Marini  ProWorker",
 "it": "La migliore chiodatrice a batteria per cemento e carpenteria - DeWALT DCN890P2",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3709,
@@ -833,7 +841,7 @@
 "nome": "Kit 2 utensili 12V XR Brushless: trapano avvitatore + avvitatore a impulsi, 2 batterie 3,0 Ah",
 "modello": "DCK2110L2T",
 "categoria": "Kit",
-"prezzo": 35000,
+"prezzo": 31000,
 "volt": "12V",
 "immagineOrigine": "http://semistore.it/public/icona/32580203_73064822_KIT-DCK2110L2T-QW-KIT12V-XR-3AH.jpg",
 "nota": "",
@@ -865,7 +873,9 @@
 "ch": "Bob The Tool Man",
 "it": "Unboxing DeWALT DCK2110L2T: trapano avvitatore subcompatto brushless 12V XR, 2 batterie 3 Ah",
 "l": "en"
-}
+},
+"prezzoListino": 36478,
+"fontePrezzo": "onsite"
 },
 {
 "id": 3735,
@@ -967,7 +977,7 @@
 "nome": "Martello demo-perforatore SDS-Max 1600 W 13,3 J",
 "modello": "D25733K",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 109200,
+"prezzo": 92800,
 "volt": "230V",
 "immagineOrigine": "http://semistore.it/public/icona/93867129_MARTELLO-DEMO-PERFORATORE-D25733K-QS.jpg",
 "nota": "",
@@ -1008,7 +1018,8 @@
 "ch": "AABTools UAE",
 "it": "DeWALT D25733K: martello combinato SDS-max",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3661,
@@ -1017,7 +1028,7 @@
 "nome": "Minitroncatrice 18V XR Brushless 76 mm – kit 2 batterie POWERSTACK",
 "modello": "DCS438E2T",
 "categoria": "Seghe e troncatrici",
-"prezzo": 59700,
+"prezzo": 49700,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/43069094_DCS438E2T.jpg",
 "nota": "",
@@ -1042,7 +1053,8 @@
 "ch": "Prove elettroutensili per legno.",
 "it": "Dewalt DCS 438 N, mini smerigliatrice 18v.",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3662,
@@ -1051,7 +1063,7 @@
 "nome": "Minitroncatrice 18V XR Brushless 76 mm – solo corpo",
 "modello": "DCS438N",
 "categoria": "Seghe e troncatrici",
-"prezzo": 31100,
+"prezzo": 26400,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/95499819_DCS438N-XJ.jpg",
 "nota": "",
@@ -1076,7 +1088,8 @@
 "ch": "Prove elettroutensili per legno.",
 "it": "Dewalt DCS 438 N, mini smerigliatrice 18v.",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3692,
@@ -1085,7 +1098,7 @@
 "nome": "Miscelatore a doppia impugnatura 1800 W, 3 velocità",
 "modello": "DWD241",
 "categoria": "Trapani e avvitatori",
-"prezzo": 32300,
+"prezzo": 27500,
 "volt": "230V",
 "immagineOrigine": "http://semistore.it/public/icona/10400027_MISCELATORE-DOPPIA-IMPUGNATURA-DWD241-QS.jpg",
 "nota": "",
@@ -1124,7 +1137,8 @@
 "ch": "Mister Worker®",
 "it": "DEWALT DWD241-QS – Recensione miscelatore 1800Watt",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3698,
@@ -1133,7 +1147,7 @@
 "nome": "Misuratore laser 30 m",
 "modello": "DWHT77100",
 "categoria": "Misura e laser",
-"prezzo": 8500,
+"prezzo": 7300,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/32937259_MISURATORE-LASER-30M-DWHT77100-XJ.jpg",
 "nota": "",
@@ -1171,7 +1185,8 @@
 "ch": "Power Tools ",
 "it": "DeWALT DWHT77100: misuratore di distanza laser",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3700,
@@ -1180,7 +1195,7 @@
 "nome": "Misuratore laser 100 m con Bluetooth e inclinometro",
 "modello": "DW03101",
 "categoria": "Misura e laser",
-"prezzo": 29900,
+"prezzo": 25400,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/15667361_MISURATORE-LASER-100M-DW03101-XJ.jpg",
 "nota": "",
@@ -1220,7 +1235,8 @@
 "ch": "Power Tool World",
 "it": "DeWALT DW03101: misuratore laser",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3699,
@@ -1272,7 +1288,7 @@
 "nome": "Misuratore laser 15 m ricaricabile USB",
 "modello": "DW055PL",
 "categoria": "Misura e laser",
-"prezzo": 5000,
+"prezzo": 4300,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/54177493_MISURATORE-LASER-DW055PL-XJ.jpg",
 "nota": "",
@@ -1306,7 +1322,8 @@
 "ch": "LTW Carpentry",
 "it": "Recensione del misuratore laser DeWALT DW055PL",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3695,
@@ -1350,7 +1367,7 @@
 "nome": "Sega universale compatta 18V XR Brushless – solo corpo",
 "modello": "DCS367NT",
 "categoria": "Seghe e troncatrici",
-"prezzo": 39600,
+"prezzo": 33700,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/6866092_SEGA-UNIVERSALE-COMPATTA-%20DCS367NT-XJ.jpg",
 "nota": "",
@@ -1381,7 +1398,8 @@
 "Impiantistica idraulica",
 "Potatura di rami"
 ],
-"consiglio": "Scegli la lama in base al materiale: denti grossi per legno, denti fini (14–18 TPI) per metallo, lame al carburo per materiali abrasivi."
+"consiglio": "Scegli la lama in base al materiale: denti grossi per legno, denti fini (14–18 TPI) per metallo, lame al carburo per materiali abrasivi.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3683,
@@ -1390,7 +1408,7 @@
 "nome": "Seghetto alternativo 18V XR Brushless – solo corpo",
 "modello": "DCS334NT",
 "categoria": "Seghe e troncatrici",
-"prezzo": 34800,
+"prezzo": 29600,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/47967166_SEGHETTO-ALTERNATIVO-CDS334NT-XJ.jpg",
 "nota": "",
@@ -1430,7 +1448,8 @@
 "ch": "Exkalibr CZ",
 "it": "DeWALT DCS334NT: seghetto alternativo brushless 18V XR, taglio di pannelli OSB",
 "l": "cs"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3668,
@@ -1439,7 +1458,7 @@
 "nome": "Smerigliatrice angolare 125 mm 18V XR Brushless – kit 2 batterie 5,0 Ah",
 "modello": "DCG405P2",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 43300,
+"prezzo": 36800,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/17158145_DCG405P2-QW.jpg",
 "nota": "",
@@ -1479,7 +1498,8 @@
 "ch": "VINCENT creates",
 "it": "Unboxing smerigliatrice DEWALT DCG405P2",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3673,
@@ -1488,7 +1508,7 @@
 "nome": "Smerigliatrice angolare 125 mm 18V XR Brushless – solo corpo",
 "modello": "DCG405NT",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 25000,
+"prezzo": 21300,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/9453983_SMERIGLIATRICE-ANGOLARE%20DCG405NT-XJ.jpg",
 "nota": "",
@@ -1527,7 +1547,8 @@
 "ch": "Unboxxxo",
 "it": "Smerigliatrice DeWALT DCG405NT",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3690,
@@ -1636,7 +1657,7 @@
 "nome": "Smerigliatrice angolare 180 mm 54V XR FLEXVOLT – solo corpo",
 "modello": "DCG440N",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 57200,
+"prezzo": 48600,
 "volt": "54V",
 "immagineOrigine": "http://semistore.it/public/icona/48461550_DCG440N-XJ.jpg",
 "nota": "",
@@ -1675,7 +1696,8 @@
 "ch": "BHAN THONG KWAO บ้านทองกวาว",
 "it": "Recensione smerigliatrice a batteria 180 mm 60V DeWALT DCG440N: taglia, leviga e smeriglia tutto",
 "l": "th"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3731,
@@ -1684,7 +1706,7 @@
 "nome": "Smerigliatrice angolare 125 mm 1700 W Brushless a velocità variabile",
 "modello": "DWE4357",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 31100,
+"prezzo": 26400,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/72744387_smerigliatrice-brushless-125mm-dwe4357-qs.jpg",
 "nota": "",
@@ -1727,7 +1749,8 @@
 "ch": "DIY&TOOLS",
 "it": "DeWALT DWE4357: guasto e riparazione",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3694,
@@ -1819,7 +1842,7 @@
 "nome": "Tassellatore SDS-Plus a L 950 W 3,5 J",
 "modello": "D25333K",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 43300,
+"prezzo": 36800,
 "volt": "230V",
 "immagineOrigine": "http://semistore.it/public/icona/18862552_TASSELLATORE-L-D25333K-QS.jpg",
 "nota": "",
@@ -1862,7 +1885,8 @@
 "ch": "BPM Power",
 "it": "Trapano DeWalt D25333K, tanta potenza e maneggevolezza!",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3719,
@@ -1871,7 +1895,7 @@
 "nome": "Tassellatore SDS-Plus 900 W 3,0 J con doppio mandrino",
 "modello": "D25144K",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 31100,
+"prezzo": 26400,
 "volt": "230V",
 "immagineOrigine": "http://semistore.it/public/icona/54536074_tassellatore-doppio-mandrino-d25144k.jpg",
 "nota": "",
@@ -1904,7 +1928,8 @@
 "ch": "Professional Tools and Workshop",
 "it": "Tassellatore SDS-plus DeWALT D25144K: foratura nel legno",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3685,
@@ -1959,7 +1984,7 @@
 "nome": "Tassellatore SDS-Plus 800 W 2,6 J",
 "modello": "D25133K",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 18200,
+"prezzo": 15500,
 "volt": "230V",
 "immagineOrigine": "http://semistore.it/public/icona/84426516_tassellatore-in-linea-sds-d25133k-qs.jpg",
 "nota": "",
@@ -2000,7 +2025,8 @@
 "ch": "HomeMade Creative",
 "it": "Unboxing e prova del tassellatore DEWALT D25133K",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3679,
@@ -2009,7 +2035,7 @@
 "nome": "Tassellatore SDS-Plus 18V XR Brushless 1,4 J – solo corpo",
 "modello": "DCH172NT",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 28700,
+"prezzo": 24400,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/29607791_TASSELLATORE%20SDS-PLUS-1-4J-DCH172NT-XJ.jpg",
 "nota": "",
@@ -2040,7 +2066,8 @@
 "Rimozione piastrelle",
 "Ancoraggi chimici"
 ],
-"consiglio": "Con le punte a 4 taglienti si fora più velocemente e la punta non si blocca sui ferri d'armatura."
+"consiglio": "Con le punte a 4 taglienti si fora più velocemente e la punta non si blocca sui ferri d'armatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3680,
@@ -2049,7 +2076,7 @@
 "nome": "Tassellatore SDS-Plus 18V XR Brushless 2,1 J – solo corpo",
 "modello": "DCH273NT",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 40900,
+"prezzo": 34700,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/14449710_TASSELLATORE-SDS-PLUS-2.1J-DCH273NT-XJ.jpg",
 "nota": "",
@@ -2088,7 +2115,8 @@
 "ch": "VINCENT creates",
 "it": "UNBOXING TASSELLATORE DEWALT DCH273NT-XJ  TIME LAPSE",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3669,
@@ -2097,7 +2125,7 @@
 "nome": "Tassellatore SDS-Plus 18V XR Brushless 1,4 J – kit 2 batterie",
 "modello": "DCH172P2",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 55500,
+"prezzo": 47200,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/75027102_DCH172P2-QW.jpg",
 "nota": "",
@@ -2133,7 +2161,8 @@
 "Rimozione piastrelle",
 "Ancoraggi chimici"
 ],
-"consiglio": "Con le punte a 4 taglienti si fora più velocemente e la punta non si blocca sui ferri d'armatura."
+"consiglio": "Con le punte a 4 taglienti si fora più velocemente e la punta non si blocca sui ferri d'armatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3670,
@@ -2142,7 +2171,7 @@
 "nome": "Tassellatore SDS-Plus 18V XR Brushless 2,1 J – kit 2 batterie 5,0 Ah",
 "modello": "DCH273P2T",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 63300,
+"prezzo": 53800,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/24166507_DCH273P2T-QW.jpg",
 "nota": "",
@@ -2184,7 +2213,8 @@
 "ch": "VINCENT creates",
 "it": "UNBOXING TASSELLATORE DEWALT DCH273NT-XJ  TIME LAPSE",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3721,
@@ -2226,7 +2256,7 @@
 "nome": "Tracciatore laser 3 linee 360° a raggio verde 12V XR – kit batteria 2,0 Ah",
 "modello": "DCE089D1G",
 "categoria": "Misura e laser",
-"prezzo": 78700,
+"prezzo": 66900,
 "volt": "12V",
 "immagineOrigine": "http://semistore.it/public/icona/15186710_TRACCIATORE-A-TRE-LINEE-DCE089D1G.jpg",
 "nota": "",
@@ -2267,7 +2297,8 @@
 "ch": "Selectos EN",
 "it": "DeWALT DCE089D1G: recensione e opinioni",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3717,
@@ -2276,7 +2307,7 @@
 "nome": "Tracciatore laser a croce raggio verde 30 m",
 "modello": "DW088CG",
 "categoria": "Misura e laser",
-"prezzo": 28700,
+"prezzo": 24400,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/55633181_tracciatore-laser-luce-verde-2-linee-30mt-dw088cg-xj.jpg",
 "nota": "",
@@ -2316,7 +2347,8 @@
 "ch": "New Local Tools",
 "it": "DeWALT DW088CG e DW088K: tracciatori laser a confronto",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3726,
@@ -2365,7 +2397,7 @@
 "nome": "Trapano avvitatore a percussione 18V XR Brushless 90 Nm – solo corpo",
 "modello": "DCD805NT",
 "categoria": "Trapani e avvitatori",
-"prezzo": 25000,
+"prezzo": 21300,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/14544315_TRAPANO-PERCUSSIONE-90NM%20DCD805NT-XJ.jpg",
 "nota": "",
@@ -2404,7 +2436,8 @@
 "ch": "Outillage and Co IT",
 "it": "Trapano avvitatore a percussione DeWalt DCD805 : Test e recensione",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3725,
@@ -2461,7 +2494,7 @@
 "nome": "Trapano avvitatore 12V XR Brushless 57 Nm – kit 2 batterie 2,0 Ah",
 "modello": "DCD701D2",
 "categoria": "Trapani e avvitatori",
-"prezzo": 20100,
+"prezzo": 17100,
 "volt": "12V",
 "immagineOrigine": "http://semistore.it/public/icona/10783023_traoano-avvitatore-dcd701d2-qw.jpg",
 "nota": "",
@@ -2501,7 +2534,8 @@
 "ch": "toolbankTV",
 "it": "DEWALT DCD701D2: trapano avvitatore subcompatto brushless XR",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3663,
@@ -2510,7 +2544,7 @@
 "nome": "Trapano avvitatore a percussione 18V XR Brushless 90 Nm – kit 2 batterie 5,0 Ah",
 "modello": "DCD805P2T",
 "categoria": "Trapani e avvitatori",
-"prezzo": 48700,
+"prezzo": 41400,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/4334659_DCD805P2T.jpg",
 "nota": "",
@@ -2550,7 +2584,8 @@
 "ch": "Outillage and Co IT",
 "it": "Trapano avvitatore a percussione DeWalt DCD805 : Test e recensione",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3733,
@@ -2559,7 +2594,7 @@
 "nome": "Troncatore 230 mm 54V XR FLEXVOLT – kit 2 batterie 9,0 Ah",
 "modello": "DCS691X2",
 "categoria": "Seghe e troncatrici",
-"prezzo": 139700,
+"prezzo": 117100,
 "volt": "54V",
 "immagineOrigine": "http://semistore.it/public/icona/48943728_DCS691X2_1.jpg",
 "nota": "",
@@ -2585,7 +2620,8 @@
 "ch": "FFX Tools",
 "it": "Come utilizzare la troncatrice DeWALT DCS691X2 con disco da 230 mm",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3732,
@@ -2637,7 +2673,7 @@
 "nome": "Troncatrice radiale 305 mm 1675 W a doppia inclinazione con XPS",
 "modello": "DWS780",
 "categoria": "Seghe e troncatrici",
-"prezzo": 151200,
+"prezzo": 128500,
 "volt": "230V",
 "immagineOrigine": "http://semistore.it/public/icona/81141299_troncatrice-radiale-doppia-inclinazione-dws780-qs.jpg",
 "nota": "",
@@ -2679,7 +2715,8 @@
 "ch": "Doresoom Tool Reviews",
 "it": "Recensione della troncatrice radiale DeWALT DWS780 da 305 mm",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3734,
@@ -2688,7 +2725,7 @@
 "nome": "Utensile multifunzione oscillante 300 W con set accessori",
 "modello": "DWE315KT",
 "categoria": "Altri utensili",
-"prezzo": 27400,
+"prezzo": 23300,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/86164492_utensile-multi-funzione-ad-oscillazione-300w-dwe315kt-qs.jpg",
 "nota": "",
@@ -2724,7 +2761,8 @@
 "ch": "Mestiere Fai Da Te",
 "it": "Utensile multifunzione Dewalt DWE315KT",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3681,
@@ -2733,7 +2771,7 @@
 "nome": "Utensile multifunzione 18V XR Brushless – solo corpo",
 "modello": "DCS356NT",
 "categoria": "Altri utensili",
-"prezzo": 27400,
+"prezzo": 23300,
 "volt": "18V",
 "immagineOrigine": "http://semistore.it/public/icona/10407657_UTENSILE-MULTIFUNZIONE-DCS356NT-XJ.jpg",
 "nota": "",
@@ -2776,7 +2814,8 @@
 "ch": "Officina Pro",
 "it": "Recensione del DEWALT Utensile multifunzione 18V Motore BRUSHLESS, DCS356NT-XJ",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3720,
@@ -2785,7 +2824,7 @@
 "nome": "TSTAK IV – cassetta con doppio cassetto",
 "modello": "DWST1-70706",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 7300,
+"prezzo": 6200,
 "volt": "",
 "immagineOrigine": "http://semistore.it/public/icona/46960086_valigia-porta-attrezzi-doppio-cassetto-tstak-dwst-1.jpg",
 "nota": "",
@@ -2813,7 +2852,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3704,
@@ -3275,7 +3315,7 @@
 "modello": "DCD706D2",
 "codice": "DCD706D2-QW",
 "categoria": "Trapani e avvitatori",
-"prezzo": 22600,
+"prezzo": 19200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -3321,7 +3361,8 @@
 "Impiantistica e manutenzione",
 "Carpenteria e falegnameria"
 ],
-"consiglio": "Per fori frequenti nel calcestruzzo armato abbina un tassellatore SDS-Plus: la percussione del trapano è pensata per mattoni e muratura, non per il cemento duro."
+"consiglio": "Per fori frequenti nel calcestruzzo armato abbina un tassellatore SDS-Plus: la percussione del trapano è pensata per mattoni e muratura, non per il cemento duro.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3738,
@@ -3331,7 +3372,7 @@
 "modello": "DCD703L2T",
 "codice": "DCD703L2T-QW",
 "categoria": "Trapani e avvitatori",
-"prezzo": 33600,
+"prezzo": 28500,
 "volt": "12V",
 "immagineOrigine": "",
 "nota": "",
@@ -3383,7 +3424,8 @@
 "ch": "DEWALT® EMEA-ANZ",
 "it": "DEWALT® Italia | Trapano Avvitatore Multitesta XR 12V | DCD703",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3739,
@@ -3393,7 +3435,7 @@
 "modello": "DCD703NT",
 "codice": "DCD703NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 23800,
+"prezzo": 20200,
 "volt": "12V",
 "immagineOrigine": "",
 "nota": "",
@@ -3450,7 +3492,8 @@
 "ch": "DEWALT® EMEA-ANZ",
 "it": "DEWALT® Italia | Trapano Avvitatore Multitesta XR 12V | DCD703",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3740,
@@ -3581,7 +3624,7 @@
 "modello": "DCL510N",
 "codice": "DCL510N-XJ",
 "categoria": "Altri utensili",
-"prezzo": 6100,
+"prezzo": 5200,
 "volt": "12V",
 "immagineOrigine": "",
 "nota": "",
@@ -3623,7 +3666,8 @@
 "ch": "Toolstop (Now ITS.co.uk)",
 "it": "DeWALT DCL510N: torcia LED compatta 10,8V",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3743,
@@ -3633,7 +3677,7 @@
 "modello": "DCB124",
 "codice": "DCB124-XJ",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 5600,
+"prezzo": 4800,
 "volt": "12V",
 "immagineOrigine": "",
 "nota": "",
@@ -3674,7 +3718,8 @@
 "ch": "Perkakas Batam",
 "it": "DeWALT caricabatterie DCB112, batteria DCB124 e valigetta TSTAK II",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3744,
@@ -3684,7 +3729,7 @@
 "modello": "DCB126",
 "codice": "DCB126-XJ",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 7300,
+"prezzo": 6200,
 "volt": "12V",
 "immagineOrigine": "",
 "nota": "",
@@ -3725,7 +3770,8 @@
 "ch": "hksjoshua",
 "it": "DeWALT DCF902 con le nuove batterie 12V DCB126 da 5,0 Ah",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3745,
@@ -3735,7 +3781,7 @@
 "modello": "DCB1104",
 "codice": "DCB1104-XJ",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 6100,
+"prezzo": 5200,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -3774,7 +3820,8 @@
 "ch": "Svelato",
 "it": "Recensione del DEWALT DCB1104-QW Caricabatteria multivoltaggio XR 4A",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3746,
@@ -3841,7 +3888,7 @@
 "modello": "DCH172E2T",
 "codice": "DCH172E2T-QW",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 53100,
+"prezzo": 45100,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -3890,7 +3937,8 @@
 "Rimozione piastrelle",
 "Ancoraggi chimici"
 ],
-"consiglio": "Con le punte a 4 taglienti si fora più velocemente e la punta non si blocca sui ferri d'armatura."
+"consiglio": "Con le punte a 4 taglienti si fora più velocemente e la punta non si blocca sui ferri d'armatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3748,
@@ -3955,7 +4003,7 @@
 "modello": "DCD1007H2T",
 "codice": "DCD1007H2T-QW",
 "categoria": "Trapani e avvitatori",
-"prezzo": 68900,
+"prezzo": 58600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4014,7 +4062,8 @@
 "ch": "Unboxxxo",
 "it": "Ecco i gioiellini nuovi DeWALT ! Dcd1007nt",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3750,
@@ -4024,7 +4073,7 @@
 "modello": "DCD1007NT",
 "codice": "DCD1007NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 34000,
+"prezzo": 28900,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4082,7 +4131,8 @@
 "ch": "Unboxxxo",
 "it": "Ecco i gioiellini nuovi DeWALT ! Dcd1007nt",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3751,
@@ -4092,7 +4142,7 @@
 "modello": "DCD991NT",
 "codice": "DCD991NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 27400,
+"prezzo": 23300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -4140,7 +4190,8 @@
 "ch": "KaufKompass",
 "it": "DEWALT DCD991NT 18V XR: trapano avvitatore brushless con valigetta TSTAK",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3752,
@@ -4213,7 +4264,7 @@
 "modello": "DCD799P2T",
 "codice": "DCD799P2T-QW",
 "categoria": "Trapani e avvitatori",
-"prezzo": 40900,
+"prezzo": 34700,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4260,7 +4311,8 @@
 "Impiantistica e manutenzione",
 "Carpenteria e falegnameria"
 ],
-"consiglio": "Per fori frequenti nel calcestruzzo armato abbina un tassellatore SDS-Plus: la percussione del trapano è pensata per mattoni e muratura, non per il cemento duro."
+"consiglio": "Per fori frequenti nel calcestruzzo armato abbina un tassellatore SDS-Plus: la percussione del trapano è pensata per mattoni e muratura, non per il cemento duro.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3754,
@@ -4270,7 +4322,7 @@
 "modello": "DCD799NT",
 "codice": "DCD799NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 17300,
+"prezzo": 15000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4316,7 +4368,8 @@
 "Impiantistica e manutenzione",
 "Carpenteria e falegnameria"
 ],
-"consiglio": "Per fori frequenti nel calcestruzzo armato abbina un tassellatore SDS-Plus: la percussione del trapano è pensata per mattoni e muratura, non per il cemento duro."
+"consiglio": "Per fori frequenti nel calcestruzzo armato abbina un tassellatore SDS-Plus: la percussione del trapano è pensata per mattoni e muratura, non per il cemento duro.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3755,
@@ -4389,7 +4442,7 @@
 "modello": "DCD803NT",
 "codice": "DCD803NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 39500,
+"prezzo": 34100,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4442,7 +4495,8 @@
 "ch": "UK Planet Tools Ltd",
 "it": "DEWALT DCD803NT: il nuovo trapano compatto multitesta, prima prova",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3757,
@@ -4452,7 +4506,7 @@
 "modello": "DCD794NT",
 "codice": "DCD794NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 16100,
+"prezzo": 14000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4493,7 +4547,8 @@
 "Carpenteria leggera",
 "Fori in legno e metallo"
 ],
-"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile."
+"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3758,
@@ -4503,7 +4558,7 @@
 "modello": "DCD740NT",
 "codice": "DCD740NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 29900,
+"prezzo": 25400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -4547,7 +4602,8 @@
 "Carpenteria leggera",
 "Fori in legno e metallo"
 ],
-"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile."
+"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3759,
@@ -4557,7 +4613,7 @@
 "modello": "DCD1623N",
 "codice": "DCD1623N-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 235300,
+"prezzo": 200000,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -4612,7 +4668,8 @@
 "ch": "Champions of the Trade",
 "it": "DeWALT DCD1623N 18V XR: trapano magnetico, dimostrazione",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3760,
@@ -4622,7 +4679,7 @@
 "modello": "DCF860NT",
 "codice": "DCF860NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 29900,
+"prezzo": 25400,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4669,7 +4726,8 @@
 "Officina e manutenzione mezzi",
 "Posa di scaffalature e staffaggi"
 ],
-"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi."
+"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3761,
@@ -4679,7 +4737,7 @@
 "modello": "DCF850E2T",
 "codice": "DCF850E2T-QW",
 "categoria": "Trapani e avvitatori",
-"prezzo": 46200,
+"prezzo": 39300,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4735,7 +4793,8 @@
 "ch": "DEWALT® EMEA-ANZ",
 "it": "DEWALT® ITALY |AVVITATORE IMPULSI COMPATTO 1/4\" XR 18V -  DCF850",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3762,
@@ -4745,7 +4804,7 @@
 "modello": "DCF850NT",
 "codice": "DCF850NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 24900,
+"prezzo": 21300,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4800,7 +4859,8 @@
 "ch": "DEWALT® EMEA-ANZ",
 "it": "DEWALT® ITALY |AVVITATORE IMPULSI COMPATTO 1/4\" XR 18V -  DCF850",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3763,
@@ -4869,7 +4929,7 @@
 "modello": "DCF961NT",
 "codice": "DCF961NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 43300,
+"prezzo": 36800,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4920,7 +4980,8 @@
 "ch": "Elarisse Vonluna",
 "it": "DEWALT DCF961NT: avvitatore a impulsi a batteria",
 "l": "de"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3765,
@@ -4930,7 +4991,7 @@
 "modello": "DCF891H2T",
 "codice": "DCF891H2T-QW",
 "categoria": "Trapani e avvitatori",
-"prezzo": 75000,
+"prezzo": 63800,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -4980,7 +5041,8 @@
 "Officina e manutenzione mezzi",
 "Posa di scaffalature e staffaggi"
 ],
-"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi."
+"consiglio": "Usa sempre inserti e bussole Impact o Torsion specifici per avvitatori a impulsi: quelli standard si spezzano facilmente sotto i colpi.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3766,
@@ -5111,7 +5173,7 @@
 "modello": "DCF922P2T",
 "codice": "DCF922P2T-QW",
 "categoria": "Trapani e avvitatori",
-"prezzo": 58400,
+"prezzo": 49700,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5172,7 +5234,8 @@
 "ch": "DEWALT® EMEA-ANZ",
 "it": "DEWALT® Italia | Avvitatore Impulsi Compatto 1/4\" XR 18V | DCF921 & DCF922",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3769,
@@ -5182,7 +5245,7 @@
 "modello": "DCF922NT",
 "codice": "DCF922NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 31100,
+"prezzo": 26400,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5240,7 +5303,8 @@
 "ch": "DEWALT® EMEA-ANZ",
 "it": "DEWALT® Italia | Avvitatore Impulsi Compatto 1/4\" XR 18V | DCF921 & DCF922",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3770,
@@ -5250,7 +5314,7 @@
 "modello": "DCF964NT",
 "codice": "DCF964NT-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 54800,
+"prezzo": 46600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5296,7 +5360,8 @@
 "Carpenteria leggera",
 "Fori in legno e metallo"
 ],
-"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile."
+"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3771,
@@ -5357,7 +5422,7 @@
 "modello": "DCF510N",
 "codice": "DCF510N-XJ",
 "categoria": "Trapani e avvitatori",
-"prezzo": 28700,
+"prezzo": 24400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -5408,7 +5473,8 @@
 "ch": "TradeTools",
 "it": "DeWALT DCF510N: cricchetto brushless 18V a testa sigillata 3/8\" e 1/2\", solo corpo",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3773,
@@ -5418,7 +5484,7 @@
 "modello": "DCF414NT",
 "codice": "DCF414NT-XJ",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 90900,
+"prezzo": 77300,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5461,7 +5527,8 @@
 "Carpenteria leggera",
 "Canalizzazioni"
 ],
-"consiglio": "Scegli la lunghezza del rivetto in base allo spessore totale delle lamiere da unire."
+"consiglio": "Scegli la lunghezza del rivetto in base allo spessore totale delle lamiere da unire.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3774,
@@ -5471,7 +5538,7 @@
 "modello": "DCF403NT",
 "codice": "DCF403NT-XJ",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 58400,
+"prezzo": 49700,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5515,7 +5582,8 @@
 "Carpenteria leggera",
 "Canalizzazioni"
 ],
-"consiglio": "Scegli la lunghezza del rivetto in base allo spessore totale delle lamiere da unire."
+"consiglio": "Scegli la lunghezza del rivetto in base allo spessore totale delle lamiere da unire.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3775,
@@ -5525,7 +5593,7 @@
 "modello": "DCF620D2K",
 "codice": "DCF620D2K-QW",
 "categoria": "Trapani e avvitatori",
-"prezzo": 45000,
+"prezzo": 38300,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5574,7 +5642,8 @@
 "ch": "B+M isol Tortalla",
 "it": "DEWALT - DCF620D2K-QW Avvitatore per cartongesso.",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3776,
@@ -5693,7 +5762,7 @@
 "modello": "DCG404NT",
 "codice": "DCG404NT-XJ",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 34000,
+"prezzo": 28900,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5736,7 +5805,8 @@
 "Taglio di piastrelle e pietra",
 "Pulizia e preparazione superfici"
 ],
-"consiglio": "Non usare mai dischi con diametro superiore a quello previsto dall'utensile e controlla che la velocità massima del disco sia compatibile."
+"consiglio": "Non usare mai dischi con diametro superiore a quello previsto dall'utensile e controlla che la velocità massima del disco sia compatibile.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3779,
@@ -5746,7 +5816,7 @@
 "modello": "DCG405FNT",
 "codice": "DCG405FNT-XJ",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 31100,
+"prezzo": 26400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -5792,7 +5862,8 @@
 "ch": "Unboxxxo",
 "it": "Smerigliatrice DeWALT DCG405NT",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3780,
@@ -5802,7 +5873,7 @@
 "modello": "DCG426N",
 "codice": "DCG426N-XJ",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 28700,
+"prezzo": 24400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -5854,7 +5925,8 @@
 "ch": "Toptopdeal",
 "it": "DeWALT DCG426N: smerigliatrice diritta XR 18V",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3781,
@@ -5864,7 +5936,7 @@
 "modello": "DCM848N",
 "codice": "DCM848N-XJ",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 36000,
+"prezzo": 30600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5906,7 +5978,8 @@
 "Nautica",
 "Superfici verniciate"
 ],
-"consiglio": "Lavora a bassa velocità per stendere la pasta e alza i giri solo per la lucidatura finale."
+"consiglio": "Lavora a bassa velocità per stendere la pasta e alza i giri solo per la lucidatura finale.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3782,
@@ -5916,7 +5989,7 @@
 "modello": "DCS356P2",
 "codice": "DCS356P2-QW",
 "categoria": "Altri utensili",
-"prezzo": 62100,
+"prezzo": 52800,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -5970,7 +6043,8 @@
 "ch": "Officina Pro",
 "it": "Recensione del DEWALT Utensile multifunzione 18V Motore BRUSHLESS, DCS356NT-XJ",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3783,
@@ -5980,7 +6054,7 @@
 "modello": "DCS386NT",
 "codice": "DCS386NT-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 43800,
+"prezzo": 37200,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6032,7 +6106,8 @@
 "ch": "CIB Partners",
 "it": "Sega a gattuccio DEWALT 18V FLEXVOLT Advantage | DCS386NT",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3784,
@@ -6042,7 +6117,7 @@
 "modello": "DCS382N",
 "codice": "DCS382N-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 42100,
+"prezzo": 35800,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6093,7 +6168,8 @@
 "ch": "Artis Builds",
 "it": "Recensione DeWALT DCS382N: sega a gattuccio 18V XR, prova sul legno",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3785,
@@ -6103,7 +6179,7 @@
 "modello": "DCS367P2",
 "codice": "DCS367P2-QW",
 "categoria": "Seghe e troncatrici",
-"prezzo": 73100,
+"prezzo": 62100,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6151,7 +6227,8 @@
 "ch": "Dewalt-tools",
 "it": "DeWALT DCS367P2: sega a gattuccio a batteria",
 "l": "uk"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3786,
@@ -6161,7 +6238,7 @@
 "modello": "DCS369NT",
 "codice": "DCS369NT-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 27400,
+"prezzo": 23300,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6214,7 +6291,8 @@
 "ch": "Universo Pratico",
 "it": "Recensione del DEWALT Sega universale compatta 18V Motore BRUSHLESS, DCS369NT-XJ",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3787,
@@ -6224,7 +6302,7 @@
 "modello": "DCS334P2",
 "codice": "DCS334P2-QW",
 "categoria": "Seghe e troncatrici",
-"prezzo": 69400,
+"prezzo": 59000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6278,7 +6356,8 @@
 "ch": "Exkalibr CZ",
 "it": "DeWALT DCS334P2: seghetto alternativo brushless 18V con batterie da 5,0 Ah",
 "l": "cs"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3788,
@@ -6288,7 +6367,7 @@
 "modello": "DCS335P2",
 "codice": "DCS335P2-QW",
 "categoria": "Seghe e troncatrici",
-"prezzo": 69400,
+"prezzo": 59000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6341,7 +6420,8 @@
 "ch": "La Selezione Giusta",
 "it": "RECENSIONE (2025) : Seghetto 18V Brushless DEWALT DCS335P2-QW. DETTAGLI ESSENZIALI",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3789,
@@ -6351,7 +6431,7 @@
 "modello": "DCS335NT",
 "codice": "DCS335NT-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 36000,
+"prezzo": 30600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6402,7 +6482,8 @@
 "ch": "La Selezione Giusta",
 "it": "RECENSIONE (2025) : Seghetto 18V Brushless DEWALT DCS335P2-QW. DETTAGLI ESSENZIALI",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3790,
@@ -6412,7 +6493,7 @@
 "modello": "DCS571NT",
 "codice": "DCS571NT-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 33600,
+"prezzo": 28500,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6466,7 +6547,8 @@
 "ch": "Petter Guttormsen",
 "it": "DeWALT DCS571NT: unboxing della sega circolare",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3791,
@@ -6476,7 +6558,7 @@
 "modello": "DCS573NT",
 "codice": "DCS573NT-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 48700,
+"prezzo": 41400,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6529,7 +6611,8 @@
 "ch": "CIB Partners",
 "it": "DEWALT DCS573NT: sega circolare 18V FLEXVOLT Advantage",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3792,
@@ -6539,7 +6622,7 @@
 "modello": "DCS570NT",
 "codice": "DCS570NT-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 38400,
+"prezzo": 32700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -6589,7 +6672,8 @@
 "ch": "LazyCatWorkshop",
 "it": "DeWALT DCS570NT 18V: recensione della sega circolare, il verdetto",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3793,
@@ -6599,7 +6683,7 @@
 "modello": "DCS565NT",
 "codice": "DCS565NT-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 34800,
+"prezzo": 29600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6650,7 +6734,8 @@
 "ch": "The Real Unwrap",
 "it": "Recensione DEWALT DCS565NT 18V XR: sega circolare 165 mm, solo corpo in valigetta TSTAK",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3794,
@@ -6781,7 +6866,7 @@
 "modello": "DCM200NT",
 "codice": "DCM200NT-XJ",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 36000,
+"prezzo": 30600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -6838,7 +6923,8 @@
 "ch": "Robotics",
 "it": "DeWALT DCM200NT: recensione della levigatrice a nastro a batteria",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3797,
@@ -6908,7 +6994,7 @@
 "modello": "DCW604NT",
 "codice": "DCW604NT-XJ",
 "categoria": "Altri utensili",
-"prezzo": 58400,
+"prezzo": 49700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -6960,7 +7046,8 @@
 "ch": "White Ghost",
 "it": "Rifilatore Brushless a batteria DeWalt DCW604 - Recensione",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3799,
@@ -7278,7 +7365,7 @@
 "modello": "DCN890N",
 "codice": "DCN890N-XJ",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 88400,
+"prezzo": 75200,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -7328,7 +7415,8 @@
 "ch": "Marini  ProWorker",
 "it": "La migliore chiodatrice a batteria per cemento e carpenteria - DeWALT DCN890P2",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3805,
@@ -7338,7 +7426,7 @@
 "modello": "DCN8902",
 "codice": "DCN8902-XJ",
 "categoria": "Accessori per elettroutensili",
-"prezzo": 6000,
+"prezzo": 5100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7362,7 +7450,8 @@
 ],
 "impieghi": [
 "Ampliare le funzioni dell'utensile"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3806,
@@ -7372,7 +7461,7 @@
 "modello": "DCN8903",
 "codice": "DCN8903-XJ",
 "categoria": "Accessori per elettroutensili",
-"prezzo": 3600,
+"prezzo": 3100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7397,7 +7486,8 @@
 ],
 "impieghi": [
 "Ampliare le funzioni dell'utensile"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3807,
@@ -7407,7 +7497,7 @@
 "modello": "DCN8904",
 "codice": "DCN8904-XJ",
 "categoria": "Accessori per elettroutensili",
-"prezzo": 3600,
+"prezzo": 3100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7431,7 +7521,8 @@
 ],
 "impieghi": [
 "Ampliare le funzioni dell'utensile"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3808,
@@ -7471,7 +7562,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3809,
@@ -7481,7 +7573,7 @@
 "modello": "DCN8901025",
 "codice": "DCN8901025",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 4000,
+"prezzo": 4100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7511,7 +7603,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3810,
@@ -7552,7 +7645,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3811,
@@ -7562,7 +7656,7 @@
 "modello": "DCN8901035",
 "codice": "DCN8901035",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 4100,
+"prezzo": 4200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7592,7 +7686,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3812,
@@ -7632,7 +7727,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3813,
@@ -7642,7 +7738,7 @@
 "modello": "DCN8901045",
 "codice": "DCN8901045",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 4200,
+"prezzo": 4300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7672,7 +7768,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3814,
@@ -7682,7 +7779,7 @@
 "modello": "DCN8901050",
 "codice": "DCN8901050",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 4200,
+"prezzo": 4300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7712,7 +7809,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3815,
@@ -7722,7 +7820,7 @@
 "modello": "DCN8901057",
 "codice": "DCN8901057",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 4300,
+"prezzo": 4400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7752,7 +7850,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3816,
@@ -7762,7 +7861,7 @@
 "modello": "DCN8903032",
 "codice": "DCN8903032",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 4300,
+"prezzo": 4400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7792,7 +7891,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3817,
@@ -7833,7 +7933,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3818,
@@ -7843,7 +7944,7 @@
 "modello": "DCN8903053",
 "codice": "DCN8903053",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 4600,
+"prezzo": 4700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7873,7 +7974,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3819,
@@ -7883,7 +7985,7 @@
 "modello": "DCN8902025",
 "codice": "DCN8902025",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 5400,
+"prezzo": 5500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -7913,7 +8015,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3820,
@@ -7923,7 +8026,7 @@
 "modello": "DCV501LN",
 "codice": "DCV501LN-XJ",
 "categoria": "Aspirazione e pulizia",
-"prezzo": 20100,
+"prezzo": 17100,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -7976,7 +8079,8 @@
 "ch": "Sydney Tools TV",
 "it": "Nuovo aspirapolvere a batteria DeWALT 18V (DCV501LN)",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3821,
@@ -7986,7 +8090,7 @@
 "modello": "DCV517N",
 "codice": "DCV517N-XJ",
 "categoria": "Aspirazione e pulizia",
-"prezzo": 21400,
+"prezzo": 18100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -8036,7 +8140,8 @@
 "ch": "toolcenter.gr",
 "it": "DEWALT DCV517N: aspiratore a batteria",
 "l": "el"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3822,
@@ -8046,7 +8151,7 @@
 "modello": "DCL040",
 "codice": "DCL040-XJ",
 "categoria": "Altri utensili",
-"prezzo": 6100,
+"prezzo": 5200,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8085,7 +8190,8 @@
 "ch": "Tool Review Zone",
 "it": "Recensione della lampada da lavoro DEWALT DCL040",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3823,
@@ -8095,7 +8201,7 @@
 "modello": "DCL043",
 "codice": "DCL043-XJ",
 "categoria": "Altri utensili",
-"prezzo": 12200,
+"prezzo": 10400,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8141,7 +8247,8 @@
 "ch": "Danny Johnson’s Garage",
 "it": "Faretto DeWALT DCL043 contro lampada da lavoro DCL040",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3824,
@@ -8151,7 +8258,7 @@
 "modello": "DCL050",
 "codice": "DCL050-XJ",
 "categoria": "Altri utensili",
-"prezzo": 7300,
+"prezzo": 6200,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8198,7 +8305,8 @@
 "ch": "SomeGuy's Garage",
 "it": "Lampada da lavoro a LED DeWALT DCL050 a batteria",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3825,
@@ -8208,7 +8316,7 @@
 "modello": "DCL074",
 "codice": "DCL074-XJ",
 "categoria": "Altri utensili",
-"prezzo": 36000,
+"prezzo": 30600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8250,7 +8358,8 @@
 "ch": "Raptor Built",
 "it": "Luce LED DeWALT DCL074: 4 anni di utilizzo reale, recensione e consigli",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3826,
@@ -8260,7 +8369,7 @@
 "modello": "DCL077",
 "codice": "DCL077-XJ",
 "categoria": "Altri utensili",
-"prezzo": 15200,
+"prezzo": 13000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8305,7 +8414,8 @@
 "ch": "WorkshopAddict",
 "it": "DEWALT DCL077 12V/18V: recensione della lampada da lavoro compatta, ottima su treppiede",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3827,
@@ -8315,7 +8425,7 @@
 "modello": "DCL079",
 "codice": "DCL079-XJ",
 "categoria": "Altri utensili",
-"prezzo": 37700,
+"prezzo": 32000,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -8359,7 +8469,8 @@
 "ch": "ITS",
 "it": "DeWALT DCL079 18V XR: faro LED con treppiede, panoramica veloce",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3828,
@@ -8369,7 +8480,7 @@
 "modello": "DCE590D1T",
 "codice": "DCE590D1T-QW",
 "categoria": "Altri utensili",
-"prezzo": 49900,
+"prezzo": 42400,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8417,7 +8528,8 @@
 "ch": "Mister Worker®",
 "it": "Recensione del sollevatore a ventosa DeWALT DCE590D1T XR 18V, 2026",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3829,
@@ -8427,7 +8539,7 @@
 "modello": "DCE590N",
 "codice": "DCE590N-XJ",
 "categoria": "Altri utensili",
-"prezzo": 38400,
+"prezzo": 32700,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8477,7 +8589,8 @@
 "ch": "Ferramenta Venerota Srl",
 "it": "Sollevatore a vuoto DEWALT GRABO DCE590N-XJ",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3830,
@@ -8487,7 +8600,7 @@
 "modello": "DCE050N",
 "codice": "DCE050N-XJ",
 "categoria": "Altri utensili",
-"prezzo": 31100,
+"prezzo": 26400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -8541,7 +8654,8 @@
 "ch": "Mister Worker®",
 "it": "Recensione della pompa di travaso acqua DeWALT DCE050N, 2026",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3831,
@@ -8551,7 +8665,7 @@
 "modello": "DCE512N",
 "codice": "DCE512N-XJ",
 "categoria": "Altri utensili",
-"prezzo": 16500,
+"prezzo": 14000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8599,7 +8713,8 @@
 "ch": "PlumbingGuy ",
 "it": "Ventilatore a batteria DeWALT DCE512N 18V",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3832,
@@ -8609,7 +8724,7 @@
 "modello": "DCE530N",
 "codice": "DCE530N-XJ",
 "categoria": "Altri utensili",
-"prezzo": 21300,
+"prezzo": 18100,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8659,7 +8774,8 @@
 "ch": "Artis Builds",
 "it": "Recensione DeWALT DCE530N: vale la pena una pistola termica a batteria?",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3833,
@@ -8669,7 +8785,7 @@
 "modello": "DCE560N",
 "codice": "DCE560N-XJ",
 "categoria": "Altri utensili",
-"prezzo": 39600,
+"prezzo": 33700,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8708,7 +8824,8 @@
 "Bagni e cucine",
 "Edilizia"
 ],
-"consiglio": "Usa la funzione antigoccia per evitare sbavature a fine cordolo."
+"consiglio": "Usa la funzione antigoccia per evitare sbavature a fine cordolo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3834,
@@ -8718,7 +8835,7 @@
 "modello": "DCE580N",
 "codice": "DCE580N-XJ",
 "categoria": "Altri utensili",
-"prezzo": 57200,
+"prezzo": 48600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -8764,7 +8881,8 @@
 "ch": "Toolstop (Now ITS.co.uk)",
 "it": "DeWALT DCE580N 18V: pistola per silicone veloce e affidabile",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3835,
@@ -8774,7 +8892,7 @@
 "modello": "DCP580NT",
 "codice": "DCP580NT-XJ",
 "categoria": "Altri utensili",
-"prezzo": 34700,
+"prezzo": 29600,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -8825,7 +8943,8 @@
 "ch": "BastelBuden TV",
 "it": "DeWALT DCP580NT: presentazione e prova del pialletto a batteria",
 "l": "de"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3836,
@@ -8835,7 +8954,7 @@
 "modello": "DCS350NT",
 "codice": "DCS350NT-XJ",
 "categoria": "Altri utensili",
-"prezzo": 67000,
+"prezzo": 56900,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -8876,7 +8995,8 @@
 "ch": "PickWise",
 "it": "DEWALT DCS350NT 18V: tagliabarre filettate a batteria con testa di taglio a 4 vie",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3837,
@@ -8886,7 +9006,7 @@
 "modello": "DCS365N",
 "codice": "DCS365N-XJ",
 "categoria": "Seghe e troncatrici",
-"prezzo": 60900,
+"prezzo": 51700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -8935,7 +9055,8 @@
 "ch": "Prove elettroutensili per legno.",
 "it": "Dewalt DCS 365, troncatrice radiale a batteria.",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3838,
@@ -9005,7 +9126,7 @@
 "modello": "DCC018N",
 "codice": "DCC018N-XJ",
 "categoria": "Compressori e aria compressa",
-"prezzo": 21100,
+"prezzo": 18100,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9056,7 +9177,8 @@
 "ch": "Doctor Lefthandthread",
 "it": "Recensione del compressore per pneumatici DeWALT DCC018N",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3840,
@@ -9114,7 +9236,7 @@
 "modello": "DCMPS520N",
 "codice": "DCMPS520N-XJ",
 "categoria": "Giardino",
-"prezzo": 18200,
+"prezzo": 15500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -9164,7 +9286,8 @@
 "ch": "Wooly's World",
 "it": "Sega da potatura DeWALT 18V XR DCMPS520N: unboxing completo e prova sul campo",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3842,
@@ -9174,7 +9297,7 @@
 "modello": "DCMCS565N",
 "codice": "DCMCS565N-XJ",
 "categoria": "Giardino",
-"prezzo": 24300,
+"prezzo": 20600,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -9216,7 +9339,8 @@
 "Legna da ardere",
 "Manutenzione del verde"
 ],
-"consiglio": "Controlla tensione della catena e livello dell'olio prima di ogni utilizzo."
+"consiglio": "Controlla tensione della catena e livello dell'olio prima di ogni utilizzo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3843,
@@ -9226,7 +9350,7 @@
 "modello": "DCMST561P1",
 "codice": "DCMST561P1-QW",
 "categoria": "Giardino",
-"prezzo": 34000,
+"prezzo": 28900,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9283,7 +9407,8 @@
 "ch": "LahisTech",
 "it": "DeWALT DCMST561P1: tagliabordi brushless 18V XR con batteria 5,0 Ah, unboxing e prova",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3844,
@@ -9293,7 +9418,7 @@
 "modello": "DCMST561N",
 "codice": "DCMST561N-XJ",
 "categoria": "Giardino",
-"prezzo": 21800,
+"prezzo": 18600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9349,7 +9474,8 @@
 "ch": "pauls projects",
 "it": "Le mie prime impressioni sul tagliabordi a batteria DEWALT DCMST561N 18V",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3845,
@@ -9359,7 +9485,7 @@
 "modello": "DCMBL562P1",
 "codice": "DCMBL562P1-QW",
 "categoria": "Giardino",
-"prezzo": 30400,
+"prezzo": 25800,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9411,7 +9537,8 @@
 "ch": "AgriEuro",
 "it": "Presentazione e montaggio del DeWalt DCMBL562P1-QW - Soffiatore a batteria per foglie - 18V 5Ah",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3846,
@@ -9421,7 +9548,7 @@
 "modello": "DCMBL562N",
 "codice": "DCMBL562N-XJ",
 "categoria": "Giardino",
-"prezzo": 18200,
+"prezzo": 15500,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9472,7 +9599,8 @@
 "ch": "AgriEuro",
 "it": "Presentazione e montaggio del DeWalt DCMBL562P1-QW - Soffiatore a batteria per foglie - 18V 5Ah",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3847,
@@ -9482,7 +9610,7 @@
 "modello": "DCMPH566P1",
 "codice": "DCMPH566P1-QW",
 "categoria": "Giardino",
-"prezzo": 37700,
+"prezzo": 32000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9532,7 +9660,8 @@
 "ch": "Spend Time, Save Money, DIY",
 "it": "Recensione del tagliasiepi a batteria DeWALT DCMPH566P1 18V",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3848,
@@ -9542,7 +9671,7 @@
 "modello": "DCMPH566N",
 "codice": "DCMPH566N-XJ",
 "categoria": "Giardino",
-"prezzo": 25500,
+"prezzo": 21700,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9593,7 +9722,8 @@
 "ch": "Radar Domestico",
 "it": "Recensione del DEWALT DCMPH566N-XJ, Tagliasiepi telescopico 18V 5.0AH",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3849,
@@ -9603,7 +9733,7 @@
 "modello": "DCMPS567P1",
 "codice": "DCMPS567P1-QW",
 "categoria": "Giardino",
-"prezzo": 37700,
+"prezzo": 32000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9652,7 +9782,8 @@
 "ch": "Spend Time, Save Money, DIY",
 "it": "DeWALT DCMPS567P1 18V XR: recensione del potatore telescopico",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3850,
@@ -9662,7 +9793,7 @@
 "modello": "DCMPS567N",
 "codice": "DCMPS567N-XJ",
 "categoria": "Giardino",
-"prezzo": 27900,
+"prezzo": 23700,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9711,7 +9842,8 @@
 "ch": "Power Tool World",
 "it": "DeWALT DCMPS567N: potatore telescopico brushless a batteria 18V XR",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3851,
@@ -9721,7 +9853,7 @@
 "modello": "DCMPP568N",
 "codice": "DCMPP568N-XJ",
 "categoria": "Giardino",
-"prezzo": 15200,
+"prezzo": 13000,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9771,7 +9903,8 @@
 "ch": "UK Planet Tools Ltd",
 "it": "DeWALT DCMPP568N: forbice da potatura a batteria 18V XR, taglio fino a 38 mm",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3852,
@@ -9781,7 +9914,7 @@
 "modello": "DCMPW1600N",
 "codice": "DCMPW1600N-XJ",
 "categoria": "Giardino",
-"prezzo": 51100,
+"prezzo": 43500,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -9833,7 +9966,8 @@
 "ch": "Sydney Tools TV",
 "it": "Nuova idropulitrice a batteria DeWALT (DCMPW1600N)",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3853,
@@ -10266,7 +10400,7 @@
 "modello": "DCB104",
 "codice": "DCB104-QW",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 27900,
+"prezzo": 23700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -10294,7 +10428,8 @@
 ],
 "impieghi": [
 "Ricarica in cantiere o in officina"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3863,
@@ -10358,7 +10493,7 @@
 "modello": "DCH481X2",
 "codice": "DCH481X2-QW",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 140900,
+"prezzo": 119800,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -10414,7 +10549,8 @@
 "ch": "LA CAJA DE HERRAMIENTAS WALTER ALVAREZ",
 "it": "DeWALT DCH481X2: potente martello demoperforatore SDS-max",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3865,
@@ -10489,7 +10625,7 @@
 "modello": "DCH333X2",
 "codice": "DCH333X2-QW",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 136500,
+"prezzo": 116000,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -10544,7 +10680,8 @@
 "ch": "DEWALT India",
 "it": "DeWALT DCH333X2 XR 54V: tassellatore SDS-plus ad alta potenza da 26 mm",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3867,
@@ -10619,7 +10756,7 @@
 "modello": "DCG418X2",
 "codice": "DCG418X2-QW",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 105500,
+"prezzo": 89700,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -10671,7 +10808,8 @@
 "ch": "Elarisse Vonluna",
 "it": "DEWALT DCG418X2: smerigliatrice angolare 125 mm 54V FLEXVOLT con 2 batterie 9 Ah",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3869,
@@ -10681,7 +10819,7 @@
 "modello": "DCG418T2",
 "codice": "DCG418T2-QW",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 92100,
+"prezzo": 78300,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -10733,7 +10871,8 @@
 "ch": "DEWALT Brasil",
 "it": "Smerigliatrice angolare 125 mm FLEXVOLT DEWALT DCG418T2",
 "l": "pt"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3870,
@@ -10805,7 +10944,7 @@
 "modello": "DCG460X2",
 "codice": "DCG460X2-QW",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 125500,
+"prezzo": 106700,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -10855,7 +10994,8 @@
 "Taglio di piastrelle e pietra",
 "Pulizia e preparazione superfici"
 ],
-"consiglio": "Non usare mai dischi con diametro superiore a quello previsto dall'utensile e controlla che la velocità massima del disco sia compatibile."
+"consiglio": "Non usare mai dischi con diametro superiore a quello previsto dall'utensile e controlla che la velocità massima del disco sia compatibile.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3872,
@@ -10865,7 +11005,7 @@
 "modello": "DCG200T2",
 "codice": "DCG200T2-QW",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 103600,
+"prezzo": 88000,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -10915,7 +11055,8 @@
 "ch": "Tool Equip",
 "it": "DeWALT DCG200T2: scanalatrice 54V con 2 batterie e caricabatterie",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3873,
@@ -10925,7 +11066,7 @@
 "modello": "DCD240X2",
 "codice": "DCD240X2-QW",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 108500,
+"prezzo": 92200,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -10987,7 +11128,8 @@
 "ch": "AHC Tool Hire",
 "it": "DeWALT DCD240X2: miscelatore brushless 54V XR FLEXVOLT",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3874,
@@ -11064,7 +11206,7 @@
 "modello": "DCS398T2",
 "codice": "DCS398T2-QW",
 "categoria": "Seghe e troncatrici",
-"prezzo": 121900,
+"prezzo": 103600,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -11113,7 +11255,8 @@
 "ch": "StarAlley Daily",
 "it": "DeWALT DCS398T2: sega Alligator brushless XR FLEXVOLT 54V",
 "l": "es"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3876,
@@ -11183,7 +11326,7 @@
 "modello": "DCS389T2",
 "codice": "DCS389T2-QW",
 "categoria": "Seghe e troncatrici",
-"prezzo": 93300,
+"prezzo": 79300,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -11226,7 +11369,8 @@
 "Impiantistica idraulica",
 "Potatura di rami"
 ],
-"consiglio": "Scegli la lama in base al materiale: denti grossi per legno, denti fini (14–18 TPI) per metallo, lame al carburo per materiali abrasivi."
+"consiglio": "Scegli la lama in base al materiale: denti grossi per legno, denti fini (14–18 TPI) per metallo, lame al carburo per materiali abrasivi.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3878,
@@ -11448,7 +11592,7 @@
 "modello": "DCV586MT2",
 "codice": "DCV586MT2-QW",
 "categoria": "Aspirazione e pulizia",
-"prezzo": 97000,
+"prezzo": 82400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -11499,7 +11643,8 @@
 "ch": "Power Tools UK",
 "it": "DeWALT DCV586MT2 FLEXVOLT: aspiratore per polveri",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3883,
@@ -11509,7 +11654,7 @@
 "modello": "DCM571X1",
 "codice": "DCM571X1-QW",
 "categoria": "Giardino",
-"prezzo": 57000,
+"prezzo": 48600,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -11565,7 +11710,8 @@
 "ch": "Tööriistamaailm",
 "it": "DeWALT DCM571X1: tagliabordi a batteria",
 "l": "sv"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3884,
@@ -11575,7 +11721,7 @@
 "modello": "DCM571N",
 "codice": "DCM571N-XJ",
 "categoria": "Giardino",
-"prezzo": 32200,
+"prezzo": 27400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -11626,7 +11772,8 @@
 "ch": "CIB Partners",
 "it": "Decespugliatore e tagliabordi DeWALT 54V XR FLEXVOLT | DCM571N",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3885,
@@ -11636,7 +11783,7 @@
 "modello": "DCMAS5713X1",
 "codice": "DCMAS5713X1-QW",
 "categoria": "Giardino",
-"prezzo": 57200,
+"prezzo": 48600,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -11687,7 +11834,8 @@
 "Bordi prato",
 "Aiuole e vialetti",
 "Zone incolte"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3886,
@@ -11697,7 +11845,7 @@
 "modello": "DCMCS575X1",
 "codice": "DCMCS575X1-QW",
 "categoria": "Giardino",
-"prezzo": 73100,
+"prezzo": 62100,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -11744,7 +11892,8 @@
 "Legna da ardere",
 "Manutenzione del verde"
 ],
-"consiglio": "Controlla tensione della catena e livello dell'olio prima di ogni utilizzo."
+"consiglio": "Controlla tensione della catena e livello dell'olio prima di ogni utilizzo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3887,
@@ -11789,7 +11938,7 @@
 "modello": "DCMASBC1N",
 "codice": "DCMASBC1N-XJ",
 "categoria": "Giardino",
-"prezzo": 12100,
+"prezzo": 10300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -11818,7 +11967,8 @@
 "Bordi prato",
 "Aiuole e vialetti",
 "Zone incolte"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3889,
@@ -12036,7 +12186,7 @@
 "modello": "DCB117",
 "codice": "DCB117-QW",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 12100,
+"prezzo": 10300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12074,7 +12224,8 @@
 "ch": " Kết Nối Tiêu Dùng",
 "it": "I nuovi caricabatterie DeWALT DCB117 e DCB132: meglio di DCB118 o DCB115?",
 "l": "vi"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3894,
@@ -12084,7 +12235,7 @@
 "modello": "DCB118",
 "codice": "DCB118-QW",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 8400,
+"prezzo": 7200,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -12121,7 +12272,8 @@
 "ch": "Tools. Electro. DIY",
 "it": "Il caricabatterie DeWALT più veloce: velocità e potenza testate (DCB118)",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3895,
@@ -12131,7 +12283,7 @@
 "modello": "DCB132",
 "codice": "DCB132-QW",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 14500,
+"prezzo": 12300,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -12167,7 +12319,8 @@
 "ch": "PickWise",
 "it": "DEWALT DCB132: caricabatterie rapido doppio, anche per batterie XR FLEXVOLT",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3896,
@@ -12177,7 +12330,7 @@
 "modello": "DCBPS0554",
 "codice": "DCBPS0554-XJ",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 109700,
+"prezzo": 93200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12223,7 +12376,8 @@
 "ch": "Spears Construction Supply",
 "it": "Come spedire la batteria DeWALT POWERSHIFT DCBPS0554",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3897,
@@ -12233,7 +12387,7 @@
 "modello": "DWHT78200",
 "codice": "DWHT78200-XJ",
 "categoria": "Misura e laser",
-"prezzo": 21400,
+"prezzo": 18100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12286,7 +12440,8 @@
 "ch": "Profesjonalne Narzędzia - PHUABC",
 "it": "DEWALT DWHT78200: misuratore laser 60 m con Bluetooth",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3898,
@@ -12360,7 +12515,7 @@
 "modello": "DW088K",
 "codice": "DW088K-XJ",
 "categoria": "Misura e laser",
-"prezzo": 22400,
+"prezzo": 19200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12406,7 +12561,8 @@
 "ch": "Watch Before You Buy! - TopFindsReviews",
 "it": "Recensione completa: livella laser DEWALT DW088K, autolivellante e veloce",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3900,
@@ -12512,7 +12668,7 @@
 "modello": "DCE089D1R",
 "codice": "DCE089D1R-QW",
 "categoria": "Misura e laser",
-"prezzo": 60900,
+"prezzo": 51700,
 "volt": "12V",
 "immagineOrigine": "",
 "nota": "",
@@ -12558,7 +12714,8 @@
 "ch": "Pro-Tools",
 "it": "DCE089D1R: laser a linee DEWALT 10,8V",
 "l": "ro"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3903,
@@ -12568,7 +12725,7 @@
 "modello": "DCE089D1G18",
 "codice": "DCE089D1G18-QW",
 "categoria": "Misura e laser",
-"prezzo": 85300,
+"prezzo": 72500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12618,7 +12775,8 @@
 "ch": "DEWALT UK",
 "it": "DEWALT DCE089D1G18 XR 12/18V: laser 3 linee a 360°",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3904,
@@ -12628,7 +12786,7 @@
 "modello": "DCE089NG18",
 "codice": "DCE089NG18-XJ",
 "categoria": "Misura e laser",
-"prezzo": 75500,
+"prezzo": 64200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12679,7 +12837,8 @@
 "ch": "Папа Карло",
 "it": "Livelle laser DEWALT DCE089NG18 e DCE089D1G",
 "l": "ru"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3905,
@@ -12792,7 +12951,7 @@
 "modello": "DE0735",
 "codice": "DE0735-XJ",
 "categoria": "Misura e laser",
-"prezzo": 26200,
+"prezzo": 22300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12829,7 +12988,8 @@
 "ch": "dAnIeL D.A.R",
 "it": "Treppiede DeWALT DE0735",
 "l": "es"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3908,
@@ -12876,7 +13036,7 @@
 "modello": "DE0734",
 "codice": "DE0734-XJ",
 "categoria": "Misura e laser",
-"prezzo": 8500,
+"prezzo": 7300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12901,7 +13061,8 @@
 "impieghi": [
 "Tracciatura",
 "Cantiere"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3910,
@@ -12911,7 +13072,7 @@
 "modello": "DE0737",
 "codice": "DE0737-XJ",
 "categoria": "Misura e laser",
-"prezzo": 9900,
+"prezzo": 8400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12937,7 +13098,8 @@
 "impieghi": [
 "Tracciatura",
 "Cantiere"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3911,
@@ -12947,7 +13109,7 @@
 "modello": "DE0892G",
 "codice": "DE0892G-XJ",
 "categoria": "Misura e laser",
-"prezzo": 16100,
+"prezzo": 13700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -12994,7 +13156,8 @@
 "ch": "i.g.",
 "it": "DeWALT DCE089R/G e ricevitore DE0892G: laser a linee incrociate",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3912,
@@ -13100,7 +13263,7 @@
 "modello": "DE0733",
 "codice": "DE0733-XJ",
 "categoria": "Misura e laser",
-"prezzo": 12400,
+"prezzo": 10600,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -13136,7 +13299,8 @@
 "ch": "Wujek Tester",
 "it": "Treppiede DeWALT DE0733",
 "l": "pl"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3915,
@@ -13312,7 +13476,7 @@
 "modello": "DWE1622K",
 "codice": "DWE1622K-QS",
 "categoria": "Trapani e avvitatori",
-"prezzo": 148700,
+"prezzo": 126400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -13355,7 +13519,8 @@
 "ch": "mmtoolparts",
 "it": "Recensione del trapano magnetico DeWALT DWE1622K",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3919,
@@ -13799,7 +13964,7 @@
 "modello": "D25430K",
 "codice": "D25430K-QS",
 "categoria": "Punte e inserti",
-"prezzo": 56000,
+"prezzo": 47600,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -13835,7 +14000,8 @@
 "Demolizione",
 "Rimozione piastrelle",
 "Tracce e scassi"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 3928,
@@ -13845,7 +14011,7 @@
 "modello": "D25481K",
 "codice": "D25481K-QS",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 64500,
+"prezzo": 54900,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -13889,7 +14055,8 @@
 "ch": "Phil Timpson",
 "it": "DeWALT D25481K: prima prova del martello demoperforatore",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3929,
@@ -13899,7 +14066,7 @@
 "modello": "D25614K",
 "codice": "D25614K-QS",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 85300,
+"prezzo": 72500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -13948,7 +14115,8 @@
 "ch": "CIB Partners",
 "it": "DEWALT D25614K: martello demoperforatore SDS-max per cemento, fino a 45 mm",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3930,
@@ -13958,7 +14126,7 @@
 "modello": "D25773K",
 "codice": "D25773K-QS",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 115300,
+"prezzo": 98000,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -14003,7 +14171,8 @@
 "ch": "Hammer and Home",
 "it": "Martello perforatore DeWALT a filo SDS-max D25773K",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3931,
@@ -14013,7 +14182,7 @@
 "modello": "D25810K",
 "codice": "D25810K-QS",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 55500,
+"prezzo": 47200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -14053,7 +14222,8 @@
 "ch": "Toolstop (Now ITS.co.uk)",
 "it": "DeWALT D25810K: martello demolitore SDS-max, ideale per l'edilizia leggera",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3932,
@@ -14063,7 +14233,7 @@
 "modello": "D25832K",
 "codice": "D25832K-QS",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 76700,
+"prezzo": 65200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -14111,7 +14281,8 @@
 "ch": "taQi",
 "it": "Martello demolitore DeWALT D25832K",
 "l": "pt"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3933,
@@ -14170,7 +14341,7 @@
 "modello": "D25911K",
 "codice": "D25911K-QS",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 121900,
+"prezzo": 103600,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -14223,7 +14394,8 @@
 "ch": "Ferhat Serçe",
 "it": "DeWALT D25911K: martello demolitore",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3935,
@@ -14233,7 +14405,7 @@
 "modello": "D25981K",
 "codice": "D25981K-QS",
 "categoria": "Tassellatori e demolitori",
-"prezzo": 243900,
+"prezzo": 207300,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -14277,7 +14449,8 @@
 "ch": "POWER TOOLS SOLUTIONS ",
 "it": "Martello demolitore DeWALT D25981K da 31 kg: come sostituire indotto e spazzole",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3936,
@@ -14287,7 +14460,7 @@
 "modello": "DWE4036",
 "codice": "DWE4036-QS",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 7300,
+"prezzo": 6200,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -14326,7 +14499,8 @@
 "Taglio di piastrelle e pietra",
 "Pulizia e preparazione superfici"
 ],
-"consiglio": "Non usare mai dischi con diametro superiore a quello previsto dall'utensile e controlla che la velocità massima del disco sia compatibile."
+"consiglio": "Non usare mai dischi con diametro superiore a quello previsto dall'utensile e controlla che la velocità massima del disco sia compatibile.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3937,
@@ -14389,7 +14563,7 @@
 "modello": "DWE4156",
 "codice": "DWE4156-QS",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 9800,
+"prezzo": 8300,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -14432,7 +14606,8 @@
 "ch": "creative craft ideas",
 "it": "La rivoluzionaria smerigliatrice angolare DeWALT DWE4156",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3939,
@@ -14710,7 +14885,7 @@
 "modello": "DWE4237",
 "codice": "DWE4237-QS",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 15200,
+"prezzo": 13000,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -14754,7 +14929,8 @@
 "ch": "DeWALT Mongolia",
 "it": "DeWALT DWE4237: smerigliatrice angolare",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3945,
@@ -14924,7 +15100,7 @@
 "modello": "DWE492",
 "codice": "DWE492-QS",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 15900,
+"prezzo": 13500,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -14966,7 +15142,8 @@
 "ch": "BuildersSA",
 "it": "DeWALT DWE492: recensione della smerigliatrice angolare",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3949,
@@ -14976,7 +15153,7 @@
 "modello": "DWE4559",
 "codice": "DWE4559-QS",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 25000,
+"prezzo": 21300,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -15012,7 +15189,8 @@
 "Taglio di piastrelle e pietra",
 "Pulizia e preparazione superfici"
 ],
-"consiglio": "Non usare mai dischi con diametro superiore a quello previsto dall'utensile e controlla che la velocità massima del disco sia compatibile."
+"consiglio": "Non usare mai dischi con diametro superiore a quello previsto dall'utensile e controlla che la velocità massima del disco sia compatibile.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3950,
@@ -15391,7 +15569,7 @@
 "modello": "D26414",
 "codice": "D26414-QS",
 "categoria": "Altri utensili",
-"prezzo": 12400,
+"prezzo": 10600,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -15436,7 +15614,8 @@
 "ch": "REVIEW SHOOT",
 "it": "DEWALT D26414: recensione della pistola termica con display LCD",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3958,
@@ -15446,7 +15625,7 @@
 "modello": "DWE7800",
 "codice": "DWE7800-QS",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 79200,
+"prezzo": 67300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -15491,7 +15670,8 @@
 "ch": "ToolPro",
 "it": "DWE7800: levigatrice per cartongesso, unboxing e recensione",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3959,
@@ -15501,7 +15681,7 @@
 "modello": "DWE560",
 "codice": "DWE560-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 21100,
+"prezzo": 18100,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -15550,7 +15730,8 @@
 "ch": "Hodgy's World",
 "it": "DeWALT DWE560: recensione onesta della sega circolare",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3960,
@@ -15560,7 +15741,7 @@
 "modello": "DWE576K",
 "codice": "DWE576K-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 34700,
+"prezzo": 29600,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -15605,7 +15786,8 @@
 "ch": "Tool Reviews And Restorations",
 "it": "DeWALT DWE576K: recensione della sega circolare",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3961,
@@ -15934,7 +16116,7 @@
 "modello": "DWE305PK",
 "codice": "DWE305PK-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 28700,
+"prezzo": 24400,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -15983,7 +16165,8 @@
 "ch": "Green think The hobby",
 "it": "Sega a gattuccio DeWALT DWE305PK",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3970,
@@ -15993,7 +16176,7 @@
 "modello": "DWE397",
 "codice": "DWE397-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 57200,
+"prezzo": 48600,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16041,7 +16224,8 @@
 "ch": "DEWALT UK",
 "it": "DEWALT DWE397: sega Alligator con lama da 430 mm",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3971,
@@ -16051,7 +16235,7 @@
 "modello": "DWE398",
 "codice": "DWE398-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 59700,
+"prezzo": 50700,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16094,7 +16278,8 @@
 "ch": "DEWALT® EMEA-ANZ",
 "it": "La sega Alligator DEWALT DWE398: l'utensile versatile per il cantiere edile",
 "l": "fr"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3972,
@@ -16104,7 +16289,7 @@
 "modello": "DWE349",
 "codice": "DWE349-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 17700,
+"prezzo": 15000,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16149,7 +16334,8 @@
 "ch": "Gani vibe",
 "it": "Seghetto alternativo DeWALT DWE349: tutto quello che devi sapere prima di usarlo",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3973,
@@ -16221,7 +16407,7 @@
 "modello": "DWE6411Z",
 "codice": "DWE6411Z-IT",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 20100,
+"prezzo": 17100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -16251,7 +16437,8 @@
 "Levigatura di stucchi",
 "Finitura di serramenti"
 ],
-"consiglio": "Procedi con le grane in sequenza (es. 80 → 120 → 180): saltare passaggi lascia segni visibili dopo la verniciatura."
+"consiglio": "Procedi con le grane in sequenza (es. 80 → 120 → 180): saltare passaggi lascia segni visibili dopo la verniciatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 3975,
@@ -16261,7 +16448,7 @@
 "modello": "DWE6423",
 "codice": "DWE6423-QS",
 "categoria": "Smerigliatrici e levigatrici",
-"prezzo": 17700,
+"prezzo": 15000,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16313,7 +16500,8 @@
 "ch": "Concord Carpenter | Tool Lab",
 "it": "Recensione della levigatrice rotorbitale DEWALT DWE6423K",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3976,
@@ -16323,7 +16511,7 @@
 "modello": "DW680",
 "codice": "DW680-QS",
 "categoria": "Altri utensili",
-"prezzo": 29900,
+"prezzo": 25400,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16369,7 +16557,8 @@
 "ch": "Pro-Tools",
 "it": "DW680: pialletto DEWALT 600W",
 "l": "ro"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3977,
@@ -16434,7 +16623,7 @@
 "modello": "D26204K",
 "codice": "D26204K-QS",
 "categoria": "Altri utensili",
-"prezzo": 49900,
+"prezzo": 42400,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16480,7 +16669,8 @@
 "ch": "GT Woodshop",
 "it": "DeWALT D26204K: fresatrice 2 in 1, unboxing, prova e recensione",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3979,
@@ -16547,7 +16737,7 @@
 "modello": "DWE625",
 "codice": "DWE625-QS",
 "categoria": "Altri utensili",
-"prezzo": 69400,
+"prezzo": 59000,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16594,7 +16784,8 @@
 "ch": "The Snekker Show",
 "it": "La nuova fresatrice DeWALT DWE625: recensione, confronto e un avvertimento",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3981,
@@ -16604,7 +16795,7 @@
 "modello": "DW682K",
 "codice": "DW682K-QS",
 "categoria": "Altri utensili",
-"prezzo": 32300,
+"prezzo": 27500,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16650,7 +16841,8 @@
 "ch": "Toolstop (Now ITS.co.uk)",
 "it": "DeWALT DW682K: fresatrice per lamelle, guida per l'utente",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3982,
@@ -16945,7 +17137,7 @@
 "modello": "DWS727",
 "codice": "DWS727-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 119400,
+"prezzo": 101500,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -16998,7 +17190,8 @@
 "ch": "Dean Doherty",
 "it": "Riparazione di una DeWALT DWS727: come sostituire i cuscinetti rumorosi della troncatrice",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3991,
@@ -17008,7 +17201,7 @@
 "modello": "DWS778",
 "codice": "DWS778-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 86500,
+"prezzo": 73500,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17058,7 +17251,8 @@
 "ch": "Toolstop (Now ITS.co.uk)",
 "it": "DeWALT DWS778: troncatrice radiale compatta 250 mm, recensione",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3992,
@@ -17068,7 +17262,7 @@
 "modello": "D27113",
 "codice": "D27113-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 99400,
+"prezzo": 84500,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17119,7 +17313,8 @@
 "ch": "DaiKu Designs",
 "it": "Unboxing DeWALT D27113",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3993,
@@ -17129,7 +17324,7 @@
 "modello": "D27111",
 "codice": "D27111-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 124300,
+"prezzo": 105700,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17179,7 +17374,8 @@
 "ch": "Learn Together",
 "it": "DeWALT D27111: troncatrice combinata",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3994,
@@ -17189,7 +17385,7 @@
 "modello": "D27112",
 "codice": "D27112-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 124300,
+"prezzo": 105700,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17239,7 +17435,8 @@
 "ch": "BAUHAUS",
 "it": "La troncatrice con pianetto D27112 di DeWALT",
 "l": "de"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3995,
@@ -17249,7 +17446,7 @@
 "modello": "DE7023",
 "codice": "DE7023-XJ",
 "categoria": "Altri utensili",
-"prezzo": 28700,
+"prezzo": 24400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -17287,7 +17484,8 @@
 "ch": "Ultimate Handyman",
 "it": "Supporto universale per troncatrice DeWALT DE7023",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3996,
@@ -17297,7 +17495,7 @@
 "modello": "DE7033",
 "codice": "DE7033-XJ",
 "categoria": "Altri utensili",
-"prezzo": 18900,
+"prezzo": 16100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -17335,7 +17533,8 @@
 "ch": "Toolstop (Now ITS.co.uk)",
 "it": "Supporto per troncatrice DeWALT DE7033 per impieghi gravosi",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 3997,
@@ -17419,7 +17618,7 @@
 "modello": "DW733",
 "codice": "DW733-QS",
 "categoria": "Altri utensili",
-"prezzo": 103600,
+"prezzo": 88000,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17466,7 +17665,8 @@
 "ch": "Sumeray Builds",
 "it": "Recensione pialla a spessore DeWALT DW733: vale i tuoi soldi?",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4000,
@@ -17515,7 +17715,7 @@
 "modello": "DW743N",
 "codice": "DW743N-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 149900,
+"prezzo": 127400,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17564,7 +17764,8 @@
 "ch": "Toolstop (Now ITS.co.uk)",
 "it": "Troncatrice combinata DeWALT DW743N: dimostrazione",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4002,
@@ -17574,7 +17775,7 @@
 "modello": "D27107",
 "codice": "D27107-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 219000,
+"prezzo": 186100,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17624,7 +17825,8 @@
 "ch": "andy devon",
 "it": "DeWALT D27107: dimostrazione",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4003,
@@ -17672,7 +17874,7 @@
 "modello": "DWE7485",
 "codice": "DWE7485-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 67000,
+"prezzo": 56900,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -17720,7 +17922,8 @@
 "ch": "Sumeray Builds",
 "it": "Recensione della sega da banco DeWALT DWE7485: vale la spesa?",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4005,
@@ -17730,7 +17933,7 @@
 "modello": "DWE7492",
 "codice": "DWE7492-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 82800,
+"prezzo": 70400,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17778,7 +17981,8 @@
 "ch": "MiniLab",
 "it": "DeWALT DWE7492: sega da banco, disimballaggio e prove di taglio",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4006,
@@ -17836,7 +18040,7 @@
 "modello": "DWE74911",
 "codice": "DWE74911-XJ",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 23800,
+"prezzo": 20200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -17868,7 +18072,8 @@
 "Falegnameria di cantiere",
 "Produzione di listelli"
 ],
-"consiglio": "Usa sempre lo spingipezzo nei tagli stretti e tieni la lama pulita da resina per tagli più freddi e precisi."
+"consiglio": "Usa sempre lo spingipezzo nei tagli stretti e tieni la lama pulita da resina per tagli più freddi e precisi.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4008,
@@ -17878,7 +18083,7 @@
 "modello": "DW876",
 "codice": "DW876-QS",
 "categoria": "Seghe e troncatrici",
-"prezzo": 149900,
+"prezzo": 127400,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17926,7 +18131,8 @@
 "ch": "Mister Worker®",
 "it": "Recensione della sega a nastro DeWALT DW876, 2025: potenza e precisione",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4009,
@@ -17936,7 +18142,7 @@
 "modello": "D27300",
 "codice": "D27300-QS",
 "categoria": "Altri utensili",
-"prezzo": 247500,
+"prezzo": 210400,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -17981,7 +18187,8 @@
 "ch": "Outdoors in the Low Countries",
 "it": "Perché ho scelto la pialla filo-spessore DeWALT D27300",
 "l": "en"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4010,
@@ -18031,7 +18238,7 @@
 "modello": "DWV901LT",
 "codice": "DWV901LT-QS",
 "categoria": "Aspirazione e pulizia",
-"prezzo": 64500,
+"prezzo": 54900,
 "volt": "230V",
 "immagineOrigine": "",
 "nota": "",
@@ -18075,7 +18282,8 @@
 "ch": "AgriEuro",
 "it": "Aspiratore solidi e liquidi DeWALT DWV901LT: montaggio",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4012,
@@ -18085,7 +18293,7 @@
 "modello": "DWV905M",
 "codice": "DWV905M-QS",
 "categoria": "Aspirazione e pulizia",
-"prezzo": 85300,
+"prezzo": 72500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -18132,7 +18340,8 @@
 "ch": "Sydney Tools TV",
 "it": "Nuovo aspiratore di polveri DeWALT da 38 litri classe M (DWV905M)",
 "l": "it"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4013,
@@ -18142,7 +18351,7 @@
 "modello": "DWV905H",
 "codice": "DWV905H-QW",
 "categoria": "Aspirazione e pulizia",
-"prezzo": 103600,
+"prezzo": 88000,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -18189,7 +18398,8 @@
 "ch": "AGOEV1986",
 "it": "Recensione e confronto del nuovo aspiratore DeWALT DWV905H",
 "l": "ru"
-}
+},
+"fontePrezzo": "onsite"
 },
 {
 "id": 4014,
@@ -18817,7 +19027,7 @@
 "modello": "DWST82990-1",
 "codice": "DWST82990-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 8800,
+"prezzo": 7500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -18854,7 +19064,8 @@
 ],
 "impieghi": [
 "Ampliare le funzioni dell'utensile"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4028,
@@ -18864,7 +19075,7 @@
 "modello": "DWST82968-1",
 "codice": "DWST82968-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 4900,
+"prezzo": 4100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -18897,7 +19108,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4029,
@@ -18907,7 +19119,7 @@
 "modello": "DWST83344-1",
 "codice": "DWST83344-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 6500,
+"prezzo": 5500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -18951,7 +19163,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4030,
@@ -18961,7 +19174,7 @@
 "modello": "DWST83345-1",
 "codice": "DWST83345-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 4900,
+"prezzo": 4100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19002,7 +19215,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4031,
@@ -19012,7 +19226,7 @@
 "modello": "DWST83346-1",
 "codice": "DWST83346-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 4900,
+"prezzo": 4100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19050,7 +19264,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4032,
@@ -19060,7 +19275,7 @@
 "modello": "DWST1-70705",
 "codice": "DWST1-70705",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 6100,
+"prezzo": 5200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19093,7 +19308,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4033,
@@ -19103,7 +19319,7 @@
 "modello": "DWST83343-1",
 "codice": "DWST83343-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 6200,
+"prezzo": 5300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19144,7 +19360,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4034,
@@ -19154,7 +19371,7 @@
 "modello": "DWST83347-1",
 "codice": "DWST83347-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 12800,
+"prezzo": 10900,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19192,7 +19409,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4035,
@@ -19202,7 +19420,7 @@
 "modello": "DWST1-71196",
 "codice": "DWST1-71196",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 18700,
+"prezzo": 16100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19232,7 +19450,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4036,
@@ -19242,7 +19461,7 @@
 "modello": "DWST1-71229",
 "codice": "DWST1-71229",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 7300,
+"prezzo": 6200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19275,7 +19494,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4037,
@@ -19333,7 +19553,7 @@
 "modello": "DWST83517-1",
 "codice": "DWST83517-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 20100,
+"prezzo": 17100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19365,7 +19585,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4039,
@@ -19375,7 +19596,7 @@
 "modello": "DWST83411-1",
 "codice": "DWST83411-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 18900,
+"prezzo": 16100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19404,7 +19625,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4040,
@@ -19414,7 +19636,7 @@
 "modello": "DWST82732-1",
 "codice": "DWST82732-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 3300,
+"prezzo": 2800,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19451,7 +19673,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4041,
@@ -19461,7 +19684,7 @@
 "modello": "DWST83392-1",
 "codice": "DWST83392-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 3900,
+"prezzo": 3300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19496,7 +19719,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4042,
@@ -19506,7 +19730,7 @@
 "modello": "DWST83394-1",
 "codice": "DWST83394-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 7300,
+"prezzo": 6200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19539,7 +19763,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4043,
@@ -19549,7 +19774,7 @@
 "modello": "DWST83293-1",
 "codice": "DWST83293-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 7300,
+"prezzo": 6200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19587,7 +19812,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4044,
@@ -19597,7 +19823,7 @@
 "modello": "DWST83294-1",
 "codice": "DWST83294-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 8400,
+"prezzo": 7300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19629,7 +19855,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4045,
@@ -19639,7 +19866,7 @@
 "modello": "DWST83342-1",
 "codice": "DWST83342-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 9600,
+"prezzo": 8400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19676,7 +19903,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4046,
@@ -19686,7 +19914,7 @@
 "modello": "DWST83529-1",
 "codice": "DWST83529-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 16500,
+"prezzo": 14000,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19721,7 +19949,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4047,
@@ -19813,7 +20042,7 @@
 "modello": "DWST83295-1",
 "codice": "DWST83295-1",
 "categoria": "Contenitori e organizzazione",
-"prezzo": 17400,
+"prezzo": 15000,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -19857,7 +20086,8 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4050,
@@ -22188,7 +22418,7 @@
 "modello": "DT8913",
 "codice": "DT8913-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 1080,
+"prezzo": 1090,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -22226,7 +22456,8 @@
 "Passaggi per impianti",
 "Ancoraggi chimici"
 ],
-"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura."
+"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4103,
@@ -22319,7 +22550,8 @@
 "Passaggi per impianti",
 "Ancoraggi chimici"
 ],
-"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura."
+"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4105,
@@ -22469,7 +22701,7 @@
 "modello": "DT8923",
 "codice": "DT8923-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 1310,
+"prezzo": 1320,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -22507,7 +22739,8 @@
 "Passaggi per impianti",
 "Ancoraggi chimici"
 ],
-"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura."
+"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4109,
@@ -22565,7 +22798,7 @@
 "modello": "DT8925",
 "codice": "DT8925-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 1560,
+"prezzo": 1580,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -22603,7 +22836,8 @@
 "Passaggi per impianti",
 "Ancoraggi chimici"
 ],
-"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura."
+"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4111,
@@ -22709,7 +22943,7 @@
 "modello": "DT8929",
 "codice": "DT8929-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 1600,
+"prezzo": 1620,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -22747,7 +22981,8 @@
 "Passaggi per impianti",
 "Ancoraggi chimici"
 ],
-"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura."
+"consiglio": "Le punte a 4 taglienti forano più velocemente, fanno fori più rotondi e non si incastrano sui ferri d'armatura.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4114,
@@ -23257,7 +23492,8 @@
 "Demolizione",
 "Rimozione piastrelle",
 "Tracce e scassi"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4126,
@@ -23298,7 +23534,8 @@
 "Demolizione",
 "Rimozione piastrelle",
 "Tracce e scassi"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4127,
@@ -23340,7 +23577,8 @@
 "Demolizione",
 "Rimozione piastrelle",
 "Tracce e scassi"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4128,
@@ -23382,7 +23620,8 @@
 "Demolizione",
 "Rimozione piastrelle",
 "Tracce e scassi"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4129,
@@ -23432,7 +23671,7 @@
 "modello": "DT60810",
 "codice": "DT60810-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 10200,
+"prezzo": 10300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23468,7 +23707,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4131,
@@ -23478,7 +23718,7 @@
 "modello": "DT60812",
 "codice": "DT60812-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 11400,
+"prezzo": 11500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23515,7 +23755,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4132,
@@ -23525,7 +23766,7 @@
 "modello": "DT60817",
 "codice": "DT60817-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 10500,
+"prezzo": 10600,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23561,7 +23802,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4133,
@@ -23571,7 +23813,7 @@
 "modello": "DT60820",
 "codice": "DT60820-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 10700,
+"prezzo": 10800,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23608,7 +23850,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4134,
@@ -23618,7 +23861,7 @@
 "modello": "DT60823",
 "codice": "DT60823-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 12300,
+"prezzo": 12400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23655,7 +23898,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4135,
@@ -23665,7 +23909,7 @@
 "modello": "DT60825",
 "codice": "DT60825-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 12800,
+"prezzo": 12900,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23702,7 +23946,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4136,
@@ -23712,7 +23957,7 @@
 "modello": "DT60830",
 "codice": "DT60830-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 14400,
+"prezzo": 14600,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23748,7 +23993,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4137,
@@ -23758,7 +24004,7 @@
 "modello": "DT60835",
 "codice": "DT60835-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 16600,
+"prezzo": 16800,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23795,7 +24041,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4138,
@@ -23852,7 +24099,7 @@
 "modello": "DT60838",
 "codice": "DT60838-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 18900,
+"prezzo": 19000,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -23889,7 +24136,8 @@
 "Fori di grande diametro",
 "Cemento armato",
 "Ancoraggi strutturali"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4140,
@@ -24026,7 +24274,7 @@
 "modello": "DT6927",
 "codice": "DT6927-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 6000,
+"prezzo": 6100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -24058,7 +24306,8 @@
 "Demolizione",
 "Rimozione piastrelle",
 "Tracce e scassi"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4144,
@@ -24068,7 +24317,7 @@
 "modello": "DT6929",
 "codice": "DT6929-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 5900,
+"prezzo": 6000,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -24097,7 +24346,8 @@
 "Demolizione",
 "Rimozione piastrelle",
 "Tracce e scassi"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4145,
@@ -30719,7 +30969,8 @@
 ],
 "impieghi": [
 "Ricambio per utensili da taglio"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4292,
@@ -30945,7 +31196,7 @@
 "modello": "DT4286",
 "codice": "DT4286-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 11900,
+"prezzo": 12100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -30985,7 +31236,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4297,
@@ -31102,7 +31354,7 @@
 "modello": "DT4351",
 "codice": "DT4351-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 13700,
+"prezzo": 13900,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -31147,7 +31399,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4300,
@@ -31157,7 +31410,7 @@
 "modello": "DT4287",
 "codice": "DT4287-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 13000,
+"prezzo": 13200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -31203,7 +31456,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4301,
@@ -31213,7 +31467,7 @@
 "modello": "DT4282",
 "codice": "DT4282-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 15300,
+"prezzo": 15500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -31259,7 +31513,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4302,
@@ -31319,7 +31574,7 @@
 "modello": "DT4260",
 "codice": "DT4260-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 11700,
+"prezzo": 11900,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -31363,7 +31618,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4304,
@@ -31418,7 +31674,7 @@
 "modello": "DT4290",
 "codice": "DT4290-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 18000,
+"prezzo": 18200,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -31454,7 +31710,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4306,
@@ -31650,7 +31907,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4310,
@@ -31660,7 +31918,7 @@
 "modello": "DT10303",
 "codice": "DT10303-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 6300,
+"prezzo": 6400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -31697,7 +31955,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4311,
@@ -31742,7 +32001,8 @@
 "Carpenteria",
 "Falegnameria"
 ],
-"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4312,
@@ -31835,7 +32095,8 @@
 "Falegnameria",
 "Tagli curvi",
 "Lamiere sottili"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4314,
@@ -31845,7 +32106,7 @@
 "modello": "DT2075",
 "codice": "DT2075-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 1110,
+"prezzo": 1120,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -31881,7 +32142,8 @@
 "Falegnameria",
 "Tagli curvi",
 "Lamiere sottili"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4315,
@@ -32164,7 +32426,7 @@
 "modello": "DT2160",
 "codice": "DT2160-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 730,
+"prezzo": 740,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -32200,7 +32462,8 @@
 "Falegnameria",
 "Tagli curvi",
 "Lamiere sottili"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4322,
@@ -33004,7 +33267,7 @@
 "modello": "DT90387",
 "codice": "DT90387-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 2700,
+"prezzo": 2800,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -33037,7 +33300,8 @@
 "Demolizione",
 "Taglio tubi",
 "Potatura"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4341,
@@ -33175,7 +33439,7 @@
 "modello": "DT2421",
 "codice": "DT2421-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 6700,
+"prezzo": 6800,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -33202,7 +33466,8 @@
 ],
 "impieghi": [
 "Ricambio per utensili da taglio"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4345,
@@ -33255,7 +33520,7 @@
 "modello": "DT2422",
 "codice": "DT2422-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 9600,
+"prezzo": 9700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -33281,7 +33546,8 @@
 ],
 "impieghi": [
 "Ricambio per utensili da taglio"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4347,
@@ -33373,7 +33639,7 @@
 "modello": "DT2335",
 "codice": "DT2335-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 5400,
+"prezzo": 5500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -33400,7 +33666,8 @@
 "Demolizione",
 "Taglio tubi",
 "Potatura"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4350,
@@ -33410,7 +33677,7 @@
 "modello": "DT2974",
 "codice": "DT2974-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 11600,
+"prezzo": 11700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -33438,7 +33705,8 @@
 "Demolizione",
 "Taglio tubi",
 "Potatura"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4351,
@@ -33485,7 +33753,7 @@
 "modello": "DT2975",
 "codice": "DT2975-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 11600,
+"prezzo": 11700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -33513,7 +33781,8 @@
 "Demolizione",
 "Taglio tubi",
 "Potatura"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4353,
@@ -33523,7 +33792,7 @@
 "modello": "DT2976",
 "codice": "DT2976-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 19500,
+"prezzo": 19700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -33551,7 +33820,8 @@
 "Demolizione",
 "Taglio tubi",
 "Potatura"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4354,
@@ -34237,7 +34507,8 @@
 "Tagli a filo",
 "Rimozione fughe e sigillanti"
 ],
-"consiglio": "Forando l'acciaio usa una velocità bassa e un po' di olio da taglio: la punta resta affilata molto più a lungo."
+"consiglio": "Forando l'acciaio usa una velocità bassa e un po' di olio da taglio: la punta resta affilata molto più a lungo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4371,
@@ -34399,7 +34670,8 @@
 "Ristrutturazioni",
 "Tagli a filo",
 "Rimozione fughe e sigillanti"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4375,
@@ -34621,7 +34893,7 @@
 "modello": "DT20714",
 "codice": "DT20714-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 1090,
+"prezzo": 1100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -34652,7 +34924,8 @@
 "Ristrutturazioni",
 "Tagli a filo",
 "Rimozione fughe e sigillanti"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4381,
@@ -35591,7 +35864,8 @@
 "Officina",
 "Cantiere"
 ],
-"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo."
+"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4404,
@@ -35642,7 +35916,8 @@
 "Officina",
 "Cantiere"
 ],
-"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo."
+"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4405,
@@ -35683,7 +35958,8 @@
 "Officina",
 "Cantiere"
 ],
-"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo."
+"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4406,
@@ -35734,7 +36010,7 @@
 "modello": "DT43909",
 "codice": "DT43909-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 410,
+"prezzo": 420,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -35765,7 +36041,8 @@
 "Officina",
 "Cantiere"
 ],
-"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo."
+"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4408,
@@ -35857,7 +36134,8 @@
 "Officina",
 "Cantiere"
 ],
-"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo."
+"consiglio": "Usa i dischi sottili (1 mm) per tagliare l'inox: tagli più veloci e meno calore sul pezzo.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4410,
@@ -36275,7 +36553,7 @@
 "modello": "DT40252",
 "codice": "DT40252-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 2700,
+"prezzo": 2900,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36313,7 +36591,8 @@
 "Taglio pietra e laterizi",
 "Piastrelle",
 "Calcestruzzo"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4421,
@@ -36323,7 +36602,7 @@
 "modello": "DT40254",
 "codice": "DT40254-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 2700,
+"prezzo": 4800,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36361,7 +36640,8 @@
 "Taglio pietra e laterizi",
 "Piastrelle",
 "Calcestruzzo"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4422,
@@ -36371,7 +36651,7 @@
 "modello": "DT40255",
 "codice": "DT40255-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 2700,
+"prezzo": 6400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36409,7 +36689,8 @@
 "Taglio pietra e laterizi",
 "Piastrelle",
 "Calcestruzzo"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4423,
@@ -36419,7 +36700,7 @@
 "modello": "DT3796",
 "codice": "DT3796-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 9400,
+"prezzo": 9500,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36455,7 +36736,8 @@
 "Passaggi tubi",
 "Faretti e plafoniere"
 ],
-"consiglio": "Usa sempre un mandrino con punta pilota e riduci i giri per i diametri grandi."
+"consiglio": "Usa sempre un mandrino con punta pilota e riduci i giri per i diametri grandi.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4424,
@@ -36465,7 +36747,7 @@
 "modello": "DT3797",
 "codice": "DT3797-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 10100,
+"prezzo": 10300,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36500,7 +36782,8 @@
 "Taglio pietra e laterizi",
 "Piastrelle",
 "Calcestruzzo"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4425,
@@ -36510,7 +36793,7 @@
 "modello": "DNBT1815GZ",
 "codice": "DNBT1815GZ",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 780,
+"prezzo": 790,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36539,7 +36822,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4426,
@@ -36617,7 +36901,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4428,
@@ -36666,7 +36951,7 @@
 "modello": "DNBT1825GZ",
 "codice": "DNBT1825GZ",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 910,
+"prezzo": 920,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36694,7 +36979,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4430,
@@ -36743,7 +37029,7 @@
 "modello": "DNBT1830GZ",
 "codice": "DNBT1830GZ",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 1050,
+"prezzo": 1060,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36772,7 +37058,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4432,
@@ -36859,7 +37146,7 @@
 "modello": "DNBT1840GZ",
 "codice": "DNBT1840GZ",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 1300,
+"prezzo": 1320,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36888,7 +37175,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4435,
@@ -36898,7 +37186,7 @@
 "modello": "DNBT1850GZ",
 "codice": "DNBT1850GZ",
 "categoria": "Chiodatrici e fissaggio",
-"prezzo": 1560,
+"prezzo": 1580,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -36927,7 +37215,8 @@
 "Cartongesso",
 "Impiantistica"
 ],
-"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare."
+"consiglio": "Controlla sempre tipo, diametro e inclinazione indicati sulla chiodatrice prima di ordinare.",
+"fontePrezzo": "onsite"
 },
 {
 "id": 4436,
@@ -38172,7 +38461,7 @@
 "modello": "DT70620",
 "codice": "DT70620-QZ",
 "categoria": "Accessori per elettroutensili",
-"prezzo": 9000,
+"prezzo": 7700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -38196,7 +38485,8 @@
 ],
 "impieghi": [
 "Ampliare le funzioni dell'utensile"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4467,
@@ -38243,7 +38533,7 @@
 "modello": "DT20500",
 "codice": "DT20500-QZ",
 "categoria": "Accessori per elettroutensili",
-"prezzo": 3300,
+"prezzo": 2800,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -38270,7 +38560,8 @@
 ],
 "impieghi": [
 "Ampliare le funzioni dell'utensile"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4469,
@@ -38715,7 +39006,7 @@
 "modello": "DT71516",
 "codice": "DT71516-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 3300,
+"prezzo": 2800,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -38746,7 +39037,8 @@
 "Montaggio",
 "Manutenzione",
 "Furgone e officina"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4480,
@@ -38797,7 +39089,7 @@
 "modello": "DT70711",
 "codice": "DT70711-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 5200,
+"prezzo": 4400,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -38834,7 +39126,8 @@
 "Montaggio",
 "Manutenzione",
 "Furgone e officina"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4482,
@@ -38844,7 +39137,7 @@
 "modello": "DT70712",
 "codice": "DT70712-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 4400,
+"prezzo": 3700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -38879,7 +39172,8 @@
 "Montaggio",
 "Manutenzione",
 "Furgone e officina"
-]
+],
+"fontePrezzo": "onsite"
 },
 {
 "id": 4483,
@@ -40335,7 +40629,7 @@
 "modello": "DCB1104P3",
 "codice": "DCB1104P3-QW",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 34800,
+"prezzo": 29600,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -40370,7 +40664,9 @@
 "ch": "Svelato",
 "it": "Recensione del DEWALT DCB1104-QW Caricabatteria multivoltaggio XR 4A",
 "l": "it"
-}
+},
+"prezzoListino": 34770,
+"fontePrezzo": "onsite"
 },
 {
 "id": 4519,
@@ -40380,7 +40676,7 @@
 "modello": "DT6956",
 "codice": "DT6956-QZ",
 "categoria": "Punte e inserti",
-"prezzo": 1430,
+"prezzo": 1210,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -40406,7 +40702,9 @@
 "impieghi": [
 "Tasselli in muratura",
 "Fori per staffe e mensole"
-]
+],
+"prezzoListino": 1427,
+"fontePrezzo": "onsite"
 },
 {
 "id": 4520,
@@ -40416,7 +40714,7 @@
 "modello": "DCK4006P3T",
 "codice": "DCK4006P3T-IT",
 "categoria": "Kit",
-"prezzo": 124300,
+"prezzo": 105700,
 "volt": "18V",
 "immagineOrigine": "",
 "nota": "",
@@ -40451,7 +40749,9 @@
 "Impiantisti",
 "Manutentori"
 ],
-"consiglio": "Con un kit avvii la tua piattaforma: tutti gli utensili successivi puoi prenderli in versione solo corpo."
+"consiglio": "Con un kit avvii la tua piattaforma: tutti gli utensili successivi puoi prenderli in versione solo corpo.",
+"prezzoListino": 124318,
+"fontePrezzo": "onsite"
 },
 {
 "id": 4521,
@@ -40461,7 +40761,7 @@
 "modello": "DCB118T2",
 "codice": "DCB118T2-QW",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 47500,
+"prezzo": 40300,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -40498,7 +40798,9 @@
 "ch": "PickWise",
 "it": "DeWALT DCB118T2: starter set FLEXVOLT",
 "l": "en"
-}
+},
+"prezzoListino": 47458,
+"fontePrezzo": "onsite"
 },
 {
 "id": 4522,
@@ -40508,7 +40810,7 @@
 "modello": "DCB118X2",
 "codice": "DCB118X2-QW",
 "categoria": "Batterie e caricabatterie",
-"prezzo": 59700,
+"prezzo": 50700,
 "volt": "54V",
 "immagineOrigine": "",
 "nota": "",
@@ -40545,7 +40847,9 @@
 "ch": "KaufPilot",
 "it": "DeWALT DCB118X2: starter set XR FLEXVOLT con 2 batterie 54V",
 "l": "de"
-}
+},
+"prezzoListino": 59658,
+"fontePrezzo": "onsite"
 },
 {
 "id": 4523,
@@ -40555,7 +40859,7 @@
 "modello": "DWE4257KT",
 "codice": "DWE4257KT-QS",
 "categoria": "Accessori per elettroutensili",
-"prezzo": 38400,
+"prezzo": 32700,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -40589,7 +40893,9 @@
 "ch": "Punto Lavoro",
 "it": "Recensione del DEWALT DWE4257-QS Smerigliatrice Angolare 125Mm, Potenza 1500W, 2800 - 10500 Giri/Min",
 "l": "it"
-}
+},
+"prezzoListino": 38430,
+"fontePrezzo": "onsite"
 },
 {
 "id": 4524,
