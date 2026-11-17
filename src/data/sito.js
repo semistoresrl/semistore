@@ -40,7 +40,7 @@ export const GOOGLE = {
   // apre direttamente la finestra "scrivi una recensione" della scheda
   recensione: `https://search.google.com/local/writereview?placeid=${SITO.googlePlaceId}`,
   // mappa incorporata (non serve chiave)
-  mappa: `https://www.google.com/maps?q=place_id:${SITO.googlePlaceId}&hl=it&z=16&output=embed`,
+  mappa: `https://maps.google.com/maps?q=${encodeURIComponent('SE.M.I. srl Professional, Viale Guglielmo Marconi 225, 80020 Casavatore NA')}&hl=it&z=17&output=embed`,
 };
 
 export const euro = (cent) =>
