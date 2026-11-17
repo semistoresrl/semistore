@@ -48,6 +48,14 @@ const fotoCat = (c: string) => {
 const ordineCat = ['Trapani e avvitatori', 'Smerigliatrici e levigatrici', 'Tassellatori e demolitori', 'Seghe e troncatrici', 'Batterie e caricabatterie', 'Misura e laser', 'Chiodatrici e fissaggio', 'Contenitori e organizzazione', 'Giardino', 'Aspirazione e pulizia', 'Punte e inserti', 'Lame, dischi e abrasivi', 'Utensili manuali', 'Accessori per elettroutensili', 'Compressori e aria compressa', 'Kit', 'Altri utensili'];
 const catOrd = ordineCat.filter((c) => cats.some(([x]) => x === c)).concat(cats.map(([c]) => c).filter((c) => !ordineCat.includes(c)));
 const nCat = Object.fromEntries(cats);
+// 4 foto per categoria che si alternano (la prima è quella scelta), come nella versione precedente
+const fotoAnim = (c: string) => {
+  const prima = fotoCat(c);
+  const altre = prodotti.filter((x) => x.categoria === c && fotoDi(x.slug, 400)).sort((a, b) => b.prezzo - a.prezzo).map((x) => fotoDi(x.slug, 400) as string);
+  const uniche = [...new Set([prima, ...altre].filter(Boolean))].slice(0, 4) as string[];
+  while (uniche.length && uniche.length < 4) uniche.push(uniche[uniche.length % uniche.length]);
+  return uniche;
+};
 const fotoVolt = (v: string, m: string) => { const p = prodotti.find((x) => x.modello === m); return p ? fotoDi(p.slug, 400) : undefined; };
 const piattaformeF = [
   { ...piattaforme[0], img: fotoVolt('12V', 'DCE089D1G') },
@@ -80,7 +88,7 @@ const vantaggi = [
         <span class="vt-sub"><b data-voto-v></b> su Google · <span data-voto-n></span></span>
       </a>
       <a class="vt-c" href="/assistenza/">
-        <span class="vt-bad mono" aria-hidden="true">DW</span>
+        <img class="vt-bad" src="/favicon.svg" alt="" width="52" height="52" />
         <span><b>Centro Assistenza Autorizzato DEWALT</b><small>dal 1997 a Casavatore · ricambi originali</small></span>
       </a>
     </div>
@@ -91,14 +99,21 @@ const vantaggi = [
   <section class="sec"><div class="wrap">
     <div class="sec-h"><h2 class="h2">Categorie più popolari</h2><a href="/catalogo/" class="ul">Scopri tutte le categorie</a></div>
     <div class="ct">
-      {catOrd.map((c) => (
-        <a href={`/catalogo/?cat=${slugCat(c)}`} class="ct-c">
-          <span class="ct-i">{fotoCat(c) ? <img src={fotoCat(c)} alt="" width="400" height="400" loading="lazy" decoding="async" /> : <span class="mono">{sigla[c] || 'AU'}</span>}</span>
+      {catOrd.map((c, i) => (
+        <a href={`/catalogo/?cat=${slugCat(c)}`} class="ct-c" style={`--d:${(i * 1.3) % 8}s`}>
+          <span class="ct-i">{fotoAnim(c).length ? fotoAnim(c).map((u, k) => <img src={u} alt="" width="400" height="400" loading="lazy" decoding="async" style={`animation-delay:calc(${k * 2}s - var(--d))`} />) : <span class="mono">{sigla[c] || 'AU'}</span>}</span>
           <b>{c}</b><small>{nCat[c]} articoli</small>
         </a>
       ))}
       <a href="/catalogo/" class="ct-c ct-all"><span class="ct-i"><span>→</span></span><b>Tutto il catalogo</b><small>{prodotti.length} articoli</small></a>
     </div>
+  </div></section>
+
+  <section class="sec"><div class="wrap">
+    <div class="sec-h"><h2 class="h2">Prodotti consigliati</h2>
+      <span class="rc-nav"><button type="button" class="rc-b" data-rc="-1" aria-label="Indietro">‹</button><button type="button" class="rc-b" data-rc="1" aria-label="Avanti">›</button></span>
+    </div>
+    <div class="rc" id="rc">{evidenza.map((p) => <ProductCard p={p} />)}</div>
   </div></section>
 
   <section class="wrap bn">
@@ -126,14 +141,8 @@ const vantaggi = [
     </div>
   </section>
 
-  <section class="sec"><div class="wrap">
-    <div class="sec-h"><h2 class="h2">Prodotti consigliati</h2>
-      <span class="rc-nav"><button type="button" class="rc-b" data-rc="-1" aria-label="Indietro">‹</button><button type="button" class="rc-b" data-rc="1" aria-label="Avanti">›</button></span>
-    </div>
-    <div class="rc" id="rc">{evidenza.map((p) => <ProductCard p={p} />)}</div>
-  </div></section>
 
-  <section class="sec" style="padding-top:0"><div class="wrap">
+  <section class="sec"><div class="wrap">
     <div class="sec-h"><h2 class="h2">Prodotti più popolari</h2><a href="/catalogo/" class="ul">Vai al catalogo</a></div>
     <div class="grid-p">{popolari.map((p) => <ProductCard p={p} />)}</div>
   </div></section>
@@ -184,18 +193,25 @@ const vantaggi = [
   .vt-c[hidden]{display:none}
   .vt-ec{font-size:26px;font-weight:900;text-transform:uppercase;color:var(--y-d)}.vt-st{font-size:26px;color:var(--y);letter-spacing:2px;line-height:1}
   .vt-sub{flex-basis:100%;font-size:15px;color:var(--mut)}.vt-sub b{color:var(--ink)}
-  .vt-bad{flex:0 0 52px;height:52px;border-radius:50%;background:var(--y);color:var(--ink);font-weight:900;display:grid;place-items:center;border:3px solid var(--ink)}
+  .vt-bad{flex:0 0 52px;height:52px}
   .vt-c small{display:block;color:var(--mut);font-size:13.5px}
   @media (max-width:860px){.vt .wrap{grid-template-columns:1fr}}
-  @media (max-width:520px){.vt-g{grid-template-columns:1fr;gap:12px}.vt-ic{flex-basis:46px;height:46px}}
+  @media (max-width:520px){.vt .wrap{padding-top:20px;padding-bottom:20px;gap:12px}.vt-h{font-size:21px;margin-bottom:14px}.vt-g{gap:12px 10px}.vt-i{gap:8px}.vt-i b{font-size:13.5px}.vt-i small{display:none}.vt-ic{flex:0 0 38px;height:38px;border-radius:9px}.vt-ic svg{width:22px;height:22px}.vt-c{padding:12px 14px}.vt-ec,.vt-st{font-size:20px}.vt-r>.vt-c:not([data-voto]) small{display:none}}
   .ct{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
   .ct-c{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 10px 16px;transition:transform .15s,box-shadow .15s}
   .ct-c:hover{color:inherit;transform:translateY(-2px);box-shadow:0 12px 26px #0001;border-color:var(--y)}
-  .ct-i{width:100%;aspect-ratio:1;display:grid;place-items:center;margin-bottom:6px}.ct-i img{width:86%;height:86%;object-fit:contain}
+  .ct-i{position:relative;width:100%;aspect-ratio:1;display:grid;place-items:center;margin-bottom:6px;overflow:hidden}
+  .ct-i img{position:absolute;inset:7%;width:86%;height:86%;object-fit:contain;opacity:0;animation:catv 8s infinite linear;will-change:opacity,transform}
+  .ct-i img:first-child{opacity:1}
+  .ct-c:not(.ct-all) .ct-i::after{content:'';position:absolute;left:10%;right:10%;bottom:0;height:3px;border-radius:2px;background:var(--y);transform-origin:left;animation:catbar 2s infinite linear;animation-delay:calc(0s - var(--d))}
+  @keyframes catv{0%{opacity:0;transform:scale(1.25) translateX(8%)}4%{opacity:1}25%{opacity:1;transform:scale(1) translateX(-6%)}29%{opacity:0;transform:scale(.95) translateX(-10%)}100%{opacity:0}}
+  @keyframes catbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @keyframes catfade{0%{opacity:0}4%{opacity:1}25%{opacity:1}29%{opacity:0}100%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.ct-i img{animation-name:catfade}.ct-i::after{display:none}}
   .ct-i>span{font-size:22px;font-weight:800;color:#c9c6bc}
   .ct-c b{font-size:15px;line-height:1.2}.ct-c small{font-size:12px;color:var(--mut);font-weight:600}
   .ct-all{background:var(--ink);color:#fff;border-color:var(--ink)}.ct-all:hover{color:#fff}.ct-all .ct-i>span{width:64px;height:64px;border-radius:50%;background:var(--y);color:var(--ink);display:grid;place-items:center;font-size:30px}.ct-all small{color:var(--mut-d)}
-  @media (max-width:560px){.ct{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ct-c{padding:8px 6px 12px;border-radius:12px}.ct-c b{font-size:12.5px}.ct-c small{font-size:11px}}
+  @media (max-width:560px){.ct-c:nth-child(n+9):not(.ct-all){display:none}.ct{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ct-c{padding:8px 6px 12px;border-radius:12px}.ct-c b{font-size:12.5px}.ct-c small{font-size:11px}}
   .bn{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:16px;padding-top:8px}
   .bn-a{position:relative;border-radius:20px;overflow:hidden;min-height:420px;display:flex;flex-direction:column;justify-content:flex-end;color:var(--ink);background:var(--y);isolation:isolate}.bn-a:hover{color:var(--ink)}
   .bn-a::after{content:'';position:absolute;inset:0;z-index:-2;background:repeating-linear-gradient(-45deg,#0000 0 24px,#0000000b 24px 48px)}

@@ -31,14 +31,16 @@ const nav = [
   <link rel="canonical" href={canonical} />
   {noindex && <meta name="robots" content="noindex" />}
   <meta name="theme-color" content="#15171a" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preload" href={font} as="font" type="font/woff2" crossorigin />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={fullTitle} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <meta property="og:locale" content="it_IT" />
-  {image && <meta property="og:image" content={new URL(image, SITO.url).href} />}
+  <meta property="og:image" content={new URL(image || '/og-semi.png', SITO.url).href} />
   <script type="application/ld+json" set:html={JSON.stringify(org)} />
   {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
   <!-- Foto rotte (link esterni morti): niente testo alternativo sotto i bollini, si mostra il codice prodotto o si nasconde l'immagine -->
@@ -57,10 +59,7 @@ const nav = [
   </div></div>
   <header class="hdr" id="hdr">
     <div class="wrap row hdr-in">
-      <a href="/" class="logo" aria-label="Semi Store, home">
-        <span class="logo-s" aria-hidden="true">S</span>
-        <span class="logo-t"><b>SEMI</b><small>STORE · ASSISTENZA</small></span>
-      </a>
+      <a href="/" class="logo" aria-label="Semi Store, home"><img src="/logo.svg" alt="Semi Store · Assistenza" width="374" height="120" /></a>
       <nav aria-label="Principale" class="nav">
         {nav.map(([h, l]) => <a href={h} aria-current={path === h ? 'page' : undefined}>{l}</a>)}
       </nav>
@@ -95,7 +94,7 @@ const nav = [
   <footer class="ftr" id="contatti">
     <div class="wrap grid4">
       <div class="col">
-        <b class="ftr-brand">SEMI STORE</b>
+        <img class="ftr-logo" src="/logo.svg" alt="Semi Store" width="374" height="120" loading="lazy" />
         <span>{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</span>
         <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br /><a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
       </div>
@@ -147,9 +146,8 @@ const nav = [
   /* telefono in orizzontale: lo schermo è basso, l'header non resta fisso */
   @media (max-height:500px) and (min-width:861px){.hdr{position:relative}}
   .hdr-in{gap:14px 28px;padding-top:14px;padding-bottom:14px}
-  .logo{display:flex;align-items:center;gap:12px;color:#fff}.logo:hover{color:#fff}
-  .logo-s{width:40px;height:40px;background:var(--y);color:var(--ink);display:grid;place-items:center;font-weight:900;font-size:20px;border-radius:6px;transform:skewX(-8deg)}
-  .logo-t{display:flex;flex-direction:column;line-height:1.05}.logo-t b{font-size:20px;letter-spacing:.04em}.logo-t small{white-space:nowrap;font-size:11px;color:var(--mut-d);letter-spacing:.18em}
+  .logo{display:flex;align-items:center;flex:0 0 auto}.logo img{height:46px;width:auto}
+  .ftr-logo{height:52px;width:auto;margin-bottom:4px}
   .nav{display:flex;flex-wrap:wrap;gap:4px 22px;font-weight:600;font-size:15px}.nav a{color:#fff;padding:10px 0}.nav a:hover,.nav a[aria-current]{color:var(--y)}
   .hdr-act{flex:1 1 180px;min-width:0;display:flex;gap:10px;justify-content:flex-end;align-items:center}
   .search{flex:1 1 120px;min-width:0;max-width:320px;display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:8px;padding:0 12px;height:44px}
@@ -168,7 +166,7 @@ const nav = [
   }
   @media (max-width:720px){.strip .wrap>span:first-child{display:none}}
   @media (max-width:480px){.strip .wrap{justify-content:center}.strip .gap>span:first-child{display:none}}
-  @media (max-width:360px){.logo{gap:8px}.logo-s{width:34px;height:34px;font-size:17px}.logo-t b{font-size:17px}.logo-t small{font-size:9px;letter-spacing:.12em}.btn-cart{padding:0 12px}.of-bar{font-size:13px}}
+  @media (max-width:360px){.logo img{height:38px}.btn-cart{padding:0 12px}.of-bar{font-size:13px}}
   .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;border-radius:8px;font-weight:800;font-size:16px;border:0;cursor:pointer;font-family:inherit}
   .btn-y{background:var(--y);color:var(--ink)}.btn-y:hover{color:var(--ink);filter:brightness(1.05)}
   .btn-k{background:var(--ink);color:#fff}.btn-k:hover{color:var(--y)}
