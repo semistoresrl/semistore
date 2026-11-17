@@ -17,6 +17,9 @@ const specs = (p.caratteristiche || []).map((s) => { const i = s.indexOf(': '); 
 const risparmio = p.prezzoListino && p.prezzoListino > p.prezzo ? Math.round((1 - p.prezzo / p.prezzoListino) * 100) : 0;
 const ld = productLd(p, img);
 const conferma = p.disponibilita === 'conferma';
+const LINGUE: Record<string, string> = { en: 'inglese', fr: 'francese', de: 'tedesco', es: 'spagnolo', pt: 'portoghese', nl: 'olandese', pl: 'polacco', cs: 'ceco', sk: 'slovacco', hu: 'ungherese', ro: 'rumeno', bg: 'bulgaro', el: 'greco', ru: 'russo', uk: 'ucraino', tr: 'turco', sv: 'svedese', th: 'thailandese', vi: 'vietnamita', id: 'indonesiano', ko: 'coreano' };
+const vTit = p.video ? (p.video.it || p.video.t) : '';
+const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] || 'lingua straniera') : '';
 ---
 <Base title={titolo} description={`${p.sottotitolo ? p.sottotitolo + '. ' : ''}${p.marca} ${p.modello || ''} a ${euro(p.prezzo)}: spedizione o ritiro a ${SITO.citta}, garanzia gestita da centro assistenza autorizzato.`} image={img} jsonld={ld}>
   <div class="wrap">
@@ -59,12 +62,13 @@ const conferma = p.disponibilita === 'conferma';
         {p.dotazione && <div class="pd-d"><h2 class="h2">Nella confezione</h2><p>{p.dotazione.replace(/\.$/, '')}.</p></div>}
         {p.video && <div class="pd-d"><h2 class="h2">Video</h2>
           <div class="yt-w"><div class="yt-box">
-            <button class="yt" data-id={p.video.id} aria-label={`Guarda il video: ${p.video.t}`}>
+            <button class="yt" data-id={p.video.id} data-sub={vLingua ? '1' : undefined} aria-label={`Guarda il video: ${vTit}`}>
               <img src={`https://i.ytimg.com/vi/${p.video.id}/hqdefault.jpg`} alt="" width="480" height="360" loading="lazy" decoding="async" />
               <span class="yt-p" aria-hidden="true"></span>
             </button>
           </div></div>
-          <p class="yt-t">{p.video.t}{p.video.ch && <> · <span>{p.video.ch}</span></>}</p></div>}
+          <p class="yt-t"><b>{vTit}</b>{p.video.ch && <> · <span>{p.video.ch}</span></>}</p>
+          {vLingua && <p class="yt-l">Video in {vLingua}: i sottotitoli partono da soli. Se non sono in italiano, tocca ⚙ → Sottotitoli → Traduzione automatica → Italiano.</p>}</div>}
         {p.consiglio && <div class="pd-d pd-tip"><h2 class="h2">Il consiglio del nostro tecnico</h2><p>{p.consiglio}</p></div>}
       </section>
     )}
@@ -79,7 +83,7 @@ const conferma = p.disponibilita === 'conferma';
     if (play) {
       const box = play.parentElement as HTMLElement, wrap = box.parentElement as HTMLElement;
       box.dataset.thumb = box.innerHTML;
-      box.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${play.dataset.id}?autoplay=1&rel=0&playsinline=1&modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Video prodotto"></iframe><button class="yt-x" aria-label="Chiudi video">×</button>`;
+      box.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${play.dataset.id}?autoplay=1&rel=0&playsinline=1&modestbranding=1&hl=it${play.dataset.sub ? '&cc_load_policy=1&cc_lang_pref=it' : ''}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Video prodotto"></iframe><button class="yt-x" aria-label="Chiudi video">×</button>`;
       box.classList.add('yt-on');
       ytObs?.disconnect();
       ytObs = new IntersectionObserver(([e]) => box.classList.toggle('yt-float', !e.isIntersecting && box.classList.contains('yt-on')), { threshold: 0.25 });
@@ -115,7 +119,7 @@ const conferma = p.disponibilita === 'conferma';
   .pd-v li::before{content:'';position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:4px;background:var(--y) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12l5 5L20 7' fill='none' stroke='%23111' stroke-width='3'/%3E%3C/svg%3E") center/12px no-repeat}
   .pd-tags{margin:12px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}.pd-tags li{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:600}
   .pd-tip{background:#fff;border:1px solid var(--line);border-left:4px solid var(--y);border-radius:12px;padding:18px 20px}.pd-tip .h2{font-size:20px}
-  .yt-t{font-size:14px!important;color:var(--mut)}
+  .yt-t{font-size:14px!important;color:var(--mut)}.yt-t b{color:var(--ink);font-weight:700}.yt-l{font-size:13px!important;color:var(--mut);margin-top:4px}
   .pd-l{margin:8px 0 0;padding:16px 16px 16px 34px;background:#fff;border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;gap:6px;font-size:15px}
 </style>
 <style is:global>
