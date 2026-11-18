@@ -14,6 +14,17 @@ export async function onRequestPost({ request, env }) {
     .map((i) => ({ p: PER_SLUG[i.slug], q: Math.max(1, Math.min(20, Math.floor(Number(i.qty) || 0))) }))
     .filter((i) => i.p).slice(0, 50);
   if (!items.length) return json({ error: 'carrello vuoto' }, 400);
+  // giacenze ufficiali (se caricate): non si vende più di quanto c'è, anche contando le vendite TikTok
+  if (env.DB) {
+    try {
+      const segni = items.map(() => '?').join(',');
+      const g = (await env.DB.prepare(`SELECT slug, qty FROM giacenze WHERE slug IN (${segni})`).bind(...items.map((i) => i.p.slug)).all()).results;
+      for (const r of g) {
+        const i = items.find((x) => x.p.slug === r.slug);
+        if (i && i.q > r.qty) return json({ error: r.qty ? `${i.p.nome}: disponibili solo ${r.qty}` : `${i.p.nome}: al momento esaurito` }, 409);
+      }
+    } catch { /* tabella non ancora creata: si procede come prima */ }
+  }
   const ritiro = body.consegna === 'ritiro';
   const sub = items.reduce((t, i) => t + i.p.prezzo * i.q, 0);
   const origin = new URL(request.url).origin;

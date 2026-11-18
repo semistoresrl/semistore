@@ -48,3 +48,23 @@ npm run build
 cp .dev.vars.example .dev.vars   # metti le chiavi di test
 npx wrangler pages dev dist
 ```
+
+## Giacenze ufficiali e TikTok Shop
+Le giacenze caricate dall'app interna stanno nel database **D1** (binding `DB`). Tutto ciò che ha quantità > 0 va in vendita anche su **TikTok Shop**; le vendite di un canale scalano la giacenza dell'altro.
+
+**Endpoint**
+- `POST /api/giacenze` (ADMIN_TOKEN) → `{ "giacenze": [{ "codice": "DCD796P2-QW", "qty": 3, "prezzo": 19900 }] }`. Il codice viene abbinato al catalogo del sito (anche senza `-QW`); per articoli non ancora sul sito invia anche `nome`, `marca`, `immagine` (e se li hai `ean`, `pesoKg`, `descrizione`).
+- `GET /api/giacenze` → `{ slug: quantità }` (pubblico). Il checkout blocca gli ordini oltre la giacenza.
+- `POST /api/tiktok/sync` (ADMIN_TOKEN) → lavora il prossimo blocco della coda; ripetere finché `restanti` = 0. `{"riprova":true}` rimette in coda gli errori, `{"tutti":true}` riallinea tutto.
+- `GET /api/tiktok/stato` (ADMIN_TOKEN) → negozio collegato, conteggi, prodotti con problemi (`?gpsr` elenca fabbricanti/responsabili UE creati in Seller Center).
+- `POST /api/tiktok/stato` (ADMIN_TOKEN) → `{ "conformita": { "DEWALT": { "fabbricante": "ID", "responsabile": "ID" }, "STANLEY": {...}, "BLACK+DECKER": {...} } }`
+- `POST /api/tiktok/webhook` → ordini TikTok (scala/rimette la giacenza). `POST /api/stripe-webhook` → ordini del sito.
+
+**Attivazione (una volta)**
+1. Cloudflare → Storage & Databases → D1 → crea `semistore` → Pages → Settings → Bindings → D1 database, nome variabile `DB`.
+2. TikTok Shop Partner Center (partner.tiktokshop.com) → App & Service → crea **Custom app** per il negozio di Se.Mi. srl. Redirect URL: `https://semistore.it/api/tiktok/callback`. Permessi: Shop Authorized Information, Product (base), Order Information, Logistics. Webhook "Order status change": `https://semistore.it/api/tiktok/webhook`.
+3. Cloudflare → Variabili (Secret): `TIKTOK_APP_KEY`, `TIKTOK_APP_SECRET`, `TIKTOK_SERVICE_ID`; facoltativa `TIKTOK_RICARICO_PERCENTO` (es. 8 per coprire la commissione TikTok; vuota = stesso prezzo del sito).
+4. Apri `https://semistore.it/api/tiktok/collega?token=ADMIN_TOKEN` dal browser in cui sei entrato in Seller Center e conferma.
+5. Stripe → Sviluppatori → Webhook → `https://semistore.it/api/stripe-webhook`, evento `checkout.session.completed`; copia il `whsec_...` nella variabile `STRIPE_WEBHOOK_SECRET`.
+
+**Come crea i prodotti su TikTok**: categoria suggerita da TikTok in base al titolo, marchio (deve essere autorizzato con la Brand Qualification), fino a 3 foto, descrizione e caratteristiche del sito, peso dalle caratteristiche (+0,5 kg di imballo, altrimenti 3 kg), scatola 45×35×15 cm se non indicata. Se TikTok chiede dati che mancano (attributi, certificazioni) il prodotto viene creato **in bozza**: si completa in Seller Center e da lì in poi giacenza e prezzo restano allineati da soli.
