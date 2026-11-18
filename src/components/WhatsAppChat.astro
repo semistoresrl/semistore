@@ -1,0 +1,170 @@
+---
+// Pulsante WhatsApp fisso con finestrella "domande rapide":
+// il cliente sceglie l'argomento, completa il messaggio già impostato e lo invia su WhatsApp.
+// Senza JavaScript il pulsante resta un link diretto a wa.me.
+import { SITO } from '../data/sito.js';
+
+// Domande principali: `testo` è il messaggio precompilato (le righe "Campo: " le completa il cliente).
+// Per aggiungere/togliere una domanda basta modificare questo elenco.
+const DOMANDE = [
+  { id: 'prodotto', icona: '🛒', titolo: 'Prezzo e disponibilità', testo: 'Ciao Semi, vorrei sapere prezzo e disponibilità di: ' },
+  { id: 'riparazione', icona: '🔧', titolo: 'Riparare un utensile', testo: 'Ciao Semi, vorrei far riparare il mio utensile.\nModello: \nProblema: ' },
+  { id: 'ricambio', icona: '🔩', titolo: 'Cerco un ricambio', testo: 'Ciao Semi, cerco un ricambio.\nModello utensile: \nPezzo che mi serve: ' },
+  { id: 'stato', icona: '⏱️', titolo: 'A che punto è la mia riparazione', testo: 'Ciao Semi, vorrei sapere a che punto è la mia riparazione.\nNome: \nNumero scheda (se ce l’ho): ' },
+  { id: 'ordine', icona: '📦', titolo: 'Il mio ordine online', testo: 'Ciao Semi, ho una domanda sul mio ordine.\nNumero ordine: \nDomanda: ' },
+  { id: 'consiglio', icona: '🔋', titolo: 'Consiglio su cosa comprare', testo: 'Ciao Semi, mi serve un consiglio.\nDevo fare: \nHo già batterie DEWALT? (sì/no, quali): ' },
+  { id: 'aziende', icona: '🧾', titolo: 'Preventivo per aziende / P.IVA', testo: 'Ciao Semi, sono un professionista/azienda e vorrei un preventivo.\nRagione sociale: \nProdotti e quantità: ' },
+  { id: 'altro', icona: '💬', titolo: 'Altro', testo: 'Ciao Semi, ' },
+];
+const numero = SITO.whatsapp;
+---
+{numero && (
+  <div class="wac" data-numero={numero} data-fasce={JSON.stringify(SITO.fasce)}>
+    <a class="wa" id="wa-btn" href={`https://wa.me/${numero}?text=${encodeURIComponent('Ciao Semi, ')}`} target="_blank" rel="noopener" aria-label="Scrivici su WhatsApp" aria-controls="wa-p" aria-expanded="false">
+      <svg class="wa-i" width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2a9.93 9.93 0 0 0-8.5 15.05L2 22l5.08-1.5A9.94 9.94 0 1 0 12.04 2zm0 18.1a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3.02.9.9-2.94-.2-.31a8.17 8.17 0 1 1 6.82 3.68zm4.5-6.1c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.13-.16.24-.64.8-.79.96-.14.17-.29.19-.54.06a6.7 6.7 0 0 1-3.32-2.9c-.25-.43.25-.4.71-1.33.08-.17.04-.31-.02-.43l-.76-1.83c-.2-.48-.4-.41-.56-.42h-.47a.9.9 0 0 0-.66.3 2.76 2.76 0 0 0-.86 2.05 4.8 4.8 0 0 0 1 2.54 10.96 10.96 0 0 0 4.2 3.71c1.56.68 2.18.73 2.96.61.48-.07 1.46-.6 1.67-1.18.2-.58.2-1.07.14-1.18-.06-.1-.22-.16-.47-.28z"/></svg>
+      <svg class="wa-x" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></svg>
+    </a>
+    <div class="wa-p" id="wa-p" role="dialog" aria-label="Scrivici su WhatsApp" hidden>
+      <header class="wa-h">
+        <img src="/favicon.svg" alt="" width="40" height="40" />
+        <div><b>Semi Store</b><span class="wa-st"><i></i><span class="wa-st-t">Assistenza DEWALT · Casavatore</span></span></div>
+        <button type="button" class="wa-chiudi" aria-label="Chiudi">×</button>
+      </header>
+      <div class="wa-b">
+        <!-- passo 1: scelta della domanda -->
+        <div class="wa-s1">
+          <p class="wa-msg">Ciao 👋 come possiamo aiutarti? Scegli un argomento, ti prepariamo il messaggio.</p>
+          <ul class="wa-l">
+            <li class="wa-qp" hidden><button type="button" data-q="questo"><span>📌</span><span class="wa-qp-t">Info su questo prodotto</span></button></li>
+            {DOMANDE.map((d) => <li><button type="button" data-q={d.id} data-testo={d.testo}><span>{d.icona}</span>{d.titolo}</button></li>)}
+          </ul>
+        </div>
+        <!-- passo 2: messaggio modificabile -->
+        <form class="wa-s2" hidden>
+          <button type="button" class="wa-ind">‹ Altre domande</button>
+          <label class="wa-lb" for="wa-t">Completa il messaggio e invialo:</label>
+          <textarea id="wa-t" rows="5" maxlength="1000"></textarea>
+          <p class="wa-nota">Puoi allegare foto dell’utensile o della targhetta direttamente in chat.</p>
+          <button type="submit" class="wa-invia">
+            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.4 20.4 21 12 3.4 3.6 3.39 10l12.61 2-12.61 2z"/></svg>
+            Invia su WhatsApp
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+)}
+
+<style>
+  .wa-x{display:none}
+  .wac.aperta .wa-i{display:none}
+  .wac.aperta .wa-x{display:block}
+  .wa-p{position:fixed;right:calc(18px + env(safe-area-inset-right));bottom:calc(86px + env(safe-area-inset-bottom));width:360px;max-width:calc(100vw - 24px);max-height:min(620px,calc(100dvh - 110px));display:flex;flex-direction:column;background:#efeae2;border-radius:18px;box-shadow:0 18px 50px #0005;z-index:31;overflow:hidden;transform-origin:bottom right;animation:wa-in .2s ease-out;transition:bottom .25s}
+  .wa-p[hidden]{display:none}
+  :global(.sbar-on) .wa-p{bottom:calc(152px + env(safe-area-inset-bottom))}
+  @keyframes wa-in{from{opacity:0;transform:translateY(10px) scale(.96)}}
+  @media (prefers-reduced-motion:reduce){.wa-p{animation:none}}
+  .wa-h{display:flex;align-items:center;gap:12px;padding:14px 14px 14px 16px;background:var(--ink);color:#fff}
+  .wa-h img{width:40px;height:40px;border-radius:50%;background:#000;padding:4px;flex:none}
+  .wa-h div{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .wa-h b{font-size:16px}
+  .wa-st{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mut-d)}
+  .wa-st i{width:8px;height:8px;border-radius:50%;background:#9aa0a6;flex:none}
+  .wa-st.on i{background:#2ecc71}
+  .wa-st.off i{background:var(--y)}
+  .wa-chiudi{background:none;border:0;color:#fff;font-size:28px;line-height:1;width:36px;height:36px;border-radius:50%;cursor:pointer}
+  .wa-chiudi:hover{background:#fff2}
+  .wa-b{overflow-y:auto;padding:16px 14px 14px;overscroll-behavior:contain}
+  .wa-msg{position:relative;margin:0 0 12px;background:#fff;padding:10px 12px;border-radius:0 12px 12px 12px;font-size:14.5px;box-shadow:0 1px 1px #0001;max-width:92%}
+  .wa-l{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+  .wa-l button{width:100%;display:flex;align-items:center;gap:10px;text-align:left;font:inherit;font-size:14.5px;font-weight:600;color:var(--ink);background:#fff;border:1.5px solid #fff;border-radius:12px;padding:10px 12px;cursor:pointer;transition:border-color .15s,transform .1s}
+  .wa-l button:hover,.wa-l button:focus-visible{border-color:#25d366;outline:none}
+  .wa-l button:active{transform:scale(.98)}
+  .wa-l button span:first-child{font-size:18px;width:24px;text-align:center;flex:none}
+  .wa-qp button{border-color:var(--y);background:#fffbea}
+  .wa-qp-t{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .wa-s2{display:flex;flex-direction:column;gap:8px}
+  .wa-s2[hidden],.wa-s1[hidden]{display:none}
+  .wa-ind{align-self:flex-start;background:none;border:0;font:inherit;font-size:14px;font-weight:700;color:var(--mut);cursor:pointer;padding:2px 0}
+  .wa-lb{font-size:13px;color:var(--mut);font-weight:600}
+  .wa-s2 textarea{font:inherit;font-size:16px;line-height:1.4;width:100%;resize:vertical;min-height:120px;border:1.5px solid #d6d1c7;border-radius:12px;padding:10px 12px;background:#fff;color:var(--ink)}
+  .wa-s2 textarea:focus{outline:none;border-color:#25d366}
+  .wa-nota{margin:0;font-size:12.5px;color:var(--mut)}
+  .wa-invia{display:flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:800;font-size:16px;color:#fff;background:#1ebe57;border:0;border-radius:999px;padding:13px 16px;cursor:pointer;margin-top:2px}
+  .wa-invia:hover{background:#18a84c}
+  @media (max-width:520px){
+    .wa-p{right:8px;left:8px;width:auto;max-width:none;bottom:calc(84px + env(safe-area-inset-bottom))}
+  }
+</style>
+
+<script>
+  const box = document.querySelector<HTMLElement>('.wac');
+  if (box) {
+    const numero = box.dataset.numero!;
+    const btn = box.querySelector<HTMLAnchorElement>('#wa-btn')!;
+    const p = box.querySelector<HTMLElement>('#wa-p')!;
+    const s1 = p.querySelector<HTMLElement>('.wa-s1')!;
+    const s2 = p.querySelector<HTMLFormElement>('.wa-s2')!;
+    const ta = p.querySelector<HTMLTextAreaElement>('#wa-t')!;
+    let argomento = '';
+
+    // Nelle schede prodotto: prima voce "Info su questo prodotto" con nome e link già inseriti
+    const h1 = location.pathname.startsWith('/prodotti/') ? document.querySelector('h1')?.textContent?.trim() : '';
+    const qp = p.querySelector<HTMLElement>('.wa-qp')!;
+    if (h1) {
+      qp.hidden = false;
+      qp.querySelector('.wa-qp-t')!.textContent = `Info su: ${h1}`;
+      qp.querySelector('button')!.dataset.testo = `Ciao Semi, vorrei informazioni su ${h1}\n${location.origin}${location.pathname}\n\nDomanda: `;
+    }
+
+    // Stato aperto/chiuso (stesse fasce del badge "Aperto ora")
+    const st = p.querySelector<HTMLElement>('.wa-st')!, stt = st.querySelector('.wa-st-t')!;
+    try {
+      const fasce = JSON.parse(box.dataset.fasce || '{}');
+      const min = (s: string) => { const [h, m] = s.split(':').map(Number); return h * 60 + m; };
+      const x = Object.fromEntries(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Rome', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).formatToParts(new Date()).map((v) => [v.type, v.value]));
+      const d = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(x.weekday);
+      const now = (Number(x.hour) % 24) * 60 + Number(x.minute);
+      const aperto = (fasce[d] || []).some(([a, b]: string[]) => now >= min(a) && now < min(b));
+      st.classList.add(aperto ? 'on' : 'off');
+      stt.textContent = aperto ? 'Online · rispondiamo in pochi minuti' : 'Ora chiusi · ti rispondiamo alla riapertura';
+    } catch {}
+
+    const apri = () => {
+      p.hidden = false; box.classList.add('aperta'); btn.setAttribute('aria-expanded', 'true');
+      btn.setAttribute('aria-label', 'Chiudi la chat WhatsApp');
+      (p.querySelector<HTMLButtonElement>(s2.hidden ? '.wa-l li:not([hidden]) button' : '#wa-t'))?.focus({ preventScroll: true });
+    };
+    const chiudi = () => {
+      p.hidden = true; box.classList.remove('aperta'); btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', 'Scrivici su WhatsApp');
+    };
+    const passo1 = () => { s2.hidden = true; s1.hidden = false; };
+
+    btn.addEventListener('click', (e) => { e.preventDefault(); p.hidden ? apri() : chiudi(); });
+    p.querySelector('.wa-chiudi')!.addEventListener('click', () => { chiudi(); btn.focus(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !p.hidden) { chiudi(); btn.focus(); } });
+    document.addEventListener('click', (e) => { if (!p.hidden && !box.contains(e.target as Node)) chiudi(); });
+
+    p.querySelectorAll<HTMLButtonElement>('.wa-l button').forEach((b) => b.addEventListener('click', () => {
+      argomento = b.dataset.q || '';
+      ta.value = b.dataset.testo || 'Ciao Semi, ';
+      s1.hidden = true; s2.hidden = false;
+      // cursore sulla prima riga da completare (prima "…: " vuoto), altrimenti in fondo
+      const m = /: (?=\n|$)/.exec(ta.value);
+      const pos = m ? m.index + 2 : ta.value.length;
+      ta.focus(); ta.setSelectionRange(pos, pos);
+    }));
+    p.querySelector('.wa-ind')!.addEventListener('click', passo1);
+
+    s2.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const testo = ta.value.trim() || 'Ciao Semi, ';
+      // statistiche, se presenti (Google Analytics / Meta Pixel)
+      const w = window as any;
+      try { w.gtag?.('event', 'contatto_whatsapp', { argomento }); w.fbq?.('track', 'Contact', { content_name: argomento }); } catch {}
+      window.open(`https://wa.me/${numero}?text=${encodeURIComponent(testo)}`, '_blank', 'noopener');
+      chiudi(); passo1();
+    });
+  }
+</script>
