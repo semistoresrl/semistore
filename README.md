@@ -69,4 +69,7 @@ Le giacenze caricate dall'app interna stanno nel database **D1** (binding `DB`).
 4. Apri `https://semistore.it/api/tiktok/collega?token=ADMIN_TOKEN` dal browser in cui sei entrato in Seller Center e conferma.
 5. Stripe → Sviluppatori → Webhook → `https://semistore.it/api/stripe-webhook`, evento `checkout.session.completed`; copia il `whsec_...` nella variabile `STRIPE_WEBHOOK_SECRET`.
 
+**Prodotti già caricati a mano in Seller Center**: prima di creare un prodotto il sito lo cerca su TikTok per codice (seller SKU = modello, con o senza `-QW`). Se lo trova lo **collega** senza crearne un doppione e da lì allinea **solo la quantità**: il prezzo messo a mano resta com'è. Per far applicare anche a questi la regola del prezzo impostare `TIKTOK_ALLINEA_PREZZI=1`. Perché l'abbinamento funzioni, in Seller Center il campo "SKU venditore" deve contenere il codice del modello (es. DCD796P2).
+   Finché semistore.it non punta al nuovo sito, negli indirizzi qui sopra usare `https://semistore.pages.dev` al posto di `https://semistore.it`.
+
 **Come crea i prodotti su TikTok**: categoria suggerita da TikTok in base al titolo, marchio (deve essere autorizzato con la Brand Qualification), fino a 3 foto, descrizione e caratteristiche del sito, peso dalle caratteristiche (+0,5 kg di imballo, altrimenti 3 kg), scatola 45×35×15 cm se non indicata. Se TikTok chiede dati che mancano (attributi, certificazioni) il prodotto viene creato **in bozza**: si completa in Seller Center e da lì in poi giacenza e prezzo restano allineati da soli.

@@ -85,6 +85,19 @@ async function conformita(env, marca) {
   return o;
 }
 
+// Prodotti già caricati a mano in Seller Center: li cerco per codice (seller_sku), con e senza "-QW",
+// così il sito li collega invece di crearne un doppione.
+const varianti = (c) => { const b = String(c || '').trim().toUpperCase(); if (!b) return []; const s = b.replace(/-(QW|XJ|GB|LX)$/,''); return [...new Set([b, s, s + '-QW'])]; };
+export async function cercaEsistente(env, p, slug) {
+  const codici = [...new Set([...varianti(p.modello), ...varianti(p.codice), slug].filter(Boolean))];
+  const d = await chiama(env, 'POST', '/product/202309/products/search', { query: { page_size: 20 }, body: { seller_skus: codici } });
+  for (const pr of d.products || []) {
+    const sku = (pr.skus || []).find((k) => codici.includes(String(k.seller_sku || '').toUpperCase())) || (pr.skus || [])[0];
+    if (sku) return { product: pr.id, sku: sku.id, prezzo: Math.round(Number(sku.price?.tax_exclusive_price || sku.price?.sale_price || 0) * 100) || null };
+  }
+  return null;
+}
+
 async function crea(env, riga, origin) {
   const p = scheda(riga);
   if (!p.nome) throw new Error('Prodotto senza nome: invia nome e marca dall\'app');
@@ -137,7 +150,7 @@ export async function sincronizza(env, origin, { limite = 40 } = {}) {
 
   for (const r of righe) {
     const nuovo = !r.tt_product;
-    const costo = nuovo ? 12 : 3;
+    const costo = nuovo ? 13 : 3;
     if (budget < costo) break;
     budget -= costo;
     try {
@@ -146,6 +159,14 @@ export async function sincronizza(env, origin, { limite = 40 } = {}) {
         continue;
       }
       if (nuovo) {
+        // già presente su TikTok (caricato a mano)? lo collego e allineo solo la quantità
+        const es = await cercaEsistente(env, scheda(r), r.slug).catch(() => null);
+        if (es) {
+          await d.prepare('UPDATE giacenze SET tt_product=?, tt_sku=?, tt_qty=NULL, tt_prezzo=?, tt_stato=?, tt_errore=NULL, tt_da_sync=1, tt_sync=?, tt_esistente=1 WHERE slug=?')
+            .bind(es.product, es.sku, es.prezzo, 'in vendita', ora(), r.slug).run();
+          esito.collegati = (esito.collegati || 0) + 1; esito.dettagli.push({ slug: r.slug, esito: 'già su TikTok: collegato' });
+          continue;
+        }
         const c = await crea(env, r, origin);
         await d.prepare('UPDATE giacenze SET tt_product=?, tt_sku=?, tt_qty=?, tt_prezzo=?, tt_stato=?, tt_errore=?, tt_da_sync=0, tt_sync=? WHERE slug=?')
           .bind(c.product, c.sku, r.qty, c.prezzo, c.nota ? 'bozza' : 'in vendita', c.nota, ora(), r.slug).run();
@@ -159,13 +180,14 @@ export async function sincronizza(env, origin, { limite = 40 } = {}) {
           body: { skus: [{ id: r.tt_sku, inventory: [{ warehouse_id: await magazzino(env), quantity: Math.max(0, r.qty) }] }] },
         });
       }
-      if (prezzo && prezzo !== r.tt_prezzo) {
+      const prezzoManuale = r.tt_esistente && !['1', 'true', 'si', 'sì'].includes(String(env.TIKTOK_ALLINEA_PREZZI || '').toLowerCase());
+      if (prezzo && prezzo !== r.tt_prezzo && !prezzoManuale) {
         await chiama(env, 'POST', `/product/202309/products/${r.tt_product}/prices/update`, {
           body: { skus: [{ id: r.tt_sku, price: { amount: eur(prezzo), currency: 'EUR' } }] },
         });
       }
       await d.prepare('UPDATE giacenze SET tt_qty=?, tt_prezzo=?, tt_da_sync=0, tt_sync=?, tt_errore=NULL, tt_stato=? WHERE slug=?')
-        .bind(r.qty, prezzo, ora(), r.qty > 0 ? (r.tt_stato === 'bozza' ? 'bozza' : 'in vendita') : 'esaurito', r.slug).run();
+        .bind(r.qty, prezzoManuale ? r.tt_prezzo : prezzo, ora(), r.qty > 0 ? (r.tt_stato === 'bozza' ? 'bozza' : 'in vendita') : 'esaurito', r.slug).run();
       esito.aggiornati++;
     } catch (e) {
       await d.prepare('UPDATE giacenze SET tt_errore=?, tt_stato=?, tt_da_sync=0, tt_sync=? WHERE slug=?')

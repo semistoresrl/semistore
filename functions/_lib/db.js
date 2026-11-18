@@ -9,13 +9,16 @@ export async function db(env) {
         slug TEXT PRIMARY KEY, codice TEXT, qty INTEGER NOT NULL DEFAULT 0, prezzo INTEGER,
         dati TEXT, aggiornata TEXT,
         tt_product TEXT, tt_sku TEXT, tt_stato TEXT, tt_errore TEXT,
-        tt_qty INTEGER, tt_prezzo INTEGER, tt_da_sync INTEGER NOT NULL DEFAULT 0, tt_sync TEXT)`),
+        tt_qty INTEGER, tt_prezzo INTEGER, tt_da_sync INTEGER NOT NULL DEFAULT 0, tt_sync TEXT,
+        tt_esistente INTEGER NOT NULL DEFAULT 0)`),
       env.DB.prepare('CREATE INDEX IF NOT EXISTS g_sync ON giacenze(tt_da_sync)'),
       env.DB.prepare('CREATE INDEX IF NOT EXISTS g_sku ON giacenze(tt_sku)'),
       env.DB.prepare('CREATE TABLE IF NOT EXISTS impostazioni (k TEXT PRIMARY KEY, v TEXT)'),
       env.DB.prepare(`CREATE TABLE IF NOT EXISTS movimenti (
         id TEXT PRIMARY KEY, canale TEXT, slug TEXT, qty INTEGER, quando TEXT)`),
     ]);
+    // colonna aggiunta dopo (prodotti già caricati a mano su TikTok): sulle tabelle esistenti la aggiungo
+    try { await env.DB.prepare('ALTER TABLE giacenze ADD COLUMN tt_esistente INTEGER NOT NULL DEFAULT 0').run(); } catch {}
     pronto = true;
   }
   return env.DB;
