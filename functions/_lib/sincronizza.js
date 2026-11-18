@@ -15,9 +15,20 @@ export function scheda(riga) {
   return { ...(PER_SLUG[riga.slug] || {}), ...extra, slug: riga.slug };
 }
 
-function prezzoTikTok(env, centesimi) {
-  const ric = Number(env.TIKTOK_RICARICO_PERCENTO || 0);
-  return Math.round(centesimi * (1 + ric / 100));
+// Prezzo TikTok calcolato per incassare ESATTAMENTE lo stesso netto del sito:
+//   netto sito   = prezzo − commissione Stripe (1,5% + 0,25 € carte UE standard)
+//   netto TikTok = prezzo TikTok × (1 − commissione TikTok − commissione creator)
+//   prezzo TikTok = netto sito / (1 − commissione TikTok − creator), arrotondato per eccesso al centesimo
+// Variabili (facoltative): TIKTOK_COMMISSIONE_PERCENTO (9), TIKTOK_AFFILIATI_PERCENTO (0),
+// STRIPE_PERCENTO (1.5), STRIPE_FISSO_CENT (25). TIKTOK_RICARICO_PERCENTO, se impostata, sostituisce il calcolo.
+const num = (v, d) => (v === undefined || v === null || v === '' || !Number.isFinite(Number(v)) ? d : Number(v));
+export function prezzoTikTok(env, centesimi) {
+  if (!centesimi) return 0;
+  if (env.TIKTOK_RICARICO_PERCENTO) return Math.ceil(centesimi * (1 + Number(env.TIKTOK_RICARICO_PERCENTO) / 100));
+  const tt = num(env.TIKTOK_COMMISSIONE_PERCENTO, 9) / 100;
+  const aff = num(env.TIKTOK_AFFILIATI_PERCENTO, 0) / 100;
+  const netto = centesimi - centesimi * num(env.STRIPE_PERCENTO, 1.5) / 100 - num(env.STRIPE_FISSO_CENT, 25);
+  return Math.max(centesimi, Math.ceil(netto / (1 - tt - aff) - 1e-9)); // mai sotto il prezzo del sito
 }
 
 function pesoKg(p) {

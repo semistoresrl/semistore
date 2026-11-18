@@ -63,7 +63,9 @@ Le giacenze caricate dall'app interna stanno nel database **D1** (binding `DB`).
 **Attivazione (una volta)**
 1. Cloudflare → Storage & Databases → D1 → crea `semistore` → Pages → Settings → Bindings → D1 database, nome variabile `DB`.
 2. TikTok Shop Partner Center (partner.tiktokshop.com) → App & Service → crea **Custom app** per il negozio di Se.Mi. srl. Redirect URL: `https://semistore.it/api/tiktok/callback`. Permessi: Shop Authorized Information, Product (base), Order Information, Logistics. Webhook "Order status change": `https://semistore.it/api/tiktok/webhook`.
-3. Cloudflare → Variabili (Secret): `TIKTOK_APP_KEY`, `TIKTOK_APP_SECRET`, `TIKTOK_SERVICE_ID`; facoltativa `TIKTOK_RICARICO_PERCENTO` (es. 8 per coprire la commissione TikTok; vuota = stesso prezzo del sito).
+3. Cloudflare → Variabili (Secret): `TIKTOK_APP_KEY`, `TIKTOK_APP_SECRET`, `TIKTOK_SERVICE_ID`; facoltative per il prezzo: `TIKTOK_COMMISSIONE_PERCENTO` (9), `TIKTOK_AFFILIATI_PERCENTO` (0), `STRIPE_PERCENTO` (1.5), `STRIPE_FISSO_CENT` (25).
+   **Prezzo TikTok** = (prezzo sito − Stripe 1,5% − 0,25 €) ÷ (1 − commissione TikTok − creator), arrotondato per eccesso: su TikTok incassi lo stesso netto del sito (es. 296,00 € → 320,13 €). Se un giorno vuoi un ricarico fisso, `TIKTOK_RICARICO_PERCENTO` sostituisce il calcolo.
+   Spedizione in Seller Center (TikTok prende la commissione anche su quella): 10,45 € invece di 9,90 €, gratis da 106,89 € invece di 99 €.
 4. Apri `https://semistore.it/api/tiktok/collega?token=ADMIN_TOKEN` dal browser in cui sei entrato in Seller Center e conferma.
 5. Stripe → Sviluppatori → Webhook → `https://semistore.it/api/stripe-webhook`, evento `checkout.session.completed`; copia il `whsec_...` nella variabile `STRIPE_WEBHOOK_SECRET`.
 
