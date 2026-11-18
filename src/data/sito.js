@@ -31,7 +31,7 @@ export const SITO = {
   // Pagina in uso (18/11/2026): "Se.m.i srl concessionario…" (id 101931669444798), l'unica a cui il cliente ha accesso.
   // La pagina "semistore.it" (profile.php?id=61555435472986, 121 follower) per ora non si usa: se torna accessibile, valutare l'unione.
   facebook: 'https://www.facebook.com/101931669444798',
-  tiktok: 'https://www.tiktok.com/@se.m.i.store',
+  tiktok: 'https://www.tiktok.com/@semistore.it',
   spedizione: { costo: 990, gratisDa: 9900, giorni: '2–4' }, // centesimi
   url: 'https://semistore.it',
 };
