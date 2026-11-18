@@ -142,6 +142,8 @@ const numero = SITO.whatsapp;
     const passo1 = () => { s2.hidden = true; s1.hidden = false; };
 
     btn.addEventListener('click', (e) => { e.preventDefault(); p.hidden ? apri() : chiudi(); });
+    // altri link WhatsApp del sito (es. bollino in alto) aprono la stessa finestrella
+    document.querySelectorAll('[data-apri-wa]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); if (p.hidden) apri(); }));
     p.querySelector('.wa-chiudi')!.addEventListener('click', () => { chiudi(); btn.focus(); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !p.hidden) { chiudi(); btn.focus(); } });
     document.addEventListener('click', (e) => { if (!p.hidden && !box.contains(e.target as Node)) chiudi(); });
