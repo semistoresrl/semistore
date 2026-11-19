@@ -100,6 +100,7 @@ import { SITO } from '../data/sito.js';
   indice().then((l: any[]) => { M = Object.fromEntries(l.map((x) => [x.s, x])); render(); }).catch(() => { el('righe').innerHTML = '<p style="padding:20px;margin:0">Non riusciamo a caricare il carrello: ricarica la pagina.</p>'; });
 </script>
 <style is:global>
+  #sc-r[hidden]{display:none}
   .fs{display:flex;flex-direction:column;gap:8px;background:#fff8dc;border:1px solid #f5b80066;border-radius:10px;padding:12px;font-size:14px}.fs.ok{background:#e8f5ec;border-color:#1a7a4344}
   .fs-b{height:8px;border-radius:4px;background:#0000000f;overflow:hidden}.fs-b i{display:block;height:100%;background:var(--y);border-radius:4px;transition:width .3s}.fs.ok .fs-b i{background:var(--ok)}
   .cart{display:grid;grid-template-columns:minmax(0,2fr) minmax(min(280px,100%),1fr);gap:20px;align-items:start}
