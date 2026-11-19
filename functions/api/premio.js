@@ -37,7 +37,7 @@ async function inviaEmail(env, email, codice, scade, origin) {
       <div style="font-size:26px;font-weight:900;margin-top:6px">Hai vinto il ${SCONTO}% di sconto!</div>
     </div>
     <div style="background:#f4f3ef;padding:24px;border-radius:0 0 14px 14px;text-align:center">
-      <p style="margin:0 0 14px">Complimenti, hai completato tutti i livelli. Ecco il tuo codice:</p>
+      <p style="margin:0 0 14px">Grazie per aver giocato a Trapano Slalom! Ecco il tuo codice sconto del mese:</p>
       <div style="display:inline-block;background:#f5b800;padding:14px 22px;border-radius:10px;font:700 24px monospace;letter-spacing:2px">${codice}</div>
       <p style="margin:16px 0 6px">Inseriscilo nel carrello alla voce <b>"Hai un codice sconto?"</b>. Vale una volta, sui prodotti, fino al ${data}.</p>
       <p style="margin:0 0 18px;font-size:13px;color:#5c5f65">Al pagamento usa questa stessa email.</p>
@@ -49,7 +49,7 @@ async function inviaEmail(env, email, codice, scade, origin) {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ from: env.EMAIL_FROM || 'Sito Semi Store <onboarding@resend.dev>', to: [email], subject: `Il tuo codice sconto del ${SCONTO}% · Semi Store`, html, text: testo }),
+      body: JSON.stringify({ from: env.EMAIL_FROM_SCONTI || 'Semi Store Sconti <sconti@semistore.it>', reply_to: (env.EMAIL_TO || 'info@semistore.it').split(',')[0], to: [email], subject: `Il tuo codice sconto del ${SCONTO}% · Semi Store`, html, text: testo }),
     });
     if (!r.ok) console.error('Resend', await r.text());
     return r.ok;
