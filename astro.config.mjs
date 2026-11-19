@@ -10,7 +10,7 @@ export default defineConfig({
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   integrations: [
     sitemap({
-      filter: (p) => !/\/(carrello|grazie|404|aggiorna)\//.test(p),
+      filter: (p) => !/\/(carrello|grazie|404|aggiorna|assistenza\/richiesta)\//.test(p),
       // data dell'ultimo aggiornamento (= questo build): Google ripassa prima le pagine cambiate
       serialize: (item) => ({ ...item, lastmod: new Date().toISOString() }),
     }),

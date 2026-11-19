@@ -6,7 +6,7 @@ const FAQ = [
   ['La riparazione in garanzia è gratuita?', 'Sì, se il guasto è coperto dalla garanzia del produttore. Porta l\'utensile con lo scontrino o la fattura d\'acquisto: verifichiamo noi la copertura e apriamo la pratica.'],
   ['Quanto costa riparare un utensile fuori garanzia?', 'Dipende dal guasto e dai ricambi. Facciamo prima la diagnosi e ti mandiamo un preventivo: ripariamo solo dopo la tua approvazione.'],
   ['Quanto tempo serve per la riparazione?', 'Con i ricambi disponibili bastano pochi giorni lavorativi. Se un ricambio va ordinato a DEWALT ti avvisiamo dei tempi; lo stato si segue online con il numero di scheda.'],
-  ['Posso spedire l\'utensile invece di portarlo?', 'Sì. Apri la richiesta online, ti diamo il numero di scheda e le istruzioni per la spedizione al laboratorio di Casavatore.'],
+  ['Posso spedire l\'utensile invece di portarlo?', 'Sì. Apri la richiesta online e scegli “Lo spedisco io” (spese a tuo carico) oppure “Venite a ritirarlo voi”: prenotiamo noi il corriere e il ritiro si paga dopo, insieme alla riparazione. In entrambi i casi ricevi subito il DDT da stampare e mettere nel pacco.'],
   ['Da quali zone arrivano i clienti?', 'Da Napoli e da tutta la provincia: Casavatore, Casoria, Arzano, Afragola, Secondigliano, Frattamaggiore, Caivano, Acerra e dintorni. Chi è lontano può spedire.'],
   ['Vendete anche ricambi originali?', 'Sì: ricambi originali DEWALT, STANLEY e BLACK+DECKER, anche su ordinazione. Chiedi al banco o scrivici il modello e il Type dell\'utensile.'],
 ];
@@ -40,9 +40,26 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
         <label class="field">Email<input name="email" type="email" autocomplete="email" /></label>
       </fieldset>
       <fieldset class="step" data-step="3">
-        <legend>3 · Consegna dell'utensile</legend>
-        <label class="radio"><input type="radio" name="consegna" value="Porto in negozio" checked /> Lo porto in negozio</label>
-        <label class="radio"><input type="radio" name="consegna" value="Spedisco" /> Lo spedisco (vi contatto per le istruzioni)</label>
+        <legend>3 · Come ci arriva l'utensile</legend>
+        <label class="radio opt"><input type="radio" name="consegna" value="negozio" checked /><span><b>Lo porto in negozio</b><small>{SITO.indirizzo}, {SITO.citta} · {SITO.orari[0].giorni} {SITO.orari[0].ore}</small></span></label>
+        <label class="radio opt"><input type="radio" name="consegna" value="spedisco" /><span><b>Lo spedisco io</b><small>Con il corriere che preferisci, spese di spedizione a tuo carico. Ti diamo subito il DDT da mettere nel pacco.</small></span></label>
+        <label class="radio opt"><input type="radio" name="consegna" value="ritiro" /><span><b>Venite a ritirarlo voi</b><small>Prenotiamo noi il corriere: il costo del ritiro si paga dopo, insieme alla riparazione. Ti diamo subito il DDT da mettere nel pacco.</small></span></label>
+        <div id="pacco" class="pacco" hidden>
+          <p class="nota">Indirizzo da cui parte il pacco (va anche sul DDT)</p>
+          <label class="field">Indirizzo e numero civico<input name="indirizzo" autocomplete="street-address" /></label>
+          <div class="riga3">
+            <label class="field">CAP<input name="cap" inputmode="numeric" maxlength="5" autocomplete="postal-code" /></label>
+            <label class="field">Città<input name="citta" autocomplete="address-level2" /></label>
+            <label class="field">Prov.<input name="prov" maxlength="2" style="text-transform:uppercase" /></label>
+          </div>
+          <label class="field">Codice fiscale o Partita IVA (per il DDT, facoltativo)<input name="cf" style="text-transform:uppercase" /></label>
+          <div class="riga2">
+            <label class="field">Numero di colli<input name="colli" type="number" min="1" max="20" value="1" inputmode="numeric" /></label>
+            <label class="field">Accessori nel pacco<input name="accessori" placeholder="es. 2 batterie, caricatore, valigetta" /></label>
+          </div>
+          <label class="field" id="dispo" hidden>Quando possiamo passare a ritirarlo?<input name="disponibilita" placeholder="es. lun–ven 9–13, citofono Rossi" /></label>
+          <p class="nota">Imballa bene l'utensile (meglio nella sua valigetta, dentro una scatola) e metti nel pacco il DDT stampato. Se non puoi stampare, scrivi sul pacco il numero della richiesta.</p>
+        </div>
         <label class="radio chk"><input type="checkbox" name="privacy" required /> Ho letto l'<a class="ul" href="/privacy/">informativa privacy</a>: i dati servono solo a gestire la richiesta</label>
         <input type="text" name="sito_web" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
       </fieldset>
@@ -53,7 +70,7 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
     <div class="col-a">
       <form id="stato" class="card box">
         <h2>Stato della riparazione</h2>
-        <label class="field">Numero scheda<input name="scheda" required class="mono" placeholder="es. AS-2026-0142" /></label>
+        <label class="field">Numero scheda<input name="scheda" required class="mono" placeholder="es. AS-2026-0142 o WEB-…" /></label>
         <label class="field">Telefono lasciato in accettazione<input name="tel" type="tel" required inputmode="tel" /></label>
         <button class="btn btn-k">Controlla</button>
         <div id="esito" aria-live="polite"></div>
@@ -75,6 +92,10 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
 <script>
   const STATI: string[] = (window as any).__STATI;
   const f = document.getElementById('req') as HTMLFormElement, msg = document.getElementById('msg')!;
+  const pacco = document.getElementById('pacco')!, dispo = document.getElementById('dispo')!;
+  const pac = () => { const v = (f.elements.namedItem('consegna') as RadioNodeList).value; const on = v !== 'negozio'; pacco.hidden = !on; dispo.hidden = v !== 'ritiro';
+    ['indirizzo', 'cap', 'citta', 'prov'].forEach((n) => ((f.elements.namedItem(n) as HTMLInputElement).required = on)); };
+  f.querySelectorAll('input[name=consegna]').forEach((r) => r.addEventListener('change', pac)); pac();
   f.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!f.checkValidity()) { f.reportValidity(); return; }
@@ -82,7 +103,8 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
     try {
       const r = await fetch('/api/assistenza', { method: 'POST', body: new FormData(f) });
       const j = await r.json(); if (!r.ok) throw new Error(j.error || 'errore');
-      f.reset(); msg.className = 'msg ok'; msg.textContent = `Richiesta ricevuta (n. ${j.id}). Ti richiamiamo entro un giorno lavorativo.`;
+      if (j.ddt) { location.href = j.ddt; return; }
+      f.reset(); pac(); msg.className = 'msg ok'; msg.textContent = `Richiesta ricevuta (n. ${j.id}). Ti richiamiamo entro un giorno lavorativo.`;
     } catch { msg.className = 'msg ko'; msg.textContent = 'Invio non riuscito. Riprova o chiamaci.'; }
     msg.hidden = false; b.disabled = false; b.textContent = 'Invia richiesta';
   });
@@ -110,6 +132,9 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
   .box{padding:clamp(16px,5vw,24px);display:flex;flex-direction:column;gap:16px}.box h2{font-size:24px}
   .step{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}.step legend{font-weight:900;font-size:16px;margin-bottom:8px;color:var(--y-d)}
   .radio{display:flex;gap:10px;align-items:center;min-height:40px}.chk{font-size:14px}
+  .opt{align-items:flex-start;border:2px solid var(--line);border-radius:14px;padding:12px;cursor:pointer}.opt:has(input:checked){border-color:var(--ink);background:#fffbea}.opt input{margin-top:4px}.opt span{display:flex;flex-direction:column;gap:2px}.opt small{color:var(--mut);font-size:14px;line-height:1.4}
+  .pacco{display:flex;flex-direction:column;gap:12px;background:#f6f5f2;border-radius:14px;padding:14px}.pacco[hidden]{display:none}
+  .riga3{display:grid;grid-template-columns:90px 1fr 70px;gap:10px}.riga2{display:grid;grid-template-columns:110px 1fr;gap:10px}
   .hp{position:absolute;left:-9999px}
   .msg{margin:0;font-weight:700}.msg.ok{color:var(--ok)}.msg.ko{color:#b3261e}
   .bar{display:flex;gap:4px;margin-top:4px}.bar span{flex:1;height:8px;border-radius:4px;background:var(--line)}.bar span.on{background:var(--ink)}

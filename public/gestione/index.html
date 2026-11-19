@@ -581,6 +581,8 @@ textarea.winp{min-height:110px;font-size:20px}
 .wscanst.err{display:block;padding:12px 14px;background:#fde4e1;color:#8a2a18;border-radius:14px;font-size:16px;font-weight:700;margin-bottom:10px}
 .wor{text-align:center;color:var(--muted);margin:12px 0 8px;font-weight:700;font-size:15px}
 .wnew{background:#fff3c4;border-radius:16px;padding:14px;font-size:17px;line-height:1.45;margin-bottom:10px}.wnew .i{width:22px;height:22px;vertical-align:-5px}
+.rqc .badge .i{width:14px;height:14px;vertical-align:-2px;margin-right:4px}.rqc .qa{display:flex;flex-wrap:wrap;gap:8px}
+.frq{display:flex;align-items:center;gap:14px;background:#2563c9;color:#fff;border-radius:20px;padding:16px 18px;margin:0 0 14px;text-decoration:none}.frq .i{width:30px;height:30px;flex:none}.frq span{flex:1}.frq b{display:block;font-size:20px}.frq small{color:#dbe6ff;font-size:14px}
 .adm-only{display:none!important}html.is-admin .adm-only{display:flex!important}
 .live{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:22px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;min-height:40px}
 .live .i{width:16px;height:16px;color:var(--ok)}.live b{font-size:15px}.live .lvd{color:var(--muted);border-left:1px solid var(--line);padding-left:8px}
@@ -968,16 +970,54 @@ function tTable(list){
 }
 function vSchede(){ return header("Archivio schede","Tutte le schede di assistenza, cercabili per cliente, modello o matricola",`<button class="btn pri edit-only" data-act="new">＋ Nuova scheda</button>`)+filtBar(true)+tTable(filtered()); }
 
+/* =====================================================================
+   RICHIESTE DAL SITO con pacco: spedisce il cliente o ritiriamo noi (DDT dal sito)
+   ===================================================================== */
+const ARRIVI={negozio:["Porta in negozio","store",""],spedisco:["Spedisce il cliente","send","noi"],ritiro:["Ritiriamo noi","truck","inc"]};
+const PACCO_ST={"ritiro da prenotare":"Ritiro da prenotare","ritiro prenotato":"Ritiro prenotato","in attesa del pacco":"Aspettiamo il pacco","arrivato":"Pacco arrivato"};
+const ddtUrl=r=>r.k?`${SITO_URL}/assistenza/richiesta/?id=${encodeURIComponent(r.id)}&k=${encodeURIComponent(r.k)}`:"";
+const reqMsg=(r,k)=>{ const n=nome1(r.nome);
+  if(k==="ricevuta") return `Ciao ${n}, abbiamo ricevuto la tua richiesta ${r.id} per ${r.modello||"il tuo utensile"}. ${r.arrivo==="ritiro"?"Ti scriviamo a breve con il giorno del ritiro.":r.arrivo==="spedisco"?`Puoi spedire il pacco a SE.M.I. S.R.L., ${SHOP.ind}, con il DDT stampato dentro.`:`Puoi portarlo in negozio: ${SHOP.ind} (${SHOP.orari}).`}${ddtUrl(r)&&r.arrivo!=="negozio"?"\nDDT da stampare: "+ddtUrl(r):""} Semi Store`;
+  if(k==="ritiro"){ const p=r.pacco||{}; return `Ciao ${n}, abbiamo prenotato il ritiro del tuo ${r.modello||"utensile"} (richiesta ${r.id})${p.data?" per "+fmtDay(new Date(p.data).getTime()):""}${p.corriere?" con "+p.corriere:""}. Tieni pronto il pacco con il DDT dentro${ddtUrl(r)?" (lo trovi qui: "+ddtUrl(r)+")":""}.${p.costo?" Il ritiro costa "+eur(p.costo)+" e si paga insieme alla riparazione.":""} Semi Store`; }
+  if(k==="arrivato") return `Ciao ${n}, il tuo ${r.modello||"utensile"} è arrivato in laboratorio${r.ticketNum?` (scheda ${r.ticketNum}, la segui su ${SITO_URL}/assistenza/?scheda=${encodeURIComponent(r.ticketNum)})`:""}. Ti aggiorniamo dopo la diagnosi. Semi Store`;
+  return ""; };
+S.rqF="aperte";
 function vRichieste(){
-  const l=[...S.richieste].sort((a,b)=>(b.at||0)-(a.at||0));
-  return header("Richieste dal sito","Le richieste di assistenza e preventivo che arriveranno dal sito semistore.it")+
-  `<div class="banner">Quando il sito sarà online, il modulo “Richiedi assistenza” scriverà qui. Con un clic la richiesta diventa una scheda di lavorazione. Per ora puoi inserire a mano le richieste arrivate per telefono o WhatsApp.</div>
-  <div class="toolbar edit-only"><button class="btn" data-act="newreq">＋ Registra richiesta</button></div>
-  ${l.length?`<table><thead><tr><th>Data</th><th>Tipo</th><th>Cliente</th><th>Utensile / prodotto</th><th>Messaggio</th><th></th></tr></thead><tbody>
-  ${l.map(r=>`<tr><td>${fmtDT(r.at)}</td><td><span class="badge">${esc(r.tipo||"assistenza")}</span></td><td>${esc(r.nome)}<div class="sub">${esc(r.tel||"")} ${esc(r.email||"")}</div></td><td>${esc(r.modello||"")}</td><td style="max-width:320px">${esc(r.messaggio||"")}</td>
-  <td class="num">${r.gestita?`<span class="badge st-Consegnato">${r.ticketNum?esc(r.ticketNum):"gestita"}</span>`:`<span class="edit-only">${r.tipo!=="preventivo"?`<button class="btn sm pri" data-conv="${esc(r.id)}">Crea scheda</button> `:""}<button class="btn sm" data-done="${esc(r.id)}">Segna gestita</button></span>`}</td></tr>`).join("")}</tbody></table>`
-  :`<div class="panel"><div class="empty">Nessuna richiesta ricevuta</div></div>`}`;
+  const all=[...S.richieste].sort((a,b)=>(b.at||0)-(a.at||0));
+  const pacchi=all.filter(r=>r.pacco&&r.pacco.stato!=="arrivato"&&!r.gestita), aperte=all.filter(r=>!r.gestita);
+  const l=S.rqF==="pacchi"?pacchi:S.rqF==="aperte"?aperte:all;
+  return header("Richieste dal sito","Assistenza e valutazioni riparazione dal modulo su semistore.it/assistenza",`<button class="btn edit-only" data-act="newreq">${ic("plus")}Registra richiesta</button>`)+
+  `<div class="toolbar"><div class="chips">${[["aperte","Da gestire",aperte.length],["pacchi","Pacchi in arrivo",pacchi.length],["tutte","Tutte",all.length]].map(([k,t,n])=>`<button class="chip ${S.rqF===k?"on":""}" data-rqf="${k}">${t} <b>${n}</b></button>`).join("")}</div></div>
+  ${l.length?`<div class="olist">${l.map(r=>{ const a=ARRIVI[r.arrivo||"negozio"]||ARRIVI.negozio, p=r.pacco||null, giorni=Math.floor((Date.now()-(r.at||0))/864e5);
+    return `<div class="ocard rqc" style="border-left-color:${r.gestita?"var(--line)":r.arrivo==="ritiro"?"#2563c9":r.arrivo==="spedisco"?"#7a3fc4":"var(--y)"}">
+      <div class="oc1"><b>${esc(r.nome||"—")}</b><span class="sub">${fmtDT(r.at)}${r.id&&String(r.id).startsWith("WEB-")?" · "+esc(r.id):""}</span><span class="sp"></span>
+        <span class="badge">${ic(a[1])}${a[0]}</span>${p&&!r.gestita?`<span class="badge ${p.stato==="arrivato"?"st-Pronto":p.stato==="ritiro da prenotare"?"st-Annullato":""}">${esc(PACCO_ST[p.stato]||p.stato)}${p.stato==="ritiro prenotato"&&p.data?" "+fmtDay(new Date(p.data).getTime()):""}</span>`:""}${r.gestita?`<span class="badge st-Consegnato">${r.ticketNum?esc(r.ticketNum):"gestita"}</span>`:""}</div>
+      <div style="margin-top:8px"><b>${esc(r.modello||"")}</b>${r.seriale?` <span class="sub mono">matr. ${esc(r.seriale)}</span>`:""}${r.garanzia?` <span class="sub">· garanzia: ${esc(r.garanzia)}</span>`:""}</div>
+      <div class="sub" style="margin-top:4px">${esc(r.messaggio||"")}</div>
+      ${r.arrivo&&r.arrivo!=="negozio"?`<div class="sub" style="margin-top:6px">${ic("truck")} ${esc([r.ind,[r.cap,r.citta,r.prov&&"("+r.prov+")"].filter(Boolean).join(" ")].filter(Boolean).join(", "))}${r.colli>1?` · ${r.colli} colli`:""}${r.accessori?` · con: ${esc(r.accessori)}`:""}${r.disponibilita?`<br>Quando passare: <b>${esc(r.disponibilita)}</b>`:""}${p&&p.corriere?`<br>Corriere: ${esc(p.corriere)}${p.lettera?" · "+esc(p.lettera):""}${p.costo?" · costo ritiro "+eur(p.costo):""}`:""}</div>`:""}
+      <div class="sub" style="margin-top:4px">${esc(r.tel||"")} ${esc(r.email||"")}${!r.gestita&&giorni>2?` · <span class="low">da ${giorni} giorni</span>`:""}</div>
+      <div class="qa" style="margin-top:10px">${!r.gestita?waBtn(r.tel,reqMsg(r,p&&p.stato==="ritiro prenotato"?"ritiro":"ricevuta"),p&&p.stato==="ritiro prenotato"?"Avvisa del ritiro":"Conferma al cliente"):""}
+        ${r.tel?`<a class="btn" href="tel:${esc(r.tel)}">${ic("phone")}Chiama</a>`:""}${ddtUrl(r)&&r.arrivo!=="negozio"?`<a class="btn" href="${esc(ddtUrl(r))}" target="_blank" rel="noopener">${ic("clipboard")}DDT</a>`:""}
+        ${!r.gestita?`<span class="edit-only" style="display:contents">${r.arrivo==="ritiro"&&p&&p.stato!=="arrivato"?`<button class="btn" data-rqrit="${esc(r.id)}">${ic("truck")}${p.stato==="ritiro prenotato"?"Modifica ritiro":"Ritiro prenotato"}</button>`:""}
+          ${r.tipo!=="preventivo"?`<button class="btn pri" data-conv="${esc(r.id)}">${ic("check")}${p?"Pacco arrivato: crea scheda":"Crea scheda"}</button>`:""}<button class="btn ghost" data-done="${esc(r.id)}">Archivia</button></span>`:""}
+        ${r.gestita&&r.ticketNum&&r.arrivo&&r.arrivo!=="negozio"?waBtn(r.tel,reqMsg(r,"arrivato"),"Avvisa: arrivato"):""}</div></div>`; }).join("")}</div>`
+  :`<div class="panel"><div class="empty">${S.rqF==="pacchi"?"Nessun pacco in arrivo":"Nessuna richiesta da gestire"}</div></div>`}`;
 }
+function openRitiro(r){ const p=r.pacco||{};
+  openModal(`<div class="mh"><h2>Ritiro per ${esc(r.nome)}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><p class="sub" style="margin-top:0">${esc([r.ind,r.cap,r.citta,r.prov].filter(Boolean).join(", "))}${r.disponibilita?`<br>Disponibilità: <b>${esc(r.disponibilita)}</b>`:""}<br>${r.colli||1} ${(r.colli||1)>1?"colli":"collo"}</p>
+   <div class="f"><label class="fl">Corriere<select id="rtC">${["","BRT","GLS","SDA","Poste","DHL","UPS","TNT/FedEx","Altro"].map(c=>`<option ${p.corriere===c?"selected":""}>${c}</option>`).join("")}</select></label>
+    <label class="fl">Giorno del ritiro<input id="rtD" type="date" value="${esc(p.data||"")}"></label>
+    <label class="fl">N° prenotazione / lettera di vettura<input id="rtL" class="mono" value="${esc(p.lettera||"")}"></label>
+    <label class="fl">Costo del ritiro da addebitare (€)<input id="rtK" type="number" step="0.01" min="0" value="${p.costo||""}"></label></div>
+   <p class="sub">Il costo finisce nella scheda quando il pacco arriva (riga “Spese di ritiro”), così si paga con la riparazione.</p></div>
+  <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="rtOk">${ic("check")}Salva ritiro prenotato</button></div>`);
+  $("#rtOk").onclick=async()=>{ const np={...p,stato:"ritiro prenotato",corriere:$("#rtC").value,data:$("#rtD").value,lettera:$("#rtL").value.trim(),costo:Number($("#rtK").value)||0,at:Date.now()};
+    if(await write(()=>S.db.doc("richieste/"+r.id).update({pacco:np}),"Ritiro salvato")){ closeModal(); const u=waLink(r.tel,reqMsg({...r,pacco:np},"ritiro")); if(u) toast("Ora avvisa il cliente con il tasto WhatsApp"); render(); } };
+}
+function bindRichieste(){ const m=$("#main");
+  m.querySelectorAll("[data-rqf]").forEach(b=>b.onclick=()=>{ S.rqF=b.dataset.rqf; render(); });
+  m.querySelectorAll("[data-rqrit]").forEach(b=>b.onclick=()=>openRitiro(S.richieste.find(x=>x.id===b.dataset.rqrit))); }
 
 function magTable(l, showCat){
   return `<table><thead><tr><th>Codice</th><th>Descrizione</th>${showCat?"<th>Categoria</th><th>Marca</th>":"<th>Compatibile con</th>"}<th>Ubicaz.</th><th class="num">Giacenza</th><th class="num">Min</th>${showCat?"":"<th class=\"num\">Usati 90gg</th>"}<th class="num">Costo</th><th class="num">Prezzo</th><th></th></tr></thead><tbody>
@@ -1477,7 +1517,7 @@ function bindView(){
   const m=$("#main");
   const acts={nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
-  bindNuovo(); bindFacile(); bindSito();
+  bindNuovo(); bindFacile(); bindSito(); bindRichieste();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
   m.querySelectorAll("[data-lay]").forEach(b=>b.onclick=()=>{S.layout=b.dataset.lay;render()});
   m.querySelectorAll("[data-car]").forEach(b=>b.onclick=()=>openCarico(itm(b.dataset.car)));
@@ -1640,7 +1680,9 @@ function nextNum(){
 function openTicket(t, fromReq, draft){
   const isNew=!t;
   t = draft ? JSON.parse(JSON.stringify(draft)) : t ? JSON.parse(JSON.stringify(t)) : {stato:"Ricevuto",tipo:"pagamento",ricambi:[],ore:0,tariffa:S.cfg.tariffa,createdAt:Date.now(),storico:[],
-      ...(fromReq?{cliente:fromReq.nome,tel:fromReq.tel,email:fromReq.email,modello:fromReq.modello,difetto:fromReq.messaggio,origine:"sito",reqId:fromReq.id}:{origine:"banco"})};
+      ...(fromReq?{cliente:fromReq.nome,tel:fromReq.tel,email:fromReq.email,modello:fromReq.modello,matricola:fromReq.seriale||"",accessori:fromReq.accessori||"",ind:fromReq.ind||"",citta:fromReq.citta||"",prov:fromReq.prov||"",cap:fromReq.cap||"",piva:fromReq.cf||"",difetto:fromReq.messaggio,origine:"sito",reqId:fromReq.id,
+        ...(fromReq.pacco?{note:`Arrivato con pacco (${fromReq.arrivo==="ritiro"?"ritirato da noi"+(fromReq.pacco.corriere?" con "+fromReq.pacco.corriere:""):"spedito dal cliente"}) · richiesta ${fromReq.id}`}:{}),
+        ...(fromReq.pacco&&Number(fromReq.pacco.costo)>0?{ricambi:[{codice:"RITIRO",descr:"Spese di ritiro corriere",qty:1,prezzo:Number(fromReq.pacco.costo),costo:Number(fromReq.pacco.costo)}]}:{})}:{origine:"banco"})};
   const origRic = t._orig ? t._orig : draft ? [] : JSON.parse(JSON.stringify(t.ricambi||[]));
   delete t._orig;
   const idx=STATI.indexOf(t.stato);
@@ -1826,7 +1868,7 @@ function openTicket(t, fromReq, draft){
       origRic.forEach(p=>diff.set(p.codice,(diff.get(p.codice)||0)+(Number(p.qty)||0)));
       data.ricambi.forEach(p=>diff.set(p.codice,(diff.get(p.codice)||0)-(Number(p.qty)||0)));
       for(const [cod,d] of diff){ if(d!==0 && itm(cod)) await muovi(cod,d,d<0?"scarico su scheda":"reso da scheda",data.num); }
-      if(t.reqId) await S.db.doc("richieste/"+t.reqId).update({gestita:true,ticketNum:data.num});
+      if(t.reqId){ const rq=S.richieste.find(x=>x.id===t.reqId); await S.db.doc("richieste/"+t.reqId).update({gestita:true,ticketNum:data.num,...(rq&&rq.pacco?{pacco:{...rq.pacco,stato:"arrivato",arrivatoAt:Date.now()}}:{})}); }
     }, isNew?`Scheda ${data.num} aperta`:"Scheda salvata");
     btn.disabled=false;
     if(ok) closeModal();
@@ -2818,7 +2860,9 @@ function vFacile(st){
   const pronti=st.pronti.length, ordAp=S.ordiniWeb.filter(o=>ORD_APERTI.includes(o.stato)).length, inv=daInviare().length;
   const h=new Date().getHours(), saluto=h<13?"Buongiorno":h<18?"Buon pomeriggio":"Buonasera";
   const B=(w,icon,col,t,sub,badge)=>`<button class="fbtn ${col}" data-wiz="${w}">${badge?`<span class="fbg">${badge}</span>`:""}${ic(icon)}<b>${t}</b><small>${sub}</small></button>`;
+  const rq=S.richieste.filter(r=>!r.gestita), rqP=rq.filter(r=>r.pacco&&r.pacco.stato==="ritiro da prenotare").length;
   return `<div class="fhello"><h1>${saluto} 👋</h1><p>Cosa devi fare? Tocca un tasto.</p></div>
+  ${rq.length?`<a class="frq" href="#richieste">${ic("globe")}<span><b>${rq.length} ${rq.length===1?"richiesta":"richieste"} dal sito</b><small>${rqP?`${rqP} ritiro da prenotare · `:""}tocca per vederle</small></span>${ic("chev")}</a>`:""}
   <div class="fgrid">
     ${B("ricevo","wrench","f-y","Ricevo un utensile","Il cliente porta un attrezzo da riparare")}
     ${B("consegno","check","f-g","Consegno un utensile","Il cliente viene a ritirare",pronti)}

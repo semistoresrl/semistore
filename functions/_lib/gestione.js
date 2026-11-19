@@ -82,11 +82,11 @@ export function differenza(prima, dopo, pref = '', out = {}, prof = 0) {
 }
 const corto = (v) => { if (v === undefined) return null; const s = JSON.stringify(v); return s.length > 300 ? s.slice(0, 300) + '…' : v; };
 
-export async function mandaEmail(env, { to, subject, text, html }) {
+export async function mandaEmail(env, { to, subject, text, html, reply_to }) {
   if (!env.RESEND_API_KEY) return { ok: false, motivo: 'manca RESEND_API_KEY' };
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST', headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ from: env.EMAIL_FROM || 'Semi Store <onboarding@resend.dev>', to, subject, text, html }),
+    body: JSON.stringify({ from: env.EMAIL_FROM || 'Semi Store <onboarding@resend.dev>', to, subject, text, html, reply_to }),
   });
   return r.ok ? { ok: true } : { ok: false, motivo: 'Resend ' + r.status + ' ' + (await r.text()).slice(0, 200) };
 }

@@ -1,0 +1,103 @@
+---
+// Conferma della richiesta di valutazione riparazione con pacco + DDT da stampare.
+// I dati arrivano da /api/assistenza?id&k (k = chiave segreta del link): la pagina è statica e non indicizzata.
+import Base from '../../layouts/Base.astro';
+import { SITO } from '../../data/sito.js';
+const NOI = { nome: SITO.denominazione, ind: `${SITO.indirizzo}, ${SITO.cap} ${SITO.citta} (${SITO.provincia})`, piva: SITO.piva, tel: SITO.telefono };
+---
+<Base title="La tua richiesta di riparazione" description="Conferma della richiesta e DDT da mettere nel pacco." noindex>
+  <section class="wrap rq">
+    <div id="carica" class="card box"><p>Carico la tua richiesta…</p></div>
+    <div id="err" class="card box" hidden><h1>Richiesta non trovata</h1><p>Controlla il link che hai ricevuto oppure chiamaci al <a class="ul" href={`tel:${SITO.telefonoLink}`}>{SITO.telefono}</a>.</p></div>
+    <div id="ok" hidden>
+      <div class="card box conf">
+        <span class="kicker">Richiesta ricevuta</span>
+        <h1>N. <span data-f="id" class="mono"></span></h1>
+        <p id="txtModo"></p>
+        <ol id="passi"></ol>
+        <div class="azioni"><button class="btn btn-y" onclick="window.print()">Stampa il DDT</button><a class="btn btn-k" href="/assistenza/">Torna all'assistenza</a></div>
+        <p class="nota">Stampa due copie: una va dentro il pacco, l'altra la tieni tu (o la firma il corriere). Se non puoi stampare, scrivi sul pacco il numero <b data-f="id"></b> e il tuo nome.</p>
+      </div>
+
+      <article id="ddt" class="ddt">
+        <header class="dh">
+          <div><b>DOCUMENTO DI TRASPORTO</b><small>D.P.R. 472/1996 – beni inviati per riparazione</small></div>
+          <div class="dn"><span>N.</span><b data-f="id" class="mono"></b><span>del</span><b data-f="data"></b></div>
+        </header>
+        <div class="dg">
+          <section><h3>Mittente</h3><p><b data-f="nome"></b><br><span data-f="ind"></span><br><span data-f="loc"></span><br><span data-f="cfr"></span>Tel. <span data-f="tel"></span></p></section>
+          <section><h3>Destinatario e luogo di destinazione</h3><p><b>{NOI.nome}</b><br>{NOI.ind}<br>P.IVA {NOI.piva} · Tel. {NOI.tel}<br>Centro assistenza autorizzato DEWALT</p></section>
+        </div>
+        <div class="dg3">
+          <div><h3>Causale del trasporto</h3><p>Conto riparazione / valutazione (beni di proprietà del mittente, da restituire)</p></div>
+          <div><h3>Trasporto a cura del</h3><p data-f="cura"></p></div>
+          <div><h3>Vettore</h3><p data-f="vettore"></p></div>
+        </div>
+        <table class="dt"><thead><tr><th>Descrizione dei beni</th><th>Matricola</th><th class="n">Q.tà</th></tr></thead>
+          <tbody><tr><td><b data-f="modello"></b><br><small data-f="acc"></small></td><td class="mono" data-f="seriale"></td><td class="n">1</td></tr>
+          <tr><td colspan="3"><small>Difetto segnalato: <span data-f="messaggio"></span></small></td></tr></tbody></table>
+        <div class="dg3">
+          <div><h3>Numero colli</h3><p data-f="colli"></p></div>
+          <div><h3>Aspetto esteriore</h3><p>Scatola / collo</p></div>
+          <div><h3>Data e ora inizio trasporto</h3><p class="vuoto">____ / ____ / ________ ore ____:____</p></div>
+        </div>
+        <div class="dg3 firme">
+          <div><h3>Firma mittente</h3><p class="vuoto"></p></div>
+          <div><h3>Firma vettore</h3><p class="vuoto"></p></div>
+          <div><h3>Firma destinatario</h3><p class="vuoto"></p></div>
+        </div>
+        <p class="rif">Rif. richiesta online <b data-f="id"></b> · scrivi questo numero anche sul pacco</p>
+      </article>
+    </div>
+  </section>
+</Base>
+<script>
+  const q = new URLSearchParams(location.search);
+  const $ = (s: string) => document.getElementById(s)!;
+  const put = (f: string, v: string) => document.querySelectorAll(`[data-f="${f}"]`).forEach((e) => (e.textContent = v));
+  fetch('/api/assistenza?' + new URLSearchParams({ id: q.get('id') || '', k: q.get('k') || '' }))
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((r: any) => {
+      const ritiro = r.arrivo === 'ritiro';
+      put('id', r.id); put('data', new Date(r.at).toLocaleDateString('it-IT'));
+      put('nome', r.nome || ''); put('ind', r.ind || ''); put('loc', [r.cap, r.citta, r.prov ? `(${r.prov})` : ''].filter(Boolean).join(' '));
+      put('cfr', r.cf ? `C.F./P.IVA ${r.cf} · ` : ''); put('tel', r.tel || '');
+      put('cura', ritiro ? 'Destinatario (corriere prenotato da SE.M.I.)' : 'Mittente');
+      put('vettore', ritiro ? (r.pacco?.corriere || 'Corriere incaricato da SE.M.I.') : '________________________');
+      put('modello', r.modello || ''); put('seriale', r.seriale || '—'); put('acc', r.accessori ? 'Con: ' + r.accessori : '');
+      put('messaggio', r.messaggio || ''); put('colli', String(r.colli || 1));
+      $('txtModo').textContent = ritiro
+        ? 'Prenotiamo noi il corriere che passerà a ritirare il pacco. Il costo del ritiro si paga dopo, insieme alla riparazione.'
+        : 'Spedisci il pacco con il corriere che preferisci: le spese di spedizione sono a tuo carico.';
+      const passi = ritiro
+        ? ['Stampa il DDT qui sotto (2 copie) e firmalo.', 'Imballa bene l\'utensile, meglio nella sua valigetta dentro una scatola, e metti una copia del DDT nel pacco.', `Ti contattiamo per confermare il giorno del ritiro${r.disponibilita ? ` (hai indicato: ${r.disponibilita})` : ''}.`, 'Quando arriva in laboratorio ti mandiamo il numero di scheda per seguire la riparazione e, se serve, il preventivo da approvare.']
+        : ['Stampa il DDT qui sotto (2 copie) e firmalo.', 'Imballa bene l\'utensile, meglio nella sua valigetta dentro una scatola, e metti una copia del DDT nel pacco.', 'Spediscilo a: SE.M.I. S.R.L., Viale G. Marconi 225, 80020 Casavatore (NA) – tel. 081 553 6604.', 'Quando arriva in laboratorio ti mandiamo il numero di scheda per seguire la riparazione e, se serve, il preventivo da approvare.'];
+      $('passi').innerHTML = ''; passi.forEach((p) => { const li = document.createElement('li'); li.textContent = p; $('passi').appendChild(li); });
+      $('carica').hidden = true; $('ok').hidden = false;
+    })
+    .catch(() => { $('carica').hidden = true; $('err').hidden = false; });
+</script>
+<style>
+  .rq [hidden]{display:none!important}
+  .rq{padding-top:28px;padding-bottom:40px;display:flex;flex-direction:column;gap:20px;max-width:900px}
+  .box{padding:clamp(16px,5vw,24px);display:flex;flex-direction:column;gap:12px}
+  .conf h1{font-size:clamp(26px,5vw,38px);margin:0}.conf ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;font-size:17px}
+  .azioni{display:flex;gap:10px;flex-wrap:wrap}.nota{color:var(--mut);margin:0;font-size:15px}
+  .ddt{background:#fff;color:#000;border:1px solid #bbb;border-radius:6px;padding:22px;font-size:13px;line-height:1.4}
+  .ddt h3{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#555;margin:0 0 4px}.ddt p{margin:0}
+  .dh{display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap}
+  .dh b{font-size:18px;display:block}.dh small{color:#555}.dn{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.dn b{font-size:16px;display:inline}.dn span{color:#555}
+  .dg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}.dg section,.dg3>div{border:1px solid #999;padding:8px 10px;border-radius:4px}
+  .dg3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+  .dt{width:100%;border-collapse:collapse;margin:6px 0}.dt th,.dt td{border:1px solid #999;padding:6px 8px;text-align:left;vertical-align:top}.dt th{font-size:10px;text-transform:uppercase;background:#f2f2f2}.dt .n{text-align:center;width:60px}
+  .firme p.vuoto{height:46px}.vuoto{color:#777}.rif{text-align:center;margin-top:10px!important;font-size:12px}
+  @media (max-width:640px){.dg,.dg3{grid-template-columns:1fr}}
+  @media print{
+    @page{size:A4;margin:12mm}
+    :global(html),:global(body){background:#fff!important}
+    :global(body > *:not(main)){display:none!important}
+    .rq{padding:0;max-width:none}.rq > :not(#ok),#ok > .conf{display:none!important}
+    .ddt{border:0;padding:0;font-size:12px;border-radius:0}
+    .dg{grid-template-columns:1fr 1fr}.dg3{grid-template-columns:repeat(3,1fr)}
+  }
+</style>
