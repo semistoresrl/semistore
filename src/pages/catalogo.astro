@@ -10,7 +10,7 @@ const cats = [...new Set(prodotti.map((p) => p.categoria))].sort((a, b) => a.loc
 const marche = [...new Set(prodotti.map((p) => p.marca))];
 const volts = ['12V', '18V', '36V', '54V', '230V'].filter((v) => prodotti.some((p) => p.volt === v));
 ---
-<Base title="Catalogo" description="Catalogo utensili DEWALT, BLACK+DECKER e STANLEY: trapani, avvitatori, tassellatori, smerigliatrici, batterie e kit. Acquisto online o ritiro a Casavatore.">
+<Base image="/og/catalogo.jpg" title="Catalogo" description="Catalogo utensili DEWALT, BLACK+DECKER e STANLEY: trapani, avvitatori, tassellatori, smerigliatrici, batterie e kit. Acquisto online o ritiro a Casavatore.">
   <section class="wrap sec">
     <div class="sec-h"><h1 class="h2">Catalogo</h1><span id="n" class="cnt" aria-live="polite" data-tot={lista.length}>{lista.length} prodotti</span></div>
     <nav class="cchips" aria-label="Categorie">{ORDINE_CAT.filter((c) => cats.includes(c)).map((c) => <a href={urlCategoria(c)}>{c}</a>)}</nav>

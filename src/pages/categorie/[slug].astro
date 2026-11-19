@@ -27,7 +27,7 @@ const ld = [
     mainEntity: { '@type': 'ItemList', numberOfItems: lista.length, itemListElement: lista.slice(0, PAG).map((p: any, i: number) => ({ '@type': 'ListItem', position: i + 1, url: `${SITO.url}/prodotti/${p.slug}/` })) } },
 ];
 ---
-<Base title={testo.t} description={testo.d} jsonld={ld}>
+<Base title={testo.t} description={testo.d} image={`/og/categorie/${slugCategoria(c)}.jpg`} jsonld={ld}>
   <section class="wrap sec cp">
     <nav aria-label="Percorso" class="bc"><a href="/">Home</a> / <a href="/catalogo/">Catalogo</a> / <span>{c}</span></nav>
     <div class="cp-h">

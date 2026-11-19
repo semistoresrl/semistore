@@ -29,7 +29,7 @@ const LINGUE: Record<string, string> = { en: 'inglese', fr: 'francese', de: 'ted
 const vTit = p.video ? (p.video.it || p.video.t) : '';
 const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] || 'lingua straniera') : '';
 ---
-<Base ogType="product" title={titolo} description={`${p.sottotitolo ? p.sottotitolo + '. ' : ''}${p.marca} ${p.modello || ''} a ${euro(p.prezzo)}: spedizione o ritiro a ${SITO.citta}, garanzia gestita da centro assistenza autorizzato.`} image={img} jsonld={ld}>
+<Base ogType="product" title={titolo} description={`${p.sottotitolo ? p.sottotitolo + '. ' : ''}${p.marca} ${p.modello || ''} a ${euro(p.prezzo)}: spedizione o ritiro a ${SITO.citta}, garanzia gestita da centro assistenza autorizzato.`} image={`/og/prodotti/${p.slug}.jpg`} prezzo={p.prezzo} jsonld={ld}>
   <div class="wrap">
     <nav aria-label="Percorso" class="bc"><a href="/">Home</a> / <a href="/catalogo/">Catalogo</a> / <a href={urlCategoria(p.categoria)}>{p.categoria}</a></nav>
     <div class="pd">

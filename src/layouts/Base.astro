@@ -6,10 +6,10 @@ import '@fontsource-variable/archivo';
 import font from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
 import { SITO, GOOGLE } from '../data/sito.js';
 import { urlCategoria, ORDINE_CAT } from '../data/catalogo';
-interface Props { title: string; description?: string; image?: string; noindex?: boolean; jsonld?: object; ogType?: string }
-const { ogType = 'website', title, description = 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (NA). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
+interface Props { title: string; description?: string; image?: string; noindex?: boolean; jsonld?: object; ogType?: string; prezzo?: number }
+const { prezzo, ogType = 'website', title, description = 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (NA). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITO.url).href;
-const ogImg = new URL(image || '/og-semi.png', SITO.url).href;
+const ogImg = new URL(image || '/og/semi.jpg', SITO.url).href;
 const robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 const fullTitle = title === SITO.nome ? `${SITO.nome} · Rivenditore e Centro Assistenza DEWALT a Napoli` : `${title} · ${SITO.nome}`;
 const sito = { '@context': 'https://schema.org', '@type': 'WebSite', '@id': SITO.url + '/#sito', name: SITO.nome, alternateName: 'semistore.it', inLanguage: 'it-IT', publisher: { '@id': SITO.url + '/#negozio' }, url: SITO.url + '/', potentialAction: { '@type': 'SearchAction', target: `${SITO.url}/catalogo/?q={search_term_string}`, 'query-input': 'required name=search_term_string' } };
@@ -51,6 +51,10 @@ const nav = [
   <meta name="theme-color" content="#15171a" />
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/icon-48.png" type="image/png" sizes="48x48" />
+  <link rel="icon" href="/icon-96.png" type="image/png" sizes="96x96" />
+  <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+  <link rel="manifest" href="/site.webmanifest" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preload" href={font} as="font" type="font/woff2" crossorigin />
   <meta property="og:type" content={ogType} />
@@ -60,6 +64,11 @@ const nav = [
   <meta property="og:url" content={canonical} />
   <meta property="og:locale" content="it_IT" />
   <meta property="og:image" content={ogImg} />
+  <meta property="og:image:secure_url" content={ogImg} />
+  {/\.jpe?g$/.test(ogImg) && <meta property="og:image:type" content="image/jpeg" />}
+  {ogImg.includes('/og/') && <><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /></>}
+  <meta property="og:image:alt" content={title} />
+  {prezzo && <><meta property="product:price:amount" content={(prezzo / 100).toFixed(2)} /><meta property="product:price:currency" content="EUR" /></>}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={fullTitle} />
   <meta name="twitter:description" content={description} />
