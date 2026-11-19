@@ -2,7 +2,8 @@
 // { giacenze: [{ slug? | codice, qty, prezzo? (centesimi IVA incl.), nome?, marca?, immagine?, ean?, pesoKg?, descrizione? }] }
 // Tutto ciò che arriva con quantità > 0 va in vendita anche su TikTok Shop (se collegato).
 import prodotti from '../../src/data/prodotti.json';
-import { db, json, admin, getImp, setImp } from '../_lib/db.js';
+import { db, json, getImp, setImp } from '../_lib/db.js';
+import { autorizzato } from '../_lib/gestione.js';
 import { configurato } from '../_lib/tiktok.js';
 import { sincronizza } from '../_lib/sincronizza.js';
 
@@ -33,7 +34,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
 }
 
 export async function onRequestPost({ request, env, waitUntil }) {
-  if (!admin(request, env)) return json({ error: 'non autorizzato' }, 401);
+  if (!(await autorizzato(request, env))) return json({ error: 'non autorizzato' }, 401);
   if (!env.DB) return json({ error: 'database D1 non collegato (binding DB)' }, 503);
   let b; try { b = await request.json(); } catch { return json({ error: 'richiesta non valida' }, 400); }
   const lista = Array.isArray(b.giacenze) ? b.giacenze : [];

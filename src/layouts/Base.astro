@@ -206,6 +206,12 @@ const nav = [
     m.addEventListener('click', (e) => { if (e.target === m) chiudi(); });
     m.addEventListener('cancel', (e) => { e.preventDefault(); chiudi(); });
   </script>
+  <script is:inline>
+    // presenze per l'app interna: id casuale del browser, nessun cookie, nessun IP salvato
+    (function(){try{var k='semi-vid',v=localStorage.getItem(k);if(!v){v=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem(k,v)}
+    var n=1,p=location.pathname,b=function(){if(document.visibilityState!=='visible')return;fetch('/api/presenza',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({v:v,p:p,n:n}),keepalive:true}).catch(function(){});n=0};
+    b();setInterval(b,30000);document.addEventListener('visibilitychange',b)}catch(e){}})();
+  </script>
 </body>
 </html>
 

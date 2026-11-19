@@ -1,12 +1,13 @@
 // POST (ADMIN_TOKEN): lavora il prossimo blocco della coda TikTok. Ripetere finché restanti = 0.
 // Con { "tutti": true } rimette in coda tutti i prodotti (es. dopo aver cambiato il ricarico).
 // Con { "riprova": true } rimette in coda quelli finiti in errore.
-import { db, json, admin } from '../../_lib/db.js';
+import { db, json } from '../../_lib/db.js';
+import { autorizzato } from '../../_lib/gestione.js';
 import { configurato } from '../../_lib/tiktok.js';
 import { sincronizza } from '../../_lib/sincronizza.js';
 
 export async function onRequestPost({ request, env }) {
-  if (!admin(request, env)) return json({ error: 'non autorizzato' }, 401);
+  if (!(await autorizzato(request, env))) return json({ error: 'non autorizzato' }, 401);
   if (!configurato(env)) return json({ error: 'TikTok non configurato (TIKTOK_APP_KEY, TIKTOK_APP_SECRET, DB)' }, 503);
   const b = await request.json().catch(() => ({}));
   const d = await db(env);
