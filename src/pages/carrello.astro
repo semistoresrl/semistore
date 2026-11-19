@@ -77,7 +77,12 @@ import { SITO } from '../data/sito.js';
       const consegna = (document.querySelector('input[name=cons]:checked') as HTMLInputElement).value;
       try { const its = await itemsCarrello(read()); track('begin_checkout', { items: its, value: its.reduce((t, i) => t + i.prezzo * i.qty, 0) }); } catch {}
       const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: read(), consegna, codice }) });
-      const j = await r.json(); if (!r.ok || !j.url) throw new Error(j.error || 'Errore');
+      const j = await r.json();
+      if (r.status === 401 && j.accedi) { // sconto del minigioco: serve l'account con la stessa email
+        el('err').innerHTML = `${j.error} <a class="ul" href="/account/?dopo=${encodeURIComponent('/carrello/?codice=' + codice)}">Entra ora</a>`;
+        el('err').hidden = false; b.disabled = false; b.textContent = 'Procedi al pagamento'; return;
+      }
+      if (!r.ok || !j.url) throw new Error(j.error || 'Errore');
       location.href = j.url;
     } catch (e: any) { el('err').textContent = 'Non riusciamo ad avviare il pagamento: ' + e.message + '. Riprova o chiamaci.'; el('err').hidden = false; b.disabled = false; b.textContent = 'Procedi al pagamento'; }
   });

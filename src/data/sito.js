@@ -41,6 +41,8 @@ export const SITO = {
   facebook: 'https://www.facebook.com/101931669444798',
   tiktok: 'https://www.tiktok.com/@semistore.it',
   spedizione: { costo: 990, gratisDa: 9900, giorni: '2–4' }, // centesimi
+  // programma punti: punti per ogni euro speso sui prodotti (spedizione esclusa). I premi si definiscono in seguito.
+  punti: { perEuro: 1 },
   url: 'https://semistore.it',
   // Statistiche e pubblicità (partono solo dopo il consenso nel banner cookie). Vuoti = niente banner, niente script.
   ga4: '', // ID misurazione Google Analytics 4, es. 'G-XXXXXXXXXX'

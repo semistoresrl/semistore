@@ -1,0 +1,249 @@
+---
+// Account cliente: accesso senza password (link via email), registrazione rapida privato / partita IVA
+// (con la partita IVA i dati dell'azienda si compilano da soli), punti, sconti e ordini.
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+---
+<Base title="Il mio account" description="Entra nel tuo account Semi Store: punti, sconti, ordini e dati per la fattura." noindex>
+  <section class="wrap sec acc" id="acc">
+    <p class="acc-load" data-v="carica">Caricamento…</p>
+
+    <!-- 1. accesso -->
+    <div class="card acc-box" data-v="entra" hidden>
+      <h1 class="h2">Entra o registrati</h1>
+      <p class="acc-sub">Niente password: scrivi la tua email e ti mandiamo un link. Un clic e sei dentro. Se è la prima volta, l'account si crea da solo.</p>
+      <p class="acc-warn" data-scaduto hidden>Il link è scaduto o è già stato usato: chiedine uno nuovo.</p>
+      <form data-f="entra" novalidate>
+        <label class="field">La tua email<input name="email" type="email" required autocomplete="email" inputmode="email" placeholder="nome@email.it" maxlength="120" /></label>
+        <button class="btn btn-y">Inviami il link</button>
+        <p class="acc-err" role="alert" hidden></p>
+      </form>
+      <div data-inviato hidden>
+        <p class="acc-ok">📩 Fatto! Controlla la posta di <b data-em></b> e premi <b>"Entra in Semi Store"</b>. Se non la trovi guarda nello spam.</p>
+        <button type="button" class="btn" data-altra>Usa un'altra email</button>
+      </div>
+      <ul class="acc-pro"><li>Accumuli <b>{SITO.punti.perEuro} punto per ogni euro</b> speso</li><li>Trovi i tuoi sconti e i tuoi ordini</li><li>Con la partita IVA ricevi la fattura elettronica</li></ul>
+    </div>
+
+    <!-- 2. registrazione (prima volta) o modifica dati -->
+    <div class="card acc-box" data-v="profilo" hidden>
+      <h1 class="h2" data-tit>Completa il tuo account</h1>
+      <p class="acc-sub">Account di <b data-em></b>. Bastano pochi secondi.</p>
+      <div class="acc-tipo" role="radiogroup" aria-label="Tipo di account">
+        <label><input type="radio" name="tipo" value="privato" checked /><span><b>Privato</b><small>Ricevuta per ogni acquisto</small></span></label>
+        <label><input type="radio" name="tipo" value="azienda" /><span><b>Partita IVA</b><small>Fattura elettronica</small></span></label>
+      </div>
+      <form data-f="profilo" novalidate>
+        <div data-solo="privato" class="acc-g2">
+          <label class="field">Nome *<input name="nome" autocomplete="given-name" maxlength="60" /></label>
+          <label class="field">Cognome *<input name="cognome" autocomplete="family-name" maxlength="60" /></label>
+        </div>
+        <div data-solo="azienda" hidden>
+          <label class="field">Partita IVA *<input name="piva" inputmode="numeric" autocomplete="off" maxlength="13" placeholder="11 cifre" /></label>
+          <p class="acc-piva" data-piva aria-live="polite"></p>
+          <div class="acc-az" data-az hidden>
+            <label class="field">Ragione sociale *<input name="ragioneSociale" autocomplete="organization" maxlength="120" /></label>
+            <label class="field">Indirizzo della sede *<input name="indirizzo" autocomplete="street-address" maxlength="120" /></label>
+            <div class="acc-g3">
+              <label class="field">CAP *<input name="cap" inputmode="numeric" autocomplete="postal-code" maxlength="5" /></label>
+              <label class="field">Città *<input name="citta" autocomplete="address-level2" maxlength="60" /></label>
+              <label class="field">Prov.<input name="provincia" autocomplete="address-level1" maxlength="2" /></label>
+            </div>
+            <div class="acc-g2">
+              <label class="field">Codice destinatario SDI<input name="sdi" maxlength="7" autocomplete="off" placeholder="es. M5UXCR1" /></label>
+              <label class="field">PEC<input name="pec" type="email" maxlength="120" autocomplete="off" placeholder="facoltativa" /></label>
+            </div>
+            <p class="acc-note">Se non hai codice SDI né PEC, la fattura la trovi nel tuo cassetto fiscale dell'Agenzia delle Entrate.</p>
+          </div>
+        </div>
+        <label class="field">Telefono <span class="opz">(facoltativo, per avvisarti quando l'ordine è pronto)</span><input name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" /></label>
+        <label class="chk"><input type="checkbox" name="offerte" /> Voglio ricevere offerte e novità di Semi Store (facoltativo)</label>
+        <p class="acc-note">Registrandoti accetti le <a class="ul" href="/condizioni-di-vendita/">condizioni di vendita</a> e il programma punti; i dati sono trattati come spiegato nell'<a class="ul" href="/privacy/">informativa privacy</a>.</p>
+        <button class="btn btn-y" data-salva>Salva e continua</button>
+        <p class="acc-err" role="alert" hidden></p>
+      </form>
+    </div>
+
+    <!-- 3. area personale -->
+    <div data-v="area" hidden>
+      <div class="acc-top">
+        <div><p class="acc-k">Il mio account</p><h1 class="h2" data-ciao>Ciao</h1><p class="acc-sub" data-chi></p></div>
+        <button type="button" class="btn" data-esci>Esci</button>
+      </div>
+      <div class="acc-cards">
+        <div class="card acc-pt">
+          <p class="acc-k">Punti Semi</p>
+          <b class="acc-pt-n mono" data-punti>0</b>
+          <p>{SITO.punti.perEuro} punto per ogni euro speso sui prodotti. I premi da riscattare con i punti arrivano presto.</p>
+        </div>
+        <div class="card acc-sc"><p class="acc-k">I tuoi sconti</p><div data-sconti></div></div>
+      </div>
+      <div class="card acc-sez"><h2>I tuoi ordini</h2><div data-ordini></div></div>
+      <div class="card acc-sez">
+        <h2>I tuoi dati</h2><div data-dati></div>
+        <div class="acc-az-b"><button type="button" class="btn" data-modifica>Modifica i dati</button> <button type="button" class="btn btn-lk" data-elimina>Elimina l'account</button></div>
+      </div>
+    </div>
+  </section>
+</Base>
+<script>
+  const $ = <T extends HTMLElement = HTMLElement>(s: string, r: ParentNode = document) => r.querySelector(s) as T;
+  const $$ = (s: string, r: ParentNode = document) => [...r.querySelectorAll<HTMLElement>(s)];
+  const u = new URL(location.href);
+  const dopo = u.searchParams.get('dopo') || '';
+  const vedi = (v: string) => $$('[data-v]').forEach((e) => (e.hidden = e.dataset.v !== v));
+  const esc = (t: any) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  const eur = (c: number) => (c / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+  const data = (s: string) => new Date(s).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+  const errore = (f: HTMLElement, t: string) => { const e = $('.acc-err', f); e.textContent = t; e.hidden = !t; };
+  let me: any = null;
+
+  async function carica() {
+    const r = await fetch('/api/account/io', { cache: 'no-store' }).catch(() => null);
+    if (!r || r.status === 401 || r.status === 503) { mostraEntra(); return; }
+    me = await r.json();
+    if (!me.profilo.completo || u.searchParams.has('benvenuto')) { mostraProfilo(true); return; }
+    mostraArea();
+  }
+
+  // ---------- accesso ----------
+  function mostraEntra() {
+    vedi('entra');
+    if (u.searchParams.get('link') === 'scaduto') $('[data-scaduto]').hidden = false;
+    let em = ''; try { em = JSON.parse(localStorage.getItem('semi-gioco-v2') || '{}').email || ''; } catch {}
+    const i = $<HTMLInputElement>('[data-f="entra"] input[name=email]'); if (em && !i.value) i.value = em;
+  }
+  const fe = $<HTMLFormElement>('[data-f="entra"]');
+  fe.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const em = (fe.email as HTMLInputElement).value.trim(), b = $<HTMLButtonElement>('button', fe);
+    if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em)) return errore(fe, 'Inserisci un indirizzo email valido.');
+    errore(fe, ''); b.disabled = true; b.textContent = 'Invio…';
+    try {
+      const r = await fetch('/api/account/link', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, dopo: dopo || '/account/' }) });
+      const j = await r.json(); if (!r.ok) throw new Error(j.error);
+      fe.hidden = true; $('[data-inviato]').hidden = false; $$('[data-v="entra"] [data-em]').forEach((x) => (x.textContent = em));
+    } catch (x: any) { errore(fe, x.message || 'Errore, riprova.'); }
+    b.disabled = false; b.textContent = 'Inviami il link';
+  });
+  $('[data-altra]').addEventListener('click', () => { fe.hidden = false; $('[data-inviato]').hidden = true; (fe.email as HTMLInputElement).focus(); });
+
+  // ---------- registrazione / modifica ----------
+  const fp = $<HTMLFormElement>('[data-f="profilo"]');
+  const campo = (n: string) => fp.elements.namedItem(n) as HTMLInputElement;
+  const tipo = () => ($<HTMLInputElement>('input[name=tipo]:checked')).value;
+  const aggiornaTipo = () => {
+    $$('[data-solo]', fp).forEach((e) => (e.hidden = e.dataset.solo !== tipo()));
+    if (tipo() === 'azienda' && !campo('piva').value) campo('piva').focus();
+  };
+  $$('input[name=tipo]').forEach((r) => r.addEventListener('change', aggiornaTipo));
+  function mostraProfilo(primo: boolean) {
+    vedi('profilo');
+    const p = me.profilo;
+    $$('[data-v="profilo"] [data-em]').forEach((x) => (x.textContent = p.email));
+    $('[data-tit]').textContent = primo ? 'Completa il tuo account' : 'Modifica i tuoi dati';
+    $('[data-salva]').textContent = primo ? 'Salva e continua' : 'Salva';
+    ($<HTMLInputElement>(`input[name=tipo][value="${p.tipo || 'privato'}"]`)).checked = true;
+    for (const k of ['nome', 'cognome', 'telefono', 'piva', 'ragioneSociale', 'indirizzo', 'cap', 'citta', 'provincia', 'sdi', 'pec']) if (p[k]) campo(k).value = p[k];
+    (campo('offerte')).checked = !!p.offerte;
+    if (p.piva) $('[data-az]').hidden = false;
+    aggiornaTipo();
+    if ((p.tipo || 'privato') === 'privato') campo('nome').focus();
+  }
+  // partita IVA: alle 11 cifre cerca i dati dell'azienda e compila tutto da solo
+  let ultima = '';
+  campo('piva').addEventListener('input', async () => {
+    const n = campo('piva').value.replace(/\D/g, '');
+    const msg = $('[data-piva]');
+    if (n.length < 11) { msg.textContent = ''; return; }
+    if (n === ultima) return; ultima = n;
+    msg.className = 'acc-piva'; msg.textContent = 'Cerco i dati dell\'azienda…';
+    try {
+      const j = await (await fetch('/api/piva?n=' + n)).json();
+      $('[data-az]').hidden = false;
+      if (!j.valida) { msg.className = 'acc-piva no'; msg.textContent = 'Questa partita IVA non è valida: controlla le cifre.'; return; }
+      if (j.trovata) {
+        for (const k of ['ragioneSociale', 'indirizzo', 'cap', 'citta', 'provincia']) if (j[k]) campo(k).value = j[k];
+        msg.className = 'acc-piva ok'; msg.innerHTML = `✓ <b>${esc(j.ragioneSociale)}</b> — dati compilati dall'archivio europeo VIES. Controllali e aggiungi il codice SDI se ce l'hai.`;
+        campo('sdi').focus();
+      } else {
+        msg.className = 'acc-piva'; msg.textContent = j.attiva === false ? 'Partita IVA non attiva per le operazioni UE: inserisci i dati a mano.' : 'Non riesco a trovare i dati in automatico: inseriscili a mano.';
+        campo('ragioneSociale').focus();
+      }
+    } catch { msg.textContent = 'Ricerca non disponibile: inserisci i dati a mano.'; $('[data-az]').hidden = false; }
+  });
+  fp.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const b = $<HTMLButtonElement>('[data-salva]'), t = b.textContent;
+    const dati: any = { tipo: tipo(), offerte: campo('offerte').checked };
+    for (const k of ['nome', 'cognome', 'telefono', 'piva', 'ragioneSociale', 'indirizzo', 'cap', 'citta', 'provincia', 'sdi', 'pec']) dati[k] = campo(k).value.trim();
+    errore(fp, ''); b.disabled = true; b.textContent = 'Salvo…';
+    try {
+      const r = await fetch('/api/account/profilo', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(dati) });
+      const j = await r.json(); if (!r.ok) throw new Error(j.error);
+      if (dopo && dopo !== '/account/') { location.href = dopo; return; }
+      history.replaceState(null, '', '/account/');
+      u.searchParams.delete('benvenuto');
+      await carica();
+    } catch (x: any) { errore(fp, x.message || 'Errore, riprova.'); }
+    b.disabled = false; b.textContent = t;
+  });
+
+  // ---------- area personale ----------
+  function mostraArea() {
+    vedi('area');
+    const p = me.profilo;
+    $('[data-ciao]').textContent = `Ciao ${p.tipo === 'azienda' ? p.ragioneSociale : p.nome}!`;
+    $('[data-chi]').textContent = `${p.email} · ${p.tipo === 'azienda' ? 'Partita IVA ' + p.piva : 'Privato'}`;
+    $('[data-punti]').textContent = Number(me.punti.saldo || 0).toLocaleString('it-IT');
+    const sc = me.sconti.filter((s: any) => !s.usato && new Date(s.scade) > new Date());
+    $('[data-sconti]').innerHTML = sc.length
+      ? sc.map((s: any) => `<p><b class="mono">${esc(s.codice)}</b> · −10% fino al ${data(s.scade)}<br><a class="btn btn-y acc-mini" href="/carrello/?codice=${esc(s.codice)}">Usalo ora</a></p>`).join('')
+      : '<p>Nessuno sconto attivo. Gioca a <a class="ul" href="/#gioco">Trapano Slalom</a>: ogni mese puoi vincere il 10%.</p>';
+    $('[data-ordini]').innerHTML = me.ordini.length
+      ? `<ul class="acc-ord">${me.ordini.map((o: any) => `<li><div><b>Ordine ${esc(o.id)}</b> · ${data(o.quando)}<br><small>${o.righe.map((r: any) => `${r.q}× ${esc(r.nome)}`).join(', ')}</small></div><div class="acc-ord-r"><b>${eur(o.totale)}</b><small>+${o.punti} punti${o.fattura ? ' · fattura' : ''}</small></div></li>`).join('')}</ul>`
+      : '<p>Non hai ancora ordini. <a class="ul" href="/catalogo/">Vai al catalogo</a></p>';
+    const r = (k: string, v: any) => v ? `<div><span>${k}</span><b>${esc(v)}</b></div>` : '';
+    $('[data-dati]').innerHTML = `<div class="acc-dl">${p.tipo === 'azienda'
+      ? r('Ragione sociale', p.ragioneSociale) + r('Partita IVA', p.piva) + r('Sede', `${p.indirizzo}, ${p.cap} ${p.citta} ${p.provincia ? '(' + p.provincia + ')' : ''}`) + r('Codice SDI', p.sdi || '0000000') + r('PEC', p.pec)
+      : r('Nome', `${p.nome} ${p.cognome}`)}${r('Email', p.email)}${r('Telefono', p.telefono)}${r('Documento', p.tipo === 'azienda' ? 'Fattura elettronica + ricevuta' : 'Ricevuta')}</div>`;
+  }
+  $('[data-modifica]').addEventListener('click', () => mostraProfilo(false));
+  $('[data-esci]').addEventListener('click', async () => { await fetch('/api/account/esci', { method: 'POST' }); location.href = '/'; });
+  $('[data-elimina]').addEventListener('click', async () => {
+    if (!confirm('Vuoi eliminare il tuo account? Perderai punti e sconti. Gli ordini restano registrati solo per gli obblighi fiscali.')) return;
+    const r = await fetch('/api/account/elimina', { method: 'POST' });
+    if (r.ok) location.href = '/'; else alert('Non è stato possibile eliminare l\'account ora. Scrivici a info@semistore.it.');
+  });
+
+  carica();
+</script>
+<style>
+  .acc{max-width:880px}.acc-load{color:var(--mut)}
+  .acc-box{padding:clamp(18px,4vw,30px);max-width:620px;margin:0 auto}.acc-box form{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+  .acc-box form .btn{align-self:flex-start}
+  .acc-sub{color:var(--mut);margin:6px 0 0}.acc-k{margin:0;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+  .acc-err{color:#b3261e;font-weight:700;margin:0}.acc-warn{background:#fff4d6;border-radius:10px;padding:10px 12px;margin:14px 0 0}
+  .acc-ok{background:#e9f6ec;border-radius:10px;padding:12px 14px;margin:16px 0}
+  .acc-pro{margin:20px 0 0;padding:16px 0 0 18px;border-top:1px solid var(--line);color:var(--mut);display:grid;gap:4px}
+  .acc-tipo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  .acc-tipo label{cursor:pointer}.acc-tipo input{position:absolute;opacity:0}
+  .acc-tipo span{display:flex;flex-direction:column;gap:2px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff}
+  .acc-tipo small{color:var(--mut)}.acc-tipo input:checked+span{border-color:var(--y);background:#fffbea;box-shadow:0 0 0 3px #f5b80033}
+  .acc-tipo input:focus-visible+span{outline:2px solid var(--ink)}
+  .acc-g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.acc-g3{display:grid;grid-template-columns:1fr 2fr 1fr;gap:12px}
+  .acc-az{display:flex;flex-direction:column;gap:14px}.acc-az[hidden],[data-solo][hidden]{display:none}
+  .acc-piva{margin:-6px 0 0;font-size:14px;color:var(--mut)}.acc-piva.ok{color:#1d6b35}.acc-piva.no{color:#b3261e}
+  .acc-note{font-size:13px;color:var(--mut);margin:0}.opz{font-weight:400;color:var(--mut)}
+  .chk{display:flex;gap:8px;align-items:flex-start;font-size:15px}
+  .acc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
+  .acc-cards{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-bottom:16px}
+  .acc-pt,.acc-sc,.acc-sez{padding:20px}.acc-pt{background:#15171a;color:#fff}.acc-pt p{color:#c9cbcf;margin:6px 0 0;font-size:14px}
+  .acc-pt .acc-k{color:var(--y)}.acc-pt-n{font-size:46px;line-height:1.1;display:block;margin-top:6px}
+  .acc-sez{margin-bottom:16px}.acc-sez h2{font-size:20px;margin:0 0 12px}.acc-mini{min-height:36px;padding:0 14px;margin-top:6px;font-size:14px}
+  .acc-ord{list-style:none;margin:0;padding:0;display:grid;gap:10px}.acc-ord li{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:10px}
+  .acc-ord small{color:var(--mut)}.acc-ord-r{text-align:right;display:flex;flex-direction:column;white-space:nowrap}
+  .acc-dl{display:grid;gap:8px}.acc-dl div{display:flex;gap:12px;justify-content:space-between;border-top:1px solid var(--line);padding-top:8px}.acc-dl span{color:var(--mut)}.acc-dl b{text-align:right}
+  .acc-az-b{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}.btn-lk{background:none;color:#b3261e;border-color:transparent}
+  @media (max-width:640px){.acc-cards,.acc-g2{grid-template-columns:1fr}.acc-g3{grid-template-columns:1fr 1.6fr .8fr}}
+</style>

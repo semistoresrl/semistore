@@ -6,6 +6,7 @@
 // Usa il KV RICHIESTE, come segreto PREMIO_SEGRETO (se manca, ADMIN_TOKEN) e Resend (RESEND_API_KEY, EMAIL_FROM) per l'email.
 // Se Resend non è configurato il codice viene mostrato a schermo.
 import { SITO } from '../../src/data/sito.js';
+import { linkAccesso } from '../_lib/clienti.js';
 
 const SCONTO = 10;
 const MIN_S = 18, MAX_S = 2 * 3600, VALIDO_GG = 30, MAX_PER_IP = 3;
@@ -31,6 +32,9 @@ const nuovoCodice = () => {
 async function inviaEmail(env, email, codice, scade, origin) {
   if (!env.RESEND_API_KEY) return false;
   const data = new Date(scade).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+  // "Riscatta lo sconto": un clic entra nell'account Semi Store di questa email (lo crea se serve) e apre il carrello con lo sconto
+  let riscatta = `${origin}/carrello/?codice=${codice}`;
+  if (env.DB) try { riscatta = await linkAccesso(env, origin, email, `/carrello/?codice=${codice}`, { riusabileGg: Math.max(1, Math.ceil((new Date(scade) - Date.now()) / 86400e3)) }); } catch (e) { console.error('link', e); }
   const html = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#15171a">
     <div style="background:#15171a;color:#fff;padding:24px;border-radius:14px 14px 0 0;text-align:center">
       <div style="color:#f5b800;font-weight:700;letter-spacing:2px;font-size:12px">TRAPANO SLALOM</div>
@@ -40,12 +44,12 @@ async function inviaEmail(env, email, codice, scade, origin) {
       <p style="margin:0 0 14px">Grazie per aver giocato a Trapano Slalom! Ecco il tuo codice sconto del mese:</p>
       <div style="display:inline-block;background:#f5b800;padding:14px 22px;border-radius:10px;font:700 24px monospace;letter-spacing:2px">${codice}</div>
       <p style="margin:16px 0 18px">Vale una volta, sui prodotti, fino al ${data}. Lo sconto è legato al tuo account Semi Store, cioè a questa email: al pagamento usa la stessa.</p>
-      <a href="${origin}/carrello/?codice=${codice}" style="display:inline-block;background:#f5b800;color:#15171a;text-decoration:none;font-weight:900;font-size:17px;padding:14px 26px;border-radius:10px">Riscatta lo sconto</a>
-      <p style="margin:12px 0 0;font-size:13px;color:#5c5f65">Il pulsante apre il carrello con lo sconto già applicato. Poi scegli i prodotti dal <a href="${origin}/catalogo/" style="color:#15171a">catalogo</a>.</p>
+      <a href="${riscatta}" style="display:inline-block;background:#f5b800;color:#15171a;text-decoration:none;font-weight:900;font-size:17px;padding:14px 26px;border-radius:10px">Riscatta lo sconto</a>
+      <p style="margin:12px 0 0;font-size:13px;color:#5c5f65">Il pulsante ti fa entrare nel tuo account Semi Store e apre il carrello con lo sconto già applicato. Poi scegli i prodotti dal <a href="${origin}/catalogo/" style="color:#15171a">catalogo</a>.</p>
       <p style="margin:22px 0 6px;font-size:12px;color:#5c5f65">Email automatica: non rispondere a questo messaggio. Per assistenza scrivi su WhatsApp o a info@semistore.it.</p>
       <p style="margin:0;font-size:12px;color:#5c5f65">${SITO.nome} · ${SITO.indirizzo}, ${SITO.citta} · ${SITO.telefono}</p>
     </div></div>`;
-  const testo = `Hai vinto il ${SCONTO}% di sconto!\n\nIl tuo codice: ${codice}\nVale una volta, sui prodotti, fino al ${data}. Lo sconto è legato al tuo account Semi Store (questa email): al pagamento usa la stessa.\n\nRiscatta lo sconto: ${origin}/carrello/?codice=${codice}\n\nEmail automatica: non rispondere. Per assistenza: WhatsApp o info@semistore.it`;
+  const testo = `Hai vinto il ${SCONTO}% di sconto!\n\nIl tuo codice: ${codice}\nVale una volta, sui prodotti, fino al ${data}. Lo sconto è legato al tuo account Semi Store (questa email): al pagamento usa la stessa.\n\nRiscatta lo sconto: ${riscatta}\n\nEmail automatica: non rispondere. Per assistenza: WhatsApp o info@semistore.it`;
   try {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',

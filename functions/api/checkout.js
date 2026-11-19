@@ -3,6 +3,7 @@
 // Variabili in Cloudflare Pages: STRIPE_SECRET_KEY (obbligatoria).
 import prodotti from '../../src/data/prodotti.json';
 import { SITO } from '../../src/data/sito.js';
+import { cliente as clienteDi } from '../_lib/clienti.js';
 
 const PER_SLUG = Object.fromEntries(prodotti.map((p) => [p.slug, p]));
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json' } });
@@ -26,6 +27,8 @@ export async function onRequestPost({ request, env }) {
       }
     } catch { /* tabella non ancora creata: si procede come prima */ }
   }
+  // cliente collegato (facoltativo per comprare, obbligatorio per usare gli sconti del minigioco)
+  let cl = null; try { cl = await clienteDi(request, env); } catch {}
   const ritiro = body.consegna === 'ritiro';
   const sub = items.reduce((t, i) => t + i.p.prezzo * i.q, 0);
   const origin = new URL(request.url).origin;
@@ -42,6 +45,12 @@ export async function onRequestPost({ request, env }) {
       if (s0?.status === 'complete') { premio.pagato = new Date().toISOString(); await env.RICHIESTE.put('premio:' + codice, JSON.stringify(premio), { expirationTtl: 60 * 86400 }); }
     }
     if (premio.pagato) return json({ error: 'codice sconto già utilizzato' }, 400);
+    // lo sconto è legato all'account con l'email con cui è stato vinto
+    if (!cl || (premio.email && cl.email !== premio.email)) {
+      const em = String(premio.email || '');
+      const coperta = em.replace(/^(.{2}).*(@.*)$/, '$1•••$2');
+      return json({ error: `Per usare lo sconto entra nel tuo account (${coperta}).`, accedi: true }, 401);
+    }
   }
 
   const f = new URLSearchParams();
@@ -51,11 +60,25 @@ export async function onRequestPost({ request, env }) {
   f.set('cancel_url', `${origin}/carrello/`);
   f.set('phone_number_collection[enabled]', 'true');
   f.set('billing_address_collection', 'required');
-  f.set('tax_id_collection[enabled]', 'true'); // P.IVA per chi vuole fattura
   f.set('metadata[consegna]', ritiro ? 'RITIRO IN NEGOZIO' : 'SPEDIZIONE');
+  // ricevuta a tutti; fattura elettronica solo a chi ha un account con partita IVA (dati presi dal profilo)
+  if (cl) {
+    f.set('customer_email', cl.email);
+    f.set('payment_intent_data[receipt_email]', cl.email);
+    f.set('metadata[cliente]', cl.id);
+    if (cl.tipo === 'azienda' && cl.piva) {
+      f.set('metadata[fattura]', 'SI');
+      f.set('metadata[ragione_sociale]', String(cl.ragione_sociale || '').slice(0, 450));
+      f.set('metadata[piva]', cl.piva);
+      f.set('metadata[sdi]', cl.sdi || '0000000');
+      if (cl.pec) f.set('metadata[pec]', cl.pec);
+      f.set('metadata[sede]', `${cl.indirizzo || ''}, ${cl.cap || ''} ${cl.citta || ''} (${cl.provincia || ''})`.slice(0, 450));
+      f.set('payment_intent_data[description]', `Ordine con fattura a ${cl.ragione_sociale} – P.IVA ${cl.piva}`.slice(0, 900));
+    }
+  }
   f.set('custom_fields[0][key]', 'note');
   f.set('custom_fields[0][label][type]', 'custom');
-  f.set('custom_fields[0][label][custom]', 'Note / codice fiscale o SDI per fattura');
+  f.set('custom_fields[0][label][custom]', 'Note per l\'ordine');
   f.set('custom_fields[0][type]', 'text');
   f.set('custom_fields[0][optional]', 'true');
   items.forEach(({ p, q }, k) => {
@@ -89,7 +112,6 @@ export async function onRequestPost({ request, env }) {
     if (!coupon) return json({ error: 'sconto momentaneamente non disponibile' }, 502);
     f.set('discounts[0][coupon]', coupon);
     f.set('metadata[codice_sconto]', codice);
-    if (premio.email) f.set('customer_email', premio.email); // il codice vale con l'email con cui è stato registrato
   }
 
   const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
