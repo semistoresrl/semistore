@@ -1,9 +1,22 @@
 ---
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
+const FAQ = [
+  ['Siete un centro assistenza autorizzato DEWALT?', 'Sì. SE.M.I. srl è centro assistenza autorizzato DEWALT: ripariamo in sede elettroutensili DEWALT, STANLEY e BLACK+DECKER e gestiamo direttamente le pratiche di garanzia con il produttore.'],
+  ['La riparazione in garanzia è gratuita?', 'Sì, se il guasto è coperto dalla garanzia del produttore. Porta l\'utensile con lo scontrino o la fattura d\'acquisto: verifichiamo noi la copertura e apriamo la pratica.'],
+  ['Quanto costa riparare un utensile fuori garanzia?', 'Dipende dal guasto e dai ricambi. Facciamo prima la diagnosi e ti mandiamo un preventivo: ripariamo solo dopo la tua approvazione.'],
+  ['Quanto tempo serve per la riparazione?', 'Con i ricambi disponibili bastano pochi giorni lavorativi. Se un ricambio va ordinato a DEWALT ti avvisiamo dei tempi; lo stato si segue online con il numero di scheda.'],
+  ['Posso spedire l\'utensile invece di portarlo?', 'Sì. Apri la richiesta online, ti diamo il numero di scheda e le istruzioni per la spedizione al laboratorio di Casavatore.'],
+  ['Da quali zone arrivano i clienti?', 'Da Napoli e da tutta la provincia: Casavatore, Casoria, Arzano, Afragola, Secondigliano, Frattamaggiore, Caivano, Acerra e dintorni. Chi è lontano può spedire.'],
+  ['Vendete anche ricambi originali?', 'Sì: ricambi originali DEWALT, STANLEY e BLACK+DECKER, anche su ordinazione. Chiedi al banco o scrivici il modello e il Type dell\'utensile.'],
+];
+const ld = [
+  { '@context': 'https://schema.org', '@type': 'Service', name: 'Riparazione elettroutensili DEWALT, STANLEY e BLACK+DECKER', serviceType: 'Centro assistenza autorizzato elettroutensili', provider: { '@id': SITO.url + '/#negozio' }, areaServed: ['Napoli', 'Casavatore', 'Casoria', 'Arzano', 'Afragola', 'Italia'], url: SITO.url + '/assistenza/' },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+];
 const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi', 'In riparazione', 'Pronto', 'Consegnato'];
 ---
-<Base title="Assistenza e riparazioni" description={`Centro assistenza autorizzato DEWALT a ${SITO.citta}: riparazioni in garanzia e fuori garanzia, preventivi, ricambi originali. Richiedi assistenza online e segui lo stato della riparazione.`}>
+<Base title="Centro assistenza DEWALT a Napoli: riparazioni e ricambi originali" description={`Centro assistenza autorizzato DEWALT, STANLEY e BLACK+DECKER a Casavatore (Napoli): riparazioni in garanzia e fuori garanzia, preventivo prima dell'intervento, ricambi originali. Richiedi assistenza online.`} jsonld={ld}>
   <section class="hero-a"><div class="wrap">
     <span class="kicker" style="color:var(--y)">Centro assistenza autorizzato DEWALT</span>
     <h1>Assistenza e riparazioni</h1>
@@ -51,6 +64,12 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
       </div>
     </div>
   </div>
+  <section class="wrap sec prose ass-faq">
+    <h2>Centro assistenza DEWALT a Napoli</h2>
+    <p>SE.M.I. srl, attiva dal 1997 a Casavatore, al confine con Napoli nord, è centro assistenza autorizzato DEWALT. Ripariamo trapani, avvitatori, tassellatori, smerigliatrici, seghe, troncatrici, utensili da giardino, batterie e caricabatterie DEWALT, STANLEY e BLACK+DECKER, con ricambi originali e pratiche di garanzia gestite in sede.</p>
+    <h2>Domande frequenti</h2>
+    {FAQ.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}
+  </section>
 </Base>
 <script define:vars={{ STATI }}>window.__STATI = STATI;</script>
 <script>
@@ -96,3 +115,4 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
   .bar{display:flex;gap:4px;margin-top:4px}.bar span{flex:1;height:8px;border-radius:4px;background:var(--line)}.bar span.on{background:var(--ink)}
   .nota{color:var(--mut);margin:0}
 </style>
+<style>.ass-faq details{border-bottom:1px solid var(--line);padding:12px 0}.ass-faq summary{font-weight:700;cursor:pointer}.ass-faq details p{margin:8px 0 0}</style>

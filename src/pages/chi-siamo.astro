@@ -2,13 +2,23 @@
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
 import VideoNegozio from '../components/VideoNegozio.astro';
+const ld = { '@context': 'https://schema.org', '@type': 'AboutPage', name: 'Chi siamo · Semi Store', url: SITO.url + '/chi-siamo/', about: { '@id': SITO.url + '/#negozio' } };
 ---
-<Base title="Chi siamo" description={`Semi Store: rivenditore e centro assistenza autorizzato DEWALT a ${SITO.citta}.`}>
+<Base title="Chi siamo: negozio e centro assistenza DEWALT a Casavatore (Napoli)" description="SE.M.I. srl, dal 1997 a Casavatore (Napoli): rivenditore e centro assistenza autorizzato DEWALT. Utensili DEWALT, STANLEY, BLACK+DECKER, USAG e LENOX, riparazioni e ricambi originali." jsonld={ld}>
   <section class="wrap sec prose">
     <h1 class="h2">Chi siamo</h1>
-    <p style="font-size:18px">Semi Store è rivenditore e centro assistenza autorizzato DEWALT a {SITO.citta}. Vendiamo utensili professionali DEWALT, BLACK+DECKER e STANLEY e li ripariamo nel nostro laboratorio con ricambi originali.</p>
-    <p>Perché comprare da chi ripara? Perché vediamo ogni giorno come lavorano gli utensili dopo mesi di cantiere: ti consigliamo il modello giusto, non il più caro, e se qualcosa si guasta apriamo noi la pratica di garanzia.</p>
-    <p><a href="/catalogo/" class="btn btn-y">Vai al catalogo</a></p>
+    <p style="font-size:18px">Semi Store è il negozio online di <b>SE.M.I. srl</b>, rivenditore e centro assistenza autorizzato DEWALT in Viale Guglielmo Marconi 225 a {SITO.citta}, alle porte di Napoli. Siamo attivi dal 1997.</p>
+    <p>Vendiamo utensili professionali <b>DEWALT, STANLEY, BLACK+DECKER, USAG e LENOX</b>: trapani e avvitatori, tassellatori, smerigliatrici, seghe e troncatrici, utensili da giardino, batterie XR e FLEXVOLT, accessori e utensili manuali. Oltre 1.200 articoli, con spedizione in tutta Italia o ritiro in negozio.</p>
+    <h2>Perché comprare da chi ripara</h2>
+    <p>Nel nostro laboratorio ripariamo ogni giorno utensili che arrivano da Napoli e provincia: Casoria, Arzano, Afragola, Secondigliano, Frattamaggiore, Caivano, Acerra. Vediamo come lavorano dopo mesi di cantiere, quindi ti consigliamo il modello giusto, non il più caro. Se qualcosa si guasta, la pratica di garanzia la apriamo noi, con ricambi originali.</p>
+    <h2>Cosa trovi da noi</h2>
+    <ul>
+      <li><a href="/catalogo/">Catalogo completo</a> con prezzi sotto il listino ufficiale</li>
+      <li><a href="/assistenza/">Assistenza e riparazioni</a> in garanzia e fuori garanzia, con preventivo</li>
+      <li>Ricambi originali DEWALT, STANLEY e BLACK+DECKER, anche su ordinazione</li>
+      <li>Consigli al banco, al telefono ({SITO.telefono}) o su WhatsApp</li>
+    </ul>
+    <p><a href="/catalogo/" class="btn btn-y">Vai al catalogo</a> <a href="/contatti/" class="btn">Come arrivare</a></p>
   </section>
   <VideoNegozio titolo="Il nostro negozio" />
 </Base>

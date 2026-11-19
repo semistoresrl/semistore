@@ -38,6 +38,13 @@ export function feed(lista: any[], canale: Canale) {
     const conferma = p.disponibilita === 'conferma';
     const desc = [p.sottotitolo, p.descrizione, ...(p.punti || [])].filter(Boolean).map((s: string) => String(s).trim().replace(/[.;:]+$/, '')).join('. ').replace(/\s+/g, ' ').slice(0, 4900);
     const sale = p.prezzoListino && p.prezzoListino > p.prezzo;
+    // Google: punti di forza (max 10, 150 caratteri) e scheda tecnica (max 15 voci) mostrati nella scheda prodotto Shopping
+    const extra = canale !== 'google' ? '' : [
+      ...(p.punti || []).map((t: string) => String(t).trim().replace(/[.;]+$/, '')).filter((t: string) => t.length >= 10 && t.length <= 150).slice(0, 10)
+        .map((t: string) => `\n<g:product_highlight>${x(t)}</g:product_highlight>`),
+      ...(p.caratteristiche || []).map((c: string) => { const i = String(c).indexOf(': '); return i > 0 && i < 40 ? [c.slice(0, i), c.slice(i + 2)] : null; }).filter(Boolean).slice(0, 15)
+        .map(([n, v]: string[]) => `\n<g:product_detail><g:section_name>Caratteristiche tecniche</g:section_name><g:attribute_name>${x(n.slice(0, 140))}</g:attribute_name><g:attribute_value>${x(v.slice(0, 1000))}</g:attribute_value></g:product_detail>`),
+    ].join('');
     // Google: backorder + data; Meta: "available for order" (backorder non è accettato)
     const disp = conferma
       ? canale === 'google' ? `backorder</g:availability>\n<g:availability_date>${fra7()}</g:availability_date>` : 'available for order</g:availability>'
@@ -52,10 +59,10 @@ export function feed(lista: any[], canale: Canale) {
 <g:price>${eur(sale ? p.prezzoListino : p.prezzo)}</g:price>${sale ? `\n<g:sale_price>${eur(p.prezzo)}</g:sale_price>` : ''}
 <g:condition>new</g:condition>
 <g:brand>${x(p.marca)}</g:brand>
-<g:mpn>${x(p.codice || p.modello)}</g:mpn>${p.ean ? `\n<g:gtin>${x(p.ean)}</g:gtin>` : canale === 'google' ? '\n<g:identifier_exists>no</g:identifier_exists>' : ''}
+<g:mpn>${x(p.codice || p.modello)}</g:mpn>${p.ean ? `\n<g:gtin>${x(p.ean)}</g:gtin>` : ''}${extra}
 <g:google_product_category>${CAT[p.categoria] || '1167'}</g:google_product_category>
 <g:product_type>${x(p.categoria)}</g:product_type>
-<g:shipping><g:country>IT</g:country><g:price>${eur(p.prezzo >= SITO.spedizione.gratisDa ? 0 : SITO.spedizione.costo)}</g:price></g:shipping>
+<g:shipping><g:country>IT</g:country><g:price>${eur(p.prezzo >= SITO.spedizione.gratisDa ? 0 : SITO.spedizione.costo)}</g:price><g:min_transit_time>2</g:min_transit_time><g:max_transit_time>4</g:max_transit_time></g:shipping>${canale === 'google' ? '\n<g:min_handling_time>0</g:min_handling_time>\n<g:max_handling_time>2</g:max_handling_time>' : ''}
 </item>`;
   });
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -48,7 +48,7 @@ async function cerca(p) {
   // preferisci: codice nel titolo, poi video tra 1 e 20 minuti, poi l'ordine di pertinenza di YouTube
   ok.sort((a, b) => (b.nelTitolo - a.nelTitolo) || ((b.sec >= 60 && b.sec <= 1200) - (a.sec >= 60 && a.sec <= 1200)));
   const best = ok[0]?.x;
-  return best ? { id: best.id, t: best.snippet.title, ch: best.snippet.channelTitle, it: best.snippet.title, l: 'it' } : null;
+  return best ? { id: best.id, t: best.snippet.title, ch: best.snippet.channelTitle, it: best.snippet.title, l: 'it', d: (best.snippet.publishedAt || '').slice(0, 10) || undefined } : null;
 }
 
 // coda: prima i video stranieri, poi i prodotti senza video; i codici già cercati non si ricercano (stesso codice base = stesso risultato)
@@ -79,6 +79,15 @@ for (const p of prodotti) {
   if (!r) continue;
   if (p.video && p.video.l === 'it') continue;
   p.video = r; trovati++;
+}
+// data di pubblicazione dei video già presenti (serve ai dati strutturati VideoObject per Google): 1 unità ogni 50 video
+const senzaData = [...new Set(prodotti.filter((p) => p.video && p.video.id && !p.video.d).map((p) => p.video.id))];
+for (let i = 0; i < senzaData.length; i += 50) {
+  try {
+    const r = await api('videos', { part: 'snippet', id: senzaData.slice(i, i + 50).join(',') });
+    const date = Object.fromEntries((r.items || []).map((x) => [x.id, (x.snippet.publishedAt || '').slice(0, 10)]));
+    for (const p of prodotti) if (p.video && date[p.video.id]) p.video.d = date[p.video.id];
+  } catch (e) { console.error(`Date video: ${e.message}`); break; }
 }
 // stesso formato del file originale (una voce per riga, senza rientri)
 const fmt = (x) => JSON.stringify(x, null, 1).replace(/^ +/gm, '');

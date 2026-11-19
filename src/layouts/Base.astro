@@ -6,17 +6,30 @@ import '@fontsource-variable/archivo';
 import font from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url';
 import { SITO, GOOGLE } from '../data/sito.js';
 import { urlCategoria, ORDINE_CAT } from '../data/catalogo';
-interface Props { title: string; description?: string; image?: string; noindex?: boolean; jsonld?: object }
-const { title, description = 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (NA). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
+interface Props { title: string; description?: string; image?: string; noindex?: boolean; jsonld?: object; ogType?: string }
+const { ogType = 'website', title, description = 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (NA). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITO.url).href;
+const ogImg = new URL(image || '/og-semi.png', SITO.url).href;
+const robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
 const fullTitle = title === SITO.nome ? `${SITO.nome} · Rivenditore e Centro Assistenza DEWALT a Napoli` : `${title} · ${SITO.nome}`;
-const sito = { '@context': 'https://schema.org', '@type': 'WebSite', name: SITO.nome, url: SITO.url + '/', potentialAction: { '@type': 'SearchAction', target: `${SITO.url}/catalogo/?q={search_term_string}`, 'query-input': 'required name=search_term_string' } };
+const sito = { '@context': 'https://schema.org', '@type': 'WebSite', '@id': SITO.url + '/#sito', name: SITO.nome, alternateName: 'semistore.it', inLanguage: 'it-IT', publisher: { '@id': SITO.url + '/#negozio' }, url: SITO.url + '/', potentialAction: { '@type': 'SearchAction', target: `${SITO.url}/catalogo/?q={search_term_string}`, 'query-input': 'required name=search_term_string' } };
+const ZONE = ['Casavatore', 'Napoli', 'Casoria', 'Arzano', 'Afragola', 'Frattamaggiore', 'Caivano', 'Secondigliano', 'Melito di Napoli', 'Sant\'Antimo', 'Grumo Nevano', 'Cardito', 'Acerra', 'Pomigliano d\'Arco'];
 const org = {
-  '@context': 'https://schema.org', '@type': 'HardwareStore', name: SITO.nome, legalName: SITO.ragioneSociale,
-  url: SITO.url, telephone: SITO.telefonoLink, email: SITO.email, vatID: 'IT' + SITO.piva,
-  address: { '@type': 'PostalAddress', streetAddress: SITO.indirizzo, postalCode: SITO.cap, addressLocality: SITO.citta, addressRegion: SITO.provincia, addressCountry: 'IT' },
-  sameAs: [SITO.instagram, SITO.facebook, SITO.tiktok, GOOGLE.scheda].filter(Boolean),
-  hasMap: GOOGLE.scheda,
+  '@context': 'https://schema.org', '@type': 'HardwareStore', '@id': SITO.url + '/#negozio',
+  name: SITO.nome, alternateName: ['SE.M.I. srl Professional', 'Semi Srl', 'Se.Mi. srl'], legalName: 'SE.M.I. S.R.L.',
+  description: 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (Napoli): utensili DEWALT, STANLEY, BLACK+DECKER, USAG e LENOX, riparazioni in garanzia e fuori garanzia con ricambi originali.',
+  url: SITO.url + '/', logo: SITO.url + '/icon-512.png', image: [SITO.url + '/og-semi.png'],
+  telephone: SITO.telefonoLink, email: SITO.email, vatID: 'IT' + SITO.piva, taxID: SITO.piva, foundingDate: '1997',
+  priceRange: '€€', currenciesAccepted: 'EUR', paymentAccepted: 'Contanti, carta di credito, bancomat, bonifico',
+  address: { '@type': 'PostalAddress', streetAddress: 'Viale Guglielmo Marconi 225', postalCode: SITO.cap, addressLocality: SITO.citta, addressRegion: SITO.provincia, addressCountry: 'IT' },
+  geo: { '@type': 'GeoCoordinates', latitude: 40.8934602, longitude: 14.2784996 },
+  areaServed: [...ZONE.map((n) => ({ '@type': 'City', name: n })), { '@type': 'Country', name: 'Italia' }],
+  brand: ['DEWALT', 'STANLEY', 'BLACK+DECKER', 'USAG', 'LENOX'].map((n) => ({ '@type': 'Brand', name: n })),
+  knowsAbout: ['Elettroutensili DEWALT', 'Riparazione elettroutensili', 'Centro assistenza DEWALT', 'Ricambi originali DEWALT', 'Batterie DEWALT XR e FLEXVOLT', 'Garanzia DEWALT'],
+  sameAs: [SITO.instagram, SITO.facebook, SITO.tiktok, GOOGLE.scheda, 'https://maps.google.com/?cid=9040461481195761840'].filter(Boolean),
+  hasMap: 'https://maps.google.com/?cid=9040461481195761840',
+  contactPoint: [{ '@type': 'ContactPoint', contactType: 'customer service', telephone: SITO.telefonoLink, email: SITO.email, areaServed: 'IT', availableLanguage: 'Italian' }],
+  makesOffer: [{ '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Riparazione elettroutensili DEWALT, STANLEY e BLACK+DECKER', description: 'Centro assistenza autorizzato: riparazioni in garanzia e fuori garanzia, preventivo prima dell\'intervento, ricambi originali.', url: SITO.url + '/assistenza/', areaServed: { '@type': 'City', name: 'Napoli' } } }],
   openingHoursSpecification: Object.entries(SITO.fasce).flatMap(([g, f]) => f.map(([opens, closes]) => ({ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][Number(g)], opens, closes }))),
 };
 const path = Astro.url.pathname;
@@ -40,12 +53,18 @@ const nav = [
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preload" href={font} as="font" type="font/woff2" crossorigin />
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content={ogType} />
+  <meta property="og:site_name" content={SITO.nome} />
   <meta property="og:title" content={fullTitle} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <meta property="og:locale" content="it_IT" />
-  <meta property="og:image" content={new URL(image || '/og-semi.png', SITO.url).href} />
+  <meta property="og:image" content={ogImg} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={fullTitle} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImg} />
+  {robots && !noindex && <meta name="robots" content={robots} />}
   <script type="application/ld+json" set:html={JSON.stringify(org)} />
   {Astro.url.pathname === '/' && <script type="application/ld+json" set:html={JSON.stringify(sito)} />}
   {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
