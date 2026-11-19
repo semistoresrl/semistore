@@ -583,6 +583,10 @@ textarea.winp{min-height:110px;font-size:20px}
 .wnew{background:#fff3c4;border-radius:16px;padding:14px;font-size:17px;line-height:1.45;margin-bottom:10px}.wnew .i{width:22px;height:22px;vertical-align:-5px}
 .rqc .badge .i{width:14px;height:14px;vertical-align:-2px;margin-right:4px}.rqc .qa{display:flex;flex-wrap:wrap;gap:8px}
 .frq{display:flex;align-items:center;gap:14px;background:#2563c9;color:#fff;border-radius:20px;padding:16px 18px;margin:0 0 14px;text-decoration:none}.frq .i{width:30px;height:30px;flex:none}.frq span{flex:1}.frq b{display:block;font-size:20px}.frq small{color:#dbe6ff;font-size:14px}
+.elist{display:flex;flex-direction:column;gap:8px;margin-top:8px}.eitem{display:flex;gap:10px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.epos{min-width:38px;height:38px;border-radius:10px;background:#15171a;color:#f5b800;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.edes{flex:1;min-width:0}.edes b{display:block;font-size:16px}.edes small{font-size:13px;color:var(--muted)}
+.emag{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}.emag b{font-size:17px}.emag b.ok{color:#1fa855}.emag b.zero{color:var(--muted)}.emag small{font-size:12px}
 .adm-only{display:none!important}html.is-admin .adm-only{display:flex!important}
 .live{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:22px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;min-height:40px}
 .live .i{width:16px;height:16px;color:var(--ok)}.live b{font-size:15px}.live .lvd{color:var(--muted);border-left:1px solid var(--line);padding-left:8px}
@@ -626,6 +630,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#garanzie" data-v="garanzie"><svg class="i"><use href="#i-shield"/></svg><span>Garanzie</span><span class="ct" id="ctGar">0</span></a>
 <a href="#resi" data-v="resi"><svg class="i"><use href="#i-return"/></svg><span>Resi</span><span class="ct" id="ctResi">0</span></a>
 <a href="#consegne" data-v="consegne"><svg class="i"><use href="#i-box"/></svg><span>Scaffale consegne</span><span class="ct" id="ctCons">0</span></a>
+<a href="#" data-esp="1"><svg class="i"><use href="#i-drill"/></svg><span>Esplosi</span></a>
 <details class="more" id="navMore"><summary><svg class="i"><use href="#i-grid"/></svg><span>Tutto il resto</span><svg class="i chev"><use href="#i-chev"/></svg></summary>
 <div class="ng">Banco</div><a href="#richieste" data-v="richieste"><svg class="i"><use href="#i-globe"/></svg><span>Richieste dal sito</span><span class="ct" id="ctWeb">0</span></a>
 <a href="#schede" data-v="schede"><svg class="i"><use href="#i-folder"/></svg><span>Archivio schede</span></a>
@@ -2803,6 +2808,40 @@ const docLabel=(id,txt,cls="")=>`<div class="wscan ${cls}" data-scanbox="${id}">
 function bindDoc(id,onFile){ const f=$("#"+id); if(f) f.onchange=()=>{ const file=f.files&&f.files[0]; f.value=""; if(file) onFile(file); }; }
 
 /* =====================================================================
+   ESPLOSI per tutti: modello → esploso ufficiale DEWALT, distinta salvata, ricambi a magazzino e scaffale
+   ===================================================================== */
+const distinteDi=mod=>{ mod=String(mod||"").trim().toUpperCase(); return [...S.esplosi.values()].filter(e=>String(e.modello).toUpperCase()===mod).sort((a,b)=>Number(b.type)-Number(a.type)); };
+function wizEsplosi(pre){
+  wizOpen("Esplosi e ricambi","f-w");
+  const cerca=step(()=>{ const rec=[...new Set(S.tickets.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).map(t=>String(t.modello||"").trim().toUpperCase()).filter(Boolean))].slice(0,8);
+    const salvati=[...new Set([...S.esplosi.values()].map(e=>String(e.modello).toUpperCase()))].sort();
+    wz(`<div class="wq">Di quale utensile?</div><input class="winp" id="eM" placeholder="Modello, es. DCD796" autocapitalize="characters" autocomplete="off" autofocus>
+      <div class="wsub">Lo trovi sulla targhetta dell'utensile, insieme al Type.</div>
+      ${rec.length?`<div class="wq sm">Utensili in laboratorio</div><div class="wchips">${rec.map(m=>`<button data-em="${esc(m)}">${esc(m)}</button>`).join("")}</div>`:""}
+      ${salvati.length?`<div class="wq sm">Con distinta salvata (${salvati.length})</div><div class="wchips">${salvati.slice(0,24).map(m=>`<button data-em="${esc(m)}">${esc(m)}</button>`).join("")}</div>`:""}`, wBtn("eGo","Apri","pri","search"));
+    const go=m=>{ m=String(m||"").trim().toUpperCase(); if(m.length<3){ toast("Scrivi il modello"); return; } WZ.mod=m; wizStep(modello); };
+    $("#eGo").onclick=()=>go($("#eM").value); $("#eM").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); go($("#eM").value); } };
+    $("#wzB").querySelectorAll("[data-em]").forEach(b=>b.onclick=()=>go(b.dataset.em)); });
+  const modello=step(()=>{ const mod=WZ.mod, ds=distinteDi(mod), e=ds[0];
+    wz(`<div class="wcard"><div class="wname">${esc(mod)}</div><div class="wsub">${e?.nome?esc(e.nome)+" · ":""}${ds.length?`Distinta salvata: ${ds.map(d=>"Type "+esc(d.type||"?")).join(", ")}`:"Distinta non ancora salvata nell'app"}</div></div>
+      <div class="wyn"><a class="wbig ok" href="${esc(sdCerca(mod))}" target="_blank" rel="noopener">${ic("ext")}Esploso ufficiale DEWALT</a>
+      ${ds.filter(d=>d.urlEsploso).map(d=>`<a class="wbig sec" href="${esc(d.urlEsploso)}" target="_blank" rel="noopener">${ic("ext")}Disegno Type ${esc(d.type)}</a>`).join("")}</div>
+      ${e&&(e.parti||[]).length?`<div class="wq sm">Ricambi (${e.parti.length}) – cerca per posizione, codice o nome</div><input class="winp" id="eQ" placeholder="es. 12, spazzole, N123456" autocomplete="off"><div id="eL" class="elist"></div>`
+        :`<div class="wsub" style="margin-top:12px">Sul sito DEWALT apri il risultato con il modello e il Type giusto: trovi il disegno esploso con i numeri di posizione e i codici ricambio. Per salvare la distinta nell'app: Tutte le funzioni → Cerca ricambio → Importa distinta.</div>`}`,
+      wBtn("eAn","Un altro utensile","pri","search"));
+    $("#eAn").onclick=()=>{ WZ.stack=[]; wizStep(cerca); };
+    const L=$("#eL"); if(!L) return;
+    const draw=()=>{ const q=($("#eQ").value||"").trim().toLowerCase();
+      const l=e.parti.filter(p=>!q||String(p.pos).toLowerCase()===q||(p.codice+" "+p.descr+" "+(p.info||"")).toLowerCase().includes(q)).slice(0,80);
+      L.innerHTML=l.length?l.map(p=>{ const r=itm(p.codice), g=r?Number(r.giacenza)||0:null;
+        return `<div class="eitem"><span class="epos">${esc(p.pos||"")}</span><span class="edes"><b>${esc(p.descr||p.codice)}</b><small class="mono">${esc(p.codice)}${p.qty>1?` · ${p.qty} pz nell'utensile`:""}${p.info?` · ${esc(p.info)}`:""}</small></span>
+          <span class="emag">${r?`<b class="${g>0?"ok":"zero"}">${g} pz</b>${r.ubic?`<small class="pkubi">${esc(r.ubic)}</small>`:""}`:`<a href="${esc(sdParte(p.codice))}" target="_blank" rel="noopener" class="sub">non a magazzino ↗</a>`}${p.prezzo?`<small>${eur(p.prezzo)}</small>`:""}</span></div>`; }).join("")
+        :`<div class="wsub">Nessun ricambio trovato. <a href="${esc(sdParte(q))}" target="_blank" rel="noopener">Cerca “${esc(q)}” su DEWALT ↗</a></div>`; };
+    $("#eQ").oninput=draw; draw(); });
+  if(pre){ WZ.mod=String(pre).toUpperCase(); WZ.stack=[cerca]; wizStep(modello); } else wizStep(cerca);
+}
+
+/* =====================================================================
    CODICE A BARRE (19/11): foto dalla fotocamera del telefono → codice letto
    (BarcodeDetector del telefono se c'è, altrimenti ZXing da CDN).
    I codici EAN non sono nei listini: al primo uso si collega il codice a barre
@@ -2871,6 +2910,7 @@ function vFacile(st){
     ${B("cerca","search","f-w","Cerco un prezzo","Prezzo e quanti ne ho")}
     ${B("conta","clipboard","f-w","Conto la merce","Scrivo quanti pezzi ci sono")}
     ${B("prezzo","tag","f-w","Cambio un prezzo","Nuovo prezzo di vendita")}
+    ${B("esplosi","drill","f-w","Esplosi e ricambi","Disegni DEWALT e pezzi")}
     <a class="fbtn f-w" href="#ordini">${ordAp?`<span class="fbg">${ordAp}</span>`:""}${ic("send")}<b>Ordini online</b><small>Sito, TikTok, WhatsApp</small></a>
   </div>
   <button class="fsend fsc" data-wiz="scaffale">${ic("box")}<span><b>Scaffale consegne</b><small>${(()=>{ const l=sulloScaffale(), n=l.filter(c=>c.modo==="consegna").length; return l.length?`${l.length} ${l.length===1?"pacco pronto":"pacchi pronti"}${n?` · ${n} da portare noi`:""}`:"Vuoto: tocca per mettere un pacco"; })()}</small></span>${sulloScaffale().length?`<span class="fbg big">${sulloScaffale().length}</span>`:""}</button>
@@ -3090,9 +3130,9 @@ function wizInvia(){
     const g=$("#wGo"); if(g) g.addEventListener("click",()=>dopo(l,g)); const a=$("#wAll"); if(a) a.addEventListener("click",()=>dopo(tutti,a)); });
   wizStep(main);
 }
-const WIZ={scaffale:()=>wizScaffale(),ricevo:wizRicevo,consegno:wizConsegno,vendo:()=>wizVendo(),arrivo:wizArrivo,cerca:wizCerca,conta:wizConta,prezzo:()=>wizPrezzo(),invia:wizInvia};
+const WIZ={esplosi:()=>wizEsplosi(),scaffale:()=>wizScaffale(),ricevo:wizRicevo,consegno:wizConsegno,vendo:()=>wizVendo(),arrivo:wizArrivo,cerca:wizCerca,conta:wizConta,prezzo:()=>wizPrezzo(),invia:wizInvia};
 function bindFacile(){ const m=$("#main");
-  m.querySelectorAll("[data-wiz]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&b.dataset.wiz!=="cerca"){ toast("Non hai i permessi per modificare"); return; } WIZ[b.dataset.wiz](); });
+  m.querySelectorAll("[data-wiz]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&!['cerca','esplosi'].includes(b.dataset.wiz)){ toast("Non hai i permessi per modificare"); return; } WIZ[b.dataset.wiz](); });
   m.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setFacile(b.dataset.mode!=="completa")); }
 
 window.addEventListener("hashchange",()=>{window.scrollTo(0,0);render()});
@@ -3104,6 +3144,7 @@ function initShell(){
   const open=()=>{side.classList.add("open");shade.classList.add("show")}, close=()=>{side.classList.remove("open");shade.classList.remove("show")};
   $("#sideOpen").onclick=open; $("#bbMenu").onclick=open; $("#sideX").onclick=close; shade.onclick=close;
   document.querySelectorAll("#nav a").forEach(a=>a.addEventListener("click",close));
+  document.querySelectorAll("[data-esp]").forEach(a=>a.addEventListener("click",e=>{ e.preventDefault(); wizEsplosi(); }));
   const nuovo=()=>{ if(!S.canWrite){toast("Non hai i permessi per modificare");return} openTicket(); };
   $("#tbNew").onclick=nuovo; $("#bbNew").onclick=nuovo;
   const gq=$("#gq"), gl=$("#gsl");
