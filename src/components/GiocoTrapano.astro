@@ -12,14 +12,14 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
         <span class="gm-k"><i aria-hidden="true"></i>Minigioco · 5 livelli</span>
         <h2 id="gm-h" class="gm-h">Trapano <span>Slalom</span></h2>
       </div>
-      <div class="gm-pz" role="note" aria-label="Premio: 10% di sconto a chi completa il gioco o dopo 5 partite">
-        <b>−10%</b><small>in premio</small>
+      <div class="gm-pz" role="note" aria-label="Premio: 10% di sconto al mese a chi completa il gioco o dopo 5 partite">
+        <b>−10%</b><small>ogni mese</small>
       </div>
     </header>
 
     <div class="gm-side">
       <p>Schiva viti, chiodi e piastre d'acciaio, raccogli dadi e batterie. Ogni livello è più veloce del precedente, e la musica sale con te.</p>
-      <div class="gm-win"><b>Finisci il livello 5 oppure gioca 5 partite</b><span>lo sconto del 10% è di tutti: anche se non arrivi in fondo, dopo 5 tentativi registrati con la tua email e ricevi il codice da usare sul sito.</span></div>
+      <div class="gm-win"><b>Finisci il livello 5 oppure gioca 5 partite</b><span>lo sconto del 10% è di tutti: anche se non arrivi in fondo, dopo 5 tentativi registrati con la tua email e ricevi il codice da usare sul sito. Puoi vincerne uno nuovo ogni mese.</span></div>
       <ul class="gm-c" aria-label="Comandi">
         <li><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9 11V5a2 2 0 0 1 4 0v5h3a3 3 0 0 1 3 3v3a6 6 0 0 1-6 6h-1a6 6 0 0 1-5.2-3L5 14a1.8 1.8 0 0 1 3-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Trascina il dito</li>
         <li><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Mouse o frecce</li>
@@ -37,7 +37,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
         <div class="gm-box">
           <span class="gm-badge">SEMI · GAMES</span>
           <b class="gm-tt">Trapano Slalom</b>
-          <span class="gm-sub">Supera il livello 5 <small>oppure gioca 5 partite</small>: il <b style="color:var(--y)">10% di sconto</b> è tuo</span>
+          <span class="gm-sub">Supera il livello 5 <small>oppure gioca 5 partite</small>: il <b style="color:var(--y)">10% di sconto</b> è tuo, <small>ogni mese</small></span>
           <span class="gm-mine" data-g-mine hidden></span>
           <div class="gm-lv" data-g-levels></div>
           <button type="button" class="gm-b gm-b-y" data-g-go>Gioca</button>
@@ -235,7 +235,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
   const INF: Lv = { n: 'Sfida infinita', d: 'Quanto lontano arrivi? La velocità sale sempre.', v: 230, len: Infinity, gap: [92, 124], p: { ...LV[4].p } };
 
   const KEY = 'semi-gioco-v2';
-  type Save = { sbl: number; stelle: Record<string, number>; best: number; muto: boolean; codice?: string; email?: string; pend?: { b: string; t: number }; tent?: number };
+  type Save = { sbl: number; stelle: Record<string, number>; best: number; muto: boolean; codice?: string; email?: string; pend?: { b: string; t: number }; tent?: number; mese?: string; tentMese?: string };
   const load = (): Save => {
     try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && typeof s.sbl === 'number') return { stelle: {}, best: 0, muto: false, ...s }; } catch {}
     // dalla vecchia versione (8 livelli) si tengono solo l'audio e un eventuale codice già vinto
@@ -268,6 +268,11 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
     const fmt = (n: number) => Math.floor(n).toLocaleString('it-IT');
 
     const save = load();
+    // uno sconto al mese: i tentativi e il premio ripartono a ogni mese di calendario
+    const meseOra = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
+    if ((save.codice || save.email) && !save.mese) save.mese = meseOra();
+    if (save.tentMese !== meseOra()) { save.tent = 0; save.tentMese = meseOra(); }
+    store(save);
     bestEl.textContent = fmt(save.best);
 
     // ---------- dimensioni / nitidezza ----------
@@ -466,7 +471,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
     // Il premio è di tutti: si vince finendo il livello 5 OPPURE dopo 5 partite (anche perse). Così lo sconto non dipende
     // dall'abilità e non è un concorso a premi (DPR 430/2001): è una promozione aperta a chiunque giochi.
     const TENT = 5;
-    const haPremio = () => !!(save.codice || save.email);
+    const haPremio = () => save.mese === meseOra() && !!(save.codice || save.email);
     const start = () => {
       biglietto = '';
       const ultimo = lvIdx === LV.length - 1, tentativi = !ultimo && !haPremio() && (save.tent || 0) >= TENT - 1;
@@ -480,7 +485,8 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
     const showMine = () => {
       const m = $('[data-g-mine]');
       if (pendOk()) { m.hidden = false; m.innerHTML = '<button type="button" class="gm-mine-b" data-g-claim-m>🎁 Hai un premio da ritirare</button>'; m.querySelector('button')!.addEventListener('click', openPremio); }
-      else if (save.codice) { m.hidden = false; m.innerHTML = `Il tuo codice: <b class="mono">${save.codice}</b>`; }
+      else if (haPremio() && save.codice) { m.hidden = false; m.innerHTML = `Il tuo codice del mese: <b class="mono">${save.codice}</b>`; }
+      else if (save.mese && !haPremio()) { m.hidden = false; m.innerHTML = 'Nuovo mese, nuovo premio: puoi vincere un altro <b>10%</b>!'; }
       else if (save.email) { m.hidden = false; m.innerHTML = `Codice inviato a <b>${save.email.replace(/[<>&"]/g, '')}</b>`; }
       else m.hidden = true;
     };
@@ -508,9 +514,9 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
         const r = await fetch('/api/premio', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ fase: 'fine', biglietto: save.pend!.b, email: em, privacy, offerte }) });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(j.error || 'Non riusciamo a registrarti ora. Riprova tra poco o scrivici su WhatsApp.');
-        save.email = em; delete save.pend;
+        save.email = em; save.mese = meseOra(); delete save.pend;
         if (j.codice) { save.codice = j.codice; codeBtn.hidden = false; codeBtn.textContent = j.codice; $('[data-g-done-t]').textContent = 'Ecco il tuo codice'; doneD.textContent = 'Tocca per copiarlo. Nel carrello si applica da solo; al pagamento usa la stessa email.'; }
-        else { codeBtn.hidden = true; $('[data-g-done-t]').textContent = 'Controlla la tua email'; doneD.textContent = `${j.gia ? 'Avevi già vinto: ti abbiamo rimandato' : 'Ti abbiamo inviato'} il codice a ${em}. Se non lo trovi, guarda nello spam.`; }
+        else { codeBtn.hidden = true; $('[data-g-done-t]').textContent = 'Controlla la tua email'; doneD.textContent = `${j.gia ? 'Questo mese avevi già vinto: ti abbiamo rimandato' : 'Ti abbiamo inviato'} il codice a ${em}. Se non lo trovi, guarda nello spam.`; }
         store(save); showMine();
         form.hidden = true; done.hidden = false; vib(40);
       } catch (x: any) { err(x.message); }

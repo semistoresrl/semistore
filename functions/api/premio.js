@@ -1,4 +1,4 @@
-// Premio del minigioco "Trapano Slalom": chi completa il livello 5, OPPURE chi ha giocato 5 partite (anche perse), si registra con l'email e riceve un codice sconto del 10%, valido una volta.
+// Premio del minigioco "Trapano Slalom" (uno al mese per email): chi completa il livello 5, OPPURE chi ha giocato 5 partite (anche perse), si registra con l'email e riceve un codice sconto del 10%, valido una volta.
 // POST {fase:'inizio'}                                        -> biglietto firmato quando parte l'ultimo livello
 // POST {fase:'fine', biglietto, email, privacy, offerte}      -> registra l'email e invia il codice (uno per email)
 // GET  ?codice=GIOCO-XXXXXXX                                  -> il carrello controlla se il codice è valido
@@ -8,12 +8,15 @@
 import { SITO } from '../../src/data/sito.js';
 
 const SCONTO = 10;
-const MIN_S = 18, MAX_S = 2 * 3600, VALIDO_GG = 60, MAX_PER_IP = 3;
+const MIN_S = 18, MAX_S = 2 * 3600, VALIDO_GG = 30, MAX_PER_IP = 3;
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 const enc = new TextEncoder();
 const hex = (b) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
 const normCodice = (c) => String(c || '').trim().toUpperCase().replace(/\s+/g, '');
 const normEmail = (e) => String(e || '').trim().toLowerCase();
+// Un premio al mese per email (mese di calendario, ora italiana)
+const meseDi = (d = new Date()) => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Rome', year: 'numeric', month: '2-digit' }).format(d).slice(0, 7);
+const nomeMese = (d) => new Intl.DateTimeFormat('it-IT', { timeZone: 'Europe/Rome', month: 'long' }).format(d);
 const EMAIL_OK = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
 async function firma(segreto, testo) {
@@ -78,16 +81,24 @@ export async function onRequestPost({ request, env }) {
     if (!(sec >= (k === 't' ? 3 : MIN_S) && sec <= MAX_S)) return json({ error: 'Partita non valida o scaduta: rigioca l\'ultimo livello.' }, 400);
     if (await env.RICHIESTE.get('premio-b:' + n)) return json({ error: 'Il premio di questa partita è già stato ritirato.' }, 409);
 
-    // un premio per email: se l'ha già vinto e non l'ha usato, gli rimandiamo lo stesso codice
-    const gia = await env.RICHIESTE.get('premio-email:' + email);
-    if (gia) {
-      const v = await env.RICHIESTE.get('premio:' + gia, 'json');
+    // un premio al mese per email: se questo mese l'ha già vinto e non l'ha usato, gli rimandiamo lo stesso codice
+    const mese = meseDi(), kMese = `premio-mese:${email}:${mese}`;
+    let gia = await env.RICHIESTE.get(kMese);
+    if (!gia) { // codici della versione precedente (una volta sola): valgono come premio del mese in cui sono stati creati
+      const vecchio = await env.RICHIESTE.get('premio-email:' + email);
+      const vv = vecchio && await env.RICHIESTE.get('premio:' + vecchio, 'json');
+      if (vv && meseDi(new Date(vv.creato)) === mese) gia = vecchio;
+    }
+    const vGia = gia && await env.RICHIESTE.get('premio:' + gia, 'json');
+    if (vGia) { // se il codice del mese è scaduto senza essere usato, se ne crea uno nuovo
+      const v = vGia;
       if (v && !v.pagato) {
         await env.RICHIESTE.put('premio-b:' + n, '1', { expirationTtl: 86400 });
         const inviato = await inviaEmail(env, email, gia, v.scade, origin);
         return json(inviato ? { inviato: true, email, gia: true } : { codice: gia, sconto: SCONTO, scade: v.scade, gia: true });
       }
-      return json({ error: 'Con questa email il premio è già stato vinto e usato. Grazie per aver giocato!' }, 409);
+      const prossimo = new Date(); prossimo.setUTCDate(28); prossimo.setUTCDate(prossimo.getUTCDate() + 7);
+      return json({ error: `Hai già usato lo sconto di ${nomeMese(new Date())}. Dal 1° ${nomeMese(prossimo)} puoi vincerne uno nuovo: grazie per aver giocato!` }, 409);
     }
 
     const ip = request.headers.get('cf-connecting-ip') || 'x';
@@ -100,7 +111,7 @@ export async function onRequestPost({ request, env }) {
     const offerte = b.offerte === true;
     await env.RICHIESTE.put('premio-b:' + n, '1', { expirationTtl: 86400 });
     await env.RICHIESTE.put('premio:' + codice, JSON.stringify({ creato: ora, scade, email, ip }), { expirationTtl: VALIDO_GG * 86400 });
-    await env.RICHIESTE.put('premio-email:' + email, codice, { expirationTtl: 365 * 86400 });
+    await env.RICHIESTE.put(kMese, codice, { expirationTtl: 62 * 86400 });
     await env.RICHIESTE.put('premio-ip:' + ip, String(nIp + 1), { expirationTtl: 7 * 86400 });
     // iscritto: i dati stanno nei metadati così l'elenco si legge in un colpo solo
     await env.RICHIESTE.put('iscritto:' + email, '1', { metadata: { email, offerte, data: ora, codice } });
