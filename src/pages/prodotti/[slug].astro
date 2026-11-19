@@ -87,7 +87,7 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
         {p.video && <div class="pd-d"><h2 class="h2">Video</h2>
           <div class="yt-w"><div class="yt-box">
             <button class="yt" data-id={p.video.id} data-sub={vLingua ? '1' : undefined} aria-label={`Guarda il video: ${vTit}`}>
-              <img src={`https://i.ytimg.com/vi/${p.video.id}/hqdefault.jpg`} alt="" width="480" height="360" loading="lazy" decoding="async" />
+              <img src={`/api/yt/${p.video.id}.jpg`} alt="" width="480" height="360" loading="lazy" decoding="async" />
               <span class="yt-p" aria-hidden="true"></span>
             </button>
           </div></div>

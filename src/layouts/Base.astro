@@ -168,7 +168,7 @@ const nav = [
     <div class="wrap grid4">
       <div class="col">
         <img class="ftr-logo" src="/logo.svg" alt="Semi Store" width="374" height="120" loading="lazy" />
-        <span>{SITO.ragioneSociale}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</span>
+        <span>{SITO.denominazione}<br />{SITO.indirizzo}<br />{SITO.cap} {SITO.citta} ({SITO.provincia})</span>
         <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br />{SITO.whatsapp && <><a href={`https://wa.me/${SITO.whatsapp}`} target="_blank" rel="noopener">WhatsApp {SITO.whatsapp.slice(2).replace(/(\d{3})(\d{3})(\d+)/, '$1 $2 $3')}</a><br /></>}<a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
       </div>
       <div class="col"><b>Categorie</b>{['Trapani e avvitatori', 'Tassellatori e demolitori', 'Smerigliatrici e levigatrici', 'Seghe e troncatrici', 'Batterie e caricabatterie', 'Misura e laser'].map((c) => <a href={urlCategoria(c)}>{c}</a>)}</div>

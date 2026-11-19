@@ -37,12 +37,12 @@ const agg = '19 novembre 2026';
     <ul>
       <li><b>Cloudflare, Inc.</b> – hosting del sito e archivio delle richieste (responsabile del trattamento);</li>
       <li><b>Stripe Payments Europe Ltd.</b> (Irlanda) – pagamenti (titolare autonomo per i dati di pagamento e antifrode);</li>
-      <li><b>Resend (Plus Five Five, Inc.)</b> – invio delle email di conferma e dei codici (responsabile del trattamento);</li>
+      <li><b>Resend</b> – invio delle email di conferma e dei codici (responsabile del trattamento);</li>
       <li><b>corrieri e spedizionieri</b> – consegna dei prodotti e ritiro degli utensili da riparare;</li>
       <li><b>produttori</b> (es. Stanley Black &amp; Decker per DEWALT) – solo per pratiche di garanzia e ricambi che li richiedono;</li>
       <li><b>commercialista e consulenti</b> – adempimenti fiscali e contabili; autorità pubbliche quando la legge lo impone;</li>
       <li><b>WhatsApp Ireland Ltd.</b> (Meta) – se scegli di scriverci su WhatsApp, secondo l'informativa di WhatsApp;</li>
-      <li><b>Google Ireland Ltd.</b> – mappa di Google (solo se la apri) e recensioni mostrate sul sito{SITO.ga4 && ', statistiche di Google Analytics (solo con consenso)'}{SITO.pixelMeta && <>; <b>Meta Platforms Ireland Ltd.</b> – Pixel per le campagne pubblicitarie (solo con consenso)</>}.</li>
+      <li><b>Google Ireland Ltd.</b> – mappa di Google (solo se la apri); le recensioni Google mostrate sul sito sono scaricate dai nostri server, senza collegare il tuo browser a Google{SITO.ga4 && ', statistiche di Google Analytics (solo con consenso)'}{SITO.pixelMeta && <>; <b>Meta Platforms Ireland Ltd.</b> – Pixel per le campagne pubblicitarie (solo con consenso)</>}.</li>
     </ul>
     <p>Non vendiamo i tuoi dati e non li diffondiamo.</p>
 
@@ -54,7 +54,7 @@ const agg = '19 novembre 2026';
 
     <h2 id="cookie">6. Cookie e tecnologie simili</h2>
     <p><b>Tecnici – sempre attivi, senza consenso.</b> Il sito usa lo spazio locale del browser (localStorage) per ricordare il carrello, la tua scelta sui cookie (per 6 mesi) e i progressi del minigioco. Non sono inviati a terzi. La pagina di pagamento di Stripe usa i propri cookie tecnici e antifrode.</p>
-    {SITO.ga4 && <p><b>Statistica – solo con consenso.</b> Google Analytics 4 (Google Ireland Ltd.), con indirizzo IP anonimizzato, per sapere quante persone visitano il sito e quali pagine usano. Cookie _ga e _ga_*, durata massima 14 mesi. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Google</a>.</p>}
+    {SITO.ga4 && <p><b>Statistica – solo con consenso.</b> Google Analytics 4 (Google Ireland Ltd.), con indirizzo IP anonimizzato, per sapere quante persone visitano il sito e quali pagine usano. Cookie _ga e _ga_*, durata massima 2 anni; i dati statistici sono conservati da Google per 14 mesi. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Google</a>.</p>}
     {SITO.pixelMeta && <p><b>Marketing – solo con consenso.</b> Pixel di Meta (Meta Platforms Ireland Ltd.: Facebook, Instagram), per misurare le campagne pubblicitarie e mostrare annunci pertinenti. Cookie _fbp, durata massima 3 mesi. <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener">Privacy Meta</a>.</p>}
     <p><b>Contenuti di terze parti – solo se li apri.</b> La mappa di Google nella pagina Contatti si carica solo quando premi "Mostra la mappa": da quel momento Google può impostare i propri cookie. I video di YouTube nelle schede prodotto sono incorporati in modalità a privacy avanzata (youtube-nocookie.com) e si avviano solo con un clic.</p>
     {(SITO.ga4 || SITO.pixelMeta)
