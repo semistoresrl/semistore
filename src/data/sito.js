@@ -2,6 +2,8 @@
 // Valori presi dal vecchio sito semistore.it: CONFERMARE prima di andare online.
 export const SITO = {
   nome: 'Semi Store',
+  // Prima cosa da far leggere in titoli, anteprime dei link e testi (richiesta del cliente 19/11/2026)
+  concessionario: 'Concessionario DEWALT Lazio, Campania, Molise',
   ragioneSociale: 'Se.Mi. srl',
   piva: '07149740636',
   indirizzo: 'Viale G. Marconi 225',

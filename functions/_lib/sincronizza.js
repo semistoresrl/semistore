@@ -50,7 +50,7 @@ function descrizione(p) {
   const elenco = [...(p.caratteristiche || []), ...(p.punti || [])].slice(0, 15);
   if (elenco.length) parti.push('<ul>' + elenco.map((c) => `<li>${esc(c)}</li>`).join('') + '</ul>');
   if (p.dotazione) parti.push(`<p>Dotazione: ${esc(p.dotazione)}</p>`);
-  parti.push('<p>Venduto da Se.Mi. srl, centro assistenza autorizzato e concessionario DEWALT, STANLEY e BLACK+DECKER. Prodotto originale con garanzia ufficiale.</p>');
+  parti.push('<p>Venduto da Se.Mi. srl, concessionario DEWALT, STANLEY e BLACK+DECKER per Lazio, Campania e Molise e centro assistenza autorizzato. Prodotto originale con garanzia ufficiale.</p>');
   return parti.join('');
 }
 

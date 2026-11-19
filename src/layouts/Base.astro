@@ -7,23 +7,25 @@ import font from '@fontsource-variable/archivo/files/archivo-latin-wght-normal.w
 import { SITO, GOOGLE } from '../data/sito.js';
 import { urlCategoria, ORDINE_CAT } from '../data/catalogo';
 interface Props { title: string; description?: string; image?: string; noindex?: boolean; jsonld?: object; ogType?: string; prezzo?: number }
-const { prezzo, ogType = 'website', title, description = 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (NA). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
+const { prezzo, ogType = 'website', title, description: descrizione = 'Vendita e centro assistenza autorizzato a Casavatore (Napoli). Utensili, batterie, kit e riparazioni con ricambi originali.', image, noindex, jsonld } = Astro.props;
 const canonical = new URL(Astro.url.pathname, SITO.url).href;
 const ogImg = new URL(image || '/og/semi.jpg', SITO.url).href;
 const robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
-const fullTitle = title === SITO.nome ? `${SITO.nome} · Rivenditore e Centro Assistenza DEWALT a Napoli` : `${title} · ${SITO.nome}`;
+// Ogni anteprima di link (WhatsApp, Facebook, Google) comincia con "Concessionario DEWALT Lazio, Campania, Molise"
+const fullTitle = title === SITO.nome ? `${SITO.concessionario} · ${SITO.nome}` : `${title} · ${SITO.nome}`;
+const description = descrizione.startsWith('Concessionario') ? descrizione : `${SITO.concessionario}. ${descrizione}`;
 const sito = { '@context': 'https://schema.org', '@type': 'WebSite', '@id': SITO.url + '/#sito', name: SITO.nome, alternateName: 'semistore.it', inLanguage: 'it-IT', publisher: { '@id': SITO.url + '/#negozio' }, url: SITO.url + '/', potentialAction: { '@type': 'SearchAction', target: `${SITO.url}/catalogo/?q={search_term_string}`, 'query-input': 'required name=search_term_string' } };
 const ZONE = ['Casavatore', 'Napoli', 'Casoria', 'Arzano', 'Afragola', 'Frattamaggiore', 'Caivano', 'Secondigliano', 'Melito di Napoli', 'Sant\'Antimo', 'Grumo Nevano', 'Cardito', 'Acerra', 'Pomigliano d\'Arco'];
 const org = {
   '@context': 'https://schema.org', '@type': 'HardwareStore', '@id': SITO.url + '/#negozio',
   name: SITO.nome, alternateName: ['SE.M.I. srl Professional', 'Semi Srl', 'Se.Mi. srl'], legalName: 'SE.M.I. S.R.L.',
-  description: 'Rivenditore e centro assistenza autorizzato DEWALT a Casavatore (Napoli): utensili DEWALT, STANLEY, BLACK+DECKER, USAG e LENOX, riparazioni in garanzia e fuori garanzia con ricambi originali.',
+  description: 'Concessionario DEWALT, STANLEY e BLACK+DECKER per Lazio, Campania e Molise, con vendita e centro assistenza autorizzato a Casavatore (Napoli): utensili DEWALT, STANLEY, BLACK+DECKER, USAG e LENOX, riparazioni in garanzia e fuori garanzia con ricambi originali.',
   url: SITO.url + '/', logo: SITO.url + '/icon-512.png', image: [SITO.url + '/og-semi.png'],
   telephone: SITO.telefonoLink, email: SITO.email, vatID: 'IT' + SITO.piva, taxID: SITO.piva, foundingDate: '1997',
   priceRange: '€€', currenciesAccepted: 'EUR', paymentAccepted: 'Contanti, carta di credito, bancomat, bonifico',
   address: { '@type': 'PostalAddress', streetAddress: 'Viale Guglielmo Marconi 225', postalCode: SITO.cap, addressLocality: SITO.citta, addressRegion: SITO.provincia, addressCountry: 'IT' },
   geo: { '@type': 'GeoCoordinates', latitude: 40.8934602, longitude: 14.2784996 },
-  areaServed: [...ZONE.map((n) => ({ '@type': 'City', name: n })), { '@type': 'Country', name: 'Italia' }],
+  areaServed: [...['Lazio', 'Campania', 'Molise'].map((n) => ({ '@type': 'AdministrativeArea', name: n })), ...ZONE.map((n) => ({ '@type': 'City', name: n })), { '@type': 'Country', name: 'Italia' }],
   brand: ['DEWALT', 'STANLEY', 'BLACK+DECKER', 'USAG', 'LENOX'].map((n) => ({ '@type': 'Brand', name: n })),
   knowsAbout: ['Elettroutensili DEWALT', 'Riparazione elettroutensili', 'Centro assistenza DEWALT', 'Ricambi originali DEWALT', 'Batterie DEWALT XR e FLEXVOLT', 'Garanzia DEWALT'],
   sameAs: [SITO.instagram, SITO.facebook, SITO.tiktok, GOOGLE.scheda, 'https://maps.google.com/?cid=9040461481195761840'].filter(Boolean),
@@ -88,7 +90,7 @@ const nav = [
     </a>
   )}
   <div class="strip"><div class="wrap row between">
-    <span>Rivenditore e Centro Assistenza Autorizzato DEWALT</span>
+    <span><b>{SITO.concessionario}</b> · Vendita e Assistenza Autorizzata</span>
     <span class="row gap"><span>Spedizione in {SITO.spedizione.giorni} giorni lavorativi</span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a>
       <span class="soc" aria-label="Seguici">
         {SITO.facebook && <a href={SITO.facebook} target="_blank" rel="noopener" aria-label="Facebook" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.6 21.5v-8.2h2.8l.4-3.3h-3.2V8c0-.9.3-1.6 1.6-1.6H17V3.5a23 23 0 0 0-2.5-.1c-2.5 0-4.2 1.5-4.2 4.3V10H7.5v3.3h2.8v8.2z"/></svg></a>}

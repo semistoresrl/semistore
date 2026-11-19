@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
 const FAQ = [
-  ['Siete un centro assistenza autorizzato DEWALT?', 'Sì. SE.M.I. srl è centro assistenza autorizzato DEWALT: ripariamo in sede elettroutensili DEWALT, STANLEY e BLACK+DECKER e gestiamo direttamente le pratiche di garanzia con il produttore.'],
+  ['Siete un centro assistenza autorizzato DEWALT?', 'Sì. SE.M.I. srl è concessionario DEWALT per Lazio, Campania e Molise e centro assistenza autorizzato: ripariamo in sede elettroutensili DEWALT, STANLEY e BLACK+DECKER e gestiamo direttamente le pratiche di garanzia con il produttore.'],
   ['La riparazione in garanzia è gratuita?', 'Sì, se il guasto è coperto dalla garanzia del produttore. Porta l\'utensile con lo scontrino o la fattura d\'acquisto: verifichiamo noi la copertura e apriamo la pratica.'],
   ['Quanto costa riparare un utensile fuori garanzia?', 'Dipende dal guasto e dai ricambi. Facciamo prima la diagnosi e ti mandiamo un preventivo: ripariamo solo dopo la tua approvazione.'],
   ['Quanto tempo serve per la riparazione?', 'Con i ricambi disponibili bastano pochi giorni lavorativi. Se un ricambio va ordinato a DEWALT ti avvisiamo dei tempi; lo stato si segue online con il numero di scheda.'],
@@ -16,9 +16,9 @@ const ld = [
 ];
 const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi', 'In riparazione', 'Pronto', 'Consegnato'];
 ---
-<Base image="/og/assistenza.jpg" title="Centro assistenza DEWALT a Napoli: riparazioni e ricambi originali" description={`Centro assistenza autorizzato DEWALT, STANLEY e BLACK+DECKER a Casavatore (Napoli): riparazioni in garanzia e fuori garanzia, preventivo prima dell'intervento, ricambi originali. Richiedi assistenza online.`} jsonld={ld}>
+<Base image="/og/assistenza.jpg" title="Concessionario DEWALT Lazio, Campania, Molise: centro assistenza e riparazioni" description={`Centro assistenza autorizzato DEWALT, STANLEY e BLACK+DECKER a Casavatore (Napoli): riparazioni in garanzia e fuori garanzia, preventivo prima dell'intervento, ricambi originali. Richiedi assistenza online.`} jsonld={ld}>
   <section class="hero-a"><div class="wrap">
-    <span class="kicker" style="color:var(--y)">Centro assistenza autorizzato DEWALT</span>
+    <span class="kicker" style="color:var(--y)">{SITO.concessionario} · Centro assistenza autorizzato</span>
     <h1>Assistenza e riparazioni</h1>
     <p>Apri la richiesta online, portaci l'utensile e segui la riparazione passo passo.</p>
   </div></section>
@@ -66,7 +66,7 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
   </div>
   <section class="wrap sec prose ass-faq">
     <h2>Centro assistenza DEWALT a Napoli</h2>
-    <p>SE.M.I. srl, attiva dal 1997 a Casavatore, al confine con Napoli nord, è centro assistenza autorizzato DEWALT. Ripariamo trapani, avvitatori, tassellatori, smerigliatrici, seghe, troncatrici, utensili da giardino, batterie e caricabatterie DEWALT, STANLEY e BLACK+DECKER, con ricambi originali e pratiche di garanzia gestite in sede.</p>
+    <p>SE.M.I. srl, attiva dal 1997 a Casavatore, al confine con Napoli nord, è concessionario DEWALT, STANLEY e BLACK+DECKER per Lazio, Campania e Molise e centro assistenza autorizzato DEWALT. Ripariamo trapani, avvitatori, tassellatori, smerigliatrici, seghe, troncatrici, utensili da giardino, batterie e caricabatterie DEWALT, STANLEY e BLACK+DECKER, con ricambi originali e pratiche di garanzia gestite in sede.</p>
     <h2>Domande frequenti</h2>
     {FAQ.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}
   </section>

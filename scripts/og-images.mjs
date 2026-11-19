@@ -50,9 +50,12 @@ async function salva(svg, file) {
   await sharp(png).jpeg({ quality: 84, mozjpeg: true }).toFile(file);
 }
 
+// fascia gialla in basso con la scritta del concessionario (su tutte le anteprime)
+const FASCIA = 46;
 const cornice = (dentro) => `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-<rect width="${W}" height="${H}" fill="${INK}"/>${dentro}<rect y="${H - 12}" width="${W}" height="12" fill="${Y}"/></svg>`;
-const piede = (x, testo) => `<text x="${x}" y="${H - 40}" font-family="Archivo" font-weight="500" font-size="22" fill="${GRIGIO}">${esc(testo)}</text>`;
+<rect width="${W}" height="${H}" fill="${INK}"/>${dentro}<rect y="${H - FASCIA}" width="${W}" height="${FASCIA}" fill="${Y}"/>
+<text x="${W / 2}" y="${H - 15}" text-anchor="middle" font-family="Archivo" font-weight="900" font-size="22" letter-spacing="2" fill="${INK}">CONCESSIONARIO DEWALT · LAZIO · CAMPANIA · MOLISE</text></svg>`;
+const piede = (x, testo) => `<text x="${x}" y="${H - FASCIA - 20}" font-family="Archivo" font-weight="500" font-size="22" fill="${GRIGIO}">${esc(testo)}</text>`;
 
 // ---------- scheda prodotto ----------
 async function cardProdotto(p) {
@@ -105,8 +108,8 @@ const vetrina = (modelli) => modelli.map((m) => prodotti.find((p) => p.modello =
 
 const t0 = Date.now();
 await fs.rm(OUT, { recursive: true, force: true });
-await cardMosaico('semi.jpg', { kicker: 'Centro assistenza autorizzato DEWALT', titolo: 'Utensili professionali a Napoli', sotto: 'Oltre 1.200 prodotti DEWALT, STANLEY e BLACK+DECKER. Spedizione in tutta Italia.', slugs: vetrina(['DCD805P2T', 'DCF850P2T', 'DCK2050E2T', 'DCH273P2T']) });
-await cardMosaico('assistenza.jpg', { kicker: 'Centro assistenza autorizzato DEWALT', titolo: 'Riparazioni e ricambi originali', sotto: 'Garanzia gestita in sede, preventivo prima di riparare. Casavatore, Napoli.', slugs: vetrina(['DCH273P2T', 'DCF900P2T', 'DCS438E2T', 'DCD805P2T']) });
+await cardMosaico('semi.jpg', { kicker: 'Concessionario DEWALT', titolo: 'Lazio, Campania, Molise', sotto: 'Vendita e centro assistenza autorizzato. Oltre 1.200 prodotti DEWALT, STANLEY e BLACK+DECKER.', slugs: vetrina(['DCD805P2T', 'DCF850P2T', 'DCK2050E2T', 'DCH273P2T']) });
+await cardMosaico('assistenza.jpg', { kicker: 'Concessionario DEWALT · Assistenza', titolo: 'Riparazioni e ricambi originali', sotto: 'Garanzia gestita in sede, preventivo prima di riparare. Casavatore, Napoli.', slugs: vetrina(['DCH273P2T', 'DCF900P2T', 'DCS438E2T', 'DCD805P2T']) });
 await cardMosaico('catalogo.jpg', { kicker: 'Catalogo Semi Store', titolo: 'Utensili, batterie e kit', sotto: 'Prezzi sotto listino, spedizione gratis da 99 € o ritiro in negozio.', slugs: vetrina(['DCK2050E2T', 'DCB184', 'DCE089D1G', 'DCS438E2T']) });
 await cardMosaico('contatti.jpg', { kicker: 'Vieni a trovarci', titolo: 'Negozio e laboratorio a Casavatore', sotto: 'Viale G. Marconi 225 (NA) · Lun–Ven 8:30–13:00 e 14:30–18:00 · Tel. 081 553 6604', slugs: [], immagine: 'public/video/negozio-poster.jpg' });
 for (const c of [...new Set(prodotti.map((p) => p.categoria))]) {
