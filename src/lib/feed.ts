@@ -4,8 +4,8 @@ import prodotti from '../data/prodotti.json';
 import foto from '../data/foto.json';
 import { SITO } from '../data/sito.js';
 
-// Indirizzo pubblico del sito: quando semistore.it punterà al nuovo sito impostare PUBLIC_SITO_URL=https://semistore.it su Cloudflare
-const BASE = (import.meta.env.PUBLIC_SITO_URL || 'https://semistore.pages.dev').replace(/\/$/, '');
+// Indirizzo pubblico del sito (dominio collegato a Cloudflare Pages il 19/11/2026)
+const BASE = (import.meta.env.PUBLIC_SITO_URL || 'https://semistore.it').replace(/\/$/, '');
 const f = foto as Record<string, boolean | string>;
 const x = (s: unknown) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '');
 const eur = (c: number) => (c / 100).toFixed(2) + ' EUR';
