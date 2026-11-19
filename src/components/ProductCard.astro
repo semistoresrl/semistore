@@ -18,7 +18,7 @@ const srcset = fotoLocale(p.slug) ? `/img/prodotti/${p.slug}-400.webp 400w, /img
     {p.modello && <span class="mono pc-code">{p.modello}</span>}
     <b class="pc-n">{p.nome}</b>
     <span class="pc-f">
-      <span class="pc-prz"><span class="pc-pr">{euro(p.prezzo)}</span>{sconto >= 5 && <><s class="pc-li"><span class="sr">Prezzo di listino </span>{euro(p.prezzoListino)}</s><span class="pc-sc">-{sconto}%</span></>}</span>
+      <span class="pc-prz"><span class="pc-pr">{euro(p.prezzo)}</span>{sconto >= 5 && <><span class="pc-li">Prezzo consigliato <s>{euro(p.prezzoListino)}</s></span><span class="pc-sc">-{sconto}%</span></>}</span>
       {p.disponibilita === 'conferma' ? <span class="pc-ok pc-cf">Su conferma</span> : <span class="pc-ok">Disponibile</span>}
     </span>
   </span>

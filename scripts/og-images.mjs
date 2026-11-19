@@ -68,9 +68,9 @@ async function cardProdotto(p) {
   const titolo = tit.map((r, i) => `<text x="${X}" y="${y + i * 48}" font-family="Archivo" font-weight="900" font-size="40" fill="#fff">${esc(r)}</text>`).join('');
   y += (tit.length - 1) * 48 + 92;
   const prezzo = `<text x="${X}" y="${y}" font-family="Archivo" font-weight="900" font-size="64" fill="${Y}">${esc(euro(p.prezzo))}</text>`;
-  const lisTxt = `Listino ${euro(p.prezzoListino || 0)}`;
+  const lisTxt = `Prezzo consigliato ${euro(p.prezzoListino || 0)}`;
   const bx = X + Math.round(lisTxt.length * 13.2) + 18;
-  const listino = sconto >= 5 ? `<text x="${X}" y="${y + 42}" font-family="Archivo" font-weight="500" font-size="24" fill="${GRIGIO}">Listino <tspan text-decoration="line-through">${esc(euro(p.prezzoListino))}</tspan></text>
+  const listino = sconto >= 5 ? `<text x="${X}" y="${y + 42}" font-family="Archivo" font-weight="500" font-size="24" fill="${GRIGIO}">Prezzo consigliato <tspan text-decoration="line-through">${esc(euro(p.prezzoListino))}</tspan></text>
 <rect x="${bx}" y="${y + 16}" width="92" height="36" rx="6" fill="${Y}"/><text x="${bx + 46}" y="${y + 42}" text-anchor="middle" font-family="Archivo" font-weight="900" font-size="24" fill="${INK}">-${sconto}%</text>` : '';
   const pannello = `<rect x="36" y="36" width="568" height="546" rx="22" fill="#fff"/>` + (img
     ? `<image href="${img}" x="60" y="49" width="520" height="520" preserveAspectRatio="xMidYMid meet"/>`

@@ -1,19 +1,68 @@
 ---
+// Informativa ai sensi degli artt. 13 e 14 del Regolamento UE 2016/679 (GDPR) e del D.Lgs. 196/2003 come modificato
+// dal D.Lgs. 101/2018. Cookie: linee guida del Garante del 10/06/2021. I paragrafi su Analytics e Pixel compaiono
+// solo quando i relativi ID sono impostati in sito.js.
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
+const agg = '19 novembre 2026';
 ---
-<Base title="Privacy">
-  <section class="wrap sec prose">
-    <h1 class="h2">Informativa privacy</h1>
-    <p><b>Bozza da far verificare al consulente prima della pubblicazione.</b></p>
-    <p>Titolare del trattamento: {SITO.ragioneSociale}, {SITO.indirizzo}, {SITO.cap} {SITO.citta}, {SITO.email}.</p>
-    <h2>Dati raccolti</h2><p>Dati inseriti nei moduli (nome, telefono, email, dati dell'utensile) per gestire richieste di assistenza; dati di ordine e spedizione per eseguire gli acquisti. I pagamenti sono gestiti da Stripe Payments Europe Ltd., che tratta i dati di pagamento come titolare autonomo.</p>
-    <h2>Minigioco e codici sconto</h2><p>Chi completa il minigioco "Trapano Slalom" in home può ritirare un codice sconto registrandosi con il proprio indirizzo email. L'email serve a inviare il codice, a verificare che ogni persona lo riceva una sola volta e che sia usato con la stessa email al pagamento (base giuridica: esecuzione della richiesta). Solo se l'utente lo sceglie con l'apposita casella facoltativa, l'email viene usata anche per inviare offerte e novità di Semi Store (base giuridica: consenso, revocabile in ogni momento scrivendo a {SITO.email} o dal link presente in ogni email). L'email è conservata fino a 12 mesi dalla registrazione, o fino alla revoca del consenso per le offerte.</p>
-    <h2 id="cookie">Cookie</h2>
-    <p><b>Cookie tecnici</b> (sempre attivi, non richiedono consenso): lo spazio locale del browser ricorda il carrello, la scelta sui cookie e i progressi del minigioco. Il pagamento avviene sulla pagina sicura di Stripe, che usa i propri cookie tecnici antifrode.</p>
-    {SITO.ga4 && <p><b>Statistica</b> (solo con consenso): Google Analytics 4 di Google Ireland Ltd, con indirizzo IP anonimizzato, per sapere quante persone visitano il sito e quali pagine usano. Durata massima dei cookie: 14 mesi. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Google</a>.</p>}
-    {SITO.pixelMeta && <p><b>Marketing</b> (solo con consenso): Pixel di Meta Platforms Ireland Ltd (Facebook, Instagram), per misurare le campagne pubblicitarie e mostrare annunci pertinenti. Durata massima: 13 mesi. <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener">Privacy Meta</a>.</p>}
-    <p>Il consenso viene chiesto con un banner alla prima visita, si può rifiutare con un clic e vale 6 mesi. Puoi cambiarlo in ogni momento con il link "Preferenze cookie" in fondo a ogni pagina. Non usiamo cookie di profilazione senza il tuo consenso.</p>
-    <h2>Conservazione e diritti</h2><p>I dati sono conservati per il tempo necessario alla richiesta e agli obblighi di legge. Puoi chiedere accesso, rettifica o cancellazione scrivendo a {SITO.email}, e proporre reclamo al Garante Privacy.</p>
+<Base title="Informativa privacy e cookie" description="Come Semi Store tratta i dati personali di clienti e visitatori di semistore.it: finalità, basi giuridiche, conservazione, diritti e cookie.">
+  <section class="wrap sec prose pv">
+    <h1 class="h2">Informativa privacy e cookie</h1>
+    <p class="agg">Ultimo aggiornamento: {agg}</p>
+
+    <h2>1. Titolare del trattamento</h2>
+    <p><b>{SITO.denominazione}</b>, sede legale {SITO.sedeLegale}, sede operativa {SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia}), P.IVA {SITO.piva}. Per qualsiasi domanda sui tuoi dati: <a href={`mailto:${SITO.email}`}>{SITO.email}</a>, PEC <a href={`mailto:${SITO.pec}`}>{SITO.pec}</a>, tel. {SITO.telefono}. Non abbiamo nominato un Responsabile della protezione dei dati (DPO), non essendo obbligatorio per la nostra attività.</p>
+
+    <h2>2. Quali dati trattiamo, perché e su quale base</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Finalità</th><th>Dati</th><th>Base giuridica</th><th>Conservazione</th></tr></thead>
+      <tbody>
+        <tr><td><b>Ordini online e ritiri</b>: gestire l'acquisto, la consegna, la verifica di disponibilità, recessi, resi e garanzia</td><td>nome, email, telefono, indirizzo di consegna, prodotti acquistati, eventuale P.IVA</td><td>esecuzione del contratto (art. 6.1.b GDPR)</td><td>10 anni dall'ordine</td></tr>
+        <tr><td><b>Fatturazione e contabilità</b></td><td>dati dell'ordine e di fatturazione</td><td>obbligo di legge (art. 6.1.c) – art. 2220 c.c., normativa fiscale</td><td>10 anni</td></tr>
+        <tr><td><b>Pagamenti</b> con carta, Apple Pay, Google Pay</td><td>i dati della carta sono inseriti solo sulla pagina di Stripe: noi riceviamo l'esito, l'importo e le ultime cifre</td><td>esecuzione del contratto</td><td>come gli ordini</td></tr>
+        <tr><td><b>Assistenza e riparazioni</b>: richieste dal modulo, preventivi, ritiro e riconsegna degli utensili</td><td>nome, telefono, email, dati dell'utensile e del guasto, foto se inviate</td><td>misure precontrattuali ed esecuzione del contratto (art. 6.1.b)</td><td>24 mesi dalla chiusura della pratica; 10 anni se c'è una fattura</td></tr>
+        <tr><td><b>Recesso online</b> ("Recedere dal contratto qui")</td><td>nome, riferimento dell'ordine, email, prodotti</td><td>obbligo di legge (art. 54-bis Codice del consumo)</td><td>10 anni dall'ordine</td></tr>
+        <tr><td><b>Contatti</b> via email, telefono o WhatsApp</td><td>i dati che ci scrivi e il numero di telefono</td><td>misure precontrattuali / interesse legittimo a rispondere (art. 6.1.b e f)</td><td>24 mesi dall'ultimo contatto</td></tr>
+        <tr><td><b>Minigioco e codice sconto</b>: inviare il codice e verificare che ognuno lo riceva una volta</td><td>email, codice, data</td><td>esecuzione della tua richiesta (art. 6.1.b)</td><td>12 mesi dalla registrazione</td></tr>
+        <tr><td><b>Offerte e novità via email</b>, solo se spunti la casella facoltativa</td><td>email</td><td>consenso (art. 6.1.a), revocabile in ogni momento</td><td>fino alla revoca, e comunque non oltre 24 mesi dall'ultima interazione</td></tr>
+        <tr><td><b>Sicurezza del sito</b>: prevenire abusi, spam e frodi</td><td>indirizzo IP, dati tecnici della richiesta</td><td>interesse legittimo (art. 6.1.f)</td><td>i log tecnici sono cancellati dai fornitori entro pochi giorni</td></tr>
+        <tr><td><b>Tutela in caso di controversie</b></td><td>i dati necessari tra quelli sopra</td><td>interesse legittimo (art. 6.1.f)</td><td>per la durata della controversia e fino alla prescrizione</td></tr>
+      </tbody>
+    </table></div>
+    <p><b>È obbligatorio darci i dati?</b> I dati segnati con * nei moduli e quelli richiesti al pagamento servono per eseguire l'ordine o la richiesta: senza, non possiamo procedere. Il consenso alle offerte è sempre facoltativo e non incide sull'acquisto. Non prendiamo decisioni basate unicamente su trattamenti automatizzati, profilazione compresa, che producano effetti giuridici su di te.</p>
+
+    <h2>3. A chi comunichiamo i dati</h2>
+    <p>I dati sono trattati dal personale di Semi Store autorizzato e, per conto nostro o come titolari autonomi, da questi soggetti:</p>
+    <ul>
+      <li><b>Cloudflare, Inc.</b> – hosting del sito e archivio delle richieste (responsabile del trattamento);</li>
+      <li><b>Stripe Payments Europe Ltd.</b> (Irlanda) – pagamenti (titolare autonomo per i dati di pagamento e antifrode);</li>
+      <li><b>Resend (Plus Five Five, Inc.)</b> – invio delle email di conferma e dei codici (responsabile del trattamento);</li>
+      <li><b>corrieri e spedizionieri</b> – consegna dei prodotti e ritiro degli utensili da riparare;</li>
+      <li><b>produttori</b> (es. Stanley Black &amp; Decker per DEWALT) – solo per pratiche di garanzia e ricambi che li richiedono;</li>
+      <li><b>commercialista e consulenti</b> – adempimenti fiscali e contabili; autorità pubbliche quando la legge lo impone;</li>
+      <li><b>WhatsApp Ireland Ltd.</b> (Meta) – se scegli di scriverci su WhatsApp, secondo l'informativa di WhatsApp;</li>
+      <li><b>Google Ireland Ltd.</b> – mappa di Google (solo se la apri) e recensioni mostrate sul sito{SITO.ga4 && ', statistiche di Google Analytics (solo con consenso)'}{SITO.pixelMeta && <>; <b>Meta Platforms Ireland Ltd.</b> – Pixel per le campagne pubblicitarie (solo con consenso)</>}.</li>
+    </ul>
+    <p>Non vendiamo i tuoi dati e non li diffondiamo.</p>
+
+    <h2>4. Trasferimenti fuori dall'Unione europea</h2>
+    <p>Alcuni fornitori (Cloudflare, Resend, Google, Meta) hanno sede o server negli Stati Uniti. I trasferimenti avvengono sulla base della decisione di adeguatezza della Commissione europea del 10 luglio 2023 (EU-US Data Privacy Framework), per i fornitori certificati, e in ogni caso delle Clausole contrattuali tipo approvate dalla Commissione (art. 46 GDPR). Puoi chiederci copia delle garanzie scrivendo a {SITO.email}.</p>
+
+    <h2>5. I tuoi diritti</h2>
+    <p>In qualsiasi momento puoi chiedere di <b>accedere</b> ai tuoi dati, <b>rettificarli</b>, <b>cancellarli</b>, <b>limitarne</b> il trattamento, riceverli in formato portabile (<b>portabilità</b>) e <b>opporti</b> ai trattamenti basati sul legittimo interesse (artt. 15–22 GDPR). Puoi <b>revocare il consenso</b> in ogni momento, senza pregiudicare quanto fatto prima della revoca: per le email di offerte usa il link in fondo a ogni email o scrivici. Per esercitare i diritti scrivi a <a href={`mailto:${SITO.email}`}>{SITO.email}</a>: rispondiamo entro un mese. Hai anche il diritto di proporre <b>reclamo al Garante per la protezione dei dati personali</b> (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">garanteprivacy.it</a>).</p>
+
+    <h2 id="cookie">6. Cookie e tecnologie simili</h2>
+    <p><b>Tecnici – sempre attivi, senza consenso.</b> Il sito usa lo spazio locale del browser (localStorage) per ricordare il carrello, la tua scelta sui cookie (per 6 mesi) e i progressi del minigioco. Non sono inviati a terzi. La pagina di pagamento di Stripe usa i propri cookie tecnici e antifrode.</p>
+    {SITO.ga4 && <p><b>Statistica – solo con consenso.</b> Google Analytics 4 (Google Ireland Ltd.), con indirizzo IP anonimizzato, per sapere quante persone visitano il sito e quali pagine usano. Cookie _ga e _ga_*, durata massima 14 mesi. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Google</a>.</p>}
+    {SITO.pixelMeta && <p><b>Marketing – solo con consenso.</b> Pixel di Meta (Meta Platforms Ireland Ltd.: Facebook, Instagram), per misurare le campagne pubblicitarie e mostrare annunci pertinenti. Cookie _fbp, durata massima 3 mesi. <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener">Privacy Meta</a>.</p>}
+    <p><b>Contenuti di terze parti – solo se li apri.</b> La mappa di Google nella pagina Contatti si carica solo quando premi "Mostra la mappa": da quel momento Google può impostare i propri cookie. I video di YouTube nelle schede prodotto sono incorporati in modalità a privacy avanzata (youtube-nocookie.com) e si avviano solo con un clic.</p>
+    {(SITO.ga4 || SITO.pixelMeta)
+      ? <p>Alla prima visita un banner ti permette di <b>accettare, rifiutare</b> (con lo stesso risalto) o scegliere categoria per categoria; finché non scegli, i cookie non tecnici restano spenti. Puoi cambiare idea in ogni momento dal link <a href="#" data-preferenze-cookie>Preferenze cookie</a> in fondo a ogni pagina. Puoi anche cancellare i cookie dalle impostazioni del browser.</p>
+      : <p>Al momento il sito <b>non usa cookie di statistica o di profilazione</b>: per questo non viene mostrato alcun banner. Se li attiveremo, ti chiederemo prima il consenso con un banner.</p>}
+
+    <h2>7. Modifiche</h2>
+    <p>Possiamo aggiornare questa informativa, per esempio se cambiano i fornitori o la legge. La data dell'ultimo aggiornamento è indicata in alto; per le modifiche importanti ti avviseremo sul sito.</p>
   </section>
 </Base>
+<style>.pv .agg{color:var(--mut);font-size:14px}.pv .tw{overflow-x:auto;margin:12px 0}.pv table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px;background:#fff}.pv th,.pv td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}.pv th{background:#f2f2f0}</style>

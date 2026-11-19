@@ -23,7 +23,8 @@ import { SITO } from '../data/sito.js';
         <div class="row between" id="sc-r" hidden><span>Sconto premio −<span id="sc-p">10</span>%</span><b id="sc" style="color:var(--ok)">–</b></div>
         <div class="row between"><span>Consegna</span><b id="sped">–</b></div>
         <div class="row between big"><span>Totale</span><b id="tot">–</b></div>
-        <button id="paga" class="btn btn-y" disabled>Paga in sicurezza</button>
+        <button id="paga" class="btn btn-y" disabled>Procedi al pagamento</button>
+        <p class="cg-n">Proseguendo accetti le <a class="ul" href="/condizioni-di-vendita/">condizioni di vendita</a> (recesso 14 giorni, garanzia legale 2 anni) e prendi visione dell'<a class="ul" href="/privacy/">informativa privacy</a>. L'ordine si conclude con il pagamento sulla pagina sicura di Stripe.</p>
         <p id="err" class="err" role="alert" hidden></p>
         <small style="color:var(--mut)">Pagamento gestito da Stripe: carte, Apple Pay, Google Pay. I dati della carta non passano dal nostro sito.</small>
       </aside>
@@ -78,7 +79,7 @@ import { SITO } from '../data/sito.js';
       const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: read(), consegna, codice }) });
       const j = await r.json(); if (!r.ok || !j.url) throw new Error(j.error || 'Errore');
       location.href = j.url;
-    } catch (e: any) { el('err').textContent = 'Non riusciamo ad avviare il pagamento: ' + e.message + '. Riprova o chiamaci.'; el('err').hidden = false; b.disabled = false; b.textContent = 'Paga in sicurezza'; }
+    } catch (e: any) { el('err').textContent = 'Non riusciamo ad avviare il pagamento: ' + e.message + '. Riprova o chiamaci.'; el('err').hidden = false; b.disabled = false; b.textContent = 'Procedi al pagamento'; }
   });
   // codice sconto (premio del minigioco in home): si compila da solo se è stato vinto su questo dispositivo
   const codM = el('cod-m'), codI = el('cod-i') as HTMLInputElement;
@@ -99,7 +100,7 @@ import { SITO } from '../data/sito.js';
   el('righe').innerHTML = '<p style="padding:20px;margin:0">Caricamento…</p>';
   indice().then((l: any[]) => { M = Object.fromEntries(l.map((x) => [x.s, x])); render(); }).catch(() => { el('righe').innerHTML = '<p style="padding:20px;margin:0">Non riusciamo a caricare il carrello: ricarica la pagina.</p>'; });
 </script>
-<style is:global>
+<style is:global>.cg-n{font-size:12.5px;color:var(--mut);margin:8px 0 0;line-height:1.45}
   #sc-r[hidden]{display:none}
   .fs{display:flex;flex-direction:column;gap:8px;background:#fff8dc;border:1px solid #f5b80066;border-radius:10px;padding:12px;font-size:14px}.fs.ok{background:#e8f5ec;border-color:#1a7a4344}
   .fs-b{height:8px;border-radius:4px;background:#0000000f;overflow:hidden}.fs-b i{display:block;height:100%;background:var(--y);border-radius:4px;transition:width .3s}.fs.ok .fs-b i{background:var(--ok)}

@@ -41,13 +41,8 @@ export function productLd(p, img) {
     shippingDetails: spedizione(p.prezzo),
     hasMerchantReturnPolicy: reso,
   };
-  // prezzo di listino mostrato barrato (Google lo legge come prezzo "prima")
-  if (p.prezzoListino && p.prezzoListino > p.prezzo) {
-    offer.priceSpecification = [
-      { '@type': 'UnitPriceSpecification', price: prezzo, priceCurrency: 'EUR' },
-      { '@type': 'UnitPriceSpecification', priceType: 'https://schema.org/StrikethroughPrice', price: (p.prezzoListino / 100).toFixed(2), priceCurrency: 'EUR' },
-    ];
-  }
+  // Il prezzo consigliato dal produttore NON va indicato come prezzo barrato: per Google e per la direttiva Omnibus
+  // il prezzo barrato deve essere un prezzo praticato da noi in precedenza. Lo mostriamo solo in pagina, etichettato.
   const ld = {
     '@context': 'https://schema.org', '@type': 'Product', '@id': url + '#prodotto',
     name: `${p.marca} ${p.modello ? p.modello + ' ' : ''}${p.nome}`.replace(/\s+/g, ' '),

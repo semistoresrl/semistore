@@ -56,7 +56,7 @@ export function feed(lista: any[], canale: Canale) {
 <g:link>${BASE}/prodotti/${p.slug}/</g:link>
 <g:image_link>${x(img)}</g:image_link>
 <g:availability>${disp}
-<g:price>${eur(sale ? p.prezzoListino : p.prezzo)}</g:price>${sale ? `\n<g:sale_price>${eur(p.prezzo)}</g:sale_price>` : ''}
+<g:price>${eur(p.prezzo)}</g:price>
 <g:condition>new</g:condition>
 <g:brand>${x(p.marca)}</g:brand>
 <g:mpn>${x(p.codice || p.modello)}</g:mpn>${p.ean ? `\n<g:gtin>${x(p.ean)}</g:gtin>` : ''}${extra}

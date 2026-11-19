@@ -1,17 +1,65 @@
 ---
+// Condizioni generali di vendita online. Riferimenti: Codice del consumo (D.Lgs. 206/2005) artt. 45-67 come modificati
+// dal D.Lgs. 209/2025 (funzione di recesso online, art. 54-bis), garanzia legale artt. 128-135-septies, D.Lgs. 70/2003
+// (commercio elettronico), art. 2250 c.c. La piattaforma europea ODR è stata chiusa il 20/07/2025 (Reg. UE 2024/3228).
 import Base from '../layouts/Base.astro';
 import { SITO, euro } from '../data/sito.js';
+const agg = '19 novembre 2026';
 ---
-<Base title="Condizioni di vendita">
-  <section class="wrap sec prose">
-    <h1 class="h2">Condizioni di vendita</h1>
-    <p><b>Bozza da far verificare al consulente prima della pubblicazione.</b></p>
-    <p>Il venditore è {SITO.ragioneSociale}, {SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia}), P.IVA {SITO.piva}, email {SITO.email}, tel. {SITO.telefono}.</p>
-    <h2>Prezzi</h2><p>I prezzi sono in euro, IVA inclusa. Le spese di consegna sono indicate nel carrello prima del pagamento.</p>
-    <h2 id="pagamenti">Pagamenti</h2><p>Pagamenti con carta di credito/debito, Apple Pay e Google Pay tramite Stripe. Il sito non conserva i dati della carta.</p>
-    <h2>Spedizioni</h2><p>Consegna in Italia in {SITO.spedizione.giorni} giorni lavorativi dalla conferma. Spedizione {euro(SITO.spedizione.costo)}, gratuita per ordini da {euro(SITO.spedizione.gratisDa)}. Ritiro gratuito in negozio.</p>
-    <h2>Recesso</h2><p>Il consumatore può recedere entro 14 giorni dalla consegna senza indicarne il motivo (artt. 52 e ss. Codice del Consumo), scrivendo a {SITO.email}. Il prodotto va restituito integro nella confezione originale; le spese di restituzione sono a carico del cliente. Il rimborso avviene entro 14 giorni con lo stesso metodo di pagamento.</p>
-    <h2>Garanzia</h2><p>Si applica la garanzia legale di conformità di 24 mesi per i consumatori. Come centro assistenza autorizzato gestiamo direttamente le pratiche di garanzia DEWALT.</p>
-    <h2>Risoluzione delle controversie</h2><p>Piattaforma europea ODR: https://ec.europa.eu/consumers/odr</p>
+<Base title="Condizioni generali di vendita" description="Condizioni di vendita di semistore.it: prezzi, pagamenti, spedizioni, diritto di recesso, garanzia legale e assistenza.">
+  <section class="wrap sec prose cdv">
+    <h1 class="h2">Condizioni generali di vendita</h1>
+    <p class="agg">Ultimo aggiornamento: {agg}</p>
+
+    <h2>1. Chi siamo</h2>
+    <p>Il sito semistore.it è gestito da <b>{SITO.denominazione}</b> ("Semi Store"), sede legale {SITO.sedeLegale}, sede operativa e negozio {SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia}), P.IVA e Codice fiscale {SITO.piva}, Registro Imprese di Napoli REA {SITO.rea}{SITO.capitaleSociale && <>, capitale sociale {SITO.capitaleSociale}</>}. Contatti: tel. {SITO.telefono}, email <a href={`mailto:${SITO.email}`}>{SITO.email}</a>, PEC <a href={`mailto:${SITO.pec}`}>{SITO.pec}</a>.</p>
+    <p>Queste condizioni regolano le vendite fatte tramite il sito a consumatori e a clienti professionali. Le parti che valgono solo per i consumatori (persone fisiche che comprano per scopi estranei alla propria attività professionale) sono indicate.</p>
+
+    <h2>2. Prodotti e disponibilità</h2>
+    <p>Le schede descrivono le caratteristiche principali dei prodotti; foto e testi provengono in parte dai produttori e possono differire in dettagli non essenziali (es. colori della confezione). I prodotti indicati <b>"Su conferma"</b> sono ordinabili ma la loro disponibilità viene verificata dopo l'ordine: ti contattiamo entro 1 giorno lavorativo per confermare disponibilità e tempi. Se un prodotto non è disponibile o tu non accetti i tempi indicati, l'ordine per quel prodotto è annullato e ti rimborsiamo l'intero importo pagato senza ritardo e comunque entro 14 giorni.</p>
+
+    <h2>3. Prezzi</h2>
+    <p>I prezzi sono in euro e <b>comprendono l'IVA</b>. Il prezzo totale, con le eventuali spese di consegna, è indicato nel carrello prima del pagamento. Il <b>"prezzo consigliato"</b> mostrato in alcune schede è il prezzo di listino al pubblico indicato dal produttore: serve come riferimento e non è un nostro prezzo precedente. Quando annunciamo una riduzione rispetto a un nostro prezzo precedente, indichiamo il prezzo più basso praticato nei 30 giorni prima della riduzione (art. 17-bis Codice del consumo).</p>
+
+    <h2>4. Come si conclude il contratto</h2>
+    <p>Scegli i prodotti, vai al carrello, scegli spedizione o ritiro e premi "Procedi al pagamento". Sulla pagina sicura di Stripe inserisci i tuoi dati e premi il pulsante di pagamento, che vale come ordine con obbligo di pagare. Il contratto si conclude quando ricevi l'email di conferma dell'ordine. Prima di pagare puoi correggere i dati e le quantità in ogni momento. L'ordine è archiviato nei nostri sistemi e puoi chiederne copia scrivendo a {SITO.email}. Le condizioni sono in lingua italiana.</p>
+
+    <h2 id="pagamenti">5. Pagamenti</h2>
+    <p>Accettiamo carte di credito e di debito, Apple Pay e Google Pay tramite <b>Stripe Payments Europe Ltd.</b>: i dati della carta non passano dai nostri server. In negozio si può pagare anche in contanti nei limiti di legge, con bancomat o carta. Per avere la fattura indica la P.IVA (e, se lo hai, il codice destinatario SDI o la PEC) durante il pagamento o scrivici subito dopo l'ordine.</p>
+
+    <h2>6. Spedizione e ritiro</h2>
+    <p>Spediamo in Italia. La spedizione costa {euro(SITO.spedizione.costo)} ed è <b>gratuita per ordini da {euro(SITO.spedizione.gratisDa)}</b>; i tempi tipici sono {SITO.spedizione.giorni} giorni lavorativi dalla conferma di disponibilità. Il <b>ritiro in negozio</b> a {SITO.citta} è gratuito, negli orari di apertura, dopo il nostro avviso che l'ordine è pronto. Se la consegna non avviene entro 30 giorni dall'ordine, o nel termine diverso concordato, puoi chiederci di consegnare entro un termine supplementare; se anche questo non è rispettato puoi risolvere il contratto e ottenere il rimborso (art. 61 Codice del consumo). Il rischio di perdita o danneggiamento passa a te quando tu, o una persona da te indicata diversa dal corriere, entri in possesso materiale dei prodotti. Alla consegna controlla il pacco: se è danneggiato accettalo "con riserva" e avvisaci entro pochi giorni.</p>
+
+    <h2 id="recesso">7. Diritto di recesso (solo consumatori)</h2>
+    <p>Hai diritto di recedere dal contratto, senza indicarne le ragioni, entro <b>14 giorni</b> dal giorno in cui tu, o un terzo da te indicato diverso dal corriere, acquisisci il possesso fisico dei beni (in caso di più beni consegnati separatamente, dall'ultimo).</p>
+    <p><b>Come recedere.</b> Il modo più semplice è la funzione online <a href="/recesso/" class="ul"><b>Recedere dal contratto qui</b></a>, presente in fondo a ogni pagina del sito: inserisci nome, riferimento dell'ordine ed email e premi "Conferma recesso"; ricevi subito per email la conferma con data e ora (art. 54-bis Codice del consumo). In alternativa puoi inviarci qualsiasi dichiarazione esplicita, anche usando il <a href="#modulo">modulo tipo</a>, a {SITO.email}, alla PEC {SITO.pec} o per posta a {SITO.denominazione}, {SITO.indirizzo}, {SITO.cap} {SITO.citta}. Per rispettare il termine basta inviare la comunicazione prima della scadenza.</p>
+    <p><b>Restituzione dei beni.</b> Rispediscili o consegnali in negozio senza indebiti ritardi e comunque entro 14 giorni dalla comunicazione di recesso. <b>Le spese dirette di restituzione sono a tuo carico.</b> Sei responsabile solo della diminuzione di valore dei beni dovuta a una manipolazione diversa da quella necessaria per stabilirne natura, caratteristiche e funzionamento: puoi aprire la confezione ed esaminare il prodotto come faresti in negozio, ma non usarlo in lavoro (es. forare, tagliare, caricare e usare le batterie a lungo).</p>
+    <p><b>Rimborso.</b> Ti rimborsiamo tutti i pagamenti ricevuti, comprese le spese di consegna standard (escluse quelle aggiuntive di una consegna diversa da quella standard che hai scelto), senza indebito ritardo e comunque entro 14 giorni dal giorno in cui siamo informati del recesso, con lo stesso mezzo di pagamento usato, senza costi per te. Possiamo trattenere il rimborso finché non abbiamo ricevuto i beni o la prova della loro spedizione.</p>
+    <p><b>Esclusioni</b> (art. 59 Codice del consumo): beni confezionati su misura o personalizzati e beni sigillati aperti dopo la consegna che non si prestano a essere restituiti per motivi igienici o connessi alla protezione della salute.</p>
+
+    <h2 id="garanzia">8. Garanzia legale di conformità</h2>
+    <p><b>Consumatori:</b> rispondiamo di qualsiasi difetto di conformità che si manifesta entro <b>2 anni dalla consegna</b> (artt. 128 e seguenti Codice del consumo). Hai diritto, senza spese, alla riparazione o alla sostituzione e, nei casi previsti, alla riduzione del prezzo o alla risoluzione del contratto. Per far valere la garanzia contattaci con la prova d'acquisto (email di conferma, ricevuta o fattura). Come <b>centro assistenza autorizzato DEWALT</b> verifichiamo e ripariamo noi gli utensili nel nostro laboratorio di {SITO.citta}; se serve la spedizione ti diciamo come inviarli.</p>
+    <p><b>Clienti professionali (con P.IVA):</b> si applica la garanzia per vizi degli artt. 1490 e seguenti del Codice civile (denuncia entro 8 giorni dalla scoperta, azione entro 1 anno dalla consegna).</p>
+    <p>La garanzia legale non copre l'usura normale, i danni da uso improprio, cadute, sovraccarico, manomissioni o riparazioni fatte da terzi, né i materiali di consumo (lame, punte, dischi, spazzole). Eventuali <b>garanzie commerciali del produttore</b> (es. estensioni con registrazione del prodotto) si aggiungono alla garanzia legale e non la limitano; le loro condizioni sono quelle indicate dal produttore.</p>
+
+    <h2>9. Assistenza e reclami</h2>
+    <p>Per assistenza, reclami o domande scrivi a <a href={`mailto:${SITO.email}`}>{SITO.email}</a>, chiama il {SITO.telefono} (Lun–Ven 8:30–13:00 e 14:30–18:00) o usa la pagina <a href="/assistenza/">Assistenza</a>. Rispondiamo di norma entro 2 giorni lavorativi.</p>
+
+    <h2>10. Legge applicabile e controversie</h2>
+    <p>Il contratto è regolato dalla legge italiana. Per i consumatori restano salve le tutele più favorevoli della legge del Paese di residenza abituale e il foro competente è quello del luogo di residenza o domicilio del consumatore. Per i clienti professionali è competente in via esclusiva il Foro di Napoli. Per risolvere una controversia senza andare in tribunale il consumatore può rivolgersi a un organismo di risoluzione alternativa delle controversie (ADR) iscritto negli elenchi del Ministero delle Imprese e del Made in Italy; la nostra adesione alla procedura è volontaria. (La piattaforma europea ODR è stata chiusa dalla Commissione europea il 20 luglio 2025.)</p>
+
+    <h2 id="modulo">Modulo tipo di recesso</h2>
+    <p class="mod">(Compilare e restituire il presente modulo solo se si desidera recedere dal contratto. In alternativa usa la funzione <a href="/recesso/">Recedere dal contratto qui</a>.)<br /><br />
+    Destinatario: {SITO.denominazione}, {SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia}) – email {SITO.email} – PEC {SITO.pec}<br /><br />
+    Con la presente io/noi (*) notifico/notifichiamo (*) il recesso dal mio/nostro (*) contratto di vendita dei seguenti beni (*):<br />
+    ……………………………………………………………<br />
+    Ordinato il (*) / ricevuto il (*): ……………………<br />
+    Numero d'ordine: ……………………<br />
+    Nome del/dei consumatore(i): ……………………<br />
+    Indirizzo del/dei consumatore(i): ……………………<br />
+    Firma del/dei consumatore(i) (solo se il presente modulo è notificato in versione cartacea): ……………………<br />
+    Data: ……………………<br /><br />
+    (*) Cancellare la dicitura inutile.</p>
   </section>
 </Base>
+<style>.cdv .agg{color:var(--mut);font-size:14px}.cdv .mod{background:#fff;border:1px dashed var(--line);border-radius:12px;padding:18px;font-size:15px}</style>

@@ -6,6 +6,12 @@ export const SITO = {
   concessionario: 'Concessionario DEWALT Lazio, Campania, Molise',
   ragioneSociale: 'Se.Mi. srl',
   piva: '07149740636',
+  // Dati legali (visura CCIAA): obbligatori sul sito per art. 2250 c.c. e art. 7 D.Lgs. 70/2003
+  denominazione: 'SE.M.I. S.R.L.',
+  sedeLegale: 'Centro Direzionale Isola E7, 80143 Napoli (NA)',
+  rea: 'NA-583904',
+  pec: 'semi@pec.it',
+  capitaleSociale: '', // es. '10.000,00 € i.v.' — da inserire quando il cliente lo conferma (art. 2250 c.c.)
   indirizzo: 'Viale G. Marconi 225',
   cap: '80020',
   citta: 'Casavatore',

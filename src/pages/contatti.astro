@@ -30,9 +30,21 @@ import RecensioniGoogle from '../components/RecensioniGoogle.astro';
         </div>
       )}
     </div>
-    <div class="map card"><iframe src={GOOGLE.mappa} title="Mappa: Semi Store a Casavatore" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+    <div class="map card" id="mappa" data-src={GOOGLE.mappa}>
+      <!-- La mappa Google si carica solo su richiesta: Google Maps usa cookie propri (linee guida Garante privacy 2021) -->
+      <button type="button" class="map-ph" id="mappa-btn">
+        <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path fill="#f5b800" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>
+        <b>Mostra la mappa</b>
+        <span>Viale G. Marconi 225, Casavatore (NA)</span>
+        <small>Caricando la mappa, Google può impostare i propri cookie. <a href="/privacy/#cookie">Informativa</a></small>
+      </button>
+    </div>
+    <script>
+      const m = document.getElementById('mappa'), b = document.getElementById('mappa-btn');
+      b?.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) return; const f = document.createElement('iframe'); f.src = m!.dataset.src!; f.title = 'Mappa: Semi Store a Casavatore'; f.allowFullscreen = true; f.referrerPolicy = 'no-referrer-when-downgrade'; m!.replaceChildren(f); });
+    </script>
   </section>
   <RecensioniGoogle />
   <VideoNegozio titolo="Come arrivare" />
 </Base>
-<style>.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:20px}.box{padding:24px;display:flex;flex-direction:column;gap:14px}.box h2{font-size:22px}.map{margin-top:20px;overflow:hidden;padding:0;aspect-ratio:16/7;min-height:300px}.map iframe{width:100%;height:100%;border:0;display:block}</style>
+<style>.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:20px}.box{padding:24px;display:flex;flex-direction:column;gap:14px}.box h2{font-size:22px}.map{margin-top:20px;overflow:hidden;padding:0;aspect-ratio:16/7;min-height:300px}.map iframe{width:100%;height:100%;border:0;display:block}.map-ph{width:100%;height:100%;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#23262b url('/video/negozio-poster.jpg') center/cover;background-blend-mode:multiply;color:#fff;font:inherit;padding:20px;text-align:center}.map-ph b{font-size:20px}.map-ph small{color:#c9cbcf;max-width:420px}.map-ph a{color:#fff;text-decoration:underline}</style>

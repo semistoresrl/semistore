@@ -8,7 +8,7 @@ export function card(x) {
   const img = x.i ? `<img src="${esc(x.i)}"${srcset} width="400" height="400" alt="${esc(x.n)}" data-ph="${esc(x.m || x.b)}" loading="lazy" decoding="async">` : `<span class="mono pc-ph">${esc(x.m || x.b)}</span>`;
   return `<a href="/prodotti/${x.s}/" class="pc card"><span class="pc-img">${img}<span class="pc-tags">${x.v ? `<span class="t-k">${esc(x.v)}</span>` : ''}<span class="t-w">${esc(x.b)}</span></span></span>`
     + `<span class="pc-b">${x.m ? `<span class="mono pc-code">${esc(x.m)}</span>` : ''}<b class="pc-n">${esc(x.n)}</b>`
-    + `<span class="pc-f"><span class="pc-prz"><span class="pc-pr">${eur(x.p)}</span>${sc >= 5 ? `<s class="pc-li"><span class="sr">Prezzo di listino </span>${eur(x.l)}</s><span class="pc-sc">-${sc}%</span>` : ''}</span>`
+    + `<span class="pc-f"><span class="pc-prz"><span class="pc-pr">${eur(x.p)}</span>${sc >= 5 ? `<span class="pc-li">Prezzo consigliato <s>${eur(x.l)}</s></span><span class="pc-sc">-${sc}%</span>` : ''}</span>`
     + `${x.d ? '<span class="pc-ok pc-cf">Su conferma</span>' : '<span class="pc-ok">Disponibile</span>'}</span></span></a>`;
 }
 let cache;

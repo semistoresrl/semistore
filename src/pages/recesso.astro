@@ -1,0 +1,51 @@
+---
+// Funzione di recesso online (art. 54-bis Codice del consumo): sempre raggiungibile dal piè di pagina di ogni pagina
+// con la dicitura "Recedere dal contratto qui", per tutto il periodo di recesso. Chiede solo nome, ordine ed email.
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+---
+<Base title="Recedere dal contratto" description="Esercita il diritto di recesso da un acquisto fatto su semistore.it: compila il modulo e ricevi subito la conferma via email.">
+  <section class="wrap sec prose rec">
+    <h1 class="h2">Recedere dal contratto qui</h1>
+    <p>Se hai comprato su semistore.it come consumatore, puoi recedere dall'acquisto entro <b>14 giorni dalla consegna</b> senza dare spiegazioni (artt. 52 e seguenti del Codice del consumo). Compila il modulo: ricevi subito via email la conferma con data e ora.</p>
+    <form id="rf" class="card rec-f" novalidate>
+      <label class="field">Nome e cognome *<input name="nome" required autocomplete="name" maxlength="120" /></label>
+      <label class="field">Numero d'ordine o email usata per l'acquisto *<input name="ordine" required maxlength="200" placeholder="es. il numero sulla ricevuta Stripe, o la tua email" /></label>
+      <label class="field">Email a cui inviare la conferma *<input name="email" type="email" required autocomplete="email" maxlength="200" /></label>
+      <label class="field">Prodotti da restituire <span class="opz">(facoltativo: se vuoto, vale per tutto l'ordine)</span><textarea name="prodotti" maxlength="1000" rows="3"></textarea></label>
+      <input name="sito_web" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
+      <button class="btn btn-k" id="rb">Conferma recesso</button>
+      <p class="rec-n">Inviando il modulo eserciti il diritto di recesso. I dati servono solo a gestire il recesso e il rimborso (<a href="/privacy/">informativa privacy</a>).</p>
+      <p class="rec-err" id="re" role="alert" hidden></p>
+    </form>
+    <div class="card rec-ok" id="ro" hidden>
+      <h2>Recesso ricevuto ✓</h2>
+      <p id="rt"></p>
+      <p>Ti abbiamo inviato la conferma via email. Ora restituisci i prodotti entro 14 giorni a <b>{SITO.denominazione}, {SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia})</b>, oppure portali in negozio. Il rimborso arriva entro 14 giorni con lo stesso metodo di pagamento.</p>
+    </div>
+    <h2>Altri modi per recedere</h2>
+    <p>Puoi anche inviare una qualsiasi dichiarazione esplicita, o il <a href="/condizioni-di-vendita/#modulo">modulo tipo di recesso</a>, a <a href={`mailto:${SITO.email}`}>{SITO.email}</a>, alla PEC <a href={`mailto:${SITO.pec}`}>{SITO.pec}</a> o per posta a {SITO.denominazione}, {SITO.indirizzo}, {SITO.cap} {SITO.citta}.</p>
+  </section>
+</Base>
+<script>
+  const f = document.getElementById('rf') as HTMLFormElement, b = document.getElementById('rb') as HTMLButtonElement;
+  const err = document.getElementById('re')!;
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault(); err.hidden = true;
+    if (!f.reportValidity()) return;
+    b.disabled = true; b.textContent = 'Invio…';
+    try {
+      const r = await fetch('/api/recesso', { method: 'POST', body: new FormData(f) });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error || 'Errore');
+      document.getElementById('rt')!.textContent = `Numero ${j.id} · ricevuto ${j.quando}.`;
+      f.hidden = true; (document.getElementById('ro') as HTMLElement).hidden = false;
+    } catch (x: any) { err.textContent = x.message; err.hidden = false; b.disabled = false; b.textContent = 'Conferma recesso'; }
+  });
+</script>
+<style>
+  .rec-f{padding:clamp(16px,4vw,24px);display:flex;flex-direction:column;gap:14px;margin:20px 0}
+  .rec-f .btn{align-self:flex-start}.opz{font-weight:400;color:var(--mut)}.hp{position:absolute;left:-9999px}
+  .rec-n{font-size:13px;color:var(--mut);margin:0}.rec-err{color:#b3261e;font-weight:700;margin:0}.rec-err[hidden],.rec-ok[hidden],.rec-f[hidden]{display:none}
+  .rec-ok{padding:24px;margin:20px 0;border-left:4px solid var(--ok)}
+</style>
