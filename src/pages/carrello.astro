@@ -35,6 +35,7 @@ import { SITO } from '../data/sito.js';
 </script>
 <script>
   import { read, setQty, clear } from '../scripts/cart.js';
+  import { track, itemsCarrello } from '../scripts/track.js';
   import { indice } from '../scripts/card.js';
   const SP = (window as any).__SP;
   let M: Record<string, any> = {};
@@ -73,6 +74,7 @@ import { SITO } from '../data/sito.js';
     const b = el('paga') as HTMLButtonElement; b.disabled = true; b.textContent = 'Un attimo…'; el('err').hidden = true;
     try {
       const consegna = (document.querySelector('input[name=cons]:checked') as HTMLInputElement).value;
+      try { const its = await itemsCarrello(read()); track('begin_checkout', { items: its, value: its.reduce((t, i) => t + i.prezzo * i.qty, 0) }); } catch {}
       const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: read(), consegna, codice }) });
       const j = await r.json(); if (!r.ok || !j.url) throw new Error(j.error || 'Errore');
       location.href = j.url;

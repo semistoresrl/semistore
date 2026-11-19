@@ -1,0 +1,91 @@
+---
+// Banner cookie conforme alle linee guida del Garante (10/06/2021): "Rifiuta" e "Accetta" con lo stesso peso,
+// nessuno script di statistica o pubblicità prima del consenso, scelta ricordata 6 mesi e modificabile dal piè di pagina.
+// Il banner compare solo se in sito.js è impostato almeno un ID (Google Analytics o Pixel Meta).
+import { SITO } from '../data/sito.js';
+const ga = SITO.ga4 || '';
+const px = SITO.pixelMeta || '';
+const attivo = Boolean(ga || px);
+---
+{attivo && (
+  <div class="ck" id="ck" role="dialog" aria-modal="false" aria-labelledby="ck-t" hidden data-ga={ga} data-px={px}>
+    <div class="ck-in">
+      <div class="ck-tx">
+        <b id="ck-t">Cookie e privacy</b>
+        <p>Usiamo cookie tecnici per far funzionare il sito e il carrello. Con il tuo consenso usiamo anche cookie di <b>statistica</b> (Google Analytics){px && <> e di <b>marketing</b> (Meta: Facebook e Instagram)</>} per capire come migliorare il sito e mostrarti offerte pertinenti. Puoi cambiare idea quando vuoi da "Preferenze cookie" in fondo alla pagina. <a href="/privacy/#cookie">Informativa</a></p>
+        <div class="ck-op" id="ck-op" hidden>
+          <label><input type="checkbox" checked disabled /> Tecnici (sempre attivi)</label>
+          {ga && <label><input type="checkbox" id="ck-s" /> Statistica · Google Analytics</label>}
+          {px && <label><input type="checkbox" id="ck-m" /> Marketing · Meta Pixel</label>}
+        </div>
+      </div>
+      <div class="ck-b">
+        <button type="button" class="btn ck-no" data-ck="no">Rifiuta</button>
+        <button type="button" class="btn ck-pe" data-ck="pers">Personalizza</button>
+        <button type="button" class="btn ck-ok" data-ck="si">Accetta</button>
+      </div>
+    </div>
+  </div>
+)}
+<script>
+  import { svuota } from '../scripts/track.js';
+  const KEY = 'semi-consenso-v1';
+  const ck = document.getElementById('ck') as HTMLElement | null;
+  const leggi = () => { try { const c = JSON.parse(localStorage.getItem(KEY) || 'null'); return c && Date.now() - c.t < 182 * 864e5 ? c : null; } catch { return null; } };
+  const carica = (src: string) => { const s = document.createElement('script'); s.async = true; s.src = src; document.head.appendChild(s); };
+  function avvia(c: { s: boolean; m: boolean }) {
+    if (!ck) return;
+    const w = window as any; const ga = ck.dataset.ga, px = ck.dataset.px;
+    if (c.s && ga && !w.gtag) {
+      w.dataLayer = w.dataLayer || []; w.gtag = function () { w.dataLayer.push(arguments); };
+      w.gtag('js', new Date()); w.gtag('config', ga, { anonymize_ip: true });
+      carica(`https://www.googletagmanager.com/gtag/js?id=${ga}`);
+    }
+    if (c.m && px && !w.fbq) {
+      const f: any = (w.fbq = function () { f.callMethod ? f.callMethod.apply(f, arguments) : f.queue.push(arguments); });
+      w._fbq = f; f.push = f; f.loaded = true; f.version = '2.0'; f.queue = [];
+      carica('https://connect.facebook.net/en_US/fbevents.js');
+      w.fbq('init', px); w.fbq('track', 'PageView');
+    }
+    w.__semiPronto = true; svuota();
+  }
+  function salva(c: { s: boolean; m: boolean }) {
+    try { localStorage.setItem(KEY, JSON.stringify({ ...c, t: Date.now() })); } catch {}
+    if (ck) ck.hidden = true;
+    // revoca: se si toglie un consenso già dato, si ricarica la pagina per fermare gli script
+    const w = window as any; if ((!c.s && w.gtag) || (!c.m && w.fbq)) location.reload(); else avvia(c);
+  }
+  if (ck) {
+    const c = leggi();
+    if (c) avvia(c); else ck.hidden = false;
+    ck.addEventListener('click', (e) => {
+      const a = (e.target as HTMLElement).closest('[data-ck]') as HTMLElement | null; if (!a) return;
+      const op = document.getElementById('ck-op') as HTMLElement;
+      const s = document.getElementById('ck-s') as HTMLInputElement | null, m = document.getElementById('ck-m') as HTMLInputElement | null;
+      if (a.dataset.ck === 'si') salva({ s: true, m: true });
+      else if (a.dataset.ck === 'no') salva({ s: false, m: false });
+      else if (op.hidden) { op.hidden = false; a.textContent = 'Salva scelte'; }
+      else salva({ s: !!s?.checked, m: !!m?.checked });
+    });
+    document.addEventListener('click', (e) => {
+      if (!(e.target as HTMLElement).closest('[data-preferenze-cookie]')) return;
+      e.preventDefault(); const c = leggi();
+      const s = document.getElementById('ck-s') as HTMLInputElement | null, m = document.getElementById('ck-m') as HTMLInputElement | null;
+      if (s) s.checked = !!c?.s; if (m) m.checked = !!c?.m;
+      (document.getElementById('ck-op') as HTMLElement).hidden = false;
+      const pe = ck.querySelector('[data-ck=pers]') as HTMLElement; pe.textContent = 'Salva scelte';
+      ck.hidden = false;
+    });
+  }
+</script>
+<style>
+  .ck{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:70;display:flex;justify-content:center;pointer-events:none}
+  .ck[hidden]{display:none}
+  .ck-in{pointer-events:auto;max-width:980px;width:100%;background:#fff;color:var(--ink);border-radius:16px;box-shadow:0 20px 60px #0005;border-top:4px solid var(--y);padding:18px 20px;display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center}
+  .ck-tx{flex:1 1 420px;min-width:0}.ck-tx b#ck-t{font-size:17px}.ck-tx p{margin:6px 0 0;font-size:14px;line-height:1.5;color:#33363b}.ck-tx a{text-decoration:underline}
+  .ck-op{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;font-size:14px;font-weight:600}.ck-op[hidden]{display:none}.ck-op input{width:18px;height:18px;vertical-align:-3px;margin-right:6px;accent-color:#15171a}
+  .ck-b{display:flex;flex-wrap:wrap;gap:8px;flex:0 1 auto}.ck-b .btn{min-height:44px;padding:0 18px;font-size:15px;flex:1 1 auto}
+  .ck-pe{background:#fff;color:var(--ink);border:2px solid var(--ink)}.ck-pe:hover{background:#f4f3ef;color:var(--ink)}
+  .ck-no,.ck-ok{background:var(--ink);color:#fff;border:2px solid var(--ink)}.ck-no:hover,.ck-ok:hover{color:var(--y)}
+  @media (max-width:560px){.ck-in{padding:14px}.ck-b{width:100%}}
+</style>

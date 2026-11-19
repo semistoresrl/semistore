@@ -1,5 +1,6 @@
 ---
 import WhatsAppChat from '../components/WhatsAppChat.astro';
+import Cookie from '../components/Cookie.astro';
 import { OFFERTA, visibileAlBuild } from '../data/offerta.js';
 const ofVis = visibileAlBuild();
 import '@fontsource-variable/archivo';
@@ -184,10 +185,11 @@ const nav = [
     <div class="wrap legal">
       <span>© {new Date().getFullYear()} {SITO.ragioneSociale} · P.IVA {SITO.piva}</span>
       <span>DEWALT, BLACK+DECKER e STANLEY sono marchi registrati dei rispettivi proprietari.</span>
-      <span><a href="/privacy/">Privacy</a> · <a href="/condizioni-di-vendita/">Condizioni di vendita</a></span>
+      <span><a href="/privacy/">Privacy</a> · <a href="/privacy/#cookie">Cookie</a>{(SITO.ga4 || SITO.pixelMeta) && <> · <a href="#" data-preferenze-cookie>Preferenze cookie</a></>} · <a href="/condizioni-di-vendita/">Condizioni di vendita</a></span>
     </div>
   </footer>
   <WhatsAppChat />
+  <Cookie />
   <script>
     import { count } from '../scripts/cart.js';
     const upd = () => document.querySelectorAll('[data-cart-count]').forEach((e) => (e.textContent = String(count())));

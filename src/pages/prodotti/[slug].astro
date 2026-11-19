@@ -46,7 +46,7 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
         {risparmio > 0 && <p class="pd-lst">Prezzo consigliato <s>{euro(p.prezzoListino)}</s> · risparmi il {risparmio}%</p>}
         <div class="row" style="gap:10px">
           <label class="field qty"><span class="sr">Quantità</span><input id="qty" type="number" min="1" max="20" value="1" inputmode="numeric" /></label>
-          <button class="btn btn-y" id="add" data-slug={p.slug} style="flex:1">Aggiungi al carrello</button>
+          <button class="btn btn-y" id="add" data-slug={p.slug} data-id={p.modello || p.slug} data-nome={p.nome} data-marca={p.marca} data-cat={p.categoria} data-prezzo={(p.prezzo / 100).toFixed(2)} style="flex:1">Aggiungi al carrello</button>
         </div>
         <p id="ok" hidden class="okmsg" role="status">Aggiunto. <a class="ul" href="/carrello/">Vai al carrello</a></p>
         {batterie.length > 0 && (
@@ -118,14 +118,17 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
     }
   });
   import { add } from '../../scripts/cart.js';
+  import { track } from '../../scripts/track.js';
   const b = document.getElementById('add')!;
+  const art = (qty = 1) => ({ items: [{ id: b.dataset.id, nome: b.dataset.nome, marca: b.dataset.marca, cat: b.dataset.cat, prezzo: Number(b.dataset.prezzo), qty }], value: Number(b.dataset.prezzo) * qty });
+  track('view_item', art());
   b.addEventListener('click', () => {
     const q = Math.max(1, Math.min(20, Number((document.getElementById('qty') as HTMLInputElement).value) || 1));
-    add(b.dataset.slug!, q); (document.getElementById('ok') as HTMLElement).hidden = false;
+    add(b.dataset.slug!, q); track('add_to_cart', art(q)); (document.getElementById('ok') as HTMLElement).hidden = false;
   });
   // barra "Aggiungi al carrello" fissa in basso su telefono, quando il pulsante principale non si vede più
   const sbar = document.getElementById('sbar')!;
-  document.getElementById('add2')!.addEventListener('click', () => { add(b.dataset.slug!, 1); const t = document.getElementById('add2')!; t.textContent = 'Aggiunto ✓'; setTimeout(() => (location.href = '/carrello/'), 400); });
+  document.getElementById('add2')!.addEventListener('click', () => { add(b.dataset.slug!, 1); track('add_to_cart', art(1)); const t = document.getElementById('add2')!; t.textContent = 'Aggiunto ✓'; setTimeout(() => (location.href = '/carrello/'), 400); });
   let raf = 0;
   addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; const v = b.getBoundingClientRect().bottom < 0; sbar.classList.toggle('on', v); document.body.classList.toggle('sbar-on', v && innerWidth <= 760); }); }, { passive: true });
 </script>

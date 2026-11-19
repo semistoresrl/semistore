@@ -10,4 +10,20 @@ import { SITO } from '../data/sito.js';
     <a href="/catalogo/" class="btn btn-y">Torna al catalogo</a>
   </section>
 </Base>
-<script>import { clear } from '../scripts/cart.js'; clear();</script>
+<script>
+  import { clear, read } from '../scripts/cart.js';
+  import { track, itemsCarrello } from '../scripts/track.js';
+  // acquisto per Analytics/Meta (una volta sola per ordine), poi svuota il carrello
+  const id = new URLSearchParams(location.search).get('s') || '';
+  const cart = read();
+  (async () => {
+    try {
+      if (cart.length && id && localStorage.getItem('semi-ord') !== id) {
+        const its = await itemsCarrello(cart);
+        track('purchase', { items: its, value: its.reduce((t, i) => t + i.prezzo * i.qty, 0), transaction_id: id.slice(-20) });
+        localStorage.setItem('semi-ord', id);
+      }
+    } catch {}
+    clear();
+  })();
+</script>
