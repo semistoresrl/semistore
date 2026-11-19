@@ -1,4 +1,4 @@
-// Giacenze ufficiali. GET pubblico: { slug: quantità }. POST (ADMIN_TOKEN, dall'app interna):
+// Giacenze e prezzi ufficiali. GET pubblico: { slug: quantità } (con ?completo=1: [{slug, qty, prezzo}]). POST (ADMIN_TOKEN, dall'app interna):
 // { giacenze: [{ slug? | codice, qty, prezzo? (centesimi IVA incl.), nome?, marca?, immagine?, ean?, pesoKg?, descrizione? }] }
 // Tutto ciò che arriva con quantità > 0 va in vendita anche su TikTok Shop (se collegato).
 import prodotti from '../../src/data/prodotti.json';
@@ -14,8 +14,11 @@ const nuovoSlug = (marca, codice) => `${marca || 'articolo'}-${codice}`.toLowerC
 const CAMPI = ['nome', 'marca', 'modello', 'codice', 'immagine', 'immagini', 'ean', 'pesoKg', 'descrizione', 'sottotitolo', 'caratteristiche', 'categoria', 'tiktokCategoria', 'lunghezzaCm', 'larghezzaCm', 'altezzaCm'];
 
 export async function onRequestGet({ request, env, waitUntil }) {
-  if (!env.DB) return json({});
+  const completo = new URL(request.url).searchParams.has('completo');
+  if (!env.DB) return json(completo ? [] : {});
   const d = await db(env);
+  // ?completo=1: [{slug, qty, prezzo}] per il build del sito (scripts/live.mjs), senza cache
+  if (completo) return json((await d.prepare('SELECT slug, qty, prezzo FROM giacenze').all()).results);
   const r = (await d.prepare('SELECT slug, qty FROM giacenze').all()).results;
   // avanza la coda TikTok anche con le visite (al massimo una volta al minuto)
   if (configurato(env)) waitUntil((async () => {
@@ -58,5 +61,16 @@ export async function onRequestPost({ request, env, waitUntil }) {
   for (let i = 0; i < istr.length; i += 100) await d.batch(istr.slice(i, i + 100));
   esito.daSincronizzareTikTok = tiktok ? (await d.prepare('SELECT COUNT(*) n FROM giacenze WHERE tt_da_sync=1').first()).n : 0;
   if (tiktok) waitUntil(sincronizza(env, new URL(request.url).origin, { limite: 40 }).catch(() => {}));
+  // ricostruisce il sito (pagine, feed Google/Meta/WhatsApp, checkout) con i valori nuovi: deploy hook di Cloudflare Pages
+  esito.ricostruzione = await ricostruisci(env, b.ricostruisci !== false && esito.salvati > 0);
   return json(esito);
+}
+
+// Deploy hook (Cloudflare Pages → Impostazioni → Build → Deploy hooks), salvato nella variabile DEPLOY_HOOK_URL.
+// Più invii ravvicinati: Cloudflare mette i build in coda e l'ultimo usa i valori più recenti.
+async function ricostruisci(env, si) {
+  if (!si) return 'non richiesta';
+  if (!env.DEPLOY_HOOK_URL) return 'manca DEPLOY_HOOK_URL';
+  try { const r = await fetch(env.DEPLOY_HOOK_URL, { method: 'POST' }); return r.ok ? 'avviata' : 'errore ' + r.status; }
+  catch (e) { return 'errore: ' + e.message; }
 }

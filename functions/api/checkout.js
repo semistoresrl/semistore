@@ -14,8 +14,9 @@ export async function onRequestPost({ request, env }) {
     .map((i) => ({ p: PER_SLUG[i.slug], q: Math.max(1, Math.min(20, Math.floor(Number(i.qty) || 0))) }))
     .filter((i) => i.p).slice(0, 50);
   if (!items.length) return json({ error: 'carrello vuoto' }, 400);
-  // giacenze ufficiali (se caricate): non si vende più di quanto c'è, anche contando le vendite TikTok
-  if (env.DB) {
+  // giacenze ufficiali: per scelta del negozio ciò che non è a magazzino si vende "su conferma" (19/11/2026),
+  // quindi il blocco vale solo con VENDI_SOLO_DISPONIBILI=1
+  if (env.DB && env.VENDI_SOLO_DISPONIBILI === '1') {
     try {
       const segni = items.map(() => '?').join(',');
       const g = (await env.DB.prepare(`SELECT slug, qty FROM giacenze WHERE slug IN (${segni})`).bind(...items.map((i) => i.p.slug)).all()).results;

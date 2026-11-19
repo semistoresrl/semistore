@@ -6,8 +6,9 @@
     "immagini": "node scripts/fetch-images.mjs",
     "dev": "astro dev",
     "anteprime": "node scripts/og-images.mjs",
-    "build": "node scripts/fetch-images.mjs && node scripts/og-images.mjs && astro build",
-    "preview": "wrangler pages dev dist"
+    "build": "node scripts/live.mjs && node scripts/fetch-images.mjs && node scripts/og-images.mjs && astro build",
+    "preview": "wrangler pages dev dist",
+    "live": "node scripts/live.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.2.0",

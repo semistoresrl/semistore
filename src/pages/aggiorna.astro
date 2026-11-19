@@ -1,0 +1,105 @@
+---
+// Pagina di servizio per l'app interna: riceve nell'indirizzo (dopo #) i prezzi e le giacenze cambiati
+// e li invia con un tocco a sito, TikTok Shop e cataloghi (POST /api/giacenze con ADMIN_TOKEN).
+// Formato: #v1;CODICE,quantità,prezzoInCentesimi;CODICE,quantità,prezzo;...  (prezzo vuoto = invariato)
+// Non indicizzata (noindex + esclusa dalla sitemap).
+---
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Aggiorna sito e negozi · Semi Store</title>
+<link rel="icon" href="/favicon.svg">
+<style>
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f4f3ef;color:#15171a}
+  main{max-width:640px;margin:0 auto;padding:20px 16px 60px}
+  .logo{display:flex;align-items:center;gap:12px;margin-bottom:18px} .logo img{width:52px;height:52px} .logo b{font-size:20px}
+  .card{background:#fff;border-radius:22px;padding:22px;box-shadow:0 4px 18px #0000001a;margin-bottom:16px}
+  h1{font-size:26px;margin:0 0 6px} p{font-size:17px;line-height:1.45;margin:8px 0}
+  .big{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0}
+  .n{flex:1;min-width:130px;background:#f4f3ef;border-radius:16px;padding:14px} .n b{display:block;font-size:40px;line-height:1} .n span{font-size:15px;color:#555}
+  label{display:block;font-weight:700;font-size:16px;margin:14px 0 6px}
+  input{width:100%;font-size:20px;padding:16px;border-radius:14px;border:2px solid #d9d6cc}
+  button{width:100%;font-size:24px;font-weight:800;padding:24px;border-radius:20px;border:0;background:#1fa855;color:#fff;cursor:pointer;margin-top:16px}
+  button:disabled{background:#9bbfa6} button.sec{background:#15171a;font-size:18px;padding:16px}
+  .ok{background:#dcf5e6;color:#0d5a2e} .err{background:#fde4e1;color:#8a2a18}
+  .msg{border-radius:16px;padding:16px;font-size:17px;margin-top:14px;display:none} .msg.show{display:block}
+  ul{padding-left:20px;font-size:16px;line-height:1.6} details{margin-top:10px;font-size:15px} small{color:#666}
+  table{width:100%;border-collapse:collapse;font-size:14px} td{padding:5px 4px;border-top:1px solid #eee} td:last-child{text-align:right}
+</style>
+</head>
+<body>
+<main>
+  <div class="logo"><img src="/favicon.svg" alt=""><b>Semi Store · aggiornamento</b></div>
+  <div class="card" id="vuoto" hidden>
+    <h1>Niente da inviare</h1>
+    <p>Apri questa pagina dal pulsante <b>“Aggiorna sito e negozi”</b> dell'app interna.</p>
+  </div>
+  <div class="card" id="box" hidden>
+    <h1>Invia gli aggiornamenti</h1>
+    <div class="big"><div class="n"><b id="nP">0</b><span>prezzi cambiati</span></div><div class="n"><b id="nQ">0</b><span>giacenze</span></div></div>
+    <p>Vanno su: <b>sito semistore.it</b>, <b>TikTok Shop</b> e, entro un giorno, <b>Google, Facebook, Instagram e WhatsApp</b> (leggono il catalogo del sito).</p>
+    <details><summary>Vedi l'elenco</summary><table id="lista"></table></details>
+    <div id="tokBox"><label for="tok">Codice di accesso (solo la prima volta)</label><input id="tok" type="password" autocomplete="current-password" placeholder="ADMIN_TOKEN"></div>
+    <button id="invia">Invia adesso</button>
+    <div class="msg" id="msg"></div>
+  </div>
+</main>
+<script is:inline>
+  const $ = (s) => document.querySelector(s);
+  const eur = (c) => (c / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+  const raw = decodeURIComponent(location.hash.slice(1));
+  const righe = raw.startsWith('v1;') ? raw.slice(3).split(';').filter(Boolean).map((r) => {
+    const [codice, q, p] = r.split(','); return { codice, qty: Math.max(0, parseInt(q, 10) || 0), prezzo: p ? parseInt(p, 10) : undefined };
+  }).filter((r) => r.codice) : [];
+  if (!righe.length) $('#vuoto').hidden = false;
+  else {
+    $('#box').hidden = false;
+    $('#nP').textContent = righe.filter((r) => r.prezzo > 0).length;
+    $('#nQ').textContent = righe.length;
+    $('#lista').innerHTML = righe.slice(0, 400).map((r) => `<tr><td>${r.codice}</td><td>${r.qty} pz</td><td>${r.prezzo ? eur(r.prezzo) : ''}</td></tr>`).join('') + (righe.length > 400 ? `<tr><td colspan="3">…e altri ${righe.length - 400}</td></tr>` : '');
+  }
+  let tok = ''; try { tok = localStorage.getItem('semi-admin') || ''; } catch {}
+  if (tok) $('#tokBox').hidden = true;
+  const msg = (t, ok) => { const m = $('#msg'); m.className = 'msg show ' + (ok ? 'ok' : 'err'); m.innerHTML = t; };
+  const post = async (url, body) => {
+    const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + tok }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({})); return { ok: r.ok, status: r.status, j };
+  };
+  $('#invia').onclick = async () => {
+    if (!tok) tok = $('#tok').value.trim();
+    if (!tok) { msg('Scrivi il codice di accesso.', false); return; }
+    const b = $('#invia'); b.disabled = true; b.textContent = 'Invio in corso…';
+    try {
+      let tot = { salvati: 0, scartati: [], nonSulSito: [] }, rico = '';
+      for (let i = 0; i < righe.length; i += 1500) {
+        const ult = i + 1500 >= righe.length;
+        const r = await post('/api/giacenze', { giacenze: righe.slice(i, i + 1500), ricostruisci: ult });
+        if (r.status === 401) { try { localStorage.removeItem('semi-admin'); } catch {} $('#tokBox').hidden = false; tok = ''; throw new Error('codice di accesso sbagliato'); }
+        if (!r.ok) throw new Error(r.j.error || 'errore ' + r.status);
+        tot.salvati += r.j.salvati; tot.scartati.push(...(r.j.scartati || [])); tot.nonSulSito.push(...(r.j.nonSulSito || [])); if (ult) rico = r.j.ricostruzione;
+      }
+      try { localStorage.setItem('semi-admin', tok); } catch {}
+      $('#tokBox').hidden = true;
+      msg(`✅ <b>Fatto: ${tot.salvati} articoli aggiornati.</b><br>` +
+        (rico === 'avviata' ? 'Il sito si aggiorna da solo in 2–3 minuti.' : `Sito: ${rico === 'manca DEPLOY_HOOK_URL' ? 'manca il collegamento per la ricostruzione automatica (DEPLOY_HOOK_URL)' : rico}.`) +
+        (tot.nonSulSito.length ? `<br><small>${tot.nonSulSito.length} articoli non sono sul sito: salvati per TikTok.</small>` : '') +
+        (tot.scartati.length ? `<br><small>Scartati: ${tot.scartati.slice(0, 20).join(', ')}</small>` : '') +
+        '<br><span id="tt">TikTok Shop: in aggiornamento…</span>', true);
+      b.textContent = 'Inviato';
+      // lavora la coda TikTok fino in fondo (se il negozio è collegato)
+      for (let k = 0; k < 60; k++) {
+        const r = await post('/api/tiktok/sync', {});
+        if (!r.ok) { $('#tt').textContent = r.status === 503 ? 'TikTok Shop: non ancora collegato.' : 'TikTok Shop: ' + (r.j.error || 'errore'); break; }
+        if (r.j.attesa) { $('#tt').textContent = 'TikTok Shop: ' + r.j.attesa + '.'; break; }
+        const rest = r.j.restanti ?? 0;
+        $('#tt').textContent = rest ? `TikTok Shop: ancora ${rest} da aggiornare…` : 'TikTok Shop: aggiornato ✅';
+        if (!rest) break;
+      }
+    } catch (e) { msg('❌ ' + e.message, false); b.disabled = false; b.textContent = 'Riprova'; }
+  };
+</script>
+</body>
+</html>
