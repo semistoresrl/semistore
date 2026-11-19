@@ -9,7 +9,7 @@
 //  POST azione {c,f,uid,op}              → letto | nonletto | stella | nostella | spam | nonspam | cestino | elimina | sposta(verso)
 //  POST invia {c,a,cc,oggetto,testo,rispondi:{f,uid},allegati:[{nome,tipo,b64}]}
 import { gdb, json, utente } from '../../../_lib/gestione.js';
-import { pdb, cifra, decifra, Imap, inviaSmtp, leggiMime, parteMime, costruisci, indirizzi, dec2047 } from '../../../_lib/posta.js';
+import { pdb, cifra, decifra, Imap, inviaSmtp, leggiMime, parteMime, costruisci, indirizzi, dec2047, segreto, pleskSito, pleskCaselle, pleskCrea, pleskPassword, pleskElimina, nuovaPassword } from '../../../_lib/posta.js';
 
 const spiega = (m) => (/cancel|closed|reset|refused|timed? ?out|tls|certificate|handshake/i.test(m) ? `connessione non riuscita: controlla nome del server e porta (${m})` : m);
 const pulisci = (c) => { const { pass, ...x } = c; return { ...x, haPass: !!pass }; };
@@ -20,6 +20,22 @@ async function casella(env, id) {
   return { ...c, pass: await decifra(env, c.pass) };
 }
 async function conImap(c, fn) { const m = new Imap(c); try { await m.apri(); return await fn(m); } finally { await m.chiudi(); } }
+
+async function salva(env, d, c) {
+  await d.prepare(`INSERT INTO caselle(id,email,nome,utente,pass,host,porta,sic,shost,sporta,ssic,firma,ordine,at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    ON CONFLICT(id) DO UPDATE SET email=excluded.email,nome=excluded.nome,utente=excluded.utente,pass=excluded.pass,host=excluded.host,porta=excluded.porta,sic=excluded.sic,shost=excluded.shost,sporta=excluded.sporta,ssic=excluded.ssic,firma=excluded.firma,ordine=excluded.ordine`)
+    .bind(c.id, c.email, c.nome, c.utente, await cifra(env, c.pass), c.host, c.porta, c.sic, c.shost, c.sporta, c.ssic, c.firma, c.ordine, Date.now()).run();
+}
+const FIRMA = 'Semi Store · SE.M.I. S.R.L.\nViale G. Marconi 225, 80020 Casavatore (NA) · 081 553 6604 · semistore.it';
+async function pleskCfg(env) { const c = await segreto(env, 'plesk'); if (!c) throw Object.assign(new Error('Plesk non collegato'), { s: 400 }); return c; }
+// collega (o ricollega) in app una casella di Plesk con la password data
+async function collegaDaPlesk(env, d, cfg, email, pass, nome, soloSeOk) {
+  const prima = await d.prepare('SELECT * FROM caselle WHERE email=?').bind(email).first();
+  const c = { id: prima?.id || crypto.randomUUID().slice(0, 8), email, nome: nome || prima?.nome || 'Semi Store', utente: email, pass, host: cfg.mailHost || 'mail.' + cfg.dominio, porta: 993, sic: 'ssl', shost: cfg.smtpHost || '', sporta: 465, ssic: 'ssl', firma: prima?.firma ?? FIRMA, ordine: prima?.ordine ?? 0 };
+  let prova = 'ok'; try { await conImap(c, async () => true); } catch (e) { prova = spiega(e.message); }
+  if (soloSeOk && prova !== 'ok') return { id: prima?.id, prova, nonSalvata: true };
+  await salva(env, d, c); return { id: c.id, prova };
+}
 
 export async function onRequest({ request, env, params }) {
   const p = (params.q || []).join('/'), m = request.method, u = new URL(request.url), g = (k) => u.searchParams.get(k) || '';
@@ -57,10 +73,48 @@ export async function onRequest({ request, env, params }) {
       c.pass = body.password ? String(body.password) : prima ? await decifra(env, prima.pass) : '';
       if (!c.pass) return json({ error: 'scrivi la password della casella' }, 400);
       try { await conImap(c, async () => true); } catch (e) { return json({ error: `Non riesco ad entrare in ${email} su ${c.host}:${c.porta}: ${spiega(e.message)}` }, 400); }
-      await d.prepare(`INSERT INTO caselle(id,email,nome,utente,pass,host,porta,sic,shost,sporta,ssic,firma,ordine,at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        ON CONFLICT(id) DO UPDATE SET email=excluded.email,nome=excluded.nome,utente=excluded.utente,pass=excluded.pass,host=excluded.host,porta=excluded.porta,sic=excluded.sic,shost=excluded.shost,sporta=excluded.sporta,ssic=excluded.ssic,firma=excluded.firma,ordine=excluded.ordine`)
-        .bind(c.id, c.email, c.nome, c.utente, await cifra(env, c.pass), c.host, c.porta, c.sic, c.shost, c.sporta, c.ssic, c.firma, c.ordine, Date.now()).run();
+      await salva(env, d, c);
       return json({ ok: true, id: c.id });
+    }
+    if (p === 'plesk' && m === 'GET') { const c = await segreto(env, 'plesk'); return json(c ? { collegato: true, url: c.url, login: c.login, dominio: c.dominio, mailHost: c.mailHost || 'mail.' + c.dominio } : { collegato: false }); }
+    if (p === 'plesk' && m === 'POST') {
+      if (body.azione === 'scollega') { await segreto(env, 'plesk', null); return json({ ok: true }); }
+      const prima = await segreto(env, 'plesk');
+      const cfg = { url: String(body.url || prima?.url || '').trim(), login: String(body.login || prima?.login || '').trim(), pass: body.password ? String(body.password) : prima?.pass || '',
+        dominio: String(body.dominio || prima?.dominio || 'semistore.it').trim().toLowerCase(), mailHost: String(body.mailHost || '').trim() || prima?.mailHost || '' };
+      if (!cfg.url || !cfg.login || !cfg.pass) return json({ error: 'servono indirizzo del pannello, utente e password di Plesk' }, 400);
+      cfg.sito = await pleskSito(cfg);
+      const l = await pleskCaselle(cfg);
+      await segreto(env, 'plesk', cfg);
+      return json({ ok: true, caselle: l.length });
+    }
+    if (p === 'plesk/caselle') {
+      const cfg = await pleskCfg(env); const l = await pleskCaselle(cfg);
+      const app = new Set(((await d.prepare('SELECT email FROM caselle').all()).results || []).map((x) => x.email));
+      return json({ dominio: cfg.dominio, caselle: l.map((x) => ({ ...x, collegata: app.has(x.email) })) });
+    }
+    if (p === 'plesk/crea' && m === 'POST') {
+      const cfg = await pleskCfg(env); const nome = String(body.nome || '').trim().toLowerCase();
+      if (!/^[a-z0-9][a-z0-9._-]{0,63}$/.test(nome)) return json({ error: 'nome della casella non valido: solo lettere, numeri, punto, trattino (es. ordini, assistenza, mario.rossi)' }, 400);
+      const pass = body.password ? String(body.password) : nuovaPassword();
+      await pleskCrea(cfg, nome, pass);
+      const r = await collegaDaPlesk(env, d, cfg, `${nome}@${cfg.dominio}`, pass, body.mittente);
+      return json({ ok: true, email: `${nome}@${cfg.dominio}`, password: pass, ...r });
+    }
+    if (p === 'plesk/collega' && m === 'POST') {
+      const cfg = await pleskCfg(env); const nome = String(body.nome || '').trim().toLowerCase(); const email = `${nome}@${cfg.dominio}`;
+      let pass = String(body.password || ''); let nuova = false;
+      if (body.nuovaPassword) { pass = body.password ? pass : nuovaPassword(); await pleskPassword(cfg, nome, pass); nuova = true; }
+      if (!pass) return json({ error: 'scrivi la password attuale della casella oppure scegli di impostarne una nuova' }, 400);
+      const r = await collegaDaPlesk(env, d, cfg, email, pass, body.mittente, !nuova);
+      if (r.nonSalvata) return json({ error: 'password non accettata: ' + r.prova }, 400);
+      return json({ ok: true, email, ...(nuova ? { password: pass } : {}), ...r });
+    }
+    if (p === 'plesk/elimina' && m === 'POST') {
+      const cfg = await pleskCfg(env); const nome = String(body.nome || '').trim().toLowerCase();
+      if (body.conferma !== `${nome}@${cfg.dominio}`) return json({ error: 'conferma mancante' }, 400);
+      await pleskElimina(cfg, nome); await d.prepare('DELETE FROM caselle WHERE email=?').bind(`${nome}@${cfg.dominio}`).run();
+      return json({ ok: true });
     }
     const c = await casella(env, g('c') || body.c);
     if (p === 'cartelle') return json({ cartelle: await conImap(c, (im) => im.cartelle()) });

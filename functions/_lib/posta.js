@@ -308,3 +308,58 @@ export function costruisci({ da, a, cc, oggetto, testo, html, rispostaA, riferim
   else corpo = h.join('\r\n') + `\r\nContent-Type: multipart/mixed; boundary="${b1}"\r\n\r\n--${b1}\r\n` + alt + allegati.map((x) => `--${b1}\r\nContent-Type: ${x.tipo || 'application/octet-stream'}; name="${enc2047(x.nome)}"\r\nContent-Disposition: attachment; filename*=UTF-8''${encodeURIComponent(x.nome)}\r\nContent-Transfer-Encoding: base64\r\n\r\n${a76(x.b64.replace(/\s/g, ''))}`).join('') + `--${b1}--\r\n`;
   return { bin: corpo, id };
 }
+
+/* ---------------- Plesk (XML API): elenco, creazione e password delle caselle ---------------- */
+export async function segreto(env, k, v) {
+  const d = env.DB; await d.prepare('CREATE TABLE IF NOT EXISTS segreti(k TEXT PRIMARY KEY, v TEXT, at INTEGER)').run();
+  if (v === undefined) { const r = await d.prepare('SELECT v FROM segreti WHERE k=?').bind(k).first(); return r ? JSON.parse(await decifra(env, r.v)) : null; }
+  if (v === null) { await d.prepare('DELETE FROM segreti WHERE k=?').bind(k).run(); return null; }
+  await d.prepare('INSERT INTO segreti(k,v,at) VALUES(?,?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v, at=excluded.at').bind(k, await cifra(env, JSON.stringify(v)), Date.now()).run();
+  return v;
+}
+const xe = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const tag = (x, t) => { const m = String(x).match(new RegExp(`<${t}>([\\s\\S]*?)</${t}>`)); return m ? m[1].trim() : ''; };
+export async function pleskXml(cfg, corpo) {
+  let url = String(cfg.url || '').trim().replace(/\/+$/, '');
+  if (!/^https?:\/\//.test(url)) url = 'https://' + url;
+  if (!/:\d+$/.test(url.replace(/^https?:\/\//, ''))) url += ':8443';
+  let r;
+  try {
+    r = await fetch(url + '/enterprise/control/agent.php', { method: 'POST', headers: { 'content-type': 'text/xml', HTTP_AUTH_LOGIN: cfg.login, HTTP_AUTH_PASSWD: cfg.pass, HTTP_PRETTY_PRINT: 'TRUE' },
+      body: `<?xml version="1.0" encoding="UTF-8"?><packet>${corpo}</packet>` });
+  } catch (e) { throw new Error(`Plesk non raggiungibile su ${url} (${e.message}). Controlla indirizzo e porta (di solito 8443) e che il pannello abbia un certificato SSL valido.`); }
+  const t = await r.text();
+  if (!r.ok) throw new Error(`Plesk ha risposto ${r.status}`);
+  const errs = [...t.matchAll(/<status>error<\/status>\s*<errcode>(\d+)<\/errcode>\s*<errtext>([\s\S]*?)<\/errtext>/g)];
+  if (errs.length) { const e = new Error(`Plesk: ${errs[0][2].trim()} (codice ${errs[0][1]})`); e.cod = Number(errs[0][1]); throw e; }
+  return t;
+}
+export async function pleskSito(cfg) {
+  const t = await pleskXml(cfg, `<site><get><filter><name>${xe(cfg.dominio)}</name></filter><dataset><gen_info/></dataset></get></site>`);
+  const id = tag(t, 'id'); if (!id) throw new Error(`dominio ${cfg.dominio} non trovato in Plesk`); return id;
+}
+export async function pleskCaselle(cfg) {
+  const t = await pleskXml(cfg, `<mail><get_info><filter><site-id>${xe(cfg.sito)}</site-id></filter><mailbox/></get_info></mail>`);
+  return [...t.matchAll(/<mailname>([\s\S]*?)<\/mailname>/g)].map((m) => ({ id: tag(m[1], 'id'), nome: tag(m[1], 'name'), attiva: !/<enabled>false<\/enabled>/.test(tag(m[1], 'mailbox')) || !tag(m[1], 'mailbox'), quota: Number(tag(m[1], 'quota') || -1) }))
+    .filter((x) => x.nome).map((x) => ({ ...x, email: `${x.nome}@${cfg.dominio}`.toLowerCase() })).sort((a, b) => a.email.localeCompare(b.email));
+}
+const pw = (p) => `<password><value>${xe(p)}</value><type>plain</type></password>`;
+export async function pleskCrea(cfg, nome, pass) {
+  try { await pleskXml(cfg, `<mail><create><filter><site-id>${xe(cfg.sito)}</site-id><mailname><name>${xe(nome)}</name><mailbox><enabled>true</enabled></mailbox>${pw(pass)}</mailname></filter></create></mail>`); }
+  catch (e) { if (e.cod !== 1014) throw e; // versioni che non accettano password insieme a mailbox: si crea e poi si imposta
+    await pleskXml(cfg, `<mail><create><filter><site-id>${xe(cfg.sito)}</site-id><mailname><name>${xe(nome)}</name><mailbox><enabled>true</enabled></mailbox></mailname></filter></create></mail>`);
+    await pleskPassword(cfg, nome, pass); }
+}
+export async function pleskPassword(cfg, nome, pass) {
+  await pleskXml(cfg, `<mail><update><set><filter><site-id>${xe(cfg.sito)}</site-id><mailname><name>${xe(nome)}</name>${pw(pass)}</mailname></filter></set></update></mail>`);
+}
+export async function pleskElimina(cfg, nome) {
+  await pleskXml(cfg, `<mail><remove><filter><site-id>${xe(cfg.sito)}</site-id><name>${xe(nome)}</name></filter></remove></mail>`);
+}
+export function nuovaPassword() {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ', a = 'abcdefghijkmnpqrstuvwxyz', n = '23456789', s = '!#%+=?@';
+  const r = (x) => x[crypto.getRandomValues(new Uint32Array(1))[0] % x.length];
+  const base = [r(A), r(A), r(a), r(a), r(a), r(n), r(n), r(s), ...Array.from({ length: 8 }, () => r(A + a + n))];
+  for (let i = base.length - 1; i > 0; i--) { const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1); [base[i], base[j]] = [base[j], base[i]]; }
+  return base.join('');
+}

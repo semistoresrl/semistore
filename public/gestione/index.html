@@ -587,6 +587,7 @@ textarea.winp{min-height:110px;font-size:20px}
 .epos{min-width:38px;height:38px;border-radius:10px;background:#15171a;color:#f5b800;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
 .edes{flex:1;min-width:0}.edes b{display:block;font-size:16px}.edes small{font-size:13px;color:var(--muted)}
 .emag{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}.emag b{font-size:17px}.emag b.ok{color:#1fa855}.emag b.zero{color:var(--muted)}.emag small{font-size:12px}
+.pll{display:flex;flex-direction:column;margin-top:10px;border-top:1px solid var(--line)}.plr{padding:10px 0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between}.plb{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .mailb{text-decoration:none;color:var(--ink)}.mailb b{display:none;background:var(--bad);color:#fff;border-radius:10px;padding:0 7px;font-size:13px}.mailb.on b{display:inline}
 .pbox .chips{margin-bottom:10px;flex-wrap:wrap}.pfol .chip .i{width:15px;height:15px;vertical-align:-3px;margin-right:4px}.pn{background:var(--bad);color:#fff;border-radius:9px;padding:0 6px;font-size:12px;margin-left:4px}.pn.sp{background:var(--muted)}
 .plist{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
@@ -2895,7 +2896,7 @@ function vPosta(){
   if(PO.caselle===null){ caricaCaselle(false).then(()=>{ render(); }); return header("Posta","Carico le caselle…"); }
   if(!PO.caselle.length) return header("Posta","Le email delle caselle @semistore.it dentro l'app")+`<div class="panel" style="max-width:640px"><h3>Collega la prima casella</h3>
     <p>Le email restano sul server: le vedi qui e anche in <b>webmail.semistore.it</b>, e quello che fai qui (lette, spam, cestino, inviate) si vede anche lì.</p>
-    <p class="sub">Serve la password della casella una volta sola: resta salvata cifrata sul server e la vede solo l'app.</p>
+    <p class="sub">Il modo più semplice: collega Plesk, così vedi tutte le caselle e ne crei di nuove da qui.</p>
     <button class="btn pri" data-act="pCaselle">${ic("plus")}Aggiungi casella</button></div>`;
   const cs=PO.cartelle[PO.c]; if(!cs) caricaCartelle();
   const k=pChiave(), L=PO.liste[k]; if(!L&&!PO.carico) caricaElenco();
@@ -2980,15 +2981,79 @@ async function scriviEmail(o={}){
     catch(e){ b.disabled=false; b.innerHTML=ic("send")+"Invia"; toast("Non inviata: "+e.message); } };
 }
 
-/* ---------- caselle ---------- */
-function gestisciCaselle(sel){
-  const cs=PO.caselle||[]; if(!cs.length) return modCasella({});
-  openModal(`<div class="mh"><h2>Caselle email</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb">
-   <table><tbody>${cs.map(x=>`<tr><td><b>${esc(x.nome)}</b><div class="sub">${esc(x.email)} · ${esc(x.host)}:${x.porta}</div>${x.errore?`<div class="low">${esc(x.errore)}</div>`:""}</td><td class="num"><button class="btn sm" data-mc="${x.id}">Modifica</button></td></tr>`).join("")}</tbody></table>
-   <p class="sub">Per una casella nuova creata in Plesk: tocca “Aggiungi casella” e scrivi email e password. Da quel momento arriva anche qui.</p></div>
-   <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="mcN">${ic("plus")}Aggiungi casella</button></div>`);
+/* ---------- caselle e Plesk ---------- */
+async function gestisciCaselle(){
+  openModal(`<div class="mh"><h2>Caselle email</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="empty">Carico…</div></div>`);
+  let pl={collegato:false}, lp=null, errP="";
+  try{ pl=await pReq("plesk"); if(pl.collegato) lp=(await pReq("plesk/caselle")).caselle; }catch(e){ errP=e.message; }
+  const cs=PO.caselle||[];
+  $("#modal").innerHTML=`<div class="mh"><h2>Caselle email</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb">
+   ${pl.collegato?`<div class="panel" style="margin:0 0 14px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">${ic("plug")} Plesk · ${esc(pl.dominio)}</h3><span class="badge st-Pronto">collegato</span><span class="sp" style="flex:1"></span><button class="btn sm pri" id="plNew">${ic("plus")}Nuova casella</button></div>
+     ${errP?`<div class="banner err">${esc(errP)}</div>`:""}
+     ${lp?`<div class="pll">${lp.map(x=>`<div class="plr"><b>${esc(x.email)}</b>${x.attiva?"":` <span class="badge">disattivata</span>`}<div class="plb">${x.collegata?`<span class="badge st-Consegnato">${ic("check")}nell'app</span>`:`<button class="btn sm pri" data-plc="${esc(x.nome)}">Collega</button>`}<button class="btn sm ghost" data-plp="${esc(x.nome)}">Password</button><button class="btn sm ghost" data-pld="${esc(x.nome)}">Elimina</button></div></div>`).join("")}</div>
+       <p class="sub">Le caselle create in Plesk compaiono qui da sole: tocca “Collega” per vederle nella Posta. Quelle create da qui sono collegate subito.</p>`:""}
+     <div style="margin-top:8px"><button class="btn sm ghost" id="plEdit">Dati di Plesk</button></div></div>`
+   :`<div class="panel" style="margin:0 0 14px"><h3 style="margin-top:0">${ic("plug")} Collega Plesk</h3><p class="sub" style="margin-top:0">Con Plesk collegato vedi tutte le caselle di semistore.it, le colleghi con un tocco e ne crei di nuove direttamente da qui.</p>${errP?`<div class="banner err">${esc(errP)}</div>`:""}<button class="btn pri" id="plEdit">${ic("plug")}Collega Plesk</button></div>`}
+   <h3>Nella Posta dell'app</h3>
+   ${cs.length?`<table><tbody>${cs.map(x=>`<tr><td><b>${esc(x.nome)}</b><div class="sub">${esc(x.email)} · ${esc(x.host)}:${x.porta}</div>${x.errore?`<div class="low">${esc(x.errore)}</div>`:""}</td><td class="num"><button class="btn sm" data-mc="${x.id}">Modifica</button></td></tr>`).join("")}</tbody></table>`:`<p class="sub">Nessuna casella ancora.</p>`}
+   </div><div class="mf"><button class="btn ghost" id="mcN">Aggiungi a mano (altro server)</button><span class="sp" style="flex:1"></span><button class="btn" data-close>Chiudi</button></div>`;
+  $("#modal").querySelectorAll("[data-close]").forEach(b=>b.onclick=closeModal);
   $("#modal").querySelectorAll("[data-mc]").forEach(b=>b.onclick=()=>modCasella(cs.find(x=>x.id===b.dataset.mc)));
   $("#mcN").onclick=()=>modCasella({});
+  $("#plEdit").onclick=()=>modPlesk(pl);
+  const nw=$("#plNew"); if(nw) nw.onclick=()=>nuovaCasella(pl.dominio);
+  $("#modal").querySelectorAll("[data-plc]").forEach(b=>b.onclick=()=>collegaCasella(b.dataset.plc,pl.dominio,false));
+  $("#modal").querySelectorAll("[data-plp]").forEach(b=>b.onclick=()=>collegaCasella(b.dataset.plp,pl.dominio,true));
+  $("#modal").querySelectorAll("[data-pld]").forEach(b=>b.onclick=async()=>{ const em=b.dataset.pld+"@"+pl.dominio; if(b.dataset.sure!=="1"){ b.dataset.sure="1"; b.textContent="Elimino "+em+" e tutte le sue email? Tocca di nuovo"; b.classList.add("danger"); return; }
+    try{ await pPost("plesk/elimina",{nome:b.dataset.pld,conferma:em}); toast("Casella eliminata da Plesk"); await caricaCaselle(true); if(!PO.caselle.some(c=>c.id===PO.c)) PO.c=PO.caselle[0]?.id||null; render(); gestisciCaselle(); }catch(e){ toast(e.message); } });
+}
+function modPlesk(pl){
+  openModal(`<div class="mh"><h2>Collega Plesk</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="fs"><div class="f">
+   <label class="fl" style="grid-column:span 2">Indirizzo del pannello Plesk<input id="plU" value="${esc(pl.url||"")}" placeholder="es. https://server.esempio.it:8443 (quello con cui entri in Plesk)"></label>
+   <label class="fl">Utente Plesk<input id="plL" value="${esc(pl.login||"")}" autocomplete="off" placeholder="es. admin"></label>
+   <label class="fl">Password Plesk${pl.collegato?" (vuoto = invariata)":""}<input id="plP" type="password" autocomplete="new-password"></label>
+   <label class="fl">Dominio<input id="plD" value="${esc(pl.dominio||"semistore.it")}"></label>
+   <label class="fl">Server posta per leggere/inviare<input id="plM" value="${esc(pl.mailHost||"mail.semistore.it")}"></label></div></div>
+   <p class="sub">Va bene anche un utente cliente di Plesk, purché possa gestire la posta di ${esc(pl.dominio||"semistore.it")}. Utente e password restano cifrati sul server; servono solo all'app per elencare, creare e cambiare password alle caselle.</p></div>
+   <div class="mf">${pl.collegato?`<button class="btn danger" id="plX">Scollega Plesk</button>`:""}<span class="sp" style="flex:1"></span><button class="btn" data-close>Annulla</button><button class="btn pri" id="plOk">${ic("check")}Prova e collega</button></div>`);
+  $("#plOk").onclick=async()=>{ const b=$("#plOk"); b.disabled=true; b.textContent="Provo…";
+    try{ const r=await pPost("plesk",{url:$("#plU").value,login:$("#plL").value,password:$("#plP").value,dominio:$("#plD").value,mailHost:$("#plM").value}); toast(`Plesk collegato ✓ ${r.caselle} caselle trovate`); gestisciCaselle(); }
+    catch(e){ b.disabled=false; b.innerHTML=ic("check")+"Prova e collega"; toast(e.message); } };
+  const x=$("#plX"); if(x) x.onclick=async()=>{ if(x.dataset.sure!=="1"){ x.dataset.sure="1"; x.textContent="Sicuro? (le caselle restano)"; return; } await pPost("plesk",{azione:"scollega"}); toast("Plesk scollegato"); gestisciCaselle(); };
+}
+function mostraPassword(email,pass,extra){
+  openModal(`<div class="mh"><h2>${esc(email)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb" style="text-align:center">
+   <p>${extra||"Casella pronta e già collegata alla Posta dell'app."}</p><p class="sub">Password della casella (serve solo per configurarla su un telefono o in webmail):</p>
+   <div class="wnum" style="user-select:all;font-size:30px">${esc(pass)}</div><button class="btn" id="pwC">${ic("clipboard")}Copia password</button>
+   <p class="sub" style="margin-top:14px">Webmail: webmail.semistore.it · Server: posta in arrivo IMAP 993, posta in uscita SMTP 465, utente = indirizzo email.<br>Questa password non verrà più mostrata: salvala ora se ti serve.</p></div>
+   <div class="mf"><span class="sp" style="flex:1"></span><button class="btn pri" data-close>Fatto</button></div>`);
+  $("#pwC").onclick=()=>copyText(pass,"Password copiata");
+}
+function nuovaCasella(dom){
+  openModal(`<div class="mh"><h2>Nuova casella</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="fs"><div class="f">
+   <label class="fl" style="grid-column:span 2">Indirizzo<div style="display:flex;align-items:center;gap:6px"><input id="ncN" placeholder="es. ordini" autocapitalize="none" style="flex:1"><b>@${esc(dom)}</b></div></label>
+   <label class="fl" style="grid-column:span 2">Nome mittente<input id="ncM" value="Semi Store" placeholder="es. Semi Store Assistenza"></label></div></div>
+   <p class="sub">La creo in Plesk con una password sicura e la collego subito alla Posta. Esempi: ordini, assistenza, amministrazione, nome.cognome.</p></div>
+   <div class="mf"><button class="btn" data-close>Annulla</button><button class="btn pri" id="ncOk">${ic("plus")}Crea casella</button></div>`);
+  setTimeout(()=>$("#ncN")?.focus(),60);
+  $("#ncOk").onclick=async()=>{ const b=$("#ncOk"); b.disabled=true; b.textContent="Creo…";
+    try{ const r=await pPost("plesk/crea",{nome:$("#ncN").value,mittente:$("#ncM").value}); await caricaCaselle(true); PO.c=r.id; PO.f="INBOX"; render();
+      mostraPassword(r.email,r.password,r.prova==="ok"?"Casella creata in Plesk e collegata alla Posta ✓":`Casella creata in Plesk. Collegamento alla Posta: ${esc(r.prova)} (riprova tra un minuto da Posta → Aggiorna).`); }
+    catch(e){ b.disabled=false; b.innerHTML=ic("plus")+"Crea casella"; toast(e.message); } };
+}
+function collegaCasella(nome,dom,soloPass){ const em=nome+"@"+dom;
+  openModal(`<div class="mh"><h2>${soloPass?"Password di ":"Collega "}${esc(em)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb">
+   <div class="seg big" id="ccM">${soloPass?"":`<button data-m="att" class="on">Ho la password attuale</button>`}<button data-m="nuova" class="${soloPass?"on":""}">Imposta una nuova password</button></div>
+   <div id="ccA" style="margin-top:12px;${soloPass?"display:none":""}"><label class="fl">Password attuale<input id="ccP" type="password" autocomplete="off"></label><p class="sub">Così non cambia niente per chi usa già la casella su telefono o PC.</p></div>
+   <div id="ccN" style="margin-top:12px;${soloPass?"":"display:none"}"><div class="banner">La password vecchia smette di funzionare: telefoni, PC e programmi che usano ${esc(em)} vanno aggiornati con quella nuova. L'app ne crea una sicura e te la mostra.</div></div>
+   <label class="fl" style="margin-top:10px">Nome mittente<input id="ccNo" value="Semi Store"></label></div>
+   <div class="mf"><button class="btn" data-close>Annulla</button><button class="btn pri" id="ccOk">${ic("check")}${soloPass?"Cambia password":"Collega"}</button></div>`);
+  let modo=soloPass?"nuova":"att";
+  $("#ccM").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ modo=b.dataset.m; $("#ccM").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); $("#ccA").style.display=modo==="att"?"":"none"; $("#ccN").style.display=modo==="nuova"?"":"none"; });
+  $("#ccOk").onclick=async()=>{ const b=$("#ccOk"); b.disabled=true; b.textContent="Un momento…";
+    try{ const r=await pPost("plesk/collega",{nome,password:modo==="att"?$("#ccP").value:"",nuovaPassword:modo==="nuova",mittente:$("#ccNo").value}); await caricaCaselle(true); PO.c=r.id||PO.c; render();
+      if(r.password) mostraPassword(r.email,r.password,"Password cambiata in Plesk e casella collegata alla Posta ✓"); else { toast("Collegata ✓"); gestisciCaselle(); } }
+    catch(e){ b.disabled=false; b.innerHTML=ic("check")+(soloPass?"Cambia password":"Collega"); toast(e.message); } };
 }
 function modCasella(c){ const n=!c.id;
   openModal(`<div class="mh"><h2>${n?"Aggiungi casella":esc(c.email)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="fs"><div class="f">
