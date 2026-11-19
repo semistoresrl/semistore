@@ -587,6 +587,17 @@ textarea.winp{min-height:110px;font-size:20px}
 .epos{min-width:38px;height:38px;border-radius:10px;background:#15171a;color:#f5b800;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none}
 .edes{flex:1;min-width:0}.edes b{display:block;font-size:16px}.edes small{font-size:13px;color:var(--muted)}
 .emag{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}.emag b{font-size:17px}.emag b.ok{color:#1fa855}.emag b.zero{color:var(--muted)}.emag small{font-size:12px}
+.mailb{text-decoration:none;color:var(--ink)}.mailb b{display:none;background:var(--bad);color:#fff;border-radius:10px;padding:0 7px;font-size:13px}.mailb.on b{display:inline}
+.pbox .chips{margin-bottom:10px;flex-wrap:wrap}.pfol .chip .i{width:15px;height:15px;vertical-align:-3px;margin-right:4px}.pn{background:var(--bad);color:#fff;border-radius:9px;padding:0 6px;font-size:12px;margin-left:4px}.pn.sp{background:var(--muted)}
+.plist{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.prow{display:grid;grid-template-columns:minmax(120px,220px) 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:#fff;padding:12px 14px;font:inherit;cursor:pointer;color:var(--ink)}
+.prow:hover{background:var(--paper)}.prow.nl{background:#fffbea}.prow.nl .pfrom,.prow.nl .psub{font-weight:800}
+.pfrom,.psub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.psub{color:#333}.pdate{font-size:12px;color:var(--muted);white-space:nowrap;display:flex;gap:4px;align-items:center}.pdate .i{width:14px;height:14px}
+@media (max-width:700px){.prow{grid-template-columns:1fr auto;grid-template-areas:"f d" "s s";row-gap:2px}.pfrom{grid-area:f}.pdate{grid-area:d}.psub{grid-area:s;font-size:14px}}
+.phead{border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px;display:flex;flex-direction:column;gap:3px}
+.pspam{display:flex;gap:10px;background:#fde4e1;color:#8a2a18;border-radius:12px;padding:12px;margin:8px 0}.pspam.warn{background:#fff3c4;color:#6a5000}.pspam .i{width:24px;height:24px;flex:none}.pspam span{font-size:13px}
+.patt{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.pframe{width:100%;min-height:300px;border:0;background:#fff}.ptxt{white-space:pre-wrap;font-family:inherit;font-size:15px;line-height:1.5;margin:0}
+.pact{flex-wrap:wrap;gap:8px}
 .adm-only{display:none!important}html.is-admin .adm-only{display:flex!important}
 .live{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:22px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;min-height:40px}
 .live .i{width:16px;height:16px;color:var(--ok)}.live b{font-size:15px}.live .lvd{color:var(--muted);border-left:1px solid var(--line);padding-left:8px}
@@ -623,6 +634,7 @@ textarea.winp{min-height:110px;font-size:20px}
     <div class="brand"><div class="mk"><svg viewBox="0 0 48 48" aria-hidden="true"><polygon points="24,2 43,13 43,35 24,46 5,35 5,13" fill="#f5b800"/><polygon points="24,9 37,16.5 37,31.5 24,39 11,31.5 11,16.5" fill="#15171a"/><text x="24" y="31" text-anchor="middle" font-family="Archivo,sans-serif" font-weight="800" font-size="20" fill="#f5b800">S</text></svg></div><div><b>SEMI STORE</b><small>Gestione interna</small></div><button class="xside" id="sideX" aria-label="Chiudi menu"><svg class="i"><use href="#i-x"/></svg></button></div>
     <nav id="nav">
 <div class="ng">In primo piano</div><a href="#cruscotto" data-v="cruscotto"><svg class="i"><use href="#i-home"/></svg><span>Home</span></a>
+<a href="#posta" data-v="posta" class="adm-only"><svg class="i"><use href="#i-send"/></svg><span>Posta</span><span class="ct" id="ctPosta">0</span></a>
 <a href="#lavorazioni" data-v="lavorazioni"><svg class="i"><use href="#i-wrench"/></svg><span>Lavorazioni</span><span class="ct" id="ctOpen">0</span></a>
 <a href="#ricambi" data-v="ricambi"><svg class="i"><use href="#i-search"/></svg><span>Cerca ricambio</span></a>
 <a href="#ordini" data-v="ordini"><svg class="i"><use href="#i-cart"/></svg><span>Ordini online</span><span class="ct" id="ctOrd">0</span></a>
@@ -850,7 +862,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -874,12 +886,12 @@ function render(){
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = !S.db ? `<div class="banner err">L'archivio condiviso non è ancora collegato. Apri la pagina da claude.ai con il tuo account per vedere e salvare i dati.</div>`:"";
-  const fns={consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   m.innerHTML = nodb + ro + fns[S.view](st);
   bindView();
   if(aid){ const n=document.getElementById(aid); if(n&&n.tagName==="INPUT"&&n.type==="search"){ n.focus(); try{n.setSelectionRange(pos,pos)}catch(e){} } }
 }
-const VICON={"consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={"posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -1520,9 +1532,9 @@ function openSyncGar(){
 /* ---------- binding ---------- */
 function bindView(){
   const m=$("#main");
-  const acts={nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
-  bindNuovo(); bindFacile(); bindSito(); bindRichieste();
+  bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
   m.querySelectorAll("[data-lay]").forEach(b=>b.onclick=()=>{S.layout=b.dataset.lay;render()});
   m.querySelectorAll("[data-car]").forEach(b=>b.onclick=()=>openCarico(itm(b.dataset.car)));
@@ -2464,7 +2476,7 @@ function sitoBarra(){
   tb.insertAdjacentHTML("beforebegin",`${isAdmin()?`<button class="live" id="tbLive" title="Persone sul sito">${ic("globe")}<span><b id="lvN">·</b> ora</span><span class="lvd"><b id="lvO">·</b> oggi</span></button>`:""}
     <button class="btn usr" id="tbUser" title="Esci">${esc((io.nome||"?").slice(0,1).toUpperCase())}<span>${esc(io.nome||"")}${isAdmin()?" · admin":""}</span></button>`);
   $("#tbUser").onclick=()=>{ openModal(`<div class="mh"><h2>${esc(io.nome)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><p>${esc(io.email)} · ${isAdmin()?"amministratore":"operatore"}</p><p class="sub">Resti collegato 30 giorni su questo telefono o computer.</p></div><div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn danger" id="uEsci">${ic("x")}Esci</button></div>`); $("#uEsci").onclick=window.SEMI.esci; };
-  if(isAdmin()){ liveTick(); setInterval(liveTick,30000); $("#tbLive").onclick=openLive; }
+  if(isAdmin()){ liveTick(); setInterval(liveTick,30000); $("#tbLive").onclick=openLive; try{ avviaPosta(); }catch(e){} }
 }
 async function liveTick(){ try{ const r=await window.SEMI.req("presenze"); $("#lvN").textContent=r.live; $("#lvO").textContent=r.visitatori; }catch(e){} }
 function openLive(){
@@ -2839,6 +2851,167 @@ function wizEsplosi(pre){
         :`<div class="wsub">Nessun ricambio trovato. <a href="${esc(sdParte(q))}" target="_blank" rel="noopener">Cerca “${esc(q)}” su DEWALT ↗</a></div>`; };
     $("#eQ").oninput=draw; draw(); });
   if(pre){ WZ.mod=String(pre).toUpperCase(); WZ.stack=[cerca]; wizStep(modello); } else wizStep(cerca);
+}
+
+/* =====================================================================
+   POSTA (solo amministratore, solo sul sito): caselle @semistore.it del server Plesk.
+   Le email restano sul server: tutto quello che si fa qui si vede anche in webmail.semistore.it.
+   ===================================================================== */
+const PO={caselle:null,c:null,f:"INBOX",cartelle:{},liste:{},cerca:"",prima:0,carico:false,nuove:{},timer:null};
+const pReq=(p)=>window.SEMI.req("posta/"+p), pPost=(p,b)=>window.SEMI.post("posta/"+p,b);
+const pUrl=(p,q)=>"/api/gestione/posta/"+p+"?"+new URLSearchParams(q);
+const USO_IC={arrivo:"down",inviati:"send",spam:"alert",cestino:"x",bozze:"clipboard",archivio:"folder"};
+const dataBreve=t=>{ if(!t) return ""; const d=new Date(t), o=new Date(); return d.toDateString()===o.toDateString()?d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):(o-d<6*864e5?d.toLocaleDateString("it-IT",{weekday:"short"})+" "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit",year:"2-digit"})); };
+const chi=a=>a?(a.nome||a.email):"—";
+const pChiave=()=>PO.c+"|"+PO.f+"|"+PO.cerca;
+
+async function caricaCaselle(conta){
+  try{ const r=await pReq("caselle"+(conta?"?conta=1":"")); const prima=PO.nuove;
+    PO.caselle=r.caselle; const n={}; r.caselle.forEach(c=>n[c.id]=c.nuove||0);
+    if(conta){ r.caselle.forEach(c=>{ if(prima[c.id]!==undefined&&(c.nuove||0)>prima[c.id]) toast(`📩 Nuova email in ${c.email}`); }); PO.nuove=n; postaBadge(); }
+    if(!PO.c&&r.caselle[0]) PO.c=r.caselle[0].id;
+  }catch(e){ PO.caselle=PO.caselle||[]; PO.err=e.message; }
+}
+function postaBadge(){ const t=Object.values(PO.nuove).reduce((a,b)=>a+b,0);
+  const b=$("#tbMail"); if(b){ b.querySelector("b").textContent=t||""; b.classList.toggle("on",t>0); }
+  const c=$("#ctPosta"); if(c){ c.textContent=t; c.toggleAttribute("data-z",!t); } }
+function avviaPosta(){ if(!isAdmin()||PO.timer) return;
+  if(!$("#tbMail")&&$("#tbUser")) $("#tbUser").insertAdjacentHTML("beforebegin",`<a class="live mailb" id="tbMail" href="#posta" title="Posta">${ic("send")}<b></b></a>`);
+  caricaCaselle(true).then(()=>{ if(S.view==="posta") render(); });
+  PO.timer=setInterval(async()=>{ if(document.visibilityState!=="visible") return; const prima=JSON.stringify(PO.nuove); await caricaCaselle(true);
+    if(S.view==="posta"&&JSON.stringify(PO.nuove)!==prima){ delete PO.liste[pChiave()]; caricaElenco(); caricaCartelle(true); } },60000); }
+
+async function caricaCartelle(forza){ if(!PO.c) return; if(PO.cartelle[PO.c]&&!forza) return;
+  try{ PO.cartelle[PO.c]=(await pReq("cartelle?c="+PO.c)).cartelle; }catch(e){ PO.cartelle[PO.c]=[]; PO.err=e.message; } if(S.view==="posta") render(); }
+async function caricaElenco(altre){ if(!PO.c) return; const k=pChiave(); PO.carico=true; if(!altre) render();
+  try{ const r=await pReq(`elenco?${new URLSearchParams({c:PO.c,f:PO.f,cerca:PO.cerca,prima:altre?(PO.liste[k]?.mess.length||0):0})}`);
+    PO.liste[k]=altre&&PO.liste[k]?{tot:r.tot,mess:[...PO.liste[k].mess,...r.mess]}:r; PO.err=""; }
+  catch(e){ PO.err=e.message; PO.liste[k]=PO.liste[k]||{tot:0,mess:[]}; }
+  PO.carico=false; if(S.view==="posta") render(); }
+
+function vPosta(){
+  if(!SUL_SITO) return header("Posta","")+`<div class="panel"><div class="empty">La posta si usa dall'app sul sito: semistore.it/gestione</div></div>`;
+  if(!isAdmin()) return header("Posta","Solo per l'amministratore");
+  if(PO.caselle===null){ caricaCaselle(false).then(()=>{ render(); }); return header("Posta","Carico le caselle…"); }
+  if(!PO.caselle.length) return header("Posta","Le email delle caselle @semistore.it dentro l'app")+`<div class="panel" style="max-width:640px"><h3>Collega la prima casella</h3>
+    <p>Le email restano sul server: le vedi qui e anche in <b>webmail.semistore.it</b>, e quello che fai qui (lette, spam, cestino, inviate) si vede anche lì.</p>
+    <p class="sub">Serve la password della casella una volta sola: resta salvata cifrata sul server e la vede solo l'app.</p>
+    <button class="btn pri" data-act="pCaselle">${ic("plus")}Aggiungi casella</button></div>`;
+  const cs=PO.cartelle[PO.c]; if(!cs) caricaCartelle();
+  const k=pChiave(), L=PO.liste[k]; if(!L&&!PO.carico) caricaElenco();
+  const cart=(cs||[]).find(x=>x.nome===PO.f)||{vista:PO.f==="INBOX"?"In arrivo":PO.f};
+  return header("Posta",`${esc(PO.caselle.find(c=>c.id===PO.c)?.email||"")} · ${esc(cart.vista)}`,`<button class="btn" data-act="pCaselle">${ic("cog")}Caselle</button><button class="btn" data-act="pAgg">${ic("swap")}Aggiorna</button><button class="btn pri" data-act="pScrivi">${ic("plus")}Scrivi</button>`)+
+  `<div class="pbox"><div class="chips pcas">${PO.caselle.map(c=>`<button class="chip ${c.id===PO.c?"on":""}" data-pc="${c.id}">${esc(c.nome||c.email)}${PO.nuove[c.id]?` <b class="pn">${PO.nuove[c.id]}</b>`:""}${c.errore?" ⚠️":""}</button>`).join("")}</div>
+   <div class="chips pfol">${(cs||[]).map(f=>`<button class="chip ${f.nome===PO.f?"on":""} ${f.uso==="spam"?"spam":""}" data-pf="${esc(f.nome)}">${ic(USO_IC[f.uso]||"folder")}${esc(f.vista)}${f.nuove?` <b class="pn">${f.nuove}</b>`:f.uso==="spam"&&f.tot?` <b class="pn sp">${f.tot}</b>`:""}</button>`).join("")||`<span class="sub">Carico le cartelle…</span>`}</div>
+   <div class="toolbar"><input type="search" id="pQ" placeholder="Cerca in ${esc(cart.vista)}: mittente, oggetto, testo…" value="${esc(PO.cerca)}"></div>
+   ${PO.err?`<div class="banner err">${esc(PO.err)}</div>`:""}
+   ${cart.uso==="spam"?`<div class="banner">Qui finiscono le email che il server considera spam. Aprile per vedere il punteggio; se una è buona tocca <b>“Non è spam”</b> e torna in arrivo.</div>`:""}
+   <div class="plist">${!L?`<div class="empty">Carico le email…</div>`:L.mess.length?L.mess.map(m=>`<button class="prow ${m.letto?"":"nl"}" data-pu="${m.uid}"><span class="pfrom">${esc(cart.uso==="inviati"?"A: "+(m.a||[]).map(chi).join(", "):chi(m.da))}</span><span class="psub">${m.stella?"⭐ ":""}${m.risposto?"↩︎ ":""}${esc(m.oggetto||"(senza oggetto)")}</span><span class="pdate">${m.allegati?ic("clipboard"):""}${dataBreve(m.data)}</span></button>`).join("")
+     +(L.mess.length<L.tot?`<button class="btn" data-act="pAltre" style="margin:10px auto;display:flex">${PO.carico?"Carico…":`Carica altre (${L.tot-L.mess.length})`}</button>`:""):`<div class="empty">${PO.cerca?"Nessuna email trovata":"Nessuna email"}</div>`}</div></div>`;
+}
+
+/* ---------- lettura ---------- */
+async function apriEmail(uid){
+  const c=PO.caselle.find(x=>x.id===PO.c), f=PO.f, cs=PO.cartelle[PO.c]||[], cart=cs.find(x=>x.nome===f)||{};
+  openModal(`<div class="mh"><h2>Carico…</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="empty">Apro l'email…</div></div>`);
+  let e; try{ e=await pReq(`leggi?${new URLSearchParams({c:PO.c,f,uid})}`); }catch(x){ $("#modal .mb").innerHTML=`<div class="banner err">${esc(x.message)}</div>`; return; }
+  const L=PO.liste[pChiave()]; const r=L&&L.mess.find(m=>m.uid===uid); if(r&&!r.letto){ r.letto=true; if(f==="INBOX"&&PO.nuove[PO.c]) PO.nuove[PO.c]--; const fx=cs.find(x=>x.nome===f); if(fx&&fx.nuove) fx.nuove--; postaBadge(); render(); }
+  const isSpam=cart.uso==="spam", sp=e.spam||{};
+  const ind=l=>(l||[]).map(a=>`${esc(a.nome||"")} <span class="sub">&lt;${esc(a.email)}&gt;</span>`).join(", ");
+  let html=e.html||""; Object.entries(e.cid||{}).forEach(([k,v])=>{ html=html.split("cid:"+k).join(v); });
+  const doc=img=>`<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data: ${img?"https: http:":""}; font-src data:"><base target="_blank"><style>body{font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#222;margin:0;padding:4px;word-wrap:break-word}img{max-width:100%;height:auto}table{max-width:100%}</style>${html}`;
+  const remote=/<img[^>]+src=["']?https?:/i.test(html);
+  $("#modal").innerHTML=`<div class="mh"><h2 style="font-size:19px">${esc(e.oggetto||"(senza oggetto)")}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb">
+   <div class="phead"><div><b>${esc(e.da?.nome||e.da?.email||"")}</b> <span class="sub">&lt;${esc(e.da?.email||"")}&gt;</span></div><div class="sub">${new Date(e.data||Date.now()).toLocaleString("it-IT")}</div>
+    <div class="sub">A: ${ind(e.a)}${e.cc?.length?`<br>Cc: ${ind(e.cc)}`:""}</div></div>
+   ${isSpam||sp.segnato||/fail/i.test(sp.spf||"")?`<div class="pspam ${isSpam||sp.segnato?"":"warn"}">${ic("alert")}<div><b>${isSpam?"È nella cartella Spam":sp.segnato?"Il server la segna come spam":"Controllo mittente non superato"}</b><br><span>${sp.punti?`Punteggio spam ${esc(sp.punti)} (oltre 5 = spam) · `:""}SPF ${esc(sp.spf||"—")} · DKIM ${esc(sp.dkim||"—")}${sp.dmarc?" · DMARC "+esc(sp.dmarc):""}</span><br><small>Non aprire link o allegati se non conosci il mittente.</small></div></div>`:""}
+   ${e.allegati?.length?`<div class="patt">${e.allegati.map(a=>`<a class="btn sm" href="${pUrl("allegato",{c:PO.c,f,uid,part:a.part})}" target="_blank" rel="noopener">${ic("clipboard")}${esc(a.nome)} <span class="sub">${a.dim>1e6?(a.dim/1e6).toFixed(1)+" MB":Math.max(1,Math.round(a.dim/1e3))+" KB"}</span></a>`).join("")}</div>`:""}
+   ${html?`${remote?`<div class="sub" id="pImgB" style="margin:6px 0">Immagini esterne bloccate per sicurezza. <button class="btn sm" id="pImg">Mostra immagini</button></div>`:""}<iframe class="pframe" id="pFr" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin" referrerpolicy="no-referrer"></iframe>`:`<pre class="ptxt">${esc(e.testo||"")}</pre>`}
+  </div>
+  <div class="mf pact"><button class="btn" id="pRe">${ic("return")}Rispondi</button>${(e.a?.length||0)+(e.cc?.length||0)>1?`<button class="btn" id="pRa">Rispondi a tutti</button>`:""}<button class="btn" id="pFw">${ic("send")}Inoltra</button>
+   <span class="sp" style="flex:1"></span>
+   ${isSpam?`<button class="btn ok" id="pNs">${ic("check")}Non è spam</button><button class="btn danger" id="pDel">Elimina</button>`:`<button class="btn" id="pSp">${ic("alert")}È spam</button>`}
+   ${cart.uso==="cestino"?(isSpam?"":`<button class="btn danger" id="pDel">Elimina per sempre</button>`):`<button class="btn" id="pTr">${ic("x")}Cestino</button>`}
+   <button class="btn ghost" id="pNl">Segna non letta</button><select id="pMv" class="btn"><option value="">Sposta in…</option>${cs.filter(x=>x.nome!==f).map(x=>`<option value="${esc(x.nome)}">${esc(x.vista)}</option>`).join("")}</select>
+   <a class="btn ghost" href="${pUrl("originale",{c:PO.c,f,uid})}">Originale</a></div>`;
+  $("#modal").querySelectorAll("[data-close]").forEach(b=>b.onclick=closeModal);
+  const fr=$("#pFr"); if(fr){ fr.srcdoc=doc(false); fr.onload=()=>{ try{ fr.style.height=Math.min(4000,fr.contentDocument.body.scrollHeight+30)+"px"; }catch(x){} }; const ib=$("#pImg"); if(ib) ib.onclick=()=>{ fr.srcdoc=doc(true); $("#pImgB").remove(); }; }
+  const azione=async(op,verso,msg)=>{ try{ await pPost("azione",{c:PO.c,f,uid,op,verso}); toast(msg); closeModal(); const L2=PO.liste[pChiave()]; if(L2&&!["letto","nonletto","stella","nostella"].includes(op)){ L2.mess=L2.mess.filter(m=>m.uid!==uid); L2.tot--; } if(op==="nonletto"&&r){ r.letto=false; } caricaCartelle(true); caricaCaselle(true); render(); }catch(x){ toast(x.message); } };
+  const g=id=>$("#"+id);
+  if(g("pSp")) g("pSp").onclick=()=>azione("spam",null,"Spostata in Spam");
+  if(g("pNs")) g("pNs").onclick=()=>azione("nonspam",null,"Tornata in arrivo");
+  if(g("pTr")) g("pTr").onclick=()=>azione("cestino",null,"Nel cestino");
+  if(g("pDel")) g("pDel").onclick=()=>{ const b=g("pDel"); if(b.dataset.sure!=="1"){ b.dataset.sure="1"; b.textContent="Sicuro? Tocca di nuovo"; return; } azione("elimina",null,"Eliminata"); };
+  g("pNl").onclick=()=>azione("nonletto",null,"Segnata da leggere");
+  g("pMv").onchange=()=>{ const v=g("pMv").value; if(v) azione("sposta",v,"Spostata"); };
+  const testoPiano=()=>e.testo||String(e.html||"").replace(/<style[\s\S]*?<\/style>/gi,"").replace(/<br\s*\/?>/gi,"\n").replace(/<\/(p|div|tr|h\d)>/gi,"\n").replace(/<[^>]+>/g,"").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/\n{3,}/g,"\n\n").trim();
+  const intest=`Il ${new Date(e.data||Date.now()).toLocaleString("it-IT")}, ${chi(e.da)} <${e.da?.email||""}> ha scritto:`;
+  const reOgg=s=>/^re:/i.test(s||"")?s:"Re: "+(s||"");
+  g("pRe").onclick=()=>scriviEmail({a:[e.rispondiA||e.da].filter(Boolean).map(x=>x.email).join(", "),oggetto:reOgg(e.oggetto),citazione:intest+"\n"+testoPiano(),rispondi:{f,uid,messageId:e.messageId,riferimenti:e.riferimenti}});
+  if(g("pRa")) g("pRa").onclick=()=>{ const me=(PO.caselle.find(x=>x.id===PO.c)||{}).email; const tutti=[e.rispondiA||e.da,...(e.a||[])].filter(x=>x&&x.email!==me).map(x=>x.email); scriviEmail({a:[...new Set(tutti)].join(", "),cc:(e.cc||[]).filter(x=>x.email!==me).map(x=>x.email).join(", "),oggetto:reOgg(e.oggetto),citazione:intest+"\n"+testoPiano(),rispondi:{f,uid,messageId:e.messageId,riferimenti:e.riferimenti}}); };
+  g("pFw").onclick=()=>scriviEmail({oggetto:(/^(fwd?|i):/i.test(e.oggetto||"")?"":"I: ")+(e.oggetto||""),testo:`\n\n---------- Messaggio inoltrato ----------\nDa: ${chi(e.da)} <${e.da?.email||""}>\nData: ${new Date(e.data||Date.now()).toLocaleString("it-IT")}\nOggetto: ${e.oggetto||""}\nA: ${(e.a||[]).map(x=>x.email).join(", ")}\n\n${testoPiano()}`,
+    allegatiDa:(e.allegati||[]).map(a=>({nome:a.nome,tipo:a.tipo,url:pUrl("allegato",{c:PO.c,f,uid,part:a.part})}))});
+}
+
+/* ---------- scrivi ---------- */
+async function scriviEmail(o={}){
+  const allegati=[]; const cas=PO.caselle||[];
+  openModal(`<div class="mh"><h2>${o.rispondi?"Rispondi":o.allegatiDa?"Inoltra":"Nuova email"}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><div class="fs"><div class="f">
+   <label class="fl" style="grid-column:span 2">Da<select id="wDa">${cas.map(c=>`<option value="${c.id}" ${c.id===PO.c?"selected":""}>${esc(c.nome)} &lt;${esc(c.email)}&gt;</option>`).join("")}</select></label>
+   <label class="fl" style="grid-column:span 2">A<input id="wA" type="email" multiple value="${esc(o.a||"")}" placeholder="cliente@email.it (più indirizzi separati da virgola)"></label>
+   <label class="fl" style="grid-column:span 2">Cc<input id="wCc" value="${esc(o.cc||"")}"></label>
+   <label class="fl" style="grid-column:span 2">Oggetto<input id="wOg" value="${esc(o.oggetto||"")}"></label>
+   <label class="fl" style="grid-column:span 2">Testo<textarea id="wTx" rows="10">${esc(o.testo||"")}</textarea></label></div>
+   ${o.citazione?`<details class="sub"><summary>Testo originale (va in fondo alla risposta)</summary><pre class="ptxt" style="max-height:200px;overflow:auto">${esc(o.citazione)}</pre></details>`:""}
+   <div style="margin-top:10px"><label class="btn sm">${ic("plus")}Allega file<input type="file" id="wFi" multiple style="display:none"></label> <span id="wAl" class="patt"></span></div>
+   <p class="sub">La firma della casella viene aggiunta in fondo. La copia resta in “Inviati”, anche su webmail.</p></div></div>
+  <div class="mf"><button class="btn" data-close>Annulla</button><button class="btn pri" id="wGo">${ic("send")}Invia</button></div>`);
+  const draw=()=>{ $("#wAl").innerHTML=allegati.map((a,i)=>`<span class="chip on">${esc(a.nome)} <button data-ra="${i}" style="border:0;background:none;cursor:pointer">×</button></span>`).join(""); $("#wAl").querySelectorAll("[data-ra]").forEach(b=>b.onclick=()=>{ allegati.splice(b.dataset.ra,1); draw(); }); };
+  const aB64=b=>new Promise(ok=>{ const fr=new FileReader(); fr.onload=()=>ok(String(fr.result).split(",")[1]); fr.readAsDataURL(b); });
+  for(const a of (o.allegatiDa||[])){ try{ const b=await (await fetch(a.url,{credentials:"same-origin"})).blob(); allegati.push({nome:a.nome,tipo:a.tipo||b.type,b64:await aB64(b),dim:b.size}); }catch(e){} } draw();
+  $("#wFi").onchange=async()=>{ for(const f of $("#wFi").files){ if(allegati.reduce((s,x)=>s+x.dim,0)+f.size>15e6){ toast("Massimo 15 MB di allegati"); break; } allegati.push({nome:f.name,tipo:f.type||"application/octet-stream",b64:await aB64(f),dim:f.size}); } $("#wFi").value=""; draw(); };
+  if(!o.a) setTimeout(()=>$("#wA")?.focus(),80); else setTimeout(()=>{ const t=$("#wTx"); if(t){ t.focus(); t.setSelectionRange(0,0); } },80);
+  $("#wGo").onclick=async()=>{ const b=$("#wGo"); if(!$("#wA").value.trim()){ toast("Scrivi il destinatario"); return; } if(!$("#wOg").value.trim()&&b.dataset.sure!=="1"){ b.dataset.sure="1"; b.innerHTML="Senza oggetto? Tocca di nuovo"; return; }
+    b.disabled=true; b.innerHTML="Invio…";
+    try{ const c=$("#wDa").value; const r=await pPost("invia",{c,a:$("#wA").value,cc:$("#wCc").value,oggetto:$("#wOg").value,testo:$("#wTx").value,citazione:o.citazione||"",rispondi:o.rispondi&&c===PO.c?o.rispondi:null,allegati:allegati.map(({nome,tipo,b64})=>({nome,tipo,b64}))});
+      toast("Inviata ✓ "+(r.copia||"")); closeModal(); Object.keys(PO.liste).forEach(k=>{ if(k.startsWith(c+"|")) delete PO.liste[k]; }); caricaCartelle(true); render(); }
+    catch(e){ b.disabled=false; b.innerHTML=ic("send")+"Invia"; toast("Non inviata: "+e.message); } };
+}
+
+/* ---------- caselle ---------- */
+function gestisciCaselle(sel){
+  const cs=PO.caselle||[]; if(!cs.length) return modCasella({});
+  openModal(`<div class="mh"><h2>Caselle email</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb">
+   <table><tbody>${cs.map(x=>`<tr><td><b>${esc(x.nome)}</b><div class="sub">${esc(x.email)} · ${esc(x.host)}:${x.porta}</div>${x.errore?`<div class="low">${esc(x.errore)}</div>`:""}</td><td class="num"><button class="btn sm" data-mc="${x.id}">Modifica</button></td></tr>`).join("")}</tbody></table>
+   <p class="sub">Per una casella nuova creata in Plesk: tocca “Aggiungi casella” e scrivi email e password. Da quel momento arriva anche qui.</p></div>
+   <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="mcN">${ic("plus")}Aggiungi casella</button></div>`);
+  $("#modal").querySelectorAll("[data-mc]").forEach(b=>b.onclick=()=>modCasella(cs.find(x=>x.id===b.dataset.mc)));
+  $("#mcN").onclick=()=>modCasella({});
+}
+function modCasella(c){ const n=!c.id;
+  openModal(`<div class="mh"><h2>${n?"Aggiungi casella":esc(c.email)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="fs"><div class="f">
+   <label class="fl">Email<input id="mcE" type="email" value="${esc(c.email||"")}" placeholder="info@semistore.it"></label>
+   <label class="fl">Nome mittente<input id="mcNo" value="${esc(c.nome||"Semi Store")}"></label>
+   <label class="fl" style="grid-column:span 2">Password della casella${n?"":" (lascia vuoto per non cambiarla)"}<input id="mcP" type="password" autocomplete="new-password"></label>
+   <label class="fl">Server posta (IMAP)<input id="mcH" value="${esc(c.host||"mail.semistore.it")}"></label><label class="fl">Porta<input id="mcPo" type="number" value="${c.porta||993}"></label>
+   <label class="fl">Server invio (SMTP)<input id="mcSh" value="${esc(c.shost||"")}" placeholder="uguale al server posta"></label><label class="fl">Porta invio<input id="mcSp" type="number" value="${c.sporta||465}"></label>
+   <label class="fl" style="grid-column:span 2">Firma<textarea id="mcF" rows="3" placeholder="Semi Store · SE.M.I. S.R.L.&#10;Viale G. Marconi 225, Casavatore (NA) · 081 553 6604">${esc(c.firma||"")}</textarea></label></div></div>
+   <p class="sub">I dati del server li trovi in Plesk → Posta → la casella → “Impostazioni client di posta” (di solito mail.semistore.it, 993 e 465). L'app prova a entrare prima di salvare. La password resta cifrata sul server.</p></div>
+   <div class="mf">${n?"":`<button class="btn danger" id="mcX">Togli dall'app</button>`}<span class="sp" style="flex:1"></span><button class="btn" data-close>Annulla</button><button class="btn pri" id="mcOk">${ic("check")}Prova e salva</button></div>`);
+  $("#mcOk").onclick=async()=>{ const b=$("#mcOk"); b.disabled=true; b.textContent="Provo ad entrare…";
+    try{ const r=await pPost("caselle",{id:c.id,email:$("#mcE").value,nome:$("#mcNo").value,password:$("#mcP").value,host:$("#mcH").value,porta:$("#mcPo").value,shost:$("#mcSh").value,sporta:$("#mcSp").value,firma:$("#mcF").value});
+      toast("Casella collegata ✓"); PO.c=r.id; PO.f="INBOX"; closeModal(); await caricaCaselle(true); delete PO.cartelle[r.id]; render(); }
+    catch(e){ b.disabled=false; b.innerHTML=ic("check")+"Prova e salva"; toast(e.message); } };
+  const x=$("#mcX"); if(x) x.onclick=async()=>{ if(x.dataset.sure!=="1"){ x.dataset.sure="1"; x.textContent="Sicuro? Le email restano sul server"; return; } await pPost("caselle",{azione:"elimina",id:c.id}); toast("Tolta dall'app"); if(PO.c===c.id) PO.c=null; closeModal(); await caricaCaselle(true); render(); };
+}
+function bindPosta(){ const m=$("#main");
+  m.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ PO.c=b.dataset.pc; PO.f="INBOX"; PO.cerca=""; render(); });
+  m.querySelectorAll("[data-pf]").forEach(b=>b.onclick=()=>{ PO.f=b.dataset.pf; PO.cerca=""; render(); });
+  m.querySelectorAll("[data-pu]").forEach(b=>b.onclick=()=>apriEmail(Number(b.dataset.pu)));
+  const q=$("#pQ"); if(q) q.onkeydown=e=>{ if(e.key==="Enter"){ PO.cerca=q.value.trim(); render(); } };
+  if(q) q.onsearch=()=>{ PO.cerca=q.value.trim(); render(); };
 }
 
 /* =====================================================================
