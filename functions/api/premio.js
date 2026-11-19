@@ -1,4 +1,4 @@
-// Premio del minigioco "Trapano Slalom": chi completa il livello 5 si registra con l'email e riceve un codice sconto del 10%, valido una volta.
+// Premio del minigioco "Trapano Slalom": chi completa il livello 5, OPPURE chi ha giocato 5 partite (anche perse), si registra con l'email e riceve un codice sconto del 10%, valido una volta.
 // POST {fase:'inizio'}                                        -> biglietto firmato quando parte l'ultimo livello
 // POST {fase:'fine', biglietto, email, privacy, offerte}      -> registra l'email e invia il codice (uno per email)
 // GET  ?codice=GIOCO-XXXXXXX                                  -> il carrello controlla se il codice è valido
@@ -61,7 +61,9 @@ export async function onRequestPost({ request, env }) {
 
   if (b.fase === 'inizio') {
     const ts = String(Date.now()), n = hex(crypto.getRandomValues(new Uint8Array(6)));
-    return json({ biglietto: `${ts}.${n}.${await firma(segreto, ts + '.' + n)}` });
+    // tipo "t": premio dopo 5 tentativi (partita anche breve); tipo "v": vittoria del livello 5
+    const k = b.tipo === 'tentativi' ? 't' : 'v';
+    return json({ biglietto: `${ts}.${n}.${await firma(segreto, ts + '.' + n + '.' + k)}.${k}` });
   }
 
   if (b.fase === 'fine') {
@@ -69,10 +71,11 @@ export async function onRequestPost({ request, env }) {
     if (!EMAIL_OK.test(email) || email.length > 120) return json({ error: 'Inserisci un indirizzo email valido.' }, 400);
     if (b.privacy !== true) return json({ error: 'Per ricevere il codice devi accettare l\'informativa privacy.' }, 400);
 
-    const [ts, n, f] = String(b.biglietto || '').split('.');
-    if (!ts || !n || !f || f !== (await firma(segreto, ts + '.' + n))) return json({ error: 'Partita non valida: rigioca l\'ultimo livello.' }, 400);
+    const [ts, n, f, k] = String(b.biglietto || '').split('.');
+    const atteso = k ? await firma(segreto, ts + '.' + n + '.' + k) : await firma(segreto, ts + '.' + n);
+    if (!ts || !n || !f || f !== atteso) return json({ error: 'Partita non valida: gioca un\'altra partita.' }, 400);
     const sec = (Date.now() - Number(ts)) / 1000;
-    if (!(sec >= MIN_S && sec <= MAX_S)) return json({ error: 'Partita non valida o scaduta: rigioca l\'ultimo livello.' }, 400);
+    if (!(sec >= (k === 't' ? 3 : MIN_S) && sec <= MAX_S)) return json({ error: 'Partita non valida o scaduta: rigioca l\'ultimo livello.' }, 400);
     if (await env.RICHIESTE.get('premio-b:' + n)) return json({ error: 'Il premio di questa partita è già stato ritirato.' }, 409);
 
     // un premio per email: se l'ha già vinto e non l'ha usato, gli rimandiamo lo stesso codice
