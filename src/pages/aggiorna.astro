@@ -84,7 +84,7 @@
       try { localStorage.setItem('semi-admin', tok); } catch {}
       $('#tokBox').hidden = true;
       msg(`✅ <b>Fatto: ${tot.salvati} articoli aggiornati.</b><br>` +
-        (rico === 'avviata' ? 'Il sito si aggiorna da solo in 2–3 minuti.' : `Sito: ${rico === 'manca DEPLOY_HOOK_URL' ? 'manca il collegamento per la ricostruzione automatica (DEPLOY_HOOK_URL)' : rico}.`) +
+        (rico === 'avviata' ? 'Il sito si aggiorna da solo in circa 10 minuti.' : `Sito: ${rico === 'manca DEPLOY_HOOK_URL' ? 'manca il collegamento per la ricostruzione automatica (DEPLOY_HOOK_URL)' : rico}.`) +
         (tot.nonSulSito.length ? `<br><small>${tot.nonSulSito.length} articoli non sono sul sito: salvati per TikTok.</small>` : '') +
         (tot.scartati.length ? `<br><small>Scartati: ${tot.scartati.slice(0, 20).join(', ')}</small>` : '') +
         '<br><span id="tt">TikTok Shop: in aggiornamento…</span>', true);
