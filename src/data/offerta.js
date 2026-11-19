@@ -6,7 +6,7 @@
 // Con "inizio" compilato, prima dell'apertura copertina e barra mostrano "Aprono tra …" e all'ora giusta passano da sole a "attiva ora".
 // Per una nuova offerta basta cambiare "inizio" e "scade" (ed eventualmente i testi). Per spegnerla a mano: attiva:false.
 export const OFFERTA = {
-  attiva: true,
+  attiva: false, // spenta il 19/11/2026 a fine Flash Offer
   url: 'https://semi.flashoffer.it/',
   titolo: 'Flash Offer',
   sottotitolo: 'Oltre 800 prodotti con sconti fino al 60%. Approfittane, è solo per tre giorni!',
