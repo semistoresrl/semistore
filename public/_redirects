@@ -5,3 +5,4 @@
 /search/*        /catalogo/      301
 /index.php       /               301
 /prodotti/dewalt-tassellatore-sds-plus-800w-d25133k/  /prodotti/dewalt-tassellatore-in-linea-sds-800w-26mm-d25133k/  301
+/sitemap.xml /sitemap-index.xml 301
