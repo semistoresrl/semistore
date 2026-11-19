@@ -95,7 +95,13 @@ import { SITO } from '../data/sito.js';
   }
   el('cod-b').addEventListener('click', () => applica(codI.value));
   codI.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applica(codI.value); } });
-  try { const g = JSON.parse(localStorage.getItem('semi-gioco-v1') || 'null'); if (g?.codice) { codI.value = g.codice; applica(g.codice, true); } } catch {}
+  // 1) link "Riscatta lo sconto" dall'email: /carrello/?codice=GIOCO-XXXXXXX  2) codice vinto su questo dispositivo
+  const daLink = (new URL(location.href).searchParams.get('codice') || '').trim().toUpperCase();
+  if (/^GIOCO-[A-Z0-9]{7}$/.test(daLink)) { codI.value = daLink; applica(daLink); history.replaceState(null, '', location.pathname); }
+  else try {
+    const g = JSON.parse(localStorage.getItem('semi-gioco-v2') || localStorage.getItem('semi-gioco-v1') || 'null');
+    if (g?.codice) { codI.value = g.codice; applica(g.codice, true); }
+  } catch {}
   if (new URL(location.href).searchParams.get('svuota')) clear();
   el('righe').innerHTML = '<p style="padding:20px;margin:0">Caricamento…</p>';
   indice().then((l: any[]) => { M = Object.fromEntries(l.map((x) => [x.s, x])); render(); }).catch(() => { el('righe').innerHTML = '<p style="padding:20px;margin:0">Non riusciamo a caricare il carrello: ricarica la pagina.</p>'; });

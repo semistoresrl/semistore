@@ -39,17 +39,18 @@ async function inviaEmail(env, email, codice, scade, origin) {
     <div style="background:#f4f3ef;padding:24px;border-radius:0 0 14px 14px;text-align:center">
       <p style="margin:0 0 14px">Grazie per aver giocato a Trapano Slalom! Ecco il tuo codice sconto del mese:</p>
       <div style="display:inline-block;background:#f5b800;padding:14px 22px;border-radius:10px;font:700 24px monospace;letter-spacing:2px">${codice}</div>
-      <p style="margin:16px 0 6px">Inseriscilo nel carrello alla voce <b>"Hai un codice sconto?"</b>. Vale una volta, sui prodotti, fino al ${data}.</p>
-      <p style="margin:0 0 18px;font-size:13px;color:#5c5f65">Al pagamento usa questa stessa email.</p>
-      <a href="${origin}/catalogo/" style="display:inline-block;background:#15171a;color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:8px">Vai al catalogo</a>
-      <p style="margin:22px 0 0;font-size:12px;color:#5c5f65">${SITO.nome} · ${SITO.indirizzo}, ${SITO.citta} · ${SITO.telefono}</p>
+      <p style="margin:16px 0 18px">Vale una volta, sui prodotti, fino al ${data}. Lo sconto è legato al tuo account Semi Store, cioè a questa email: al pagamento usa la stessa.</p>
+      <a href="${origin}/carrello/?codice=${codice}" style="display:inline-block;background:#f5b800;color:#15171a;text-decoration:none;font-weight:900;font-size:17px;padding:14px 26px;border-radius:10px">Riscatta lo sconto</a>
+      <p style="margin:12px 0 0;font-size:13px;color:#5c5f65">Il pulsante apre il carrello con lo sconto già applicato. Poi scegli i prodotti dal <a href="${origin}/catalogo/" style="color:#15171a">catalogo</a>.</p>
+      <p style="margin:22px 0 6px;font-size:12px;color:#5c5f65">Email automatica: non rispondere a questo messaggio. Per assistenza scrivi su WhatsApp o a info@semistore.it.</p>
+      <p style="margin:0;font-size:12px;color:#5c5f65">${SITO.nome} · ${SITO.indirizzo}, ${SITO.citta} · ${SITO.telefono}</p>
     </div></div>`;
-  const testo = `Hai vinto il ${SCONTO}% di sconto!\n\nIl tuo codice: ${codice}\nInseriscilo nel carrello alla voce "Hai un codice sconto?". Vale una volta, sui prodotti, fino al ${data}.\nAl pagamento usa questa stessa email.\n\n${origin}/catalogo/`;
+  const testo = `Hai vinto il ${SCONTO}% di sconto!\n\nIl tuo codice: ${codice}\nVale una volta, sui prodotti, fino al ${data}. Lo sconto è legato al tuo account Semi Store (questa email): al pagamento usa la stessa.\n\nRiscatta lo sconto: ${origin}/carrello/?codice=${codice}\n\nEmail automatica: non rispondere. Per assistenza: WhatsApp o info@semistore.it`;
   try {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ from: env.EMAIL_FROM_SCONTI || 'Semi Store Sconti <sconti@semistore.it>', reply_to: (env.EMAIL_TO || 'info@semistore.it').split(',')[0], to: [email], subject: `Il tuo codice sconto del ${SCONTO}% · Semi Store`, html, text: testo }),
+      body: JSON.stringify({ from: env.EMAIL_FROM_SCONTI || 'Semi Store Sconti <sconti@semistore.it>', to: [email], subject: `Il tuo codice sconto del ${SCONTO}% · Semi Store`, html, text: testo }),
     });
     if (!r.ok) console.error('Resend', await r.text());
     return r.ok;
