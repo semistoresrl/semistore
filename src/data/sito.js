@@ -11,7 +11,7 @@ export const SITO = {
   sedeLegale: 'Centro Direzionale Isola E7, 80143 Napoli (NA)',
   rea: 'NA-583904',
   pec: 'semi@pec.it',
-  capitaleSociale: '', // es. '10.000,00 € i.v.' — da inserire quando il cliente lo conferma (art. 2250 c.c.)
+  capitaleSociale: '€ 49.000,00 i.v.', // da visura camerale: deliberato, sottoscritto e versato (art. 2250 c.c.)
   indirizzo: 'Viale G. Marconi 225',
   cap: '80020',
   citta: 'Casavatore',
