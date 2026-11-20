@@ -792,8 +792,8 @@ async function init(){
   const err = e => { setConn("err","Errore archivio: "+(e?.code||"")); };
   db.collection("tickets").onSnapshot(s=>{S.tickets=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("t");},err);
   db.collection("mag").onSnapshot(s=>{
-    const m=new Map(), ch=new Set();
-    s.docs.forEach(d=>{ ch.add(d.id); const it=d.data()?.items||{}; for(const k in it){ const r=it[k]; if(r&&r.codice) m.set(String(r.codice).toUpperCase(),{...r}); } });
+    const m=new Map(), ch=new Set(), dove=new Map();
+    s.docs.forEach(d=>{ ch.add(d.id); const it=d.data()?.items||{}; for(const k in it){ const r=it[k]; if(r&&r.codice){ const c=String(r.codice).toUpperCase(); m.set(c,{...r}); dove.set(c,[d.id,k]); } } }); S.magDove=dove;
     const em={}; for(const r of m.values()){ if(r.ean) String(r.ean).split(/[ ,;]+/).forEach(e=>{ if(e) em[e]=r.codice; }); }
     S.mag=m; S.magChunks=ch; S.eanMag=em; s.metadata.fromCache?schedule():done("r");
   },err);
@@ -1421,7 +1421,7 @@ function vImpostazioni(){
   </div>
   <div class="fs" style="max-width:640px"><span class="lg">Inventario</span>
    <p style="margin:0 0 10px">${nf(S.mag.size)} articoli in archivio. ${S.cfg.inventarioAt?"Inventario iniziale caricato il "+fmtD(S.cfg.inventarioAt)+".":""} Ultimo aggiornamento da Excel: ${S.cfg.excelAt?fmtDT(S.cfg.excelAt):"mai"}.</p>
-   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="import">⇪ Aggiorna da Excel del gestionale</button><button class="btn" data-act="impSbd">⇪ Carica listino e costi SBD</button></div>
+   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="import">⇪ Aggiorna da Excel del gestionale</button><button class="btn" data-act="impSbd">⇪ Carica listino e costi SBD</button><button class="btn danger adm-only" data-act="azzera">Azzera tutte le giacenze (nuovo inventario)</button></div>
   </div>`;
 }
 
@@ -1814,7 +1814,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -2051,6 +2051,35 @@ async function openControllo(){
   R.sort((a,b)=>ord[a.st]-ord[b.st]);
   $("#ckB").innerHTML=`<p class="sub" style="margin-top:0">${R.filter(r=>r.st==="bad").length} da sistemare subito · ${R.filter(r=>r.st==="warn").length} da controllare · ${R.filter(r=>r.st==="ok").length} a posto</p>`+R.map(r=>`<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)"><span style="font-size:20px">${ico[r.st]}</span><div><b>${esc(r.t)}</b><div class="sub">${esc(r.d)}</div></div></div>`).join("");
   $("#ckCsv").onclick=()=>{ const t=csv.map(r=>r.map(csvCell).join(";")).join("\n"); const b=new Blob(["\ufeff"+t],{type:"text/csv;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="controllo-dati-"+new Date().toISOString().slice(0,10)+".csv"; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),1000); };
+}
+
+/* ---------- NUOVO INVENTARIO DA ZERO (20/11): tutte le giacenze a 0, copia di sicurezza ---------- */
+function openAzzera(){
+  const I=[...S.mag.values()], conG=I.filter(r=>(Number(r.giacenza)||0)!==0), pezzi=conG.reduce((a,r)=>a+(Number(r.giacenza)||0),0);
+  openModal(`<div class="mh"><h2>Nuovo inventario da zero</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><div class="banner err" style="margin-top:0"><b>Tutte le giacenze del magazzino diventano 0.</b> Oggi ci sono ${nf(conG.length)} articoli con giacenza (${nf(pezzi)} pezzi).</div>
+   <ul style="line-height:1.6;padding-left:18px">
+    <li>Prima di azzerare l'app salva una <b>copia di sicurezza</b> delle quantità di adesso: si possono rimettere con un tasto.</li>
+    <li>I ${nf(conG.length)} articoli che avevano una giacenza finiscono in <b>Da inventariare</b>: si ricontano con “Conto la merce” o col codice a barre.</li>
+    <li>Prezzi, costi, codici a barre, schede e ordini non vengono toccati.</li>
+    <li>Sito e TikTok non vengono aggiornati da soli: le nuove quantità partono quando premi “Aggiorna sito e negozi” a conta finita.</li></ul>
+   <label class="fl">Per confermare scrivi AZZERA<input id="azT" autocomplete="off" style="text-transform:uppercase"></label>
+   <div class="prog" id="azProg" style="display:none;margin-top:10px"><i></i></div></div>
+  <div class="mf">${S.cfg.backupGiacAt?`<button class="btn" id="azBack" style="margin-right:auto">Rimetti le quantità del ${fmtDT(S.cfg.backupGiacAt)}</button>`:""}<button class="btn" data-close>Annulla</button><button class="btn danger" id="azOk" disabled>Azzera tutto</button></div>`);
+  $("#azT").oninput=()=>{ $("#azOk").disabled=$("#azT").value.trim().toUpperCase()!=="AZZERA"; };
+  $("#azOk").onclick=async()=>{ const b=$("#azOk"); b.disabled=true; $("#azProg").style.display="block"; const now=Date.now();
+    const copia={}; I.forEach(r=>{ if((Number(r.giacenza)||0)!==0||r.verificare) copia[keyOf(r.codice)]={c:r.codice,g:Number(r.giacenza)||0,v:!!r.verificare,gg:r.giacGest??null}; });
+    const by={}; let n=0;
+    I.forEach(r=>{ const prima=Number(r.giacenza)||0; if(prima===0&&!r.verificare) return; const [ch,k]=(S.magDove&&S.magDove.get(String(r.codice).toUpperCase()))||[chunkOf(r.codice),keyOf(r.codice)]; (by[ch]=by[ch]||{})[k]={giacenza:0,verificare:true,giacGest:prima,azzeratoAt:now}; n++; });
+    const ok=await write(async()=>{ await S.db.doc("backup/giacenze").set({at:now,by:S.me||null,items:copia});
+      await writeChunks(by,(a,t)=>{ $("#azProg i").style.width=(a/t*100)+"%"; b.textContent=`Azzero ${a}/${t}…`; });
+      await S.db.doc("config/impostazioni").set({...S.cfg,inventarioDa:now,backupGiacAt:now});
+      await S.db.collection("movimenti").add({at:now,codice:"*",descr:"Tutte le giacenze azzerate per nuovo inventario",tipo:"",qty:0,causale:"inventario",rif:`${n} articoli`,by:S.me||null,costo:0}); },`Giacenze azzerate: ${nf(n)} articoli da ricontare`);
+    if(ok) closeModal(); else { b.disabled=false; b.textContent="Azzera tutto"; } };
+  const bk=$("#azBack"); if(bk) bk.onclick=async()=>{ bk.disabled=true; let d=null; try{ d=(await S.db.doc("backup/giacenze").get()).data(); }catch(e){}
+    if(!d||!d.items){ toast("Copia di sicurezza non trovata"); bk.disabled=false; return; }
+    const by={}; let n=0; for(const k in d.items){ const x=d.items[k], cur=itm(x.c); if(!cur) continue; const [ch,kk]=(S.magDove&&S.magDove.get(String(x.c).toUpperCase()))||[chunkOf(x.c),keyOf(x.c)]; (by[ch]=by[ch]||{})[kk]={giacenza:x.g,verificare:x.v,giacGest:x.gg}; n++; }
+    const ok=await write(()=>writeChunks(by,(a,t)=>{ bk.textContent=`Rimetto ${a}/${t}…`; }),`Rimesse le quantità di ${nf(n)} articoli`); if(ok) closeModal(); else bk.disabled=false; };
 }
 
 /* ---------- modal ---------- */
@@ -2882,7 +2911,7 @@ function bindNuovo(){
 const SUL_SITO=!!window.SEMI;
 const isAdmin=()=>SUL_SITO&&window.SEMI.io?.ruolo==="admin";
 const puoPrezzi=()=>!SUL_SITO||isAdmin(); // gli operatori non cambiano i prezzi (controllato anche dal server)
-const NOMI_COL={tickets:"Scheda",mag:"Magazzino",movimenti:"Movimento",richieste:"Richiesta dal sito",ordini:"Foglio DEWALT",esplosi:"Distinta",ricambiDW:"Ricambio DEWALT",ordiniWeb:"Ordine online",consegne:"Scaffale consegne",clienti:"Clienti",resi:"Reso",ean:"Codice a barre",sconti:"Codice sconto",config:"Impostazioni",utenti:"Utente","*":"Archivio"};
+const NOMI_COL={tickets:"Scheda",mag:"Magazzino",movimenti:"Movimento",richieste:"Richiesta dal sito",ordini:"Foglio DEWALT",esplosi:"Distinta",ricambiDW:"Ricambio DEWALT",ordiniWeb:"Ordine online",consegne:"Scaffale consegne",clienti:"Clienti",backup:"Copia di sicurezza",resi:"Reso",ean:"Codice a barre",sconti:"Codice sconto",config:"Impostazioni",utenti:"Utente","*":"Archivio"};
 const NOMI_CAMPI={ubic:"scaffale",posto:"ripiano",incassare:"da incassare",modo:"ritiro/consegna",chiusoAt:"chiuso",stato:"stato",giacenza:"pezzi",prezzoSito:"prezzo",prezzo:"prezzo listino",cliente:"cliente",tel:"telefono",modello:"modello",difetto:"difetto",diagnosi:"lavoro fatto",preventivo:"preventivo",ricambi:"ricambi",tecnico:"tecnico",scaffale:"scaffale",note:"note",verificare:"da contare",daInviare:"da inviare",posto:"posto scaffale",tracking:"tracciamento",pagato:"pagato",esito:"esito",rimborso:"rimborso",tipo:"tipo",ore:"ore",storico:"storico"};
 const decK=k=>String(k).replace(/~([0-9a-f]{2})/g,(m,h)=>String.fromCharCode(parseInt(h,16)));
 
