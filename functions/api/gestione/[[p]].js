@@ -127,6 +127,11 @@ export async function onRequest(ctx) {
     let n = 0; const u = Date.now();
     const righe = [];
     for (const c of Object.keys(dati)) for (const [id, v] of Object.entries(dati[c] || {})) righe.push([c, id, v]);
+    // unione: quello che c'è già nell'app sul sito vince, dall'archivio vecchio si aggiunge solo ciò che manca
+    for (const r of righe) {
+      const prev = await d.prepare('SELECT d FROM docs WHERE c=? AND id=?').bind(r[0], r[1]).first();
+      if (prev && prev.d != null) { try { r[2] = fondi(r[2] && typeof r[2] === 'object' ? r[2] : {}, JSON.parse(prev.d)); } catch (e) {} }
+    }
     for (let i = 0; i < righe.length; i += 50) {
       await d.batch(righe.slice(i, i + 50).map(([c, id, v]) => d.prepare('INSERT INTO docs(c,id,d,u,chi) VALUES(?,?,?,?,?) ON CONFLICT(c,id) DO UPDATE SET d=excluded.d, u=excluded.u, chi=excluded.chi').bind(c, id, JSON.stringify(v), u, io.nome)));
       n += Math.min(50, righe.length - i);
