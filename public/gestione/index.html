@@ -1978,20 +1978,21 @@ function openImportSbd(){
   $("#sbF").onchange=async e=>{ const f=e.target.files[0]; if(!f) return;
     try{ const wb=XLSX.read(await f.arrayBuffer(),{type:"array"}); const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:""});
       const H=rows[0].map(h=>String(h).toLowerCase()), ix=re=>H.findIndex(h=>re.test(h));
-      const c={cod:ix(/^codice$|^cod/),des:ix(/^descr/),ean:ix(/^ean/),lis:ix(/^listino/),cos:ix(/^recons|costo netto ultimo/),q12:ix(/ultimi 12/)};
-      if(c.cod<0||c.cos<0){ $("#sbPrev").innerHTML=`<div class="banner err" style="margin:0">Non è il file giusto: mancano le colonne Codice e RECONS.</div>`; return; }
+      const c={cod:ix(/^codice$|^cod/),des:ix(/^descr/),ean:ix(/^ean/),lis:ix(/^listino/),cos:ix(/^recons|costo netto ultimo/),sti:ix(/costo stimato/),q12:ix(/ultimi 12/)};
+      if(c.cod<0||(c.cos<0&&c.lis<0)){ $("#sbPrev").innerHTML=`<div class="banner err" style="margin:0">Non è il file giusto: mancano le colonne Codice e RECONS.</div>`; return; }
       const n=v=>Number(String(v).replace(",","."))||0;
-      L=rows.slice(1).map(r=>({codice:String(r[c.cod]).trim().toUpperCase(),descr:c.des>=0?String(r[c.des]).trim():"",ean:c.ean>=0?String(r[c.ean]).replace(/\D/g,""):"",listino:c.lis>=0?n(r[c.lis]):0,costo:n(r[c.cos]),q12:c.q12>=0?n(r[c.q12]):0})).filter(r=>r.codice&&r.costo>0);
+      L=rows.slice(1).map(r=>({codice:String(r[c.cod]).trim().toUpperCase(),descr:c.des>=0?String(r[c.des]).trim():"",ean:c.ean>=0?String(r[c.ean]).replace(/\D/g,""):"",listino:c.lis>=0?n(r[c.lis]):0,costo:c.cos>=0?n(r[c.cos]):0,stima:c.sti>=0?n(r[c.sti]):0,q12:c.q12>=0?n(r[c.q12]):0})).filter(r=>r.codice&&(r.costo>0||r.stima>0||r.listino>0));
       const pres=L.filter(r=>itm(r.codice)).length;
       $("#sbPrev").innerHTML=`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc"><b>${nf(L.length)} codici</b>: ${nf(pres)} già in magazzino (aggiorno costo, listino ed EAN), ${nf(L.length-pres)} nuovi.</div>`;
       $("#sbOk").disabled=false; }catch(x){ $("#sbPrev").innerHTML=`<div class="banner err" style="margin:0">File non leggibile</div>`; } };
   $("#sbOk").onclick=async()=>{ if(!L) return; const addNew=$("#sbNew").checked, by={}; let n=0, nu=0;
     for(const r of L){ const cur=itm(r.codice), ivato=r.listino?Math.round(r.listino*122)/100:0; let f;
       if(!cur){ if(!addNew) continue; const tipo=classify(r.codice,r.descr);
-        f={codice:r.codice,descr:r.descr||r.codice,tipo,giacenza:0,scortaMin:0,forn:"Stanley Black & Decker",costo:r.costo,...(r.listino?{prezzoNetto:r.listino,prezzo:ivato,prezzoFonte:"listino al pubblico (Danea/SBD)"}:{}),...(r.ean?{ean:r.ean}:{}),acq12:r.q12,costoAt:Date.now()};
+        f={codice:r.codice,descr:r.descr||r.codice,tipo,giacenza:0,scortaMin:0,forn:"Stanley Black & Decker",costo:r.costo||r.stima,...(!r.costo&&r.stima?{costoStimato:true}:{}),...(r.listino?{prezzoNetto:r.listino,prezzo:ivato,prezzoFonte:"listino al pubblico (Danea/SBD)"}:{}),...(r.ean?{ean:r.ean}:{}),acq12:r.q12,costoAt:Date.now()};
         if(tipo==="vendita") f.cat="Altro"; nu++;
       } else { f={};
-        if(r.costo!==Number(cur.costo)) f.costo=r.costo; f.costoAt=Date.now();
+        if(r.costo>0){ if(r.costo!==Number(cur.costo)) f.costo=r.costo; if(cur.costoStimato) f.costoStimato=false; f.costoAt=Date.now(); }
+        else if(r.stima>0&&!Number(cur.costo)){ f.costo=r.stima; f.costoStimato=true; f.costoAt=Date.now(); }
         if(r.ean&&!String(cur.ean||"").includes(r.ean)) f.ean=cur.ean?cur.ean+" "+r.ean:r.ean;
         const daNoi=cur.prezzoFonte==="listino SBD (fatture)"||cur.prezzoFonte==="listino al pubblico (Danea/SBD)";
         if(r.listino&&(daNoi||(!Number(cur.prezzo)&&!Number(cur.prezzoNetto)))){ if(Number(cur.prezzoNetto)!==r.listino){ f.prezzoNetto=r.listino; f.prezzo=ivato; } f.prezzoFonte="listino al pubblico (Danea/SBD)"; }
