@@ -1,0 +1,139 @@
+---
+// Buoni regalo: per sé o da regalare, senza scadenza, su tutto il sito, con codice segreto inviato via email.
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+const R = SITO.buoniRegalo;
+const TEMI = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], grazie: ['#1d6b35', '💛'], cantiere: ['#15171a', '🛠️'] };
+---
+<Base title="Buoni regalo Semi Store" description="Regala utensili DEWALT, STANLEY e BLACK+DECKER: buono regalo Semi Store senza scadenza, da usare su tutto semistore.it anche in più volte.">
+  <section class="wrap sec br">
+    <div class="br-ok card" id="ok" hidden>
+      <h1 class="h2">Grazie! 🎁</h1>
+      <p>Il pagamento è andato a buon fine. Tra pochi istanti ricevi per email il buono con il <b>codice segreto</b>; se l'hai regalato con l'email del destinatario, l'abbiamo mandato anche a lui o a lei.</p>
+      <p class="br-n">Non trovi l'email? Guarda nello spam o scrivici su WhatsApp.</p>
+      <a class="btn btn-y" href="/catalogo/">Vai al catalogo</a>
+    </div>
+
+    <div class="br-g" id="form">
+      <div>
+        <p class="br-k">Buoni regalo</p>
+        <h1 class="h2">Regala gli attrezzi giusti</h1>
+        <p class="br-sub">Senza scadenza, su tutti i prodotti di semistore.it, anche in più volte. Arriva subito per email con un codice segreto.</p>
+
+        <form id="f" class="br-f" novalidate>
+          <fieldset><legend>1. Importo</legend>
+            <div class="br-tagli">
+              {R.tagli.map((t, i) => <label><input type="radio" name="importo" value={t} checked={i === 1} /><span>{t} €</span></label>)}
+              <label><input type="radio" name="importo" value="altro" /><span>Altro</span></label>
+            </div>
+            <label class="field br-altro" hidden>Importo in euro ({R.min}–{R.max})<input name="altro" type="number" inputmode="numeric" min={R.min} max={R.max} step="1" placeholder="es. 75" /></label>
+          </fieldset>
+
+          <fieldset><legend>2. Stile</legend>
+            <div class="br-temi">
+              {R.temi.map((t, i) => <label><input type="radio" name="tema" value={t.id} checked={i === 0} /><span style={`--c:${TEMI[t.id][0]}`}><i>{TEMI[t.id][1]}</i>{t.nome}</span></label>)}
+            </div>
+          </fieldset>
+
+          <fieldset><legend>3. Per chi è?</legend>
+            <div class="br-chi">
+              <label><input type="radio" name="perChi" value="regalo" checked /><span>Da regalare</span></label>
+              <label><input type="radio" name="perChi" value="me" /><span>Per me</span></label>
+            </div>
+            <div class="br-reg" data-reg>
+              <div class="br-g2">
+                <label class="field">Nome di chi lo riceve *<input name="destinatario" maxlength="60" autocomplete="off" placeholder="es. Luca" /></label>
+                <label class="field">Da parte di<input name="mittente" maxlength="60" autocomplete="name" placeholder="es. Anna" /></label>
+              </div>
+              <label class="field">Email di chi lo riceve <span class="opz">(facoltativa: se la lasci vuota, il buono arriva solo a te da stampare o inoltrare)</span><input name="emailDest" type="email" maxlength="120" autocomplete="off" placeholder="nome@email.it" /></label>
+              <label class="field">Messaggio <span class="opz">(max 300 caratteri)</span><textarea name="messaggio" maxlength="300" rows="3" placeholder="Buon Natale! Per i tuoi lavori in casa…"></textarea></label>
+            </div>
+          </fieldset>
+
+          <button class="btn btn-y br-pay" id="paga">Acquista il buono</button>
+          <p class="br-err" id="err" role="alert" hidden></p>
+          <p class="br-n">Paghi in sicurezza con Stripe (carta, Apple Pay, Google Pay). Ricevi il codice per email. <a class="ul" href="/condizioni-di-vendita/#buoni">Condizioni dei buoni</a>.</p>
+        </form>
+      </div>
+
+      <div class="br-prev" aria-live="polite">
+        <div class="br-card" id="card" style={`--c:${TEMI.natale[0]}`}>
+          <span class="br-ico" id="c-ico">🎄</span>
+          <span class="br-logo">SEMI STORE · BUONO REGALO</span>
+          <b class="br-val" id="c-val">50 €</b>
+          <span class="br-per" id="c-per">Per <b>…</b></span>
+          <q class="br-msg" id="c-msg" hidden></q>
+          <span class="br-cod">SEMI-••••-••••-••••</span>
+        </div>
+        <ul class="br-pro">
+          <li>⏳ <b>Senza scadenza</b></li>
+          <li>🧰 Su <b>tutti i prodotti</b> del sito, anche in più volte</li>
+          <li>🔒 Codice <b>segreto</b>: si può salvare nell'account per non perderlo</li>
+          <li>⭐ Chi lo spende accumula comunque i <a class="ul" href="/punti/">Punti Semi</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+<script define:vars={{ temi: TEMI }}>window.__TEMI = temi;</script>
+<script>
+  const TEMI = (window as any).__TEMI;
+  const f = document.getElementById('f') as HTMLFormElement;
+  const $ = (id: string) => document.getElementById(id)!;
+  const val = (n: string) => (f.elements.namedItem(n) as any)?.value ?? '';
+  const sel = (n: string) => (f.querySelector(`input[name=${n}]:checked`) as HTMLInputElement)?.value;
+  const importo = () => sel('importo') === 'altro' ? Math.round(Number(val('altro')) || 0) : Number(sel('importo'));
+  const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  function aggiorna() {
+    (f.querySelector('.br-altro') as HTMLElement).hidden = sel('importo') !== 'altro';
+    const regalo = sel('perChi') === 'regalo';
+    (f.querySelector('[data-reg]') as HTMLElement).hidden = !regalo;
+    const t = TEMI[sel('tema')];
+    $('card').style.setProperty('--c', t[0]); $('c-ico').textContent = t[1];
+    $('c-val').textContent = (importo() || 0) + ' €';
+    const per = val('destinatario').trim(), da = val('mittente').trim();
+    $('c-per').innerHTML = regalo ? `Per <b>${esc(per || '…')}</b>${da ? ` · da <b>${esc(da)}</b>` : ''}` : 'Per me';
+    const m = val('messaggio').trim(); $('c-msg').hidden = !regalo || !m; $('c-msg').textContent = m;
+  }
+  f.addEventListener('input', aggiorna); f.addEventListener('change', aggiorna); aggiorna();
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const b = $('paga') as HTMLButtonElement, err = $('err'); err.hidden = true;
+    const corpo = { importo: importo(), tema: sel('tema'), perChi: sel('perChi'), destinatario: val('destinatario'), mittente: val('mittente'), emailDest: val('emailDest'), messaggio: val('messaggio') };
+    b.disabled = true; b.textContent = 'Un attimo…';
+    try {
+      const r = await fetch('/api/buoni/acquista', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corpo) });
+      const j = await r.json(); if (!r.ok || !j.url) throw new Error(j.error || 'Errore');
+      location.href = j.url;
+    } catch (x: any) { err.textContent = x.message; err.hidden = false; b.disabled = false; b.textContent = 'Acquista il buono'; }
+  });
+  if (new URL(location.href).searchParams.get('ok')) { $('ok').hidden = false; $('form').hidden = true; history.replaceState(null, '', location.pathname); }
+</script>
+<style>
+  .br-k{margin:0;color:var(--mut);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+  .br-sub{color:var(--mut);max-width:560px}
+  .br-g{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:32px;align-items:start}
+  .br-g[hidden],.br-ok[hidden],[data-reg][hidden],.br-altro[hidden],.br-msg[hidden]{display:none}
+  .br-f{display:flex;flex-direction:column;gap:18px;margin-top:18px}
+  .br-f fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}.br-f legend{font-weight:800;margin-bottom:8px}
+  .br-tagli,.br-temi,.br-chi{display:flex;flex-wrap:wrap;gap:8px}
+  .br-f input[type=radio]{position:absolute;opacity:0}
+  .br-tagli span,.br-chi span{display:block;min-width:74px;text-align:center;padding:12px 16px;border:2px solid var(--line);border-radius:12px;background:#fff;font-weight:800;cursor:pointer}
+  .br-temi span{display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;font-weight:700;cursor:pointer}
+  .br-temi i{font-style:normal;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--c)}
+  .br-f input:checked+span{border-color:var(--y);background:#fffbea;box-shadow:0 0 0 3px #f5b80033}
+  .br-f input:focus-visible+span{outline:2px solid var(--ink)}
+  .br-reg{display:flex;flex-direction:column;gap:12px}.br-g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .opz{font-weight:400;color:var(--mut)}.br-pay{align-self:flex-start;font-size:17px;padding:0 26px}
+  .br-err{color:#b3261e;font-weight:700;margin:0}.br-n{font-size:13px;color:var(--mut);margin:0}
+  .br-prev{position:sticky;top:110px;display:flex;flex-direction:column;gap:16px}
+  .br-card{aspect-ratio:1.6;border-radius:20px;padding:22px;color:#fff;background:radial-gradient(circle at 85% 15%,#ffffff2e,transparent 45%),linear-gradient(135deg,var(--c),#15171a 130%);display:flex;flex-direction:column;gap:4px;box-shadow:0 20px 40px #0003;position:relative;overflow:hidden;transition:background .3s}
+  .br-card::after{content:'';position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;border-radius:30px;background:#f5b800;opacity:.18;transform:rotate(30deg)}
+  .br-ico{font-size:30px}.br-logo{color:var(--y);font-weight:800;letter-spacing:.12em;font-size:12px}
+  .br-val{font-size:clamp(38px,6vw,54px);line-height:1}.br-per{font-size:16px}
+  .br-msg{font-style:italic;background:#ffffff1f;border-radius:10px;padding:8px 10px;font-size:14px;max-height:4.6em;overflow:hidden}
+  .br-cod{margin-top:auto;font-family:ui-monospace,monospace;letter-spacing:.08em;opacity:.8}
+  .br-pro{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .br-ok{max-width:620px;margin:0 auto;padding:28px;text-align:center}
+  @media (max-width:860px){.br-g{grid-template-columns:1fr}.br-prev{position:static;order:-1}.br-g2{grid-template-columns:1fr}}
+</style>

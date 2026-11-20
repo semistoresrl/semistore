@@ -43,7 +43,26 @@ export const SITO = {
   spedizione: { costo: 990, gratisDa: 9900, giorni: '2–4' }, // centesimi
   // programma punti: punti per ogni euro speso sui prodotti (spedizione esclusa). I premi si definiscono in seguito.
   // Programma "Punti Semi 2027": raccolta dal 20/11/2026, catalogo premi online dal 25/12/2026, premi richiedibili fino al 31/12/2027.
-  punti: { perEuro: 1, inizio: '2026-11-20', catalogo: '2026-12-25', scadenza: '2027-12-31', nome: 'Punti Semi 2027' },
+  punti: {
+    perEuro: 1, inizio: '2026-11-20', catalogo: '2026-12-25', scadenza: '2027-12-31', nome: 'Punti Semi 2027',
+    // livelli: più spendi nel programma (dal 20/11/2026, prodotti, in centesimi), più punti prendi per ogni euro
+    livelli: [
+      { id: 'apprendista', nome: 'Apprendista', da: 0, x: 1 },
+      { id: 'artigiano', nome: 'Artigiano', da: 30000, x: 1.2 },
+      { id: 'capocantiere', nome: 'Capocantiere', da: 100000, x: 1.5 },
+      { id: 'maestro', nome: 'Maestro', da: 300000, x: 2 },
+    ],
+    // bonus carrello pieno: punti in più sull'ordine se i prodotti superano la soglia (centesimi)
+    bonusCarrello: [{ da: 15000, pct: 10 }, { da: 40000, pct: 20 }, { da: 100000, pct: 30 }],
+    primoOrdine: 100, // punti regalo al primo ordine con l'account
+    turbo: [], // periodi a punti moltiplicati, es. { da: '2026-12-01', a: '2026-12-08', x: 2, nome: 'Settimana Turbo' }
+    // conversione in buoni (dal giorno del catalogo): più punti converti insieme, più valgono
+    buoni: [{ punti: 500, euro: 10 }, { punti: 1000, euro: 25 }, { punti: 2500, euro: 70 }, { punti: 5000, euro: 150 }],
+    prodottiPremio: [], // slug dei prodotti del Catalogo Premi 2027 (da inserire entro il 25/12/2026)
+  },
+  // buoni regalo: senza scadenza, spendibili su tutto il sito, codice segreto
+  buoniRegalo: { tagli: [25, 50, 100, 200], min: 10, max: 1000,
+    temi: [{ id: 'natale', nome: 'Natale' }, { id: 'compleanno', nome: 'Compleanno' }, { id: 'grazie', nome: 'Grazie' }, { id: 'cantiere', nome: 'Buon lavoro' }] },
   url: 'https://semistore.it',
   // Statistiche e pubblicità (partono solo dopo il consenso nel banner cookie). Vuoti = niente banner, niente script.
   ga4: '', // ID misurazione Google Analytics 4, es. 'G-XXXXXXXXXX'

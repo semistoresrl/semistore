@@ -11,6 +11,8 @@ import {
 } from '../../_lib/clienti.js';
 import { SITO } from '../../../src/data/sito.js';
 import { pivaValida, cercaPiva } from '../../_lib/piva.js';
+import { livelloDi } from '../../../src/lib/punti.js';
+import { dbb } from '../../_lib/buoni.js';
 
 export async function onRequest(ctx) {
   const { request, env, params } = ctx;
@@ -77,7 +79,9 @@ async function entra({ request, env }) {
 async function io({ request, env }) {
   const c = await cliente(request, env);
   if (!c) return json({ collegato: false }, 401);
-  const d = await dbc(env);
+  const d = await dbb(env);
+  const st = await d.prepare('SELECT COUNT(*) AS n, COALESCE(SUM(COALESCE(base, totale - spedizione)),0) AS spesa FROM ordini WHERE cliente=? AND quando>=?').bind(c.id, SITO.punti.inizio).first();
+  const spesa = Number(st?.spesa || 0);
   const [ordini, movimenti] = await Promise.all([
     d.prepare('SELECT sessione, totale, spedizione, punti, fattura, consegna, righe, quando FROM ordini WHERE cliente=? ORDER BY quando DESC LIMIT 30').bind(c.id).all(),
     d.prepare('SELECT delta, motivo, quando FROM punti_mov WHERE cliente=? ORDER BY quando DESC LIMIT 50').bind(c.id).all(),
@@ -93,7 +97,8 @@ async function io({ request, env }) {
     }
   }
   return json({
-    collegato: true, profilo: profilo(c), punti: { saldo: c.punti, perEuro: SITO.punti.perEuro, movimenti: movimenti.results },
+    collegato: true, profilo: profilo(c),
+    punti: { saldo: c.punti, perEuro: SITO.punti.perEuro, movimenti: movimenti.results, spesa, ordini: Number(st?.n || 0), livello: livelloDi(spesa) },
     ordini: ordini.results.map((o) => ({ ...o, righe: safe(o.righe), id: o.sessione.slice(-8).toUpperCase(), sessione: undefined })),
     sconti: sconti.sort((a, b) => b.mese.localeCompare(a.mese)),
   });

@@ -38,7 +38,7 @@ const org = {
 const path = Astro.url.pathname;
 const nav = [
   ['/catalogo/', 'Prodotti'], [urlCategoria('Trapani e avvitatori'), 'Trapani'], [urlCategoria('Batterie e caricabatterie'), 'Batterie'], [urlCategoria('Kit'), 'Kit'],
-  ['/assistenza/', 'Assistenza'], ['/contatti/', 'Contatti'],
+  ['/buono-regalo/', 'Buoni regalo'], ['/assistenza/', 'Assistenza'], ['/contatti/', 'Contatti'],
 ];
 ---
 <!doctype html>
@@ -173,7 +173,7 @@ const nav = [
         <span><a href={`tel:${SITO.telefonoLink}`}>Tel. {SITO.telefono}</a><br />{SITO.whatsapp && <><a href={`https://wa.me/${SITO.whatsapp}`} target="_blank" rel="noopener">WhatsApp {SITO.whatsapp.slice(2).replace(/(\d{3})(\d{3})(\d+)/, '$1 $2 $3')}</a><br /></>}<a href={`mailto:${SITO.email}`}>{SITO.email}</a></span>
       </div>
       <div class="col"><b>Categorie</b>{['Trapani e avvitatori', 'Tassellatori e demolitori', 'Smerigliatrici e levigatrici', 'Seghe e troncatrici', 'Batterie e caricabatterie', 'Misura e laser'].map((c) => <a href={urlCategoria(c)}>{c}</a>)}</div>
-      <div class="col"><b>Negozio</b><a href="/catalogo/">Catalogo</a><a href="/condizioni-di-vendita/">Spedizioni e resi</a><a href="/condizioni-di-vendita/#pagamenti">Pagamenti</a><a href="/punti/">Programma punti</a><a href="/account/">Il mio account</a></div>
+      <div class="col"><b>Negozio</b><a href="/catalogo/">Catalogo</a><a href="/condizioni-di-vendita/">Spedizioni e resi</a><a href="/condizioni-di-vendita/#pagamenti">Pagamenti</a><a href="/punti/">Programma punti</a><a href="/buono-regalo/">Buoni regalo</a><a href="/account/">Il mio account</a></div>
       <div class="col"><b>Assistenza</b><a href="/assistenza/">Richiedi riparazione</a><a href="/assistenza/#stato">Stato riparazione</a><a href="/assistenza/#preventivo">Preventivo</a></div>
       <div class="col"><b>Seguici</b>
         {SITO.instagram && <a href={SITO.instagram} rel="noopener">Instagram</a>}

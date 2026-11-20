@@ -3,35 +3,57 @@
 // dalla disciplina delle manifestazioni a premio (DPR 430/2001 art. 6 c.1 lett. c-bis). Se in futuro si vogliono premi in
 // prodotti o regali serve un'operazione a premio separata: regolamento autocertificato e cauzione del 20% PRIMA dell'inizio.
 import Base from '../layouts/Base.astro';
-import { SITO } from '../data/sito.js';
+import { SITO, euro } from '../data/sito.js';
 const P = SITO.punti;
 const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
 ---
 <Base title="Programma punti · Catalogo Premi 2027" description={`Accumula ${P.perEuro} punto per ogni euro speso su semistore.it: il 25 dicembre arriva il Catalogo Premi 2027 e i punti valgono per tutto il 2027.`}>
   <section class="wrap sec prose pt">
     <p class="pt-k">{P.nome}</p>
-    <h1 class="h2">Più compri, più premi</h1>
+    <h1 class="h2">Punti Semi: più compri, più premi</h1>
+    <p class="pt-lead">Ogni acquisto su semistore.it ti dà punti. Più sali di livello e più riempi il carrello, più punti prendi per ogni euro. I punti si trasformano in <b>buoni senza scadenza</b> per i prodotti del <b>Catalogo Premi 2027</b>.</p>
     <div class="pt-3">
       <div class="card"><b>1</b><h2>Crea l'account</h2><p>Gratis, in pochi secondi, come privato o con partita IVA. <a class="ul" href="/account/">Entra o registrati</a></p></div>
-      <div class="card"><b>2</b><h2>Accumula punti</h2><p>{P.perEuro} punto per ogni euro speso sui prodotti del sito, accreditato appena paghi.</p></div>
-      <div class="card"><b>3</b><h2>Scegli il premio</h2><p>Il <strong>Catalogo Premi 2027</strong> arriva il <strong>{g(P.catalogo)}</strong>: converti i punti in buoni sconto fino al {g(P.scadenza)}.</p></div>
+      <div class="card"><b>2</b><h2>Accumula punti</h2><p>{P.perEuro} punto per ogni euro, moltiplicato dal tuo livello, più i bonus.</p></div>
+      <div class="card"><b>3</b><h2>Scegli il premio</h2><p>Dal <strong>{g(P.catalogo)}</strong> converti i punti in buoni per i prodotti del Catalogo Premi, fino al {g(P.scadenza)}.</p></div>
     </div>
 
+    <h2 id="livelli">4 livelli: più compri, più vale ogni euro</h2>
+    <div class="pt-liv">
+      {P.livelli.map((l, i) => <div class={`card pt-l${i}`}><span class="pt-badge">{['🔩', '🔧', '🦺', '🏆'][i]}</span><h3>{l.nome}</h3><b>×{String(l.x).replace('.', ',')}</b><p>{l.da ? `da ${euro(l.da)} di acquisti` : 'dal primo acquisto'}</p></div>)}
+    </div>
+    <p class="pt-n">Il livello si calcola sulla somma degli acquisti fatti nel programma dal {g(P.inizio)} e non si perde fino alla fine del programma.</p>
+
+    <h2 id="bonus">Bonus che si sommano</h2>
+    <ul class="pt-bonus">
+      <li><b>Bonus carrello</b>: {P.bonusCarrello.map((x) => `+${x.pct}% punti da ${euro(x.da)}`).join(' · ')} in un unico ordine.</li>
+      <li><b>Primo ordine</b>: +{P.primoOrdine} punti in regalo al primo acquisto con l'account.</li>
+      <li><b>Settimane Turbo</b>: in alcuni periodi annunciati sul sito i punti si moltiplicano.</li>
+    </ul>
+    <p class="pt-n">Esempio: un Capocantiere (×1,5) che spende 450 € in un ordine prende 450 + 225 (livello) + 90 (bonus carrello +20%) = <b>765 punti</b>.</p>
+
     <h2 id="catalogo">Catalogo Premi 2027</h2>
-    <p class="pt-box">Il catalogo sarà pubblicato qui il <b>{g(P.catalogo)}</b>. Conterrà <b>buoni sconto</b> di diverso valore, da usare sui prodotti e sui servizi di Semi Store, online e in negozio. Da quel giorno potrai convertire i punti accumulati fino al <b>{g(P.scadenza)}</b>.</p>
+    <p class="pt-box">Il catalogo sarà pubblicato qui il <b>{g(P.catalogo)}</b>, con i prodotti su cui usare i buoni punti. Più punti converti insieme, più vale il buono:</p>
+    <div class="pt-conv">{P.buoni.map((c) => <div class="card"><b>{c.euro} €</b><span>{c.punti.toLocaleString('it-IT')} punti</span></div>)}</div>
+
+    <h2 id="regalo">Buoni regalo</h2>
+    <p>Vuoi fare un regalo? I <a class="ul" href="/buono-regalo/">buoni regalo Semi Store</a> valgono su tutto il sito, senza scadenza, e arrivano subito per email con un codice segreto.</p>
 
     <h2 id="regolamento">Regolamento del programma fedeltà "{P.nome}"</h2>
     <p class="pt-agg">Versione del 20 novembre 2026</p>
     <ol class="pt-reg">
       <li><b>Promotore.</b> {SITO.denominazione}, sede legale {SITO.sedeLegale}, sede operativa {SITO.indirizzo}, {SITO.cap} {SITO.citta} ({SITO.provincia}), P.IVA e C.F. {SITO.piva}, REA {SITO.rea}.</li>
-      <li><b>Natura del programma.</b> Programma fedeltà gratuito in cui, a fronte della spesa effettuata, i premi sono costituiti esclusivamente da <b>buoni sconto da usare su una spesa successiva</b> presso Semi Store (sito semistore.it e negozio di {SITO.citta}, stessa ditta). Per questa ragione non costituisce concorso né operazione a premio, ai sensi dell'art. 6, comma 1, lettera c-bis) del D.P.R. 26 ottobre 2001, n. 430.</li>
-      <li><b>Durata.</b> I punti si accumulano dal {g(P.inizio)} al {g(P.scadenza)}. Il catalogo dei buoni è pubblicato su questa pagina il {g(P.catalogo)}; da quel giorno e fino al {g(P.scadenza)} i punti si possono convertire in buoni.</li>
+      <li><b>Natura del programma.</b> Programma fedeltà gratuito in cui, a fronte della spesa effettuata su semistore.it, i premi sono costituiti esclusivamente da <b>buoni da usare su una spesa successiva sullo stesso sito</b>. Per questa ragione non costituisce concorso né operazione a premio, ai sensi dell'art. 6, comma 1, lettera c-bis) del D.P.R. 26 ottobre 2001, n. 430.</li>
+      <li><b>Durata.</b> I punti si accumulano dal {g(P.inizio)} al {g(P.scadenza)}. Il catalogo è pubblicato su questa pagina il {g(P.catalogo)}; da quel giorno e fino al {g(P.scadenza)} i punti si possono convertire in buoni.</li>
       <li><b>Chi partecipa.</b> Clienti maggiorenni, privati e titolari di partita IVA, con un account Semi Store attivo. L'adesione è gratuita e avviene creando l'account; si può uscire in ogni momento eliminando l'account.</li>
-      <li><b>Come si accumulano i punti.</b> {P.perEuro} punto per ogni euro intero speso sui prodotti acquistati su semistore.it (IVA inclusa, al netto di sconti e codici sconto, spese di spedizione escluse), con arrotondamento per difetto, per ordini pagati mentre si è entrati nel proprio account o con la stessa email dell'account. I punti sono accreditati dopo la conferma del pagamento e sono visibili nella pagina "Il mio account". In caso di ordine annullato, rimborsato anche in parte o di recesso, i punti relativi vengono tolti in proporzione.</li>
-      <li><b>Buoni sconto.</b> Il catalogo indica, per ciascun buono, il valore in euro, i punti necessari e le condizioni d'uso (ad esempio validità e spesa minima). I buoni si richiedono dalla pagina "Il mio account": i punti vengono scalati al momento della richiesta. I buoni sono personali, non convertibili in denaro, non danno diritto a resto e non sono cumulabili con altri codici sconto, salvo diversa indicazione nel catalogo.</li>
-      <li><b>Validità dei punti.</b> I punti sono personali e non cedibili. I punti non convertiti entro il {g(P.scadenza)} scadono senza alcun rimborso. Eliminando l'account i punti decadono.</li>
-      <li><b>Modifiche.</b> Eventuali modifiche sono pubblicate su questa pagina con almeno 30 giorni di preavviso e non riducono i punti già accumulati né il loro periodo di validità.</li>
-      <li><b>Abusi.</b> In caso di uso fraudolento (ad esempio ordini fittizi o account multipli per la stessa persona) il promotore può annullare i punti ottenuti in modo irregolare.</li>
+      <li><b>Punti base.</b> {P.perEuro} punto per ogni euro intero speso sui prodotti acquistati su semistore.it (IVA inclusa, al netto di sconti, codici sconto e buoni punti, spese di spedizione escluse; la parte pagata con un buono regalo dà diritto ai punti), con arrotondamento per difetto, per ordini pagati mentre si è entrati nel proprio account o con la stessa email dell'account.</li>
+      <li><b>Livelli.</b> I punti base sono moltiplicati in base al livello raggiunto con la spesa complessiva nel programma prima dell'ordine: {P.livelli.map((l) => `${l.nome} ×${String(l.x).replace('.', ',')}${l.da ? ` (da ${euro(l.da)})` : ''}`).join('; ')}.</li>
+      <li><b>Bonus.</b> Bonus carrello sui punti base dell'ordine: {P.bonusCarrello.map((x) => `+${x.pct}% da ${euro(x.da)}`).join('; ')}. Bonus primo ordine con l'account: {P.primoOrdine} punti. Eventuali periodi a punti moltiplicati ("Settimane Turbo") sono annunciati su questa pagina con le loro date prima dell'inizio.</li>
+      <li><b>Accredito e storni.</b> I punti sono accreditati dopo la conferma del pagamento e sono visibili nella pagina "Il mio account". In caso di ordine annullato, rimborsato anche in parte o di recesso, i punti relativi vengono tolti in proporzione.</li>
+      <li><b>Buoni punti.</b> I punti si convertono in buoni secondo questa tabella: {P.buoni.map((c) => `${c.punti} punti = ${c.euro} €`).join('; ')}. I punti vengono scalati al momento della conversione. I buoni punti valgono <b>solo sul sito semistore.it e solo sui prodotti del Catalogo Premi 2027</b> pubblicato su questa pagina, <b>non hanno scadenza</b> e si possono usare anche in più volte, senza spesa minima. Sono personali, legati all'account, non cedibili, non convertibili in denaro e non danno diritto a resto.</li>
+      <li><b>Validità dei punti.</b> I punti sono personali e non cedibili. I punti non convertiti entro il {g(P.scadenza)} scadono senza alcun rimborso. Eliminando l'account i punti e i buoni punti decadono.</li>
+      <li><b>Modifiche.</b> Eventuali modifiche sono pubblicate su questa pagina con almeno 30 giorni di preavviso e non riducono i punti già accumulati, i buoni già emessi né il loro periodo di validità.</li>
+      <li><b>Abusi.</b> In caso di uso fraudolento (ad esempio ordini fittizi o account multipli per la stessa persona) il promotore può annullare i punti e i buoni ottenuti in modo irregolare.</li>
       <li><b>Dati personali.</b> I dati sono trattati come descritto nell'<a class="ul" href="/privacy/">informativa privacy</a>, per gestire l'account, i punti e i buoni.</li>
       <li><b>Rinvio.</b> Per quanto non previsto valgono le <a class="ul" href="/condizioni-di-vendita/#account">condizioni di vendita</a> e la legge italiana.</li>
     </ol>
@@ -43,6 +65,12 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
   .pt-3 .card{padding:18px}.pt-3 .card>b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--y);font-weight:900}
   .pt-3 h2{font-size:18px;margin:10px 0 4px}.pt-3 p{margin:0}
   .pt-box{background:#15171a;color:#fff;border-radius:14px;padding:18px 20px}.pt-box b{color:var(--y)}
+  .pt-lead{font-size:18px;max-width:760px}.pt-n{color:var(--mut);font-size:14px}
+  .pt-liv{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+  .pt-liv .card{padding:16px;text-align:center}.pt-liv h3{margin:6px 0 2px;font-size:17px}.pt-liv b{font-size:28px;display:block}.pt-liv p{margin:0;color:var(--mut);font-size:13.5px}
+  .pt-badge{font-size:28px}.pt-l3{background:#15171a;color:#fff}.pt-l3 b{color:var(--y)}.pt-l3 p{color:#c9cbcf}
+  .pt-bonus{display:grid;gap:6px}
+  .pt-conv{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}.pt-conv .card{padding:14px;text-align:center}.pt-conv b{font-size:24px;display:block}.pt-conv span{color:var(--mut);font-size:13.5px}
   .pt-agg{color:var(--mut);font-size:14px}.pt-reg{display:grid;gap:10px;padding-left:22px}
-  @media (max-width:760px){.pt-3{grid-template-columns:1fr}}
+  @media (max-width:760px){.pt-3{grid-template-columns:1fr}.pt-liv,.pt-conv{grid-template-columns:1fr 1fr}}
 </style>

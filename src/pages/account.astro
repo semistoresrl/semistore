@@ -3,6 +3,7 @@
 // (con la partita IVA i dati dell'azienda si compilano da soli), punti, sconti e ordini.
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
+const LIV = SITO.punti.livelli, CONV = SITO.punti.buoni, BC = SITO.punti.bonusCarrello;
 const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
 ---
 <Base title="Il mio account" description="Entra nel tuo account Semi Store: punti, sconti, ordini e dati per la fattura." noindex>
@@ -79,6 +80,18 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
         </div>
         <div class="card acc-sc"><p class="acc-k">I tuoi sconti</p><div data-sconti></div></div>
       </div>
+      <div class="card acc-sez acc-liv"><h2>Il tuo livello</h2><div data-livello></div></div>
+      <div class="card acc-sez" id="buoni">
+        <h2>I tuoi buoni</h2>
+        <div data-buoni></div>
+        <form class="acc-add" data-f="aggiungi" novalidate>
+          <label class="field">Hai ricevuto un buono? Aggiungilo qui<input name="codice" class="mono" placeholder="SEMI-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" /></label>
+          <button class="btn">Aggiungi</button>
+          <p class="acc-err" role="alert" hidden></p>
+        </form>
+        <div data-converti></div>
+        <p class="acc-note"><a class="ul" href="/buono-regalo/">🎁 Regala un buono a un amico o a un parente</a></p>
+      </div>
       <div class="card acc-sez"><h2>I tuoi ordini</h2><div data-ordini></div></div>
       <div class="card acc-sez">
         <h2>I tuoi dati</h2><div data-dati></div>
@@ -87,7 +100,9 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
     </div>
   </section>
 </Base>
+<script define:vars={{ LIV, CONV, catalogo: SITO.punti.catalogo }}>window.__P = { LIV, CONV, catalogo };</script>
 <script>
+  const PX = (window as any).__P;
   const $ = <T extends HTMLElement = HTMLElement>(s: string, r: ParentNode = document) => r.querySelector(s) as T;
   const $$ = (s: string, r: ParentNode = document) => [...r.querySelectorAll<HTMLElement>(s)];
   const u = new URL(location.href);
@@ -197,6 +212,8 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
     $('[data-ciao]').textContent = `Ciao ${p.tipo === 'azienda' ? p.ragioneSociale : p.nome}!`;
     $('[data-chi]').textContent = `${p.email} · ${p.tipo === 'azienda' ? 'Partita IVA ' + p.piva : 'Privato'}`;
     $('[data-punti]').textContent = Number(me.punti.saldo || 0).toLocaleString('it-IT');
+    mostraLivello(); mostraBuoni();
+    if (u.searchParams.has('buono')) setTimeout(() => document.getElementById('buoni')?.scrollIntoView({ behavior: 'smooth' }), 300);
     const sc = me.sconti.filter((s: any) => !s.usato && new Date(s.scade) > new Date());
     $('[data-sconti]').innerHTML = sc.length
       ? sc.map((s: any) => `<p><b class="mono">${esc(s.codice)}</b> · −10% fino al ${data(s.scade)}<br><a class="btn btn-y acc-mini" href="/carrello/?codice=${esc(s.codice)}">Usalo ora</a></p>`).join('')
@@ -209,6 +226,46 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
       ? r('Ragione sociale', p.ragioneSociale) + r('Partita IVA', p.piva) + r('Sede', `${p.indirizzo}, ${p.cap} ${p.citta} ${p.provincia ? '(' + p.provincia + ')' : ''}`) + r('Codice SDI', p.sdi || '0000000') + r('PEC', p.pec)
       : r('Nome', `${p.nome} ${p.cognome}`)}${r('Email', p.email)}${r('Telefono', p.telefono)}${r('Documento', p.tipo === 'azienda' ? 'Fattura elettronica + ricevuta' : 'Ricevuta')}</div>`;
   }
+  // ---------- livello, buoni, conversione punti ----------
+  function mostraLivello() {
+    const l = me.punti.livello, sp = me.punti.spesa || 0;
+    const prog = l.prossimo ? Math.min(100, ((sp - l.da) / (l.prossimo.da - l.da)) * 100) : 100;
+    $('[data-livello]').innerHTML = `<div class="liv-l">${PX.LIV.map((x: any, i: number) => `<span class="${i <= l.indice ? 'on' : ''}${i === l.indice ? ' cur' : ''}"><b>${esc(x.nome)}</b><small>×${String(x.x).replace('.', ',')} punti</small></span>`).join('')}</div>
+      <div class="liv-b"><i style="width:${prog}%"></i></div>
+      <p>${l.prossimo ? `Hai speso <b>${eur(sp)}</b> nel programma: ancora <b>${eur(l.manca)}</b> e diventi <b>${esc(l.prossimo.nome)}</b> (×${String(l.prossimo.x).replace('.', ',')} punti su ogni euro).` : `Sei al livello più alto: <b>${esc(l.nome)}</b>, punti doppi su ogni acquisto. 🏆`}</p>`;
+  }
+  async function mostraBuoni() {
+    const j = await (await fetch('/api/buoni/miei', { cache: 'no-store' })).json().catch(() => ({ buoni: [] }));
+    const l = j.buoni || [];
+    $('[data-buoni]').innerHTML = l.length ? `<ul class="acc-bu">${l.map((b: any) => `<li class="${b.disponibile > 0 ? '' : 'off'}"><span class="bu-t ${b.soloPremi ? 'p' : 'r'}">${b.soloPremi ? 'Buono punti' : 'Buono regalo'}</span><span class="mono">…${esc(b.fine)}</span><b>${eur(b.disponibile)}</b><small>${b.disponibile > 0 ? (b.soloPremi ? 'sui prodotti del Catalogo Premi' : 'su tutto il sito') : 'speso'}${b.importo !== b.disponibile && b.disponibile > 0 ? ` · su ${eur(b.importo)}` : ''}</small></li>`).join('')}</ul><p class="acc-note">Si applicano da soli nel carrello. Nessuna scadenza.</p>` : '<p>Nessun buono per ora.</p>';
+    const aperto = Date.now() >= new Date(PX.catalogo + 'T00:00:00+01:00').getTime();
+    const saldo = me.punti.saldo || 0;
+    $('[data-converti]').innerHTML = `<h3>Converti i punti in buoni</h3>${aperto ? '' : `<p class="acc-note">Dal <b>25 dicembre</b> con il Catalogo Premi 2027. Intanto accumula: più punti converti insieme, più valgono.</p>`}
+      <div class="conv">${PX.CONV.map((c: any) => `<button type="button" class="conv-b" data-c="${c.punti}" ${aperto && saldo >= c.punti ? '' : 'disabled'}><b>${eur(c.euro * 100)}</b><span>${c.punti.toLocaleString('it-IT')} punti</span></button>`).join('')}</div>`;
+  }
+  $('[data-converti]').addEventListener('click', async (e) => {
+    const t = (e.target as HTMLElement).closest('[data-c]') as HTMLButtonElement; if (!t || t.disabled) return;
+    const c = PX.CONV.find((x: any) => x.punti === Number(t.dataset.c));
+    if (!confirm(`Convertire ${c.punti} punti in un buono da ${c.euro} € sui prodotti del Catalogo Premi?`)) return;
+    t.disabled = true;
+    const r = await fetch('/api/buoni/converti', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ punti: c.punti }) });
+    const j = await r.json();
+    if (!r.ok) { alert(j.error || 'Errore'); t.disabled = false; return; }
+    await carica();
+  });
+  const fa = $<HTMLFormElement>('[data-f="aggiungi"]');
+  fa.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const b = $<HTMLButtonElement>('button', fa), c = (fa.codice as HTMLInputElement).value.trim();
+    if (!c) return;
+    errore(fa, ''); b.disabled = true;
+    try {
+      const r = await fetch('/api/buoni/aggiungi', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ codice: c }) });
+      const j = await r.json(); if (!r.ok) throw new Error(j.error);
+      (fa.codice as HTMLInputElement).value = ''; await mostraBuoni();
+    } catch (x: any) { errore(fa, x.message || 'Errore'); }
+    b.disabled = false;
+  });
   $('[data-modifica]').addEventListener('click', () => mostraProfilo(false));
   $('[data-esci]').addEventListener('click', async () => { await fetch('/api/account/esci', { method: 'POST' }); location.href = '/'; });
   $('[data-elimina]').addEventListener('click', async () => {
@@ -245,6 +302,17 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
   .acc-ord{list-style:none;margin:0;padding:0;display:grid;gap:10px}.acc-ord li{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:10px}
   .acc-ord small{color:var(--mut)}.acc-ord-r{text-align:right;display:flex;flex-direction:column;white-space:nowrap}
   .acc-dl{display:grid;gap:8px}.acc-dl div{display:flex;gap:12px;justify-content:space-between;border-top:1px solid var(--line);padding-top:8px}.acc-dl span{color:var(--mut)}.acc-dl b{text-align:right}
+  .liv-l{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.liv-l span{display:flex;flex-direction:column;padding:8px;border-radius:10px;background:#f2f2f0;color:var(--mut);font-size:13px}
+  .liv-l span.on{background:#fff4c7;color:var(--ink)}.liv-l span.cur{background:var(--y);color:var(--ink)}.liv-l b{font-size:14px}
+  .liv-b{height:10px;border-radius:5px;background:#0000000f;margin:12px 0 8px;overflow:hidden}.liv-b i{display:block;height:100%;background:var(--y)}
+  .acc-bu{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:8px}.acc-bu li{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:4px 10px;border-top:1px solid var(--line);padding-top:8px}
+  .acc-bu li b{justify-self:end}.acc-bu li small{grid-column:1/-1;color:var(--mut)}.acc-bu li.off{opacity:.5}
+  .bu-t{font-size:12px;font-weight:800;border-radius:6px;padding:2px 8px}.bu-t.r{background:#e8f5ec;color:#1d6b35}.bu-t.p{background:#fff4c7}
+  .acc-add{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:14px 0}.acc-add .field{flex:1;min-width:220px}.acc-add .acc-err{flex-basis:100%}
+  [data-converti] h3{font-size:16px;margin:16px 0 6px}.conv{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+  .conv-b{display:flex;flex-direction:column;gap:2px;padding:12px 8px;border:2px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;font:inherit}
+  .conv-b b{font-size:20px}.conv-b span{font-size:12.5px;color:var(--mut)}.conv-b:disabled{opacity:.55;cursor:default}.conv-b:not(:disabled):hover{border-color:var(--y)}
+  @media (max-width:640px){.liv-l,.conv{grid-template-columns:1fr 1fr}}
   .acc-az-b{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}.btn-lk{background:none;color:#b3261e;border-color:transparent}
   @media (max-width:640px){.acc-cards,.acc-g2{grid-template-columns:1fr}.acc-g3{grid-template-columns:1fr 1.6fr .8fr}}
 </style>

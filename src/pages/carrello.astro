@@ -15,14 +15,19 @@ import { SITO } from '../data/sito.js';
           <label><input type="radio" name="cons" value="spedizione" checked /> Spedizione ({SITO.spedizione.giorni} giorni)</label>
           <label><input type="radio" name="cons" value="ritiro" /> Ritiro in negozio a {SITO.citta} (gratis)</label>
         </fieldset>
+        <div class="wal" id="wal" hidden></div>
         <details class="cod" id="cod">
-          <summary>Hai un codice sconto?</summary>
-          <div class="cod-r"><input id="cod-i" class="mono" placeholder="GIOCO-XXXXXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Codice sconto" /><button type="button" id="cod-b" class="btn">Applica</button></div>
+          <summary>Hai un codice sconto o un buono?</summary>
+          <div class="cod-r"><input id="cod-i" class="mono" placeholder="GIOCO-… o SEMI-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Codice sconto o buono" /><button type="button" id="cod-b" class="btn">Applica</button></div>
           <small id="cod-m" role="status"></small>
+          <div id="cod-l" class="cod-l"></div>
         </details>
         <div class="row between" id="sc-r" hidden><span>Sconto premio −<span id="sc-p">10</span>%</span><b id="sc" style="color:var(--ok)">–</b></div>
+        <div class="row between" id="bp-r" hidden><span>Buono punti <small>(prodotti Catalogo Premi)</small></span><b id="bp" style="color:var(--ok)">–</b></div>
+        <div class="row between" id="br-r" hidden><span>Buono regalo</span><b id="br" style="color:var(--ok)">–</b></div>
         <div class="row between"><span>Consegna</span><b id="sped">–</b></div>
         <div class="row between big"><span>Totale</span><b id="tot">–</b></div>
+        <div class="ptc" id="ptc" hidden></div>
         <button id="paga" class="btn btn-y" disabled>Procedi al pagamento</button>
         <p class="cg-n">Proseguendo accetti le <a class="ul" href="/condizioni-di-vendita/">condizioni di vendita</a> (recesso 14 giorni, garanzia legale 2 anni) e prendi visione dell'<a class="ul" href="/privacy/">informativa privacy</a>. L'ordine si conclude con il pagamento sulla pagina sicura di Stripe.</p>
         <p id="err" class="err" role="alert" hidden></p>
@@ -31,13 +36,19 @@ import { SITO } from '../data/sito.js';
     </div>
   </section>
 </Base>
-<script define:vars={{ sp: SITO.spedizione }}>
-  window.__SP = sp;
+<script define:vars={{ sp: SITO.spedizione, premi: SITO.punti.prodottiPremio || [] }}>
+  window.__SP = sp; window.__PREMI = premi;
 </script>
 <script>
   import { read, setQty, clear } from '../scripts/cart.js';
   import { track, itemsCarrello } from '../scripts/track.js';
   import { indice } from '../scripts/card.js';
+  import { calcolaPunti, prossimoBonus } from '../lib/punti.js';
+  const PREMI = new Set<string>((window as any).__PREMI || []);
+  type Buono = { codice?: string; id?: string; disponibile: number; soloPremi: boolean; fine: string; usa: boolean };
+  const buoni: Buono[] = []; // codici scritti a mano
+  let wallet: Buono[] = []; // buoni salvati nell'account
+  let io: any = null; // account collegato (per l'anteprima punti)
   const SP = (window as any).__SP;
   let M: Record<string, any> = {};
   let codice = '', pct = 0;
@@ -64,8 +75,29 @@ import { SITO } from '../data/sito.js';
     (el('fs-i') as HTMLElement).style.width = Math.min(100, (sub / SP.gratisDa) * 100) + '%';
     fs.classList.toggle('ok', manca <= 0);
     const sc = codice ? Math.round(sub * pct / 100) : 0;
+    // stesso calcolo del server: prima lo sconto del gioco, poi i buoni (quelli punti solo sui prodotti del Catalogo Premi)
+    const subPremi = items.filter((i) => PREMI.has(i.slug)).reduce((t, i) => t + M[i.slug].p * i.qty, 0);
+    let resto = sub - sc, restoPremi = Math.round(subPremi * (sub ? (sub - sc) / sub : 1)), usoP = 0, usoR = 0;
+    for (const b of [...wallet.filter((w) => w.usa), ...buoni]) {
+      const uso = Math.max(0, Math.min(b.disponibile, b.soloPremi ? Math.min(resto, restoPremi) : resto));
+      resto -= uso; if (b.soloPremi) { restoPremi -= uso; usoP += uso; } else { restoPremi = Math.min(restoPremi, resto); usoR += uso; }
+    }
     el('sc-r').hidden = !sc; el('sc').textContent = '−' + eur(sc);
-    el('sub').textContent = eur(sub); el('sped').textContent = sped ? eur(sped) : 'Gratis'; el('tot').textContent = eur(sub - sc + sped);
+    el('bp-r').hidden = !usoP; el('bp').textContent = '−' + eur(usoP);
+    el('br-r').hidden = !usoR; el('br').textContent = '−' + eur(usoR);
+    el('sub').textContent = eur(sub); el('sped').textContent = sped ? eur(sped) : 'Gratis'; el('tot').textContent = eur(sub - sc - usoP - usoR + sped);
+    // anteprima Punti Semi
+    const base = Math.max(0, sub - sc - usoP), ptc = el('ptc');
+    ptc.hidden = !items.length;
+    if (items.length) {
+      const c = calcolaPunti({ base, spesaPrima: io?.punti?.spesa || 0, primo: io ? !io.punti?.ordini : true });
+      const nb = prossimoBonus(base);
+      ptc.innerHTML = (io
+        ? `<b>+${c.punti.toLocaleString('it-IT')} Punti Semi</b> con questo ordine <small>(livello ${c.livello.nome})</small>`
+        : `<b>Guadagna ${c.punti.toLocaleString('it-IT')} Punti Semi</b> con questo ordine: <a class="ul" href="/account/?dopo=/carrello/">entra o registrati</a>`)
+        + (nb ? `<span class="ptc-h">Aggiungi <b>${eur(nb.da - base)}</b> e ottieni il <b>bonus carrello +${nb.pct}%</b> punti</span>` : '')
+        + `<a class="ptc-l" href="/punti/">Come funzionano i punti</a>`;
+    }
     (el('paga') as HTMLButtonElement).disabled = !items.length;
   }
   el('righe').addEventListener('change', (e) => { const t = e.target as HTMLInputElement; if (t.dataset.s) { setQty(t.dataset.s, Math.round(Number(t.value))); render(); } });
@@ -76,7 +108,7 @@ import { SITO } from '../data/sito.js';
     try {
       const consegna = (document.querySelector('input[name=cons]:checked') as HTMLInputElement).value;
       try { const its = await itemsCarrello(read()); track('begin_checkout', { items: its, value: its.reduce((t, i) => t + i.prezzo * i.qty, 0) }); } catch {}
-      const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: read(), consegna, codice }) });
+      const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: read(), consegna, codice, buoni: buoni.map((b) => b.codice), buoniAccount: wallet.filter((w) => w.usa).map((w) => w.id) }) });
       const j = await r.json();
       if (r.status === 401 && j.accedi) { // sconto del minigioco: serve l'account con la stessa email
         el('err').innerHTML = `${j.error} <a class="ul" href="/account/?dopo=${encodeURIComponent('/carrello/?codice=' + codice)}">Entra ora</a>`;
@@ -88,21 +120,61 @@ import { SITO } from '../data/sito.js';
   });
   // codice sconto (premio del minigioco in home): si compila da solo se è stato vinto su questo dispositivo
   const codM = el('cod-m'), codI = el('cod-i') as HTMLInputElement;
+  const listaCodici = () => {
+    el('cod-l').innerHTML = [
+      ...(codice ? [`<span class="cl">Premio gioco −${pct}% <button type="button" data-tg aria-label="Togli">✕</button></span>`] : []),
+      ...buoni.map((b, i) => `<span class="cl">Buono …${b.fine} · ${eur(b.disponibile)} <button type="button" data-tb="${i}" aria-label="Togli">✕</button></span>`),
+    ].join('');
+  };
+  el('cod-l').addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    if (t.dataset.tg != null) { codice = ''; pct = 0; }
+    if (t.dataset.tb != null) buoni.splice(Number(t.dataset.tb), 1);
+    listaCodici(); render();
+  });
+  async function applicaBuono(c: string) {
+    codM.textContent = 'Controllo…'; codM.className = '';
+    try {
+      const j = await (await fetch('/api/buoni/verifica?codice=' + encodeURIComponent(c))).json();
+      if (j.valido) {
+        if (buoni.some((b) => b.fine === j.fine) || wallet.some((w) => w.fine === j.fine && w.usa)) { codM.textContent = 'Questo buono è già applicato.'; codM.className = 'no'; return; }
+        buoni.push({ codice: c, disponibile: j.disponibile, soloPremi: j.soloPremi, fine: j.fine, usa: true });
+        codM.textContent = j.soloPremi ? `Buono punti applicato ✓ (vale sui prodotti del Catalogo Premi)` : `Buono applicato ✓ disponibili ${eur(j.disponibile)}`; codM.className = 'ok'; codI.value = '';
+      } else { codM.textContent = j.error || (j.esaurito ? 'Questo buono è già stato speso tutto.' : 'Codice non valido: controlla di averlo scritto bene.'); codM.className = 'no'; }
+    } catch { codM.textContent = 'Non riusciamo a controllare il codice ora.'; codM.className = 'no'; }
+    listaCodici(); render();
+  }
   async function applica(c: string, zitto = false) {
     c = c.trim().toUpperCase(); if (!c) return;
+    if (/^SEMI/.test(c.replace(/[^A-Z0-9]/g, ''))) return applicaBuono(c);
     codM.textContent = 'Controllo…'; codM.className = '';
     try {
       const j = await (await fetch('/api/premio?codice=' + encodeURIComponent(c))).json();
       if (j.valido) { codice = c; pct = j.sconto; el('sc-p').textContent = String(pct); codM.textContent = `Codice applicato: −${pct}% sui prodotti ✓`; codM.className = 'ok'; (el('cod') as HTMLDetailsElement).open = true; }
       else { codice = ''; pct = 0; codM.textContent = zitto ? '' : (j.usato ? 'Questo codice è già stato usato.' : 'Codice non valido o scaduto.'); codM.className = 'no'; }
     } catch { codM.textContent = 'Non riusciamo a controllare il codice ora.'; codM.className = 'no'; }
-    render();
+    listaCodici(); render();
   }
+  // account collegato: anteprima punti e buoni salvati (si applicano con un tocco)
+  fetch('/api/account/io', { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).then(async (j) => {
+    if (!j?.collegato) return;
+    io = j;
+    const m = await (await fetch('/api/buoni/miei', { cache: 'no-store' })).json().catch(() => ({ buoni: [] }));
+    wallet = (m.buoni || []).filter((b: any) => b.disponibile > 0).map((b: any) => ({ id: b.id, disponibile: b.disponibile, soloPremi: b.soloPremi, fine: b.fine, usa: true }));
+    disegnaWallet(); render();
+  }).catch(() => {});
+  function disegnaWallet() {
+    const w = el('wal');
+    w.hidden = !wallet.length;
+    w.innerHTML = '<b>I tuoi buoni</b>' + wallet.map((b, i) => `<label class="wl"><input type="checkbox" data-w="${i}" ${b.usa ? 'checked' : ''}> ${b.soloPremi ? 'Buono punti' : 'Buono regalo'} …${b.fine} <span>${eur(b.disponibile)}</span></label>`).join('');
+  }
+  el('wal').addEventListener('change', (e) => { const t = e.target as HTMLInputElement; if (t.dataset.w != null) { wallet[Number(t.dataset.w)].usa = t.checked; render(); } });
   el('cod-b').addEventListener('click', () => applica(codI.value));
   codI.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applica(codI.value); } });
   // 1) link "Riscatta lo sconto" dall'email: /carrello/?codice=GIOCO-XXXXXXX  2) codice vinto su questo dispositivo
   const daLink = (new URL(location.href).searchParams.get('codice') || '').trim().toUpperCase();
-  if (/^GIOCO-[A-Z0-9]{7}$/.test(daLink)) { codI.value = daLink; applica(daLink); history.replaceState(null, '', location.pathname); }
+  if (/^SEMI/.test(daLink)) { (el('cod') as HTMLDetailsElement).open = true; applicaBuono(daLink); history.replaceState(null, '', location.pathname); }
+  else if (/^GIOCO-[A-Z0-9]{7}$/.test(daLink)) { codI.value = daLink; applica(daLink); history.replaceState(null, '', location.pathname); }
   else try {
     const g = JSON.parse(localStorage.getItem('semi-gioco-v2') || localStorage.getItem('semi-gioco-v1') || 'null');
     if (g?.codice) { codI.value = g.codice; applica(g.codice, true); }
@@ -112,7 +184,13 @@ import { SITO } from '../data/sito.js';
   indice().then((l: any[]) => { M = Object.fromEntries(l.map((x) => [x.s, x])); render(); }).catch(() => { el('righe').innerHTML = '<p style="padding:20px;margin:0">Non riusciamo a caricare il carrello: ricarica la pagina.</p>'; });
 </script>
 <style is:global>.cg-n{font-size:12.5px;color:var(--mut);margin:8px 0 0;line-height:1.45}
-  #sc-r[hidden]{display:none}
+  #sc-r[hidden],#bp-r[hidden],#br-r[hidden],.ptc[hidden],.wal[hidden]{display:none}
+  .cod-l{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.cl{display:inline-flex;align-items:center;gap:6px;background:#e8f5ec;border-radius:999px;padding:4px 6px 4px 12px;font-size:13px;font-weight:700}
+  .cl button{border:0;background:#0000000f;border-radius:50%;width:22px;height:22px;cursor:pointer}
+  .wal{display:flex;flex-direction:column;gap:6px;background:#fffbea;border:1px solid #f5b80066;border-radius:10px;padding:10px 12px;font-size:14px}
+  .wl{display:flex;align-items:center;gap:8px;cursor:pointer}.wl span{margin-left:auto;font-weight:800}
+  .ptc{display:flex;flex-direction:column;gap:4px;background:#15171a;color:#fff;border-radius:10px;padding:12px 14px;font-size:14px}.ptc b{color:var(--y)}.ptc small{color:#c9cbcf}
+  .ptc .ul,.ptc-l{color:#fff;text-decoration:underline}.ptc-h{color:#e8e9eb}.ptc-l{font-size:12.5px;color:#c9cbcf}
   .fs{display:flex;flex-direction:column;gap:8px;background:#fff8dc;border:1px solid #f5b80066;border-radius:10px;padding:12px;font-size:14px}.fs.ok{background:#e8f5ec;border-color:#1a7a4344}
   .fs-b{height:8px;border-radius:4px;background:#0000000f;overflow:hidden}.fs-b i{display:block;height:100%;background:var(--y);border-radius:4px;transition:width .3s}.fs.ok .fs-b i{background:var(--ok)}
   .cart{display:grid;grid-template-columns:minmax(0,2fr) minmax(min(280px,100%),1fr);gap:20px;align-items:start}

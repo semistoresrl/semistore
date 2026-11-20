@@ -4,6 +4,7 @@
 import prodotti from '../../src/data/prodotti.json';
 import { SITO } from '../../src/data/sito.js';
 import { cliente as clienteDi } from '../_lib/clienti.js';
+import { perCodice, disponibile, prenota } from '../_lib/buoni.js';
 
 const PER_SLUG = Object.fromEntries(prodotti.map((p) => [p.slug, p]));
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json' } });
@@ -53,8 +54,47 @@ export async function onRequestPost({ request, env }) {
     }
   }
 
+  // sconto del minigioco (10% sui prodotti)
+  const scontoGioco = premio ? Math.round(sub * 10 / 100) : 0;
+  // buoni: regalo (su tutto) e punti (solo prodotti del Catalogo Premi, solo nel proprio account). Il server ricalcola tutto.
+  const premi = new Set(SITO.punti.prodottiPremio || []);
+  const subPremi = items.filter((i) => premi.has(i.p.slug)).reduce((t, i) => t + i.p.prezzo * i.q, 0);
+  let resto = sub - scontoGioco, restoPremi = Math.round(subPremi * (sub ? (sub - scontoGioco) / sub : 1));
+  const usi = [];
+  const codiciBuoni = [...new Set((Array.isArray(body.buoni) ? body.buoni : []).map(String))].slice(0, 5);
+  if ((codiciBuoni.length || (Array.isArray(body.buoniAccount) && body.buoniAccount.length)) && !env.DB) return json({ error: 'buoni non disponibili ora' }, 503);
+  // buoni salvati nell'account: si passano per id (il codice non serve più), solo dal titolare
+  const idsAccount = [...new Set((Array.isArray(body.buoniAccount) ? body.buoniAccount : []).map(String))].slice(0, 5);
+  const daUsare = [];
+  for (const cod of codiciBuoni) daUsare.push(await perCodice(env, cod) || { stato: 'annullato' });
+  if (idsAccount.length) {
+    if (!cl) return json({ error: 'Entra nel tuo account per usare i buoni salvati.', accedi: true }, 401);
+    const { dbb } = await import('../_lib/buoni.js');
+    const d = await dbb(env);
+    for (const id of idsAccount) { const b = await d.prepare('SELECT * FROM buoni WHERE id=? AND cliente=?').bind(id, cl.id).first(); if (b && !daUsare.some((x) => x.id === b.id)) daUsare.push(b); }
+  }
+  for (const b of daUsare) {
+    if (!b || b.stato === 'annullato') return json({ error: 'Un codice buono non è valido: toglilo e riprova.' }, 400);
+    if (b.tipo === 'punti' && (!cl || cl.id !== b.cliente)) return json({ error: 'Per usare un buono punti entra nel tuo account.', accedi: true }, 401);
+    const disp = await disponibile(env, b);
+    const max = b.tipo === 'punti' ? Math.min(resto, restoPremi) : resto;
+    const uso = Math.min(disp, max);
+    if (uso <= 0) continue;
+    usi.push({ id: b.id, importo: uso, tipo: b.tipo, fine: b.fine });
+    resto -= uso; if (b.tipo === 'punti') restoPremi -= uso; else restoPremi = Math.min(restoPremi, resto);
+  }
+  const usoPunti = usi.filter((u) => u.tipo === 'punti').reduce((t, u) => t + u.importo, 0);
+  const usoRegalo = usi.filter((u) => u.tipo !== 'punti').reduce((t, u) => t + u.importo, 0);
+  const scontoTot = scontoGioco + usoPunti + usoRegalo;
+
   const f = new URLSearchParams();
   f.set('mode', 'payment');
+  f.set('expires_at', String(Math.floor(Date.now() / 1000) + 31 * 60)); // la prenotazione dei buoni dura 45 minuti
+  f.set('metadata[base_punti]', String(Math.max(0, sub - scontoGioco - usoPunti))); // i punti si calcolano su questo
+  if (usi.length) f.set('metadata[buoni]', usi.map((u) => `${u.tipo === 'punti' ? 'P' : 'R'}…${u.fine}:${(u.importo / 100).toFixed(2)}`).join(', ').slice(0, 450));
+  if (usoRegalo) f.set('metadata[pagato_con_buono_regalo]', (usoRegalo / 100).toFixed(2));
+  if (scontoGioco) f.set('metadata[sconto_gioco]', (scontoGioco / 100).toFixed(2));
+  if (usoPunti) f.set('metadata[sconto_buono_punti]', (usoPunti / 100).toFixed(2));
   f.set('locale', 'it');
   f.set('success_url', `${origin}/grazie/?s={CHECKOUT_SESSION_ID}`);
   f.set('cancel_url', `${origin}/carrello/`);
@@ -107,11 +147,11 @@ export async function onRequestPost({ request, env }) {
     f.set('shipping_options[0][shipping_rate_data][delivery_estimate][maximum][value]', '4');
   }
 
-  if (premio) {
-    const coupon = await couponGioco(env);
+  if (premio) f.set('metadata[codice_sconto]', codice);
+  if (scontoTot > 0) { // Stripe accetta un solo sconto: creo un coupon unico, valido una volta, con la somma di sconto e buoni
+    const coupon = await couponUnico(env, scontoTot, premio, usi);
     if (!coupon) return json({ error: 'sconto momentaneamente non disponibile' }, 502);
     f.set('discounts[0][coupon]', coupon);
-    f.set('metadata[codice_sconto]', codice);
   }
 
   const r = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -122,16 +162,17 @@ export async function onRequestPost({ request, env }) {
   const s = await r.json();
   if (!r.ok) { console.error('Stripe', s.error?.message); return json({ error: 'pagamento non disponibile' }, 502); }
   if (premio) await env.RICHIESTE.put('premio:' + codice, JSON.stringify({ ...premio, sessione: s.id }), { expirationTtl: 60 * 86400 });
+  if (usi.length) await prenota(env, s.id, usi);
   return json({ url: s.url });
 }
 
-// Coupon Stripe del 10% per i vincitori del minigioco: lo crea la prima volta che serve.
-async function couponGioco(env) {
-  const id = 'SEMI-GIOCO-10', h = { authorization: `Bearer ${env.STRIPE_SECRET_KEY}` };
-  const g = await fetch(`https://api.stripe.com/v1/coupons/${id}`, { headers: h });
-  if (g.ok) return id;
-  const f = new URLSearchParams({ id, percent_off: '10', duration: 'once', name: 'Premio Trapano Slalom −10%' });
-  const c = await fetch('https://api.stripe.com/v1/coupons', { method: 'POST', headers: { ...h, 'content-type': 'application/x-www-form-urlencoded' }, body: f });
-  if (!c.ok) { console.error('Stripe coupon', (await c.json()).error?.message); return null; }
-  return id;
+// Coupon Stripe usa e getta con l'importo esatto di sconto del gioco + buoni (Checkout accetta un solo sconto per pagamento).
+async function couponUnico(env, importo, premio, usi) {
+  const nome = [premio ? 'Premio −10%' : '', usi.some((u) => u.tipo !== 'punti') ? 'Buono regalo' : '', usi.some((u) => u.tipo === 'punti') ? 'Buono punti' : ''].filter(Boolean).join(' + ');
+  const f = new URLSearchParams({ amount_off: String(importo), currency: 'eur', duration: 'once', max_redemptions: '1', name: nome.slice(0, 40) || 'Sconto Semi Store' });
+  f.set('redeem_by', String(Math.floor(Date.now() / 1000) + 2 * 3600));
+  const c = await fetch('https://api.stripe.com/v1/coupons', { method: 'POST', headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'content-type': 'application/x-www-form-urlencoded' }, body: f });
+  const j = await c.json();
+  if (!c.ok) { console.error('Stripe coupon', j.error?.message); return null; }
+  return j.id;
 }
