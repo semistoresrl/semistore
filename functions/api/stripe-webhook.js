@@ -80,6 +80,15 @@ async function registraOrdine(env, o, righe) {
       md.consegna || '', JSON.stringify(el), new Date().toISOString(), o.payment_intent || null, base).run();
   await confermaBuoni(env, o.id, o.id.slice(-8).toUpperCase()); // scala il saldo dei buoni usati (una volta sola)
   if (!nuovo.meta.changes) return; // già registrato (Stripe a volte riprova)
+  if (cl) { // completa il profilo con telefono e indirizzo usati al pagamento, solo dove è ancora vuoto
+    const a = o.customer_details?.address || {}, tel = o.customer_details?.phone;
+    if ((tel && !cl.telefono) || (a.line1 && !cl.indirizzo)) {
+      const ok = a.line1 && !cl.indirizzo && a.country === 'IT';
+      await d.prepare(`UPDATE clienti SET telefono=COALESCE(NULLIF(telefono,''),?), indirizzo=CASE WHEN ? THEN ? ELSE indirizzo END,
+          cap=CASE WHEN ? THEN ? ELSE cap END, citta=CASE WHEN ? THEN ? ELSE citta END, provincia=CASE WHEN ? THEN ? ELSE provincia END, aggiornato=? WHERE id=?`)
+        .bind(tel || null, ok ? 1 : 0, [a.line1, a.line2].filter(Boolean).join(' '), ok ? 1 : 0, a.postal_code || '', ok ? 1 : 0, a.city || '', ok ? 1 : 0, a.state || '', new Date().toISOString(), cl.id).run().catch(() => {});
+    }
+  }
   if (cl && punti) await aggiungiPunti(env, cl.id, 'ord:' + o.id, punti, `Ordine ${o.id.slice(-8).toUpperCase()}`);
   const eur = (c) => (c / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
   const ind = o.shipping_details?.address || o.customer_details?.address || {};

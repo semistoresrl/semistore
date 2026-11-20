@@ -16,7 +16,7 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
       <p class="acc-sub">Niente password: scrivi la tua email e ti mandiamo un link. Un clic e sei dentro. Se è la prima volta, l'account si crea da solo.</p>
       <p class="acc-warn" data-scaduto hidden>Il link è scaduto o è già stato usato: chiedine uno nuovo.</p>
       <form data-f="entra" novalidate>
-        <label class="field">La tua email<input name="email" type="email" required autocomplete="email" inputmode="email" placeholder="nome@email.it" maxlength="120" /></label>
+        <label class="field">La tua email<input name="email" type="email" required autocomplete="email" inputmode="email" placeholder="nome@email.it" maxlength="120" data-pf="email" /></label>
         <button class="btn btn-y">Inviami il link</button>
         <p class="acc-err" role="alert" hidden></p>
       </form>
@@ -58,7 +58,7 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
             <p class="acc-note">Se non hai codice SDI né PEC, la fattura la trovi nel tuo cassetto fiscale dell'Agenzia delle Entrate.</p>
           </div>
         </div>
-        <label class="field">Telefono <span class="opz">(facoltativo, per avvisarti quando l'ordine è pronto)</span><input name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" /></label>
+        <label class="field">Telefono <span class="opz">(facoltativo, per avvisarti quando l'ordine è pronto)</span><input name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" data-pf="telefono" /></label>
         <label class="chk"><input type="checkbox" name="offerte" /> Voglio ricevere offerte e novità di Semi Store (facoltativo)</label>
         <p class="acc-note">Registrandoti accetti le <a class="ul" href="/condizioni-di-vendita/">condizioni di vendita</a> e il <a class="ul" href="/punti/#regolamento">regolamento del programma punti</a>; i dati sono trattati come spiegato nell'<a class="ul" href="/privacy/">informativa privacy</a>.</p>
         <button class="btn btn-y" data-salva>Salva e continua</button>
@@ -103,6 +103,8 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
 </Base>
 <script define:vars={{ LIV, CONV, catalogo: SITO.punti.catalogo }}>window.__P = { LIV, CONV, catalogo };</script>
 <script>
+  import { precompila, ricorda, capAutomatico, dimenticaCache } from '../scripts/precompila.js';
+  dimenticaCache();
   const PX = (window as any).__P;
   const $ = <T extends HTMLElement = HTMLElement>(s: string, r: ParentNode = document) => r.querySelector(s) as T;
   const $$ = (s: string, r: ParentNode = document) => [...r.querySelectorAll<HTMLElement>(s)];
@@ -129,13 +131,14 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
     if (u.searchParams.get('link') === 'scaduto') $('[data-scaduto]').hidden = false;
     let em = ''; try { em = JSON.parse(localStorage.getItem('semi-gioco-v2') || '{}').email || ''; } catch {}
     const i = $<HTMLInputElement>('[data-f="entra"] input[name=email]'); if (em && !i.value) i.value = em;
+    precompila(fe);
   }
   const fe = $<HTMLFormElement>('[data-f="entra"]');
   fe.addEventListener('submit', async (e) => {
     e.preventDefault();
     const em = (fe.email as HTMLInputElement).value.trim(), b = $<HTMLButtonElement>('button', fe);
     if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em)) return errore(fe, 'Inserisci un indirizzo email valido.');
-    errore(fe, ''); b.disabled = true; b.textContent = 'Invio…';
+    errore(fe, ''); b.disabled = true; b.textContent = 'Invio…'; ricorda(fe);
     try {
       const r = await fetch('/api/account/link', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: em, dopo: dopo || '/account/' }) });
       const j = await r.json(); if (!r.ok) throw new Error(j.error);
@@ -147,6 +150,7 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
 
   // ---------- registrazione / modifica ----------
   const fp = $<HTMLFormElement>('[data-f="profilo"]');
+  capAutomatico(fp);
   const campo = (n: string) => fp.elements.namedItem(n) as HTMLInputElement;
   const tipo = () => ($<HTMLInputElement>('input[name=tipo]:checked')).value;
   const aggiornaTipo = () => {
@@ -162,6 +166,7 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
     $('[data-salva]').textContent = primo ? 'Salva e continua' : 'Salva';
     ($<HTMLInputElement>(`input[name=tipo][value="${p.tipo || 'privato'}"]`)).checked = true;
     for (const k of ['nome', 'cognome', 'telefono', 'piva', 'ragioneSociale', 'indirizzo', 'cap', 'citta', 'provincia', 'sdi', 'pec']) if (p[k]) campo(k).value = p[k];
+    precompila(fp);
     (campo('offerte')).checked = !!p.offerte;
     if (p.piva) $('[data-az]').hidden = false;
     aggiornaTipo();
@@ -194,7 +199,7 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
     const b = $<HTMLButtonElement>('[data-salva]'), t = b.textContent;
     const dati: any = { tipo: tipo(), offerte: campo('offerte').checked };
     for (const k of ['nome', 'cognome', 'telefono', 'piva', 'ragioneSociale', 'indirizzo', 'cap', 'citta', 'provincia', 'sdi', 'pec']) dati[k] = campo(k).value.trim();
-    errore(fp, ''); b.disabled = true; b.textContent = 'Salvo…';
+    errore(fp, ''); b.disabled = true; b.textContent = 'Salvo…'; dimenticaCache();
     try {
       const r = await fetch('/api/account/profilo', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(dati) });
       const j = await r.json(); if (!r.ok) throw new Error(j.error);

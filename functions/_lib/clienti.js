@@ -39,6 +39,7 @@ export async function dbc(env) {
       d.prepare('CREATE INDEX IF NOT EXISTS p_cliente ON punti_mov(cliente)'),
     ]);
     try { await d.prepare('ALTER TABLE ordini ADD COLUMN pi TEXT').run(); } catch {} // payment intent, per i rimborsi
+    try { await d.prepare('ALTER TABLE clienti ADD COLUMN stripe_cus TEXT').run(); } catch {} // cliente Stripe: il pagamento si apre già compilato
     pronto = true;
   }
   return d;

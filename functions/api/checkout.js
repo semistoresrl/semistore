@@ -103,7 +103,14 @@ export async function onRequestPost({ request, env }) {
   f.set('metadata[consegna]', ritiro ? 'RITIRO IN NEGOZIO' : 'SPEDIZIONE');
   // ricevuta a tutti; fattura elettronica solo a chi ha un account con partita IVA (dati presi dal profilo)
   if (cl) {
-    f.set('customer_email', cl.email);
+    // pagamento già compilato: nome, telefono e indirizzo arrivano dal profilo; quello che il cliente corregge su Stripe resta salvato
+    const cus = await clienteStripe(env, cl).catch(() => null);
+    if (cus) {
+      f.set('customer', cus);
+      f.set('customer_update[address]', 'auto');
+      f.set('customer_update[name]', 'auto');
+      if (!ritiro) f.set('customer_update[shipping]', 'auto');
+    } else f.set('customer_email', cl.email);
     f.set('payment_intent_data[receipt_email]', cl.email);
     f.set('metadata[cliente]', cl.id);
     if (cl.tipo === 'azienda' && cl.piva) {
@@ -174,5 +181,30 @@ async function couponUnico(env, importo, premio, usi) {
   const c = await fetch('https://api.stripe.com/v1/coupons', { method: 'POST', headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'content-type': 'application/x-www-form-urlencoded' }, body: f });
   const j = await c.json();
   if (!c.ok) { console.error('Stripe coupon', j.error?.message); return null; }
+  return j.id;
+}
+
+// Crea (una volta) o aggiorna il cliente Stripe con i dati del profilo
+async function clienteStripe(env, cl) {
+  const nome = cl.tipo === 'azienda' ? cl.ragione_sociale : [cl.nome, cl.cognome].filter(Boolean).join(' ');
+  const f = new URLSearchParams();
+  if (!cl.stripe_cus) f.set('email', cl.email);
+  if (nome) f.set('name', nome.slice(0, 250));
+  if (cl.telefono) f.set('phone', cl.telefono);
+  if (cl.indirizzo && cl.cap && cl.citta) {
+    for (const [k, v] of [['line1', cl.indirizzo], ['postal_code', cl.cap], ['city', cl.citta], ['state', cl.provincia || ''], ['country', 'IT']]) f.set(`address[${k}]`, v);
+    if (!cl.stripe_cus) {
+      f.set('shipping[name]', (nome || cl.email).slice(0, 250));
+      if (cl.telefono) f.set('shipping[phone]', cl.telefono);
+      for (const [k, v] of [['line1', cl.indirizzo], ['postal_code', cl.cap], ['city', cl.citta], ['state', cl.provincia || ''], ['country', 'IT']]) f.set(`shipping[address][${k}]`, v);
+    }
+  }
+  f.set('preferred_locales[0]', 'it');
+  f.set('metadata[cliente]', cl.id);
+  const url = 'https://api.stripe.com/v1/customers' + (cl.stripe_cus ? '/' + cl.stripe_cus : '');
+  const r = await fetch(url, { method: 'POST', headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'content-type': 'application/x-www-form-urlencoded' }, body: f });
+  const j = await r.json();
+  if (!r.ok) { if (cl.stripe_cus && r.status === 404) { cl.stripe_cus = null; return clienteStripe(env, cl); } return null; }
+  if (j.id !== cl.stripe_cus) await env.DB.prepare('UPDATE clienti SET stripe_cus=? WHERE id=?').bind(j.id, cl.id).run();
   return j.id;
 }

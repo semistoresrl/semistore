@@ -44,7 +44,7 @@ const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazi
             <div class="br-reg" data-reg>
               <div class="br-g2">
                 <label class="field">Nome di chi lo riceve *<input name="destinatario" maxlength="60" autocomplete="off" placeholder="es. Luca" /></label>
-                <label class="field">Da parte di<input name="mittente" maxlength="60" autocomplete="name" placeholder="es. Anna" /></label>
+                <label class="field">Da parte di<input name="mittente" maxlength="60" autocomplete="name" data-pf="nome" placeholder="es. Anna" /></label>
               </div>
               <label class="field">Email di chi lo riceve <span class="opz">(facoltativa: se la lasci vuota, il buono arriva solo a te da stampare o inoltrare)</span><input name="emailDest" type="email" maxlength="120" autocomplete="off" placeholder="nome@email.it" /></label>
               <label class="field">Messaggio <span class="opz">(max 300 caratteri)</span><textarea name="messaggio" maxlength="300" rows="3" placeholder="Buon Natale! Per i tuoi lavori in casa…"></textarea></label>
@@ -71,6 +71,7 @@ const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazi
 </Base>
 <script define:vars={{ ed: ED }}>window.__ED = ed;</script>
 <script>
+  import { precompila, ricorda } from '../scripts/precompila.js';
   const ED = (window as any).__ED;
   const f = document.getElementById('f') as HTMLFormElement;
   const $ = (id: string) => document.getElementById(id)!;
@@ -92,12 +93,12 @@ const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazi
   // importo scelto dalla home (/buono-regalo/?importo=100)
   const imp = new URL(location.href).searchParams.get('importo');
   if (imp) { const r = f.querySelector<HTMLInputElement>(`input[name=importo][value="${CSS.escape(imp)}"]`); if (r) r.checked = true; else { (f.querySelector('input[name=importo][value=altro]') as HTMLInputElement).checked = true; (f.elements.namedItem('altro') as HTMLInputElement).value = imp; } }
-  f.addEventListener('input', aggiorna); f.addEventListener('change', aggiorna); aggiorna();
+  f.addEventListener('input', aggiorna); f.addEventListener('change', aggiorna); aggiorna(); precompila(f);
   f.addEventListener('submit', async (e) => {
     e.preventDefault();
     const b = $('paga') as HTMLButtonElement, err = $('err'); err.hidden = true;
     const corpo = { importo: importo(), tema: sel('tema'), perChi: sel('perChi'), destinatario: val('destinatario'), mittente: val('mittente'), emailDest: val('emailDest'), messaggio: val('messaggio') };
-    b.disabled = true; b.textContent = 'Un attimo…';
+    b.disabled = true; b.textContent = 'Un attimo…'; ricorda(f);
     try {
       const r = await fetch('/api/buoni/acquista', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(corpo) });
       const j = await r.json(); if (!r.ok || !j.url) throw new Error(j.error || 'Errore');

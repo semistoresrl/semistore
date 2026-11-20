@@ -9,9 +9,9 @@ import { SITO } from '../data/sito.js';
     <h1 class="h2">Recedere dal contratto qui</h1>
     <p>Se hai comprato su semistore.it come consumatore, puoi recedere dall'acquisto entro <b>14 giorni dalla consegna</b> senza dare spiegazioni (artt. 52 e seguenti del Codice del consumo). Compila il modulo: ricevi subito via email la conferma con data e ora.</p>
     <form id="rf" class="card rec-f" novalidate>
-      <label class="field">Nome e cognome *<input name="nome" required autocomplete="name" maxlength="120" /></label>
-      <label class="field">Numero d'ordine o email usata per l'acquisto *<input name="ordine" required maxlength="200" placeholder="es. il numero sulla ricevuta Stripe, o la tua email" /></label>
-      <label class="field">Email a cui inviare la conferma *<input name="email" type="email" required autocomplete="email" maxlength="200" /></label>
+      <label class="field">Nome e cognome *<input name="nome" required autocomplete="name" data-pf="nome" maxlength="120" /></label>
+      <label class="field">Numero d'ordine o email usata per l'acquisto *<input name="ordine" required data-pf="ordine" maxlength="200" placeholder="es. il numero sulla ricevuta Stripe, o la tua email" /></label>
+      <label class="field">Email a cui inviare la conferma *<input name="email" type="email" required autocomplete="email" data-pf="email" maxlength="200" /></label>
       <label class="field">Prodotti da restituire <span class="opz">(facoltativo: se vuoto, vale per tutto l'ordine)</span><textarea name="prodotti" maxlength="1000" rows="3"></textarea></label>
       <input name="sito_web" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
       <button class="btn btn-k" id="rb">Conferma recesso</button>
@@ -28,12 +28,13 @@ import { SITO } from '../data/sito.js';
   </section>
 </Base>
 <script>
+  import { precompila, ricorda } from '../scripts/precompila.js';
   const f = document.getElementById('rf') as HTMLFormElement, b = document.getElementById('rb') as HTMLButtonElement;
   const err = document.getElementById('re')!;
   f.addEventListener('submit', async (e) => {
     e.preventDefault(); err.hidden = true;
     if (!f.reportValidity()) return;
-    b.disabled = true; b.textContent = 'Invio…';
+    b.disabled = true; b.textContent = 'Invio…'; ricorda(f);
     try {
       const r = await fetch('/api/recesso', { method: 'POST', body: new FormData(f) });
       const j = await r.json();
@@ -42,6 +43,7 @@ import { SITO } from '../data/sito.js';
       f.hidden = true; (document.getElementById('ro') as HTMLElement).hidden = false;
     } catch (x: any) { err.textContent = x.message; err.hidden = false; b.disabled = false; b.textContent = 'Conferma recesso'; }
   });
+  precompila(f);
 </script>
 <style>
   .rec-f{padding:clamp(16px,4vw,24px);display:flex;flex-direction:column;gap:14px;margin:20px 0}

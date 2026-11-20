@@ -170,7 +170,7 @@ const vantaggi = [
       <b style="font-size:22px">Segui la tua riparazione</b>
       <span style="color:var(--mut);font-size:14px">Inserisci il numero di scheda che ti abbiamo dato al banco e il tuo telefono.</span>
       <label class="field">Numero scheda<input name="scheda" required placeholder="es. AS-2026-0142" class="mono" /></label>
-      <label class="field">Telefono<input name="tel" type="tel" required inputmode="tel" autocomplete="tel" /></label>
+      <label class="field">Telefono<input name="tel" type="tel" required inputmode="tel" autocomplete="tel" data-pf="telefono" /></label>
       <button class="btn btn-y" formaction="/assistenza/#stato">Controlla lo stato</button>
     </form>
   </div></section>
@@ -248,6 +248,8 @@ const vantaggi = [
   @media (max-width:560px){.mr-g{grid-template-columns:repeat(2,1fr)}.mr-c:first-child{grid-column:span 2}.mr-c b{font-size:19px}}
 </style>
 <script>
+  import { precompila } from '../scripts/precompila.js';
+  precompila();
   // carosello "Prodotti consigliati"
   const rc = document.getElementById('rc');
   document.querySelectorAll<HTMLButtonElement>('[data-rc]').forEach((b) => b.addEventListener('click', () => rc?.scrollBy({ left: Number(b.dataset.rc) * rc.clientWidth * 0.9 })));

@@ -35,9 +35,9 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
       </fieldset>
       <fieldset class="step" data-step="2">
         <legend>2 · I tuoi dati</legend>
-        <label class="field">Nome e cognome / ditta<input name="nome" required autocomplete="name" /></label>
-        <label class="field">Telefono<input name="telefono" type="tel" required autocomplete="tel" inputmode="tel" /></label>
-        <label class="field">Email<input name="email" type="email" autocomplete="email" /></label>
+        <label class="field">Nome e cognome / ditta<input name="nome" required autocomplete="name" data-pf="nome" /></label>
+        <label class="field">Telefono<input name="telefono" type="tel" required autocomplete="tel" data-pf="telefono" inputmode="tel" /></label>
+        <label class="field">Email<input name="email" type="email" autocomplete="email" data-pf="email" /></label>
       </fieldset>
       <fieldset class="step" data-step="3">
         <legend>3 · Come ci arriva l'utensile</legend>
@@ -46,13 +46,13 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
         <label class="radio opt"><input type="radio" name="consegna" value="ritiro" /><span><b>Venite a ritirarlo voi</b><small>Prenotiamo noi il corriere: il costo del ritiro si paga dopo, insieme alla riparazione. Ti diamo subito il DDT da mettere nel pacco.</small></span></label>
         <div id="pacco" class="pacco" hidden>
           <p class="nota">Indirizzo da cui parte il pacco (va anche sul DDT)</p>
-          <label class="field">Indirizzo e numero civico<input name="indirizzo" autocomplete="street-address" /></label>
+          <label class="field">Indirizzo e numero civico<input name="indirizzo" autocomplete="street-address" data-pf="indirizzo" /></label>
           <div class="riga3">
-            <label class="field">CAP<input name="cap" inputmode="numeric" maxlength="5" autocomplete="postal-code" /></label>
-            <label class="field">Città<input name="citta" autocomplete="address-level2" /></label>
-            <label class="field">Prov.<input name="prov" maxlength="2" style="text-transform:uppercase" /></label>
+            <label class="field">CAP<input name="cap" inputmode="numeric" maxlength="5" autocomplete="postal-code" data-pf="cap" /></label>
+            <label class="field">Città<input name="citta" autocomplete="address-level2" data-pf="citta" /></label>
+            <label class="field">Prov.<input name="prov" maxlength="2" autocomplete="address-level1" data-pf="provincia" style="text-transform:uppercase" /></label>
           </div>
-          <label class="field">Codice fiscale o Partita IVA (per il DDT, facoltativo)<input name="cf" style="text-transform:uppercase" /></label>
+          <label class="field">Codice fiscale o Partita IVA (per il DDT, facoltativo)<input name="cf" data-pf="cf" style="text-transform:uppercase" /></label>
           <div class="riga2">
             <label class="field">Numero di colli<input name="colli" type="number" min="1" max="20" value="1" inputmode="numeric" /></label>
             <label class="field">Accessori nel pacco<input name="accessori" placeholder="es. 2 batterie, caricatore, valigetta" /></label>
@@ -71,7 +71,7 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
       <form id="stato" class="card box">
         <h2>Stato della riparazione</h2>
         <label class="field">Numero scheda<input name="scheda" required class="mono" placeholder="es. AS-2026-0142 o WEB-…" /></label>
-        <label class="field">Telefono lasciato in accettazione<input name="tel" type="tel" required inputmode="tel" /></label>
+        <label class="field">Telefono lasciato in accettazione<input name="tel" type="tel" required inputmode="tel" autocomplete="tel" data-pf="telefono" /></label>
         <button class="btn btn-k">Controlla</button>
         <div id="esito" aria-live="polite"></div>
       </form>
@@ -90,6 +90,7 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
 </Base>
 <script define:vars={{ STATI }}>window.__STATI = STATI;</script>
 <script>
+  import { precompila, ricorda, capAutomatico } from '../scripts/precompila.js';
   const STATI: string[] = (window as any).__STATI;
   const f = document.getElementById('req') as HTMLFormElement, msg = document.getElementById('msg')!;
   const pacco = document.getElementById('pacco')!, dispo = document.getElementById('dispo')!;
@@ -101,10 +102,11 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
     if (!f.checkValidity()) { f.reportValidity(); return; }
     const b = document.getElementById('inv') as HTMLButtonElement; b.disabled = true; b.textContent = 'Invio…';
     try {
+      ricorda(f);
       const r = await fetch('/api/assistenza', { method: 'POST', body: new FormData(f) });
       const j = await r.json(); if (!r.ok) throw new Error(j.error || 'errore');
       if (j.ddt) { location.href = j.ddt; return; }
-      f.reset(); pac(); msg.className = 'msg ok'; msg.textContent = `Richiesta ricevuta (n. ${j.id}). Ti richiamiamo entro un giorno lavorativo.`;
+      f.reset(); pac(); precompila(f); msg.className = 'msg ok'; msg.textContent = `Richiesta ricevuta (n. ${j.id}). Ti richiamiamo entro un giorno lavorativo.`;
     } catch { msg.className = 'msg ko'; msg.textContent = 'Invio non riuscito. Riprova o chiamaci.'; }
     msg.hidden = false; b.disabled = false; b.textContent = 'Invia richiesta';
   });
@@ -121,6 +123,7 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
     } catch (e: any) { out.textContent = e.message === 'non trovata' ? 'Scheda non trovata: controlla numero e telefono.' : 'Servizio non disponibile, chiamaci.'; }
   }
   s.addEventListener('submit', (e) => { e.preventDefault(); check(); });
+  capAutomatico(f); precompila();
   const u = new URL(location.href);
   if (u.searchParams.get('scheda')) { (s.elements.namedItem('scheda') as HTMLInputElement).value = u.searchParams.get('scheda')!; (s.elements.namedItem('tel') as HTMLInputElement).value = u.searchParams.get('tel') || ''; check(); }
 </script>

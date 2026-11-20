@@ -76,7 +76,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
           <span class="gm-badge">Premio −10%</span>
           <b class="gm-tt">Ritira il tuo sconto</b>
           <span class="gm-sub">Registrati con la tua email: ti inviamo il codice da usare sul sito.</span>
-          <label class="gm-fl"><span>La tua email</span><input type="email" name="email" required autocomplete="email" inputmode="email" placeholder="nome@email.it" maxlength="120" /></label>
+          <label class="gm-fl"><span>La tua email</span><input type="email" name="email" required autocomplete="email" inputmode="email" data-pf="email" placeholder="nome@email.it" maxlength="120" /></label>
           <label class="gm-chk"><input type="checkbox" name="privacy" required /><span>Ho letto l'<a href="/privacy/" target="_blank" rel="noopener">informativa privacy</a> <b>*</b></span></label>
           <label class="gm-chk"><input type="checkbox" name="offerte" /><span>Voglio ricevere offerte e novità di Semi Store (facoltativo)</span></label>
           <p class="gm-err" data-g-ferr role="alert" hidden></p>
@@ -218,6 +218,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
 </style>
 
 <script>
+  import { precompila, ricorda } from '../scripts/precompila.js';
   type Ob = { k: string; x: number; y: number; r: number; w?: number; h?: number; vx?: number; a?: number; t?: number; hit?: boolean };
   type Pt = { x: number; y: number; vx: number; vy: number; life: number; max: number; c: string; s: number };
   type Lv = { n: string; d: string; v: number; len: number; gap: [number, number]; p: Record<string, number> };
@@ -498,7 +499,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
       state = 'menu'; show('premio');
       const em = form.elements.namedItem('email') as HTMLInputElement;
       if (save.email && !em.value) em.value = save.email;
-      em.focus({ preventScroll: true });
+      precompila(form); em.focus({ preventScroll: true });
     }
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -509,7 +510,7 @@ const linkTrapani = urlCategoria('Trapani e avvitatori');
       if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(em)) return err('Inserisci un indirizzo email valido.');
       if (!privacy) return err('Per ricevere il codice devi accettare l\'informativa privacy.');
       if (!pendOk()) return err('Il premio è scaduto: gioca un\'altra partita per riaverlo.');
-      ferr.hidden = true; send.disabled = true; send.textContent = 'Invio in corso…';
+      ricorda(form); ferr.hidden = true; send.disabled = true; send.textContent = 'Invio in corso…';
       try {
         const r = await fetch('/api/premio', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ fase: 'fine', biglietto: save.pend!.b, email: em, privacy, offerte }) });
         const j = await r.json().catch(() => ({}));
