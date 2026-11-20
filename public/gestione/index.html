@@ -876,8 +876,8 @@ function cercaCli(q,n=6){
     if(qd.length>=4&&qd.length>=qn.replace(/ /g,"").length-1&&[c.tel,c.cell,c.piva].some(x=>soloCifre(x).includes(qd))) s=10;
     else if(ql.includes("@")&&String(c.email||"").toLowerCase().includes(ql)) s=9;
     else if(ql.length===16&&String(c.cf||"").toLowerCase()===ql) s=9;
-    else if(w.length&&w.every(x=>nn.includes(x))) s=(" "+nn).includes(" "+w[0])?6:4;
-    if(s) out.push([s+(c.id?1:0),c]); }
+    else if(w.length&&w.every(x=>nn.includes(x))) s=nn.startsWith(w.join(" "))?8:nn.startsWith(w[0])?7:(" "+nn).includes(" "+w[0])?6:4;
+    if(s) out.push([s+(c.id?1:0)+(c.tel||c.cell?.5:0)+(scontoNum(c.sconto)?.3:0),c]); }
   return out.sort((a,b)=>b[0]-a[0]).slice(0,n).map(x=>x[1]);
 }
 const cliTrova=(tel,piva)=>{ const tk=telKey(tel), pk=soloCifre(piva).length>=11?soloCifre(piva):""; if(!tk&&!pk) return null;
