@@ -2754,9 +2754,10 @@ function openUtente(u){
   openModal(`<div class="mh"><h2>${n?"Aggiungi persona":esc(u.nome)}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
   <div class="mb"><div class="fs"><div class="f"><label class="fl">Nome<input id="uN" value="${esc(u.nome||"")}" placeholder="es. Francesco"></label><label class="fl">Email<input id="uE" type="email" value="${esc(u.email||"")}" ${n?"":"readonly"}></label>
    <label class="fl">Ruolo<select id="uR"><option value="operatore" ${u.ruolo!=="admin"?"selected":""}>Operatore (assistenza, garanzie, vendite, magazzino)</option><option value="admin" ${u.ruolo==="admin"?"selected":""}>Amministratore (vede tutto)</option></select></label>
-   <label class="ck" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="uA" ${u.attivo?"checked":""}> Attivo</label></div></div></div>
+   <label class="ck" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="uA" ${u.attivo?"checked":""}> Attivo</label>
+   <label class="fl" style="grid-column:1/-1">Email di recupero (riceve anche lei il codice d'accesso)<input id="uRec" type="email" value="${esc(u.recupero||"")}" placeholder="facoltativa, es. un'email personale"></label></div></div></div>
   <div class="mf">${n?"":`<button class="btn" id="uX">Scollega da tutti i dispositivi</button>`}<span class="sp" style="flex:1"></span><button class="btn" data-close>Chiudi</button><button class="btn pri" id="uOk">Salva</button></div>`);
-  $("#uOk").onclick=async()=>{ try{ await window.SEMI.post("utenti",{azione:"salva",email:$("#uE").value,nome:$("#uN").value,ruolo:$("#uR").value,attivo:$("#uA").checked}); toast("Salvato"); S.utenti=null; closeModal(); render(); }catch(e){ toast(e.message); } };
+  $("#uOk").onclick=async()=>{ try{ await window.SEMI.post("utenti",{azione:"salva",email:$("#uE").value,nome:$("#uN").value,ruolo:$("#uR").value,attivo:$("#uA").checked,recupero:$("#uRec").value.trim()}); toast("Salvato"); S.utenti=null; closeModal(); render(); }catch(e){ toast(e.message); } };
   const x=$("#uX"); if(x) x.onclick=async()=>{ try{ await window.SEMI.post("utenti",{azione:"esci-ovunque",email:u.email}); toast("Scollegato ovunque"); }catch(e){ toast(e.message); } };
 }
 async function codiceUtente(email){

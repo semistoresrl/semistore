@@ -41,7 +41,7 @@ export async function onRequest(ctx) {
   }
   if (p === 'codice' && m === 'POST') {
     const email = String(body.email || '').trim().toLowerCase();
-    const u = await d.prepare('SELECT nome FROM utenti WHERE email=? AND attivo=1').bind(email).first();
+    const u = await d.prepare('SELECT nome, recupero FROM utenti WHERE email=? AND attivo=1').bind(email).first();
     if (!u) return json({ ok: true }); // non si dice se l'email esiste
     const c = await d.prepare('SELECT inviato FROM codici WHERE email=?').bind(email).first();
     if (c && Date.now() - (c.inviato || 0) < 45_000) return json({ error: 'aspetta un minuto prima di chiedere un altro codice' }, 429);
@@ -52,6 +52,12 @@ export async function onRequest(ctx) {
     const r = await mandaEmail(env, { to: email, subject: `${codice} è il tuo codice per Semi Gestione`,
       text: `Ciao ${u.nome},\n\nil tuo codice per entrare nell'app Semi Gestione è: ${codice}\n\nVale 15 minuti. Se non l'hai chiesto tu, ignora questa email.\n\nSemi Store`,
       html: `<p>Ciao ${u.nome},</p><p>il tuo codice per entrare nell'app <b>Semi Gestione</b> è:</p><p style="font-size:34px;font-weight:800;letter-spacing:6px;margin:16px 0">${codice}</p><p>Vale 15 minuti. Se non l'hai chiesto tu, ignora questa email.</p><p>Semi Store</p>` });
+    if (u.recupero && u.recupero !== email) { // copia all'email di recupero (es. se la casella principale si legge solo dentro l'app)
+      const r2 = await mandaEmail(env, { to: u.recupero, subject: `${codice} è il codice di ${u.nome} per Semi Gestione`,
+        text: `Codice per entrare nell'app Semi Gestione come ${u.nome} (${email}): ${codice}\n\nVale 15 minuti. Lo ricevi perché sei l'email di recupero. Se non l'ha chiesto nessuno, ignora questa email.\n\nSemi Store`,
+        html: `<p>Codice per entrare nell'app <b>Semi Gestione</b> come <b>${u.nome}</b> (${email}):</p><p style="font-size:34px;font-weight:800;letter-spacing:6px;margin:16px 0">${codice}</p><p>Vale 15 minuti. Lo ricevi perché sei l'email di recupero. Se non l'ha chiesto nessuno, ignora questa email.</p><p>Semi Store</p>` });
+      if (!r.ok && r2.ok) return json({ ok: true });
+    }
     if (!r.ok) return json({ error: "Non riesco a mandare l'email: chiedi a Gianluca il codice dall'app (Utenti → Codice d'accesso).", motivo: r.motivo }, 502);
     return json({ ok: true });
   }
@@ -142,7 +148,7 @@ export async function onRequest(ctx) {
   }
   if (p === 'utenti') {
     if (!admin) return json({ error: 'solo amministratore' }, 403);
-    if (m === 'GET') return json({ utenti: (await d.prepare('SELECT email,nome,ruolo,attivo,creato,ultimo FROM utenti ORDER BY ruolo, nome').all()).results });
+    if (m === 'GET') return json({ utenti: (await d.prepare('SELECT email,nome,ruolo,attivo,creato,ultimo,recupero FROM utenti ORDER BY ruolo, nome').all()).results });
     const email = String(body.email || '').trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'email non valida' }, 400);
     if (body.azione === 'salva') {
@@ -150,6 +156,9 @@ export async function onRequest(ctx) {
       if (email === io.email && (ruolo !== 'admin' || body.attivo === false)) return json({ error: 'non puoi togliere i permessi a te stesso' }, 400);
       await d.prepare(`INSERT INTO utenti(email,nome,ruolo,attivo,creato) VALUES(?,?,?,?,?)
         ON CONFLICT(email) DO UPDATE SET nome=excluded.nome, ruolo=excluded.ruolo, attivo=excluded.attivo`).bind(email, nome, ruolo, body.attivo === false ? 0 : 1, Date.now()).run();
+      if (body.recupero !== undefined) { const rec = String(body.recupero || '').trim().toLowerCase();
+        if (rec && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(rec)) return json({ error: 'email di recupero non valida' }, 400);
+        await d.prepare('UPDATE utenti SET recupero=? WHERE email=?').bind(rec || null, email).run(); }
       if (body.attivo === false) await d.prepare('DELETE FROM sessioni WHERE email=?').bind(email).run();
       await d.prepare('INSERT INTO registro(at,chi,nome,c,docid,op,d) VALUES(?,?,?,?,?,?,?)').bind(Date.now(), io.email, io.nome, 'utenti', email, 'salva', JSON.stringify({ nome, ruolo, attivo: body.attivo !== false })).run();
       return json({ ok: true });

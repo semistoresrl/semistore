@@ -23,6 +23,7 @@ export async function gdb(env) {
       d.prepare('CREATE INDEX IF NOT EXISTS pres_ultimo ON presenze(ultimo)'),
       d.prepare('CREATE INDEX IF NOT EXISTS pres_giorno ON presenze(giorno)'),
     ]);
+    try { await d.prepare('ALTER TABLE utenti ADD COLUMN recupero TEXT').run(); } catch (e) { /* colonna già presente */ }
     pronto = true;
   }
   return d;
