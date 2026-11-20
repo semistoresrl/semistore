@@ -1,0 +1,5 @@
+{
+  "name": "semistore-posta",
+  "private": true,
+  "scripts": { "build": "echo nessuna compilazione: ci pensa wrangler deploy" }
+}
