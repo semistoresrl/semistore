@@ -9,7 +9,7 @@
 //  POST azione {c,f,uid,op}              → letto | nonletto | stella | nostella | spam | nonspam | cestino | elimina | sposta(verso)
 //  POST invia {c,a,cc,oggetto,testo,rispondi:{f,uid},allegati:[{nome,tipo,b64}]}
 import { gdb, json, utente } from '../../../_lib/gestione.js';
-import { pdb, cifra, decifra, Imap, inviaSmtp, leggiMime, parteMime, costruisci, indirizzi, dec2047, segreto, pleskSito, pleskCaselle, pleskCrea, pleskPassword, pleskElimina, nuovaPassword } from '../../../_lib/posta.js';
+import { pdb, cifra, decifra, Imap, inviaSmtp, leggiMime, parteMime, costruisci, indirizzi, dec2047, segreto, pleskSito, pleskCaselle, pleskCrea, pleskPassword, pleskElimina, nuovaPassword, diagnosi } from '../../../_lib/posta.js';
 
 const spiega = (m) => (/cancel|closed|reset|refused|timed? ?out|tls|certificate|handshake/i.test(m) ? `connessione non riuscita: controlla nome del server e porta (${m})` : m);
 const pulisci = (c) => { const { pass, ...x } = c; return { ...x, haPass: !!pass }; };
@@ -26,24 +26,7 @@ async function salva(env, d, c) {
     ON CONFLICT(id) DO UPDATE SET email=excluded.email,nome=excluded.nome,utente=excluded.utente,pass=excluded.pass,host=excluded.host,porta=excluded.porta,sic=excluded.sic,shost=excluded.shost,sporta=excluded.sporta,ssic=excluded.ssic,firma=excluded.firma,ordine=excluded.ordine`)
     .bind(c.id, c.email, c.nome, c.utente, await cifra(env, c.pass), c.host, c.porta, c.sic, c.shost, c.sporta, c.ssic, c.firma, c.ordine, Date.now()).run();
 }
-const FIRMA = "SEMI STORE · SE.M.I. S.R.L.
-Concessionario DEWALT Lazio, Campania, Molise
-Centro assistenza autorizzato DEWALT · STANLEY · BLACK+DECKER
-
-Punto vendita e laboratorio: Viale G. Marconi 225, 80020 Casavatore (NA)
-Tel. 081 553 6604 · WhatsApp +39 375 626 6947 · info@semistore.it
-Lun–Ven 8:30–13:00 / 14:30–18:00
-
-Negozio online: https://semistore.it
-Assistenza e stato riparazione: https://semistore.it/assistenza/
-Ti siamo stati utili? Lasciaci una recensione: https://search.google.com/local/writereview?placeid=ChIJpQmSJREIOxMRsHBGmNErdn0
-Instagram e TikTok @semistore.it
-
-SE.M.I. S.R.L. – Sede legale: Centro Direzionale Isola E7, 80143 Napoli (NA)
-P.IVA e C.F. 07149740636 – REA NA-583904 – Capitale sociale € 49.000,00 i.v.
-PEC: semi@pec.it
-
-Questa email e gli eventuali allegati sono riservati e destinati solo alle persone indicate. Se l'hai ricevuta per errore, avvisaci rispondendo e cancellala: è vietato usarla, copiarla o inoltrarla. I dati personali sono trattati secondo il Regolamento UE 2016/679 (GDPR); informativa: https://semistore.it/privacy/";
+const FIRMA = "SEMI STORE · SE.M.I. S.R.L.\nConcessionario DEWALT Lazio, Campania, Molise\nCentro assistenza autorizzato DEWALT · STANLEY · BLACK+DECKER\n\nPunto vendita e laboratorio: Viale G. Marconi 225, 80020 Casavatore (NA)\nTel. 081 553 6604 · WhatsApp +39 375 626 6947 · info@semistore.it\nLun–Ven 8:30–13:00 / 14:30–18:00\n\nNegozio online: https://semistore.it\nAssistenza e stato riparazione: https://semistore.it/assistenza/\nTi siamo stati utili? Lasciaci una recensione: https://search.google.com/local/writereview?placeid=ChIJpQmSJREIOxMRsHBGmNErdn0\nInstagram e TikTok @semistore.it\n\nSE.M.I. S.R.L. – Sede legale: Centro Direzionale Isola E7, 80143 Napoli (NA)\nP.IVA e C.F. 07149740636 – REA NA-583904 – Capitale sociale € 49.000,00 i.v.\nPEC: semi@pec.it\n\nQuesta email e gli eventuali allegati sono riservati e destinati solo alle persone indicate. Se l'hai ricevuta per errore, avvisaci rispondendo e cancellala: è vietato usarla, copiarla o inoltrarla. I dati personali sono trattati secondo il Regolamento UE 2016/679 (GDPR); informativa: https://semistore.it/privacy/";
 async function pleskCfg(env) { const c = await segreto(env, 'plesk'); if (!c) throw Object.assign(new Error('Plesk non collegato'), { s: 400 }); return c; }
 // collega (o ricollega) in app una casella di Plesk con la password data
 async function collegaDaPlesk(env, d, cfg, email, pass, nome, soloSeOk) {
@@ -89,7 +72,12 @@ export async function onRequest({ request, env, params }) {
       if (!c.ssic) c.ssic = c.sporta === 465 ? 'ssl' : [587, 25, 2525].includes(c.sporta) ? 'starttls' : loc(c.shost) ? 'nessuna' : 'ssl';
       c.pass = body.password ? String(body.password) : prima ? await decifra(env, prima.pass) : '';
       if (!c.pass) return json({ error: 'scrivi la password della casella' }, 400);
-      try { await conImap(c, async () => true); } catch (e) { return json({ error: `Non riesco ad entrare in ${email} su ${c.host}:${c.porta}: ${spiega(e.message)}` }, 400); }
+      try { await conImap(c, async () => true); } catch (e) {
+        let piu = '';
+        if (!/accesso rifiutato/.test(e.message)) { const dg = await diagnosi(c.host).catch(() => null);
+          if (dg && /^\* OK/i.test(dg.imap)) piu = ` · Il server risponde (porta 143) ma la connessione protetta SSL sulla ${c.porta} non va: quasi sempre il certificato SSL del server di posta non è valido per ${c.host} (certificato "fatto in casa" di Plesk). Soluzione: in Plesk proteggere la posta con un certificato Let's Encrypt per ${c.host}.`;
+          else if (dg) piu = ` · Il server non risponde neanche sulla porta 143 (${dg.imap.slice(0, 80)}): probabile firewall che blocca le connessioni esterne alla posta.`; }
+        return json({ error: `Non riesco ad entrare in ${email} su ${c.host}:${c.porta}: ${spiega(e.message)}${piu}` }, 400); }
       await salva(env, d, c);
       return json({ ok: true, id: c.id });
     }

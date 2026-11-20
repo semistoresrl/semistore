@@ -363,3 +363,13 @@ export function nuovaPassword() {
   for (let i = base.length - 1; i > 0; i--) { const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1); [base[i], base[j]] = [base[j], base[i]]; }
   return base.join('');
 }
+
+/* diagnosi quando l'accesso non riesce: il server risponde in chiaro sulla 143? allora il problema è il certificato SSL */
+export async function diagnosi(host) {
+  const prova = async (porta) => { const l = new Linea(host, porta, 'nessuna'); l.host = host;
+    try { l.sock = connect({ hostname: host, port: porta }, { secureTransport: 'off', allowHalfOpen: false }); l.w = l.sock.writable.getWriter(); l.r = l.sock.readable.getReader();
+      const g = await Promise.race([l.riga(), new Promise((_, ko) => setTimeout(() => ko(new Error('nessuna risposta')), 8000))]); return g; }
+    catch (e) { return 'ERR ' + e.message; } finally { l.chiudi(); } };
+  const imap = await prova(143), smtp = await prova(587);
+  return { imap, smtp };
+}
