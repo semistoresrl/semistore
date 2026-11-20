@@ -3,6 +3,7 @@
 // (con la partita IVA i dati dell'azienda si compilano da soli), punti, sconti e ordini.
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
+const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
 ---
 <Base title="Il mio account" description="Entra nel tuo account Semi Store: punti, sconti, ordini e dati per la fattura." noindex>
   <section class="wrap sec acc" id="acc">
@@ -22,7 +23,7 @@ import { SITO } from '../data/sito.js';
         <p class="acc-ok">📩 Fatto! Controlla la posta di <b data-em></b> e premi <b>"Entra in Semi Store"</b>. Se non la trovi guarda nello spam.</p>
         <button type="button" class="btn" data-altra>Usa un'altra email</button>
       </div>
-      <ul class="acc-pro"><li>Accumuli <b>{SITO.punti.perEuro} punto per ogni euro</b> speso</li><li>Trovi i tuoi sconti e i tuoi ordini</li><li>Con la partita IVA ricevi la fattura elettronica</li></ul>
+      <ul class="acc-pro"><li>Accumuli <b>{SITO.punti.perEuro} punto per ogni euro</b> speso: il 25 dicembre arriva il <a class="ul" href="/punti/">Catalogo Premi 2027</a></li><li>Trovi i tuoi sconti e i tuoi ordini</li><li>Con la partita IVA ricevi la fattura elettronica</li></ul>
     </div>
 
     <!-- 2. registrazione (prima volta) o modifica dati -->
@@ -58,7 +59,7 @@ import { SITO } from '../data/sito.js';
         </div>
         <label class="field">Telefono <span class="opz">(facoltativo, per avvisarti quando l'ordine è pronto)</span><input name="telefono" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" /></label>
         <label class="chk"><input type="checkbox" name="offerte" /> Voglio ricevere offerte e novità di Semi Store (facoltativo)</label>
-        <p class="acc-note">Registrandoti accetti le <a class="ul" href="/condizioni-di-vendita/">condizioni di vendita</a> e il programma punti; i dati sono trattati come spiegato nell'<a class="ul" href="/privacy/">informativa privacy</a>.</p>
+        <p class="acc-note">Registrandoti accetti le <a class="ul" href="/condizioni-di-vendita/">condizioni di vendita</a> e il <a class="ul" href="/punti/#regolamento">regolamento del programma punti</a>; i dati sono trattati come spiegato nell'<a class="ul" href="/privacy/">informativa privacy</a>.</p>
         <button class="btn btn-y" data-salva>Salva e continua</button>
         <p class="acc-err" role="alert" hidden></p>
       </form>
@@ -74,7 +75,7 @@ import { SITO } from '../data/sito.js';
         <div class="card acc-pt">
           <p class="acc-k">Punti Semi</p>
           <b class="acc-pt-n mono" data-punti>0</b>
-          <p>{SITO.punti.perEuro} punto per ogni euro speso sui prodotti. I premi da riscattare con i punti arrivano presto.</p>
+          <p>{SITO.punti.perEuro} punto per ogni euro speso sui prodotti. Il <b>Catalogo Premi 2027</b> arriva il {g(SITO.punti.catalogo)}; i punti valgono fino al 31 dicembre 2027. <a href="/punti/">Regolamento</a></p>
         </div>
         <div class="card acc-sc"><p class="acc-k">I tuoi sconti</p><div data-sconti></div></div>
       </div>
@@ -238,7 +239,7 @@ import { SITO } from '../data/sito.js';
   .chk{display:flex;gap:8px;align-items:flex-start;font-size:15px}
   .acc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
   .acc-cards{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-bottom:16px}
-  .acc-pt,.acc-sc,.acc-sez{padding:20px}.acc-pt{background:#15171a;color:#fff}.acc-pt p{color:#c9cbcf;margin:6px 0 0;font-size:14px}
+  .acc-pt,.acc-sc,.acc-sez{padding:20px}.acc-pt{background:#15171a;color:#fff}.acc-pt p{color:#c9cbcf;margin:6px 0 0;font-size:14px}.acc-pt a{color:var(--y);text-decoration:underline}
   .acc-pt .acc-k{color:var(--y)}.acc-pt-n{font-size:46px;line-height:1.1;display:block;margin-top:6px}
   .acc-sez{margin-bottom:16px}.acc-sez h2{font-size:20px;margin:0 0 12px}.acc-mini{min-height:36px;padding:0 14px;margin-top:6px;font-size:14px}
   .acc-ord{list-style:none;margin:0;padding:0;display:grid;gap:10px}.acc-ord li{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:10px}

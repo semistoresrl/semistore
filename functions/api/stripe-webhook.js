@@ -21,6 +21,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
   const corpo = await request.text();
   if (!(await verifica(env.STRIPE_WEBHOOK_SECRET, corpo, request.headers.get('stripe-signature')))) return new Response('firma non valida', { status: 400 });
   const ev = JSON.parse(corpo);
+  // rimborso (anche parziale) o recesso: si tolgono i punti in proporzione. Evento da attivare in Stripe: charge.refunded
+  if (ev.type === 'charge.refunded') { try { await togliPunti(env, ev.data.object); } catch (e) { console.error('rimborso', e); } return new Response('ok'); }
   if (ev.type !== 'checkout.session.completed' || ev.data?.object?.payment_status !== 'paid') return new Response('ok');
   const sid = ev.data.object.id;
   const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${sid}/line_items?limit=100&expand[]=data.price.product`, { headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}` } });
@@ -48,9 +50,9 @@ async function registraOrdine(env, o, righe) {
   const fattura = md.fattura === 'SI' ? 1 : 0;
   const datiF = fattura ? { ragioneSociale: md.ragione_sociale, piva: md.piva, sdi: md.sdi, pec: md.pec, sede: md.sede } : null;
   const el = righe.map((li) => ({ nome: li.description, q: li.quantity, tot: li.amount_total, slug: li.price?.product?.metadata?.slug }));
-  const nuovo = await d.prepare(`INSERT OR IGNORE INTO ordini(sessione,cliente,email,totale,spedizione,punti,fattura,dati_fattura,consegna,righe,quando)
-      VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(o.id, cl?.id || null, email, tot, sped, punti, fattura, datiF ? JSON.stringify(datiF) : null,
-      md.consegna || '', JSON.stringify(el), new Date().toISOString()).run();
+  const nuovo = await d.prepare(`INSERT OR IGNORE INTO ordini(sessione,cliente,email,totale,spedizione,punti,fattura,dati_fattura,consegna,righe,quando,pi)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).bind(o.id, cl?.id || null, email, tot, sped, punti, fattura, datiF ? JSON.stringify(datiF) : null,
+      md.consegna || '', JSON.stringify(el), new Date().toISOString(), o.payment_intent || null).run();
   if (!nuovo.meta.changes) return; // già registrato (Stripe a volte riprova)
   if (cl && punti) await aggiungiPunti(env, cl.id, 'ord:' + o.id, punti, `Ordine ${o.id.slice(-8).toUpperCase()}`);
   const eur = (c) => (c / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
@@ -68,4 +70,15 @@ async function registraOrdine(env, o, righe) {
   ].filter((x) => x !== '').join('\n');
   await inviaEmail(env, { a: (env.EMAIL_TO || SITO.email).split(','), da: env.EMAIL_FROM || 'Semi Store <info@semistore.it>',
     oggetto: `${fattura ? '[FATTURA] ' : ''}Ordine ${o.id.slice(-8).toUpperCase()} · ${eur(tot)}`, testo, html: `<pre style="font:14px/1.5 Arial,sans-serif;white-space:pre-wrap">${testo.replace(/</g, '&lt;')}</pre>` });
+}
+
+async function togliPunti(env, ch) {
+  if (!ch.payment_intent || !ch.amount) return;
+  const d = await dbc(env);
+  const o = await d.prepare('SELECT * FROM ordini WHERE pi=?').bind(ch.payment_intent).first();
+  if (!o || !o.cliente || !o.punti) return;
+  const daTogliere = Math.min(o.punti, Math.ceil(o.punti * Number(ch.amount_refunded || 0) / Number(ch.amount)));
+  const gia = await d.prepare("SELECT COALESCE(-SUM(delta),0) AS t FROM punti_mov WHERE cliente=? AND id LIKE ?").bind(o.cliente, `rimb:${o.sessione}:%`).first();
+  const delta = daTogliere - Number(gia?.t || 0);
+  if (delta > 0) await aggiungiPunti(env, o.cliente, `rimb:${o.sessione}:${ch.amount_refunded}`, -delta, `Rimborso ordine ${o.sessione.slice(-8).toUpperCase()}`);
 }

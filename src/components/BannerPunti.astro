@@ -1,0 +1,44 @@
+---
+// Banner in prima pagina del programma "Punti Semi 2027". Prima del 25/12/2026 annuncia il catalogo premi;
+// dal 25/12 (controllo nel browser, così cambia da solo senza ripubblicare) invita a sceglierli.
+import { SITO } from '../data/sito.js';
+const P = SITO.punti;
+const giorno = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<section class="bp" aria-label="Programma punti" data-catalogo={P.catalogo} data-scadenza={P.scadenza}>
+  <div class="wrap bp-in">
+    <div class="bp-ico" aria-hidden="true">
+      <svg viewBox="0 0 48 48" width="44" height="44"><rect x="6" y="18" width="36" height="24" rx="3" fill="#f5b800"/><rect x="4" y="12" width="40" height="9" rx="2.5" fill="#ffd34d"/><rect x="21" y="12" width="6" height="30" fill="#15171a"/><path d="M24 12c-3-7-12-7-11-1 1 3 7 1 11 1zm0 0c3-7 12-7 11-1-1 3-7 1-11 1z" fill="none" stroke="#ffd34d" stroke-width="3" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="bp-tx">
+      <p class="bp-k">Punti Semi · Novità</p>
+      <p class="bp-t" data-prima>Il <b>25 dicembre</b> arriva il <b>Catalogo Premi 2027</b></p>
+      <p class="bp-t" data-dopo hidden>Il <b>Catalogo Premi 2027</b> è online: scegli il tuo premio</p>
+      <p class="bp-d">Crea il tuo account: ogni euro speso sul sito vale <b>{P.perEuro} punto</b>, da convertire in buoni sconto. I punti accumulati da oggi valgono per tutto il 2027, fino al {giorno(P.scadenza)}.</p>
+    </div>
+    <div class="bp-cta">
+      <a class="btn btn-y" href="/account/">Crea il tuo account</a>
+      <a class="bp-lk" href="/punti/">Come funziona e regolamento</a>
+    </div>
+  </div>
+</section>
+<script>
+  const b = document.querySelector<HTMLElement>('.bp');
+  if (b && Date.now() >= new Date(b.dataset.catalogo + 'T00:00:00+01:00').getTime()) {
+    b.querySelector<HTMLElement>('[data-prima]')!.hidden = true;
+    b.querySelector<HTMLElement>('[data-dopo]')!.hidden = false;
+    const a = b.querySelector<HTMLAnchorElement>('.btn-y')!; a.href = '/punti/#catalogo'; a.textContent = 'Vedi i premi';
+  }
+</script>
+<style>
+  .bp{background:linear-gradient(100deg,#15171a 0%,#23262b 60%,#3a2f05 100%);color:#fff;border-bottom:3px solid var(--y)}
+  .bp-in{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;padding-top:16px;padding-bottom:16px}
+  .bp-ico{width:62px;height:62px;border-radius:16px;background:#ffffff10;display:grid;place-items:center}
+  .bp-k{margin:0;color:var(--y);font-weight:800;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase}
+  .bp-t{margin:2px 0 0;font-size:clamp(18px,2.4vw,24px);font-weight:800;line-height:1.2}.bp-t b{color:var(--y)}
+  .bp-t[hidden]{display:none}
+  .bp-d{margin:4px 0 0;color:#d6d7da;font-size:14.5px}.bp-d b{color:#fff}
+  .bp-cta{display:flex;flex-direction:column;align-items:center;gap:6px}.bp-cta .btn{white-space:nowrap}
+  .bp-lk{color:#d6d7da;font-size:13.5px;text-decoration:underline}.bp-lk:hover{color:var(--y)}
+  @media (max-width:760px){.bp-in{grid-template-columns:auto 1fr;gap:12px}.bp-ico{width:48px;height:48px}.bp-ico svg{width:34px;height:34px}.bp-cta{grid-column:1/-1;flex-direction:row;justify-content:space-between}}
+</style>

@@ -8,6 +8,7 @@ import OffertaFlash from '../components/OffertaFlash.astro';
 import VideoNegozio from '../components/VideoNegozio.astro';
 import RecensioniGoogle from '../components/RecensioniGoogle.astro';
 import HeroSlider from '../components/HeroSlider.astro';
+import BannerPunti from '../components/BannerPunti.astro';
 import GiocoTrapano from '../components/GiocoTrapano.astro';
 import { urlCategoria } from '../data/catalogo';
 
@@ -73,6 +74,7 @@ const vantaggi = [
 ];
 ---
 <Base title={SITO.nome}>
+  <BannerPunti />
   <HeroSlider />
   <GiocoTrapano />
 

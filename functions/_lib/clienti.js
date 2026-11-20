@@ -38,6 +38,7 @@ export async function dbc(env) {
         id TEXT PRIMARY KEY, cliente TEXT NOT NULL, delta INTEGER NOT NULL, motivo TEXT, quando TEXT)`),
       d.prepare('CREATE INDEX IF NOT EXISTS p_cliente ON punti_mov(cliente)'),
     ]);
+    try { await d.prepare('ALTER TABLE ordini ADD COLUMN pi TEXT').run(); } catch {} // payment intent, per i rimborsi
     pronto = true;
   }
   return d;

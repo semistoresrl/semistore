@@ -42,7 +42,8 @@ export const SITO = {
   tiktok: 'https://www.tiktok.com/@semistore.it',
   spedizione: { costo: 990, gratisDa: 9900, giorni: '2–4' }, // centesimi
   // programma punti: punti per ogni euro speso sui prodotti (spedizione esclusa). I premi si definiscono in seguito.
-  punti: { perEuro: 1 },
+  // Programma "Punti Semi 2027": raccolta dal 20/11/2026, catalogo premi online dal 25/12/2026, premi richiedibili fino al 31/12/2027.
+  punti: { perEuro: 1, inizio: '2026-11-20', catalogo: '2026-12-25', scadenza: '2027-12-31', nome: 'Punti Semi 2027' },
   url: 'https://semistore.it',
   // Statistiche e pubblicità (partono solo dopo il consenso nel banner cookie). Vuoti = niente banner, niente script.
   ga4: '', // ID misurazione Google Analytics 4, es. 'G-XXXXXXXXXX'
