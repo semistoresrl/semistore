@@ -624,7 +624,8 @@ textarea.winp{min-height:110px;font-size:20px}
 .wlinkord{display:flex;gap:12px;align-items:flex-start;background:#dde9ff;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;cursor:pointer}.wlinkord input{width:26px;height:26px;flex:none;margin-top:2px}.wlinkord small{display:block;color:var(--muted);font-size:14px}
 .wplist{display:flex;flex-direction:column;gap:8px;margin:6px 0 10px}.wpi{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #1fa855;border-radius:14px;padding:6px}.wpi.off{border-color:var(--line);opacity:.45}.wpi.off b{text-decoration:line-through}
 .wpi>button{flex:1;text-align:left;background:none;border:0;font:inherit;padding:6px;cursor:pointer}.wpi>button b{display:block;font-size:17px}.wpi small{font-size:13px;color:var(--muted)}
-.wpq{display:flex;align-items:center;gap:6px}.wpq b{min-width:26px;text-align:center;font-size:20px}.wpq button{width:40px;height:40px;border-radius:12px;border:2px solid var(--line);background:#fff;font-size:22px;font-weight:800;cursor:pointer}
+.wpq{display:flex;align-items:center;gap:6px}.wpqs{display:flex;flex-direction:column;gap:4px;align-items:flex-end}.wpq>small{font-size:12px;font-weight:700;min-width:62px;text-align:right}.wpq.qui b{color:#0d5a2e}.wpi.parz{border-color:#e8781c;background:#fff8f0}.wpi.zero{border-color:#d33;background:#fff4f2}.wcalc{background:#fff3c4;border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.45;margin:6px 0 10px}.wcalc b{font-size:18px}.cmeta i.manca{background:#ffe1cc;color:#8a3a00}
+.wpq b{min-width:26px;text-align:center;font-size:20px}.wpq button{width:40px;height:40px;border-radius:12px;border:2px solid var(--line);background:#fff;font-size:22px;font-weight:800;cursor:pointer}
 .wtxt{margin-top:12px}.wtxt summary{color:var(--muted);cursor:pointer;font-size:14px}.wtxt pre{white-space:pre-wrap;font-size:12px;background:var(--paper);border-radius:10px;padding:10px;max-height:260px;overflow:auto}
 .bcwrap{position:relative;display:block;flex:0 0 auto;min-width:0;max-width:100%;width:100%}.gs{min-width:0}.toolbar .bcwrap{flex:1 1 200px;width:auto}.bcwrap>input{width:100%;padding-right:46px!important;box-sizing:border-box}
 .bcbtn{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:38px;height:34px;border-radius:8px;background:transparent;color:#15171a;cursor:pointer;overflow:hidden;z-index:2}
@@ -1685,6 +1686,7 @@ function openSyncGar(){
 /* ---------- binding ---------- */
 function bindView(){
   const m=$("#main");
+  m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
   const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
@@ -2870,7 +2872,33 @@ const giorniDa=t=>t?Math.floor((Date.now()-t)/864e5):0;
 /* ordine collegato chiuso altrove → la riga non è più sullo scaffale */
 const sulloScaffale=()=>S.consegne.filter(c=>c.stato==="sullo scaffale"&&!(c.ordineId&&["Consegnato","Annullato"].includes(S.ordiniWeb.find(o=>o.id===c.ordineId)?.stato)))
   .sort((a,b)=>String(a.posto||"zz").localeCompare(String(b.posto||"zz"),"it",{numeric:true})||(a.at-b.at));
-const cMsg=c=>`Ciao ${nome1(c.cliente)}, ${c.cosa?c.cosa:"il tuo ordine"}${c.ordineNum?" (ordine "+c.ordineNum+")":""} è pronto da Semi Store, ${SHOP.ind} (${SHOP.orari}).${Number(c.incassare)>0&&!c.pagato?" Importo da saldare: "+eur(c.incassare)+".":""} A presto!`;
+const cMsg=c=>`Ciao ${nome1(c.cliente)}, ${c.cosa?c.cosa:"il tuo ordine"}${c.ordineNum?" (ordine "+c.ordineNum+")":""} è pronto da Semi Store, ${SHOP.ind} (${SHOP.orari}).${Number(c.incassare)>0&&!c.pagato?" Importo da saldare: "+eur(c.incassare)+".":""}${c.mancano?" Mancano ancora: "+c.mancano+"; ti avvisiamo appena arrivano.":""} A presto!`;
+/* articoli del pacco: qty = nel documento, sc = sullo scaffale; il dovuto scala in base a quello che c'è davvero */
+const pzUn=p=>Number(p.prezzo)>0?Number(p.prezzo):prezzoVendita(itm(p.codice));
+const scDi=p=>Math.max(0,Math.min(Number(p.qty)||0,p.sc==null?(Number(p.qty)||0):Number(p.sc)||0));
+const nomeArt=p=>`${p.nome||p.codice}${p.nome&&p.nome!==p.codice?" ("+p.codice+")":""}`;
+function contoPacco(prodotti,totDoc,pagato){
+  const l=(prodotti||[]).filter(p=>(Number(p.qty)||0)>0);
+  const pz=l.reduce((a,p)=>a+(Number(p.qty)||0),0), qui=l.reduce((a,p)=>a+scDi(p),0);
+  const prezzati=l.length&&l.every(p=>pzUn(p)>0);
+  const vT=l.reduce((a,p)=>a+(Number(p.qty)||0)*pzUn(p),0), vQ=l.reduce((a,p)=>a+scDi(p)*pzUn(p),0);
+  const quota=!l.length?1:prezzati&&vT>0?vQ/vT:pz?qui/pz:1;
+  const base=Number(totDoc)>0?Number(totDoc):prezzati?vT:0;
+  const inc=pagato?0:Math.round(base*quota*100)/100;
+  const manca=l.filter(p=>scDi(p)<(Number(p.qty)||0));
+  return {pz,qui,quota,base,incassare:inc,resto:pagato?0:Math.round((base-inc)*100)/100,manca,
+    cosa:l.filter(p=>scDi(p)>0).map(p=>`${scDi(p)>1?scDi(p)+"× ":""}${nomeArt(p)}`).join(", "),
+    mancano:manca.map(p=>{ const m=(Number(p.qty)||0)-scDi(p); return `${m>1?m+"× ":""}${p.nome||p.codice}`; }).join(", ")};
+}
+const artRighe=(P,attivi=true)=>`<div class="wplist">${P.map((p,k)=>{ const q=Number(p.qty)||0, s=scDi(p), off=attivi&&p.on===false;
+  return `<div class="wpi ${off?"off":s===0?"zero":s<q?"parz":""}" data-pi="${k}"><button data-pt="${k}"><b>${esc(p.nome||p.codice)}</b><small class="mono">${esc(p.codice)}</small>${pzUn(p)>0?`<small> · ${eur(pzUn(p))}</small>`:""}</button>
+    <span class="wpqs"><span class="wpq"><small>documento</small><button data-pq="${k}" data-d="-1">−</button><b>${q}</b><button data-pq="${k}" data-d="1">＋</button></span>
+    <span class="wpq qui"><small>sullo scaff.</small><button data-ps="${k}" data-d="-1">−</button><b>${s}</b><button data-ps="${k}" data-d="1">＋</button></span></span></div>`; }).join("")}</div>`;
+function bindArt(P,ridisegna,prima){ const z=$("#wzB");
+  z.querySelectorAll("[data-pt]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.pt]; p.on=p.on===false; ridisegna(); });
+  z.querySelectorAll("[data-pq]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.pq], s=scDi(p), pieno=s>=(Number(p.qty)||0); p.qty=Math.max(1,(Number(p.qty)||0)+Number(b.dataset.d)); p.sc=pieno?p.qty:Math.min(s,p.qty); ridisegna(); });
+  z.querySelectorAll("[data-ps]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.ps]; p.sc=Math.max(0,Math.min(Number(p.qty)||0,scDi(p)+Number(b.dataset.d))); ridisegna(); }); }
+const contoTxt=(k,totDoc)=>k.qui<k.pz?`<div class="wcalc">Sullo scaffale <b>${k.qui}</b> pezzi su ${k.pz}.${k.base?`<br>${Number(totDoc)>0?"Totale documento":"Valore"} ${eur(k.base)} → da incassare ora <b>${eur(k.incassare)}</b><br>Resta da incassare all'arrivo del resto: ${eur(k.resto)}`:""}<br><small>Mancano: ${esc(k.mancano)}</small></div>`:k.pz?`<div class="wcalc" style="background:#dcf5e6">C'è tutto: ${k.pz} ${k.pz===1?"pezzo":"pezzi"}${k.base?` · da incassare <b>${eur(k.incassare)}</b>`:""}</div>`:"";
 const cMsgCons=c=>`Ciao ${nome1(c.cliente)}, ${c.cosa?c.cosa:"il tuo ordine"}${c.ordineNum?" (ordine "+c.ordineNum+")":""} è pronto: te lo portiamo noi${c.quando?" "+fmtDay(new Date(c.quando).getTime()):""}. Ti avvisiamo quando partiamo. Semi Store`;
 
 /* ---------- scaffale ricambi dentro la scheda prodotto ---------- */
@@ -2893,7 +2921,7 @@ function consegneGriglia(l){
   const by={}; l.forEach(c=>(by[c.posto||"Senza posto"]=by[c.posto||"Senza posto"]||[]).push(c));
   return `<div class="cgrid">${Object.entries(by).map(([p,cs])=>`<div class="cshelf"><div class="cpo">${esc(p)}<small>${cs.length}</small></div>${cs.map(c=>{ const g=giorniDa(c.at);
     return `<button class="ccard ${g>7?"old":""}" data-cons="${c.id}"><b>${esc(c.cliente||"—")}</b><span>${esc(c.cosa||"")}</span>
-      <span class="cmeta"><i class="${c.modo==="consegna"?"noi":"rit"}">${c.modo==="consegna"?ic("truck")+"Consegniamo noi"+(c.quando?" "+fmtDay(new Date(c.quando).getTime()):""):ic("store")+"Ritira"}</i>${Number(c.incassare)>0&&!c.pagato?`<i class="inc">${eur(c.incassare)}</i>`:`<i class="pag">Pagato</i>`}<i>${g?g+" gg":"oggi"}</i></span></button>`; }).join("")}</div>`).join("")}</div>`;
+      <span class="cmeta"><i class="${c.modo==="consegna"?"noi":"rit"}">${c.modo==="consegna"?ic("truck")+"Consegniamo noi"+(c.quando?" "+fmtDay(new Date(c.quando).getTime()):""):ic("store")+"Ritira"}</i>${Number(c.incassare)>0&&!c.pagato?`<i class="inc">${eur(c.incassare)}</i>`:`<i class="pag">Pagato</i>`}${c.mancano?`<i class="manca">Incompleto</i>`:""}<i>${g?g+" gg":"oggi"}</i></span></button>`; }).join("")}</div>`).join("")}</div>`;
 }
 
 /* ---------- modalità facile: lo scaffale a schermo intero ---------- */
@@ -2909,13 +2937,13 @@ function wizScaffale(apri){
       <div class="wsub">${esc(c.cosa||"")}${c.ordineNum?` · ordine ${esc(c.ordineNum)}`:""}</div>
       <div class="wrow"><div><small>${c.modo==="consegna"?"Consegniamo noi":"Ritira il cliente"}</small><div class="wstock" style="font-size:20px">${c.modo==="consegna"?(c.quando?fmtDay(new Date(c.quando).getTime()):"da fissare"):"in negozio"}</div></div>
        <div><small>${da?"Da incassare":"Pagamento"}</small><div class="wprice">${da?eur(c.incassare):"Pagato"}</div></div></div>
-      ${c.modo==="consegna"&&c.ind?`<div class="wsub" style="margin-top:8px">${ic("truck")} ${esc(c.ind)}</div>`:""}${c.note?`<div class="wsub" style="margin-top:6px">${esc(c.note)}</div>`:""}${c.docNum?`<div class="wsub" style="margin-top:6px">Documento ${esc(c.docNum)}</div>`:""}${c.doc?`<a class="wlink" href="/_blob/${esc(c.doc)}" target="_blank" rel="noopener">${ic("clipboard")}Vedi il documento</a>`:""}
+      ${c.modo==="consegna"&&c.ind?`<div class="wsub" style="margin-top:8px">${ic("truck")} ${esc(c.ind)}</div>`:""}${c.note?`<div class="wsub" style="margin-top:6px">${esc(c.note)}</div>`:""}${c.mancano?`<div class="wwarn">Mancano ancora: ${esc(c.mancano)}${Number(c.resto)>0?` · resto da incassare all'arrivo ${eur(c.resto)}`:""}</div>`:""}${c.docNum?`<div class="wsub" style="margin-top:6px">Documento ${esc(c.docNum)}</div>`:""}${c.doc?`<a class="wlink" href="/_blob/${esc(c.doc)}" target="_blank" rel="noopener">${ic("clipboard")}Vedi il documento</a>`:""}
       <div class="wsub" style="margin-top:8px">Sullo scaffale da ${g?g+" giorni":"oggi"}${c.chi?" · messo da "+esc(c.chi):""}</div>${g>7?`<div class="wwarn">Fermo da più di una settimana: richiama il cliente</div>`:""}</div>
       <div class="wyn">${waBtn(c.tel,c.modo==="consegna"?cMsgCons(c):cMsg(c),c.modo==="consegna"?"Avvisa: lo portiamo noi":"Avvisa: è pronto").replace('class="btn wa','class="wbig wa')}
       ${c.tel?`<a class="wbig sec" href="tel:${esc(c.tel)}">${ic("phone")}Chiama ${esc(c.tel)}</a>`:""}
-      <button class="wbig sec" id="wMv">${ic("swap")}Sposto su un altro ripiano</button><button class="wbig sec" id="wTo">${ic("x")}Tolgo dallo scaffale (annullato)</button></div>`,
+      <button class="wbig sec" id="wArt">${ic("clipboard")}Modifico gli articoli${c.mancano?" (è arrivato altro?)":""}</button><button class="wbig sec" id="wMv">${ic("swap")}Sposto su un altro ripiano</button><button class="wbig sec" id="wTo">${ic("x")}Tolgo dallo scaffale (annullato)</button></div>`,
       wBtn("wGo",c.modo==="consegna"?"Consegnato al cliente":"Il cliente l'ha ritirato","ok","check"));
-    $("#wMv").onclick=()=>wizStep(sposta);
+    $("#wMv").onclick=()=>wizStep(sposta); $("#wArt").onclick=()=>{ WZ.ed=null; wizStep(articoli); };
     $("#wTo").onclick=async()=>{ const b=$("#wTo"); if(b.dataset.sure!=="1"){ b.dataset.sure="1"; b.innerHTML=ic("alert")+"Sicuro? Tocca di nuovo"; return; }
       if(await write(()=>S.db.collection("consegne").doc(c.id).update({stato:"annullato",chiusoAt:Date.now()}),"Tolto dallo scaffale")){ WZ.stack=[]; wizStep(lista); } };
     $("#wGo").onclick=()=>{ if(da) wizStep(incasso); else chiudi(c,null); }; });
@@ -2926,6 +2954,24 @@ function wizScaffale(apri){
     const ok=await write(async()=>{ await S.db.collection("consegne").doc(c.id).update({stato:"consegnato",chiusoAt:now,pagato:true,...(metodo?{metodo}:{})});
       if(c.ordineId){ const o=S.ordiniWeb.find(x=>x.id===c.ordineId); if(o&&!["Consegnato","Annullato"].includes(o.stato)) await S.db.collection("ordiniWeb").doc(o.id).update({stato:"Consegnato",pagato:true,...(metodo&&metodo!=="Già pagato"&&!o.metodo?{metodo}:{}),updatedAt:now,storico:[...(o.storico||[]),{at:now,stato:"Consegnato"}]}); } });
     if(ok) wizDone("✅",c.modo==="consegna"?"Consegnato!":"Ritirato!",`${esc(c.cliente)}<br>Ripiano <b>${esc(c.posto||"—")}</b> libero.`,`<button class="wbig sec" id="wBk">${ic("box")}Torna allo scaffale</button>`)||($("#wBk").onclick=()=>{ WZ.stack=[]; wizStep(lista); }); };
+  const articoli=step(()=>{ const c=S.consegne.find(x=>x.id===WZ.c); if(!c){ wizBack(); return; }
+    if(!WZ.ed||WZ.ed.id!==c.id) WZ.ed={id:c.id,P:(c.prodotti||[]).map(p=>({...p,sc:scDi(p)})),extra:c.extra||"",inc:null};
+    const E=WZ.ed, P=E.P, act=P.filter(p=>p.on!==false), k=contoPacco(act,c.totDoc,c.pagato);
+    const inc=E.inc!=null?E.inc:(P.length&&(Number(c.totDoc)>0||k.base)?k.incassare:Number(c.incassare)||0);
+    wz(`<div class="wq">Articoli nel pacco</div><div class="wsub">${esc(c.cliente)}${c.docNum?" · documento "+esc(c.docNum):""}</div>
+      ${P.length?`<div class="wsub">Per ogni articolo: quanti ne dice il documento e quanti ce ne sono davvero sullo scaffale. Tocca il nome per toglierlo.</div>${artRighe(P)}`:`<div class="wsub">Questo pacco non ha articoli registrati: puoi cambiare solo la descrizione e l'importo.</div>`}
+      <div class="wq sm">${P.length?"Altro nel pacco":"Cosa c'è nel pacco"}</div><input class="winp" id="wEx" value="${esc(P.length?E.extra:(E.cosa??c.cosa??""))}" placeholder="scrivi a mano">
+      ${contoTxt(k,c.totDoc)}
+      ${c.pagato&&!(Number(c.incassare)>0)?`<div class="wsub">Già pagato.</div>`:`<div class="wq sm">Da incassare ora (€)</div><input class="winp" id="wInc" type="number" step="0.01" min="0" inputmode="decimal" value="${inc}">`}`,
+      wBtn("wSv","Salva","ok","check"));
+    const prima=()=>{ if(P.length) E.extra=$("#wEx").value.trim(); else E.cosa=$("#wEx").value; const i=$("#wInc"); if(i) E.inc=i.value===""?null:Number(i.value); };
+    bindArt(P,()=>{ E.inc=null; articoli._run(); },()=>{ prima(); });
+    $("#wSv").onclick=async()=>{ prima(); const act=P.filter(p=>p.on!==false), k=contoPacco(act,c.totDoc,c.pagato);
+      const i=$("#wInc"), incN=i?Math.max(0,Math.round((Number(i.value)||0)*100)/100):Number(c.incassare)||0;
+      const upd=P.length?{prodotti:act.map(p=>({codice:p.codice,nome:p.nome||"",qty:Number(p.qty)||0,sc:scDi(p),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})})),cosa:[k.cosa,E.extra].filter(Boolean).join(", ")||c.cosa||"",extra:E.extra,mancano:k.mancano,resto:k.mancano?Math.max(0,Math.round(((k.base||0)-incN)*100)/100):0}:{cosa:(E.cosa??c.cosa??"").trim()};
+      if(i){ upd.incassare=incN; upd.pagato=!incN; }
+      const arrivato=c.mancano&&P.length&&!k.mancano;
+      if(await write(()=>S.db.collection("consegne").doc(c.id).update(upd),arrivato?"C'è tutto: avvisa il cliente":"Articoli aggiornati")){ WZ.ed=null; WZ.stack.pop(); wizBack(); } }; });
   const sposta=step(()=>{ const c=S.consegne.find(x=>x.id===WZ.c);
     wz(`<div class="wq">Su quale ripiano lo metti?</div>${ripChips(c.posto)}`,""); bindRip(async p=>{ if(await write(()=>S.db.collection("consegne").doc(c.id).update({posto:p}),"Ripiano "+p)){ WZ.stack.pop(); wizBack(); } }); });
 
@@ -2949,17 +2995,19 @@ function wizScaffale(apri){
       ${a.ordine?`<label class="wlinkord"><input type="checkbox" id="wCol" ${WZ.n.collega?"checked":""}><span>È l'ordine online <b>${esc(a.ordine.num)}</b> di <b>${esc(a.ordine.cliente||"")}</b><small>${esc(ordArt(a.ordine))}</small></span></label>`:""}
       <div class="wq sm">Cliente</div><input class="winp" id="w1" value="${esc(WZ.n.cliente??a.cliente)}" placeholder="Nome e cognome (non letto: scrivilo)">
       <div class="wq sm">Telefono</div><input class="winp" id="w2" type="tel" inputmode="tel" value="${esc(WZ.n.tel??a.tel)}" placeholder="es. 333 1234567">
-      <div class="wq sm">Prodotti nel pacco ${P.length?"<small class=sub>(tocca per togliere)</small>":""}</div>
-      <div class="wplist">${P.map((p,k)=>`<div class="wpi ${p.on?"":"off"}" data-pi="${k}"><button data-pt="${k}"><b>${esc(p.nome)}</b><small class="mono">${esc(p.codice)}</small></button><span class="wpq"><button data-pq="${k}" data-d="-1">−</button><b>${p.qty}</b><button data-pq="${k}" data-d="1">＋</button></span></div>`).join("")}</div>
+      <div class="wq sm">Prodotti ${P.length?"<small class=sub>(tocca il nome per toglierlo; se sullo scaffale ne manca qualcuno, abbassa “sullo scaff.”)</small>":""}</div>
+      ${artRighe(P)}${(()=>{ const on=P.filter(p=>p.on!==false); const tot=WZ.n.collega&&a.ordine?(a.ordine.pagato?0:ordTot(a.ordine).tot):a.totale; return contoTxt(contoPacco(on,tot,WZ.n.collega&&a.ordine?!!a.ordine.pagato:false),tot); })()}
       <input class="winp" id="w3" value="${esc(WZ.n.extra||"")}" placeholder="Altro nel pacco (scrivi a mano)">
       <details class="wtxt"><summary>Testo letto dal documento</summary><pre>${esc(a.testo.slice(0,3000))}</pre></details>`, wBtn("wN","Avanti","pri","chev"));
     const salvaCampi=()=>{ WZ.n.cliente=$("#w1").value.trim(); WZ.n.tel=$("#w2").value.trim(); WZ.n.extra=$("#w3").value.trim(); const c=$("#wCol"); if(c) WZ.n.collega=c.checked; };
-    $("#wzB").querySelectorAll("[data-pt]").forEach(b=>b.onclick=()=>{ salvaCampi(); P[b.dataset.pt].on=!P[b.dataset.pt].on; rev._run(); });
-    $("#wzB").querySelectorAll("[data-pq]").forEach(b=>b.onclick=()=>{ salvaCampi(); const p=P[b.dataset.pq]; p.qty=Math.max(1,p.qty+Number(b.dataset.d)); rev._run(); });
-    $("#wN").onclick=()=>{ salvaCampi(); const on=P.filter(p=>p.on);
-      const cosa=[...on.map(p=>`${p.qty>1?p.qty+"× ":""}${p.nome}${p.nome!==p.codice?" ("+p.codice+")":""}`),WZ.n.extra].filter(Boolean).join(", ");
-      let n={cliente:WZ.n.cliente,tel:WZ.n.tel,cosa,prodotti:on.map(p=>({codice:p.codice,qty:p.qty})),docNum:a.docNum||"",docFile:WZ.docFile,modo:"ritiro",incassare:a.totale||"",pagato:false};
-      if(a.ordine&&WZ.n.collega){ const d=daOrdine(a.ordine); n={...d,...n,cliente:n.cliente||d.cliente,tel:n.tel||d.tel,cosa:n.cosa||d.cosa,incassare:d.incassare,pagato:d.pagato}; }
+    bindArt(P,()=>rev._run(),salvaCampi);
+    { const c=$("#wCol"); if(c) c.onchange=()=>{ salvaCampi(); rev._run(); }; }
+    $("#wN").onclick=()=>{ salvaCampi(); const on=P.filter(p=>p.on!==false);
+      const col=!!(a.ordine&&WZ.n.collega), d=col?daOrdine(a.ordine):null, totDoc=col?(a.ordine.pagato?0:ordTot(a.ordine).tot):(a.totale||0), pagato=col?d.pagato:false;
+      const k=contoPacco(on,totDoc,pagato);
+      const cosa=[k.cosa,WZ.n.extra].filter(Boolean).join(", ");
+      let n={cliente:WZ.n.cliente,tel:WZ.n.tel,cosa,extra:WZ.n.extra||"",prodotti:on.map(p=>({codice:p.codice,nome:p.nome||"",qty:p.qty,sc:scDi(p),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})})),mancano:k.mancano,totDoc,docNum:a.docNum||"",docFile:WZ.docFile,modo:"ritiro",incassare:k.base?k.incassare:(totDoc||""),pagato};
+      if(col){ n={...d,...n,cliente:n.cliente||d.cliente,tel:n.tel||d.tel,cosa:n.cosa||d.cosa}; }
       if(!n.cliente){ toast("Scrivi il nome del cliente"); $("#w1").focus(); return; }
       const keep=WZ.n; WZ.n=n; WZ.n._prev=keep; wizStep(nuovo3); }; });
   const nuovo2=step(()=>{ const n=WZ.n;
@@ -2974,9 +3022,10 @@ function wizScaffale(apri){
     $("#wzB").querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>{ n.modo=b.dataset.md; $("#wzB").querySelectorAll("[data-md]").forEach(x=>x.className="wbig "+(x===b?"pri":"sec")); $("#wCons").style.display=n.modo==="consegna"?"block":"none"; });
     $("#wN").onclick=()=>{ n.modo=n.modo||"ritiro"; if(n.modo==="consegna"){ n.ind=$("#wInd").value.trim(); n.quando=$("#wQ").value; } wizStep(nuovo4); }; });
   const nuovo4=step(()=>{ const n=WZ.n;
-    wz(`<div class="wq">Quanto deve ancora pagare?</div><input class="winp huge" id="wI" type="number" step="0.01" min="0" inputmode="decimal" value="${n.pagato?0:(n.incassare||"")}" placeholder="0">
-      <div class="wsub">Scrivi 0 se ha già pagato (es. ordine con carta sul sito).</div>`, wBtn("wN","Avanti","pri","chev"));
-    $("#wN").onclick=()=>{ n.incassare=Math.max(0,Math.round(Number($("#wI").value)*100)/100||0); n.pagato=!n.incassare; wizStep(nuovo5); }; });
+    const k=n.prodotti&&n.prodotti.length?contoPacco(n.prodotti,n.totDoc,n.pagato):null;
+    wz(`<div class="wq">${k&&k.qui<k.pz?"Quanto deve pagare adesso?":"Quanto deve ancora pagare?"}</div>${k?contoTxt(k,n.totDoc):""}<input class="winp huge" id="wI" type="number" step="0.01" min="0" inputmode="decimal" value="${n.pagato?0:(n.incassare||"")}" placeholder="0">
+      <div class="wsub">${k&&k.qui<k.pz?"Già calcolato solo su quello che c'è sullo scaffale: puoi correggerlo. ":""}Scrivi 0 se ha già pagato (es. ordine con carta sul sito).</div>`, wBtn("wN","Avanti","pri","chev"));
+    $("#wN").onclick=()=>{ n.incassare=Math.max(0,Math.round(Number($("#wI").value)*100)/100||0); n.pagato=!n.incassare; n.resto=k&&k.mancano?Math.max(0,Math.round(((k.base||0)-n.incassare)*100)/100):0; wizStep(nuovo5); }; });
   const nuovo5=step(()=>{ const n=WZ.n;
     wz(`<div class="wq">Su quale ripiano lo metti?</div><div class="wsub">Scrivi il ripiano anche sul pacco.</div>${ripChips(n.posto)}`,"");
     bindRip(async p=>{ n.posto=p; const now=Date.now(); const {docFile,_prev,_da,...pul}=n; const d={...pul,stato:"sullo scaffale",at:now,chi:window.SEMI?.io?.nome||S.me||""};
@@ -2991,7 +3040,8 @@ function wizScaffale(apri){
   else if(apri){ WZ.c=apri; WZ.stack=[lista]; wizStep(det); }
   else wizStep(lista);
 }
-const daOrdine=o=>{ const t=ordTot(o); return {ordineId:o.id,ordineNum:o.num,cliente:o.cliente||"",tel:o.tel||"",cosa:ordArt(o),modo:"ritiro",incassare:o.pagato?0:t.tot,pagato:!!o.pagato,ind:[o.ind,o.citta].filter(Boolean).join(", ")}; };
+const daOrdine=o=>{ const t=ordTot(o); return {ordineId:o.id,ordineNum:o.num,cliente:o.cliente||"",tel:o.tel||"",cosa:ordArt(o),modo:"ritiro",incassare:o.pagato?0:t.tot,totDoc:o.pagato?0:t.tot,pagato:!!o.pagato,ind:[o.ind,o.citta].filter(Boolean).join(", "),
+  prodotti:(o.righe||[]).filter(r=>(r.codice||r.descr)&&(Number(r.qty)||0)>0).map(r=>({codice:r.codice||"",nome:r.descr||r.codice||"",qty:Number(r.qty)||1,sc:Number(r.qty)||1,...(Number(r.prezzo)>0?{prezzo:Number(r.prezzo)}:{})}))}; };
 function ripChips(cur){ const r=ripiani(), occ={}; sulloScaffale().forEach(c=>occ[c.posto]=(occ[c.posto]||0)+1);
   return `<div class="wchips big">${r.map(p=>`<button data-rp="${esc(p)}" class="${p===cur?"on":""}">${esc(p)}${occ[p]?`<small style="display:block;font-size:13px;font-weight:600;opacity:.7">${occ[p]} ${occ[p]===1?"pacco":"pacchi"}</small>`:`<small style="display:block;font-size:13px;font-weight:600;opacity:.6">libero</small>`}</button>`).join("")}</div>
    <div class="wor">oppure un ripiano nuovo</div><div style="display:flex;gap:10px"><input class="winp" id="wRp" placeholder="es. D1" autocapitalize="characters" style="margin:0;flex:1"><button class="btn pri" id="wRpOk" style="font-size:18px;padding:0 22px">OK</button></div>`; }
@@ -3037,9 +3087,12 @@ function analizzaDocumento(testo){
       let it=idx.get(sch(tok)); if(!it&&tok.includes("-")) it=idx.get(sch(tok.split("-")[0]));
       if(!it&&tok.length>=6){ const k=sch(tok); for(let j=0;j<k.length&&!it;j++) it=idx.get(k.slice(0,j)+k.slice(j+1)); } // una lettera in più letta per sbaglio
       if(!it||visti.has(it.codice)) continue; visti.add(it.codice);
-      const resto=r.slice(m.index+m[0].length).split(/\s+/), nums=resto.map((w,j)=>/^\d{1,2}$/.test(w)&&!/^(pz|v|ah|mm|cm|w|kg|nm|mt|m|lt|l)\b/i.test(resto[j+1]||"")?w:null).filter(Boolean), q=nums[nums.length-1]; out.prodotti.push({codice:it.codice,nome:nomeDi(it),qty:Math.max(1,Math.min(50,parseInt(q)||1)),on:true}); } });
+      const resto=r.slice(m.index+m[0].length).split(/\s+/), nums=resto.map((w,j)=>/^\d{1,2}$/.test(w)&&!/^(pz|v|ah|mm|cm|w|kg|nm|mt|m|lt|l)\b/i.test(resto[j+1]||"")?w:null).filter(Boolean), q=nums[nums.length-1]; const qty=Math.max(1,Math.min(50,parseInt(q)||1));
+      const imp=[...resto.join(" ").matchAll(/(\d{1,3}(?:\.\d{3})*,\d{2})/g)].map(x=>Number(x[1].replace(/\./g,"").replace(",",".")));
+      let prezzo=0; if(imp.length>=2){ const f=imp[0], l=imp[imp.length-1]; prezzo=Math.abs(f*qty-l)<=Math.max(0.05,l*0.25)?f:Math.round(l/qty*100)/100; } else if(imp.length===1) prezzo=imp[0];
+      out.prodotti.push({codice:it.codice,nome:nomeDi(it),qty,sc:qty,...(prezzo>0?{prezzo}:{}),on:true}); } });
   // codici DEWALT/STANLEY non in archivio (es. DCD796D2T)
-  for(const m of tutto.matchAll(/\b(D[A-Z]{1,3}\d{3,4}[A-Z0-9]{0,4}(?:-[A-Z]{2})?)\b/g)) if(![...visti].some(c=>sch(c)===sch(m[1]))){ visti.add(m[1]); out.prodotti.push({codice:m[1],nome:m[1],qty:1,on:true}); }
+  for(const m of tutto.matchAll(/\b(D[A-Z]{1,3}\d{3,4}[A-Z0-9]{0,4}(?:-[A-Z]{2})?)\b/g)) if(![...visti].some(c=>sch(c)===sch(m[1]))){ visti.add(m[1]); out.prodotti.push({codice:m[1],nome:m[1],qty:1,sc:1,on:true}); }
   // totale
   const tot=[...tutto.matchAll(/(?:totale(?:\s*(?:documento|da pagare|fattura|€))?|tot\.?\s*doc|netto a pagare|da pagare)[^\d\n]{0,15}(\d{1,3}(?:[.\s]\d{3})*,\d{2}|\d+[.,]\d{2})/gi)].map(m=>Number(m[1].replace(/[.\s](?=\d{3})/g,"").replace(",",".")));
   if(tot.length) out.totale=Math.max(...tot);
