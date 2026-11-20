@@ -1,0 +1,33 @@
+# Copia le email di una casella dal vecchio server (Plesk dell'agenzia) alla Posta dell'app su Cloudflare.
+# Si lancia a mano: GitHub → Actions → "Importa posta dal vecchio server" → Run workflow.
+# Segreti del repository (Settings → Secrets and variables → Actions): ADMIN_TOKEN (lo stesso del sito) e IMPORT_PASS (password della casella).
+name: Importa posta dal vecchio server
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: "Casella da copiare (es. info@semistore.it)"
+        required: true
+        default: "info@semistore.it"
+      casella:
+        description: "Casella di arrivo nell'app (senza @semistore.it)"
+        required: true
+        default: "info"
+      server:
+        description: "Server del vecchio servizio"
+        required: true
+        default: "mail.semistore.it"
+jobs:
+  importa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copia le email
+        env:
+          IMPORT_USER: ${{ inputs.email }}
+          IMPORT_PASS: ${{ secrets.IMPORT_PASS }}
+          IMPORT_HOST: ${{ inputs.server }}
+          CASELLA: ${{ inputs.casella }}
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: python3 scripts/importa-posta.py

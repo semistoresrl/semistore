@@ -9,6 +9,7 @@
 //  POST azione {c,f,uid,op}              → letto | nonletto | stella | nostella | spam | nonspam | cestino | elimina | sposta(verso)
 //  POST invia {c,a,cc,oggetto,testo,rispondi:{f,uid},allegati:[{nome,tipo,b64}]}
 import { gdb, json, utente } from '../../../_lib/gestione.js';
+import { cdb, caselleCf, grezzoCf, inviaResend, salvaInviata, testoInHtml, DOMINIO } from '../../../_lib/postacf.js';
 import { pdb, cifra, decifra, Imap, inviaSmtp, leggiMime, parteMime, costruisci, indirizzi, dec2047, segreto, pleskSito, pleskCaselle, pleskCrea, pleskPassword, pleskElimina, nuovaPassword, diagnosi } from '../../../_lib/posta.js';
 
 const spiega = (m) => (/cancel|closed|reset|refused|timed? ?out|tls|certificate|handshake/i.test(m) ? `connessione non riuscita: controlla nome del server e porta (${m})` : m);
@@ -55,7 +56,10 @@ export async function onRequest({ request, env, params }) {
         if (conta) { try { x.nuove = await conImap({ ...c, pass: await decifra(env, c.pass) }, async (im) => { const r = (await im.cmd('STATUS "INBOX" (UNSEEN)')).join(' '); return Number((r.match(/UNSEEN (\d+)/i) || [])[1] || 0); }); } catch (e) { x.errore = e.message; } }
         return x;
       }));
-      return json({ caselle: out });
+      const dc = await cdb(env);
+      const nn = Object.fromEntries((((await dc.prepare("SELECT casella, COUNT(*) n FROM pmail WHERE cartella='arrivo' AND letto=0 GROUP BY casella").all()).results) || []).map((r) => [r.casella, r.n]));
+      const cf = (await caselleCf(dc)).map((x) => ({ id: 'cf-' + x.indirizzo, tipo: 'cf', email: `${x.indirizzo}@${DOMINIO}`, nome: x.nome, host: 'Cloudflare', porta: '', firma: x.firma, auto_on: !!x.auto_on, auto_oggetto: x.auto_oggetto, auto_testo: x.auto_testo, norisposta: !!x.norisposta, nuove: nn[x.indirizzo] || 0 }));
+      return json({ caselle: [...cf, ...out] });
     }
     if (p === 'caselle' && m === 'POST') {
       if (body.azione === 'elimina') { await d.prepare('DELETE FROM caselle WHERE id=?').bind(String(body.id)).run(); return json({ ok: true }); }
@@ -120,6 +124,90 @@ export async function onRequest({ request, env, params }) {
       if (body.conferma !== `${nome}@${cfg.dominio}`) return json({ error: 'conferma mancante' }, 400);
       await pleskElimina(cfg, nome); await d.prepare('DELETE FROM caselle WHERE email=?').bind(`${nome}@${cfg.dominio}`).run();
       return json({ ok: true });
+    }
+    /* ---------- caselle @semistore.it su Cloudflare ---------- */
+    if (p === 'caselle' && m === 'POST' && body.azione === 'cfsalva') {
+      const dc = await cdb(env); const ind = String(body.indirizzo || '').trim().toLowerCase().replace(/@.*$/, '');
+      if (!/^[a-z0-9][a-z0-9._-]{0,63}$/.test(ind)) return json({ error: 'nome della casella non valido: solo lettere, numeri, punto, trattino (es. ordini, mario.rossi)' }, 400);
+      const prima = await dc.prepare('SELECT * FROM pcaselle WHERE indirizzo=?').bind(ind).first();
+      if (body.nuova && prima) return json({ error: `${ind}@${DOMINIO} esiste già` }, 400);
+      await dc.prepare(`INSERT INTO pcaselle(indirizzo,nome,firma,auto_on,auto_oggetto,auto_testo,norisposta,ordine,at) VALUES(?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(indirizzo) DO UPDATE SET nome=excluded.nome,firma=excluded.firma,auto_on=excluded.auto_on,auto_oggetto=excluded.auto_oggetto,auto_testo=excluded.auto_testo,norisposta=excluded.norisposta`)
+        .bind(ind, String(body.nome ?? prima?.nome ?? 'Semi Store'), String(body.firma ?? prima?.firma ?? ''), body.auto_on === undefined ? (prima?.auto_on ?? 0) : (body.auto_on ? 1 : 0),
+          String(body.auto_oggetto ?? prima?.auto_oggetto ?? ''), String(body.auto_testo ?? prima?.auto_testo ?? ''), body.norisposta === undefined ? (prima?.norisposta ?? 0) : (body.norisposta ? 1 : 0), prima?.ordine ?? 50, Date.now()).run();
+      return json({ ok: true, id: 'cf-' + ind });
+    }
+    if (p === 'caselle' && m === 'POST' && body.azione === 'cfelimina') {
+      const dc = await cdb(env); const ind = String(body.indirizzo || '').toLowerCase();
+      if (ind === 'info') return json({ error: 'info@ non si può togliere: riceve anche gli indirizzi sconosciuti' }, 400);
+      await dc.batch([dc.prepare("UPDATE pmail SET casella='info', per=? WHERE casella=?").bind(`${ind}@${DOMINIO}`, ind), dc.prepare('DELETE FROM pcaselle WHERE indirizzo=?').bind(ind)]);
+      return json({ ok: true });
+    }
+    const cid = String(g('c') || body.c || '');
+    if (cid.startsWith('cf-')) {
+      const dc = await cdb(env); const ind = cid.slice(3);
+      const cc = await dc.prepare('SELECT * FROM pcaselle WHERE indirizzo=?').bind(ind).first();
+      if (!cc) return json({ error: 'casella non trovata' }, 404);
+      const CART = [['INBOX', 'arrivo', 'In arrivo'], ['Inviati', 'inviati', 'Inviati'], ['Spam', 'spam', 'Spam'], ['Archivio', 'archivio', 'Archivio'], ['Cestino', 'cestino', 'Cestino']];
+      const daNome = (f) => (CART.find((x) => x[0] === f) || CART[0])[1];
+      // pulizia: cestino e spam più vecchi di 30 giorni
+      if (Math.random() < 0.05) { const vecchi = ((await dc.prepare("SELECT id FROM pmail WHERE cartella IN ('cestino','spam') AND at < ? LIMIT 200").bind(Date.now() - 30 * 864e5).all()).results || []).map((r) => r.id);
+        for (const i of vecchi) await dc.batch([dc.prepare('DELETE FROM pmail_raw WHERE id=?').bind(i), dc.prepare('DELETE FROM pmail WHERE id=?').bind(i)]); }
+      if (p === 'cartelle') {
+        const st = Object.fromEntries((((await dc.prepare('SELECT cartella, COUNT(*) tot, SUM(CASE WHEN letto=0 THEN 1 ELSE 0 END) nuove FROM pmail WHERE casella=? GROUP BY cartella').bind(ind).all()).results) || []).map((r) => [r.cartella, r]));
+        return json({ cartelle: CART.map(([nome, uso, vista]) => ({ nome, uso: uso === 'arrivo' ? 'arrivo' : uso, vista, tot: st[uso]?.tot || 0, nuove: uso === 'inviati' ? 0 : st[uso]?.nuove || 0 })) });
+      }
+      const mapR = (r) => ({ uid: r.id, data: r.data, oggetto: r.oggetto, da: { nome: r.da_nome, email: r.da_email }, a: JSON.parse(r.a || '[]'), cc: JSON.parse(r.cc || '[]'), per: r.per,
+        letto: !!r.letto, risposto: !!r.risposto, stella: !!r.stella, dim: r.dim, allegati: !!r.allegati, anteprima: r.anteprima, spam: r.spam, auto: !!r.auto });
+      if (p === 'elenco') {
+        const cart = daNome(g('f') || 'INBOX'), prima = Number(g('prima')) || 0, q = g('cerca').trim();
+        const w = 'casella=? AND cartella=?' + (q ? ' AND (oggetto LIKE ? OR da_email LIKE ? OR da_nome LIKE ? OR anteprima LIKE ? OR a LIKE ?)' : '');
+        const args = [ind, cart, ...(q ? Array(5).fill('%' + q + '%') : [])];
+        const tot = (await dc.prepare('SELECT COUNT(*) n FROM pmail WHERE ' + w).bind(...args).first()).n;
+        const l = ((await dc.prepare('SELECT * FROM pmail WHERE ' + w + ' ORDER BY data DESC LIMIT 40 OFFSET ?').bind(...args, prima).all()).results || []).map(mapR);
+        return json({ tot, mess: l });
+      }
+      const uid = String(g('uid') || body.uid || '');
+      if (p === 'leggi' || p === 'allegato' || p === 'originale') {
+        const r = await dc.prepare('SELECT * FROM pmail WHERE id=? AND casella=?').bind(uid, ind).first(); if (!r) return json({ error: 'email non trovata' }, 404);
+        const raw = await grezzoCf(dc, uid);
+        if (p === 'originale') return new Response(Uint8Array.from(raw, (x) => x.charCodeAt(0) & 255), { headers: { 'content-type': 'message/rfc822', 'content-disposition': `attachment; filename="email.eml"`, 'cache-control': 'private, no-store' } });
+        if (p === 'allegato') { const a = parteMime(raw, g('part')); if (!a) return json({ error: 'allegato non trovato' }, 404);
+          return new Response(a.dati, { headers: { 'content-type': a.tipo || 'application/octet-stream', 'content-disposition': `${/^(image|application\/pdf|text)/.test(a.tipo) ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(a.nome)}`, 'cache-control': 'private, no-store' } }); }
+        if (!r.letto) await dc.prepare('UPDATE pmail SET letto=1 WHERE id=?').bind(uid).run();
+        const x = leggiMime(raw), h = x.h, si = JSON.parse(r.spam_info || '{}');
+        return json({ uid, oggetto: r.oggetto || dec2047(h.subject || ''), data: r.data, da: { nome: r.da_nome, email: r.da_email }, a: JSON.parse(r.a || '[]'), cc: JSON.parse(r.cc || '[]'), per: r.per,
+          rispondiA: indirizzi(h['reply-to'])[0] || null, messageId: r.message_id, riferimenti: r.riferimenti, testo: x.testo, html: x.html, cid: x.cid, allegati: x.allegati,
+          spam: { segnato: r.cartella === 'spam' || r.spam >= 5, punti: r.spam ? String(r.spam) : '', spf: si.spf || '', dkim: si.dkim || '', dmarc: si.dmarc || '', motivi: si.motivi || [] }, letto: true, stella: !!r.stella, auto: !!r.auto });
+      }
+      if (p === 'azione' && m === 'POST') {
+        const r = await dc.prepare('SELECT * FROM pmail WHERE id=? AND casella=?').bind(uid, ind).first(); if (!r) return json({ error: 'email non trovata' }, 404);
+        const op = body.op, set = (k, v) => dc.prepare(`UPDATE pmail SET ${k}=? WHERE id=?`).bind(v, uid).run();
+        if (op === 'letto' || op === 'nonletto') await set('letto', op === 'letto' ? 1 : 0);
+        else if (op === 'stella' || op === 'nostella') await set('stella', op === 'stella' ? 1 : 0);
+        else if (op === 'spam') { await set('cartella', 'spam'); if (r.da_email) await dc.prepare("INSERT INTO pmail_liste(email,tipo,at) VALUES(?,'spam',?) ON CONFLICT(email) DO UPDATE SET tipo='spam', at=excluded.at").bind(r.da_email, Date.now()).run(); }
+        else if (op === 'nonspam') { await set('cartella', 'arrivo'); if (r.da_email) await dc.prepare("INSERT INTO pmail_liste(email,tipo,at) VALUES(?,'ok',?) ON CONFLICT(email) DO UPDATE SET tipo='ok', at=excluded.at").bind(r.da_email, Date.now()).run(); }
+        else if (op === 'cestino') await set('cartella', 'cestino');
+        else if (op === 'elimina') await dc.batch([dc.prepare('DELETE FROM pmail_raw WHERE id=?').bind(uid), dc.prepare('DELETE FROM pmail WHERE id=?').bind(uid)]);
+        else if (op === 'sposta') await set('cartella', daNome(body.verso));
+        return json({ ok: true });
+      }
+      if (p === 'invia' && m === 'POST') {
+        const a = indirizzi(body.a), cc2 = indirizzi(body.cc);
+        if (!a.length) return json({ error: 'scrivi almeno un destinatario' }, 400);
+        const allegati = (body.allegati || []).slice(0, 10);
+        if (allegati.reduce((s2, x) => s2 + (x.b64 || '').length * 0.75, 0) > 15e6) return json({ error: 'allegati troppo grandi (max 15 MB in tutto)' }, 413);
+        const firma = cc.firma || FIRMA;
+        const testo = String(body.testo || '') + (firma ? '\n\n-- \n' + firma : '') + (body.citazione ? '\n\n' + String(body.citazione).split('\n').map((l) => '> ' + l).join('\n') : '');
+        const html = testoInHtml(String(body.testo || '')) + (firma ? `<br><div style="font-family:Arial,sans-serif;font-size:12px;color:#555;border-top:1px solid #ddd;padding-top:8px;margin-top:8px">${testoInHtml(firma).replace(/font-size:14px/, 'font-size:12px')}</div>` : '') +
+          (body.citazione ? `<br><blockquote style="margin:0 0 0 .8ex;border-left:2px solid #ccc;padding-left:1ex;color:#555">${testoInHtml(String(body.citazione))}</blockquote>` : '');
+        const rif = body.rispondi?.messageId ? { 'In-Reply-To': body.rispondi.messageId, References: [body.rispondi.riferimenti, body.rispondi.messageId].filter(Boolean).join(' ') } : {};
+        const r = await inviaResend(env, { da: { nome: cc.nome, email: `${ind}@${DOMINIO}` }, a, cc: cc2, oggetto: String(body.oggetto || ''), testo, html, intestazioni: rif, allegati });
+        await salvaInviata(dc, { casella: ind, a, cc: cc2, oggetto: String(body.oggetto || ''), testo, html, mid: r.mid, inReplyTo: rif['In-Reply-To'] || '', riferimenti: rif.References || '', allegati });
+        if (body.rispondi?.uid) await dc.prepare('UPDATE pmail SET risposto=1 WHERE id=?').bind(String(body.rispondi.uid)).run();
+        return json({ ok: true, copia: 'salvata in Inviati' });
+      }
+      return json({ error: 'non trovato' }, 404);
     }
     const c = await casella(env, g('c') || body.c);
     if (p === 'cartelle') return json({ cartelle: await conImap(c, (im) => im.cartelle()) });

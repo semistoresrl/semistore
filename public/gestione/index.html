@@ -2908,7 +2908,7 @@ function vPosta(){
    <div class="toolbar"><input type="search" id="pQ" placeholder="Cerca in ${esc(cart.vista)}: mittente, oggetto, testo…" value="${esc(PO.cerca)}"></div>
    ${PO.err?`<div class="banner err">${esc(PO.err)}</div>`:""}
    ${cart.uso==="spam"?`<div class="banner">Qui finiscono le email che il server considera spam. Aprile per vedere il punteggio; se una è buona tocca <b>“Non è spam”</b> e torna in arrivo.</div>`:""}
-   <div class="plist">${!L?`<div class="empty">Carico le email…</div>`:L.mess.length?L.mess.map(m=>`<button class="prow ${m.letto?"":"nl"}" data-pu="${m.uid}"><span class="pfrom">${esc(cart.uso==="inviati"?"A: "+(m.a||[]).map(chi).join(", "):chi(m.da))}</span><span class="psub">${m.stella?"⭐ ":""}${m.risposto?"↩︎ ":""}${esc(m.oggetto||"(senza oggetto)")}</span><span class="pdate">${m.allegati?ic("clipboard"):""}${dataBreve(m.data)}</span></button>`).join("")
+   <div class="plist">${!L?`<div class="empty">Carico le email…</div>`:L.mess.length?L.mess.map(m=>`<button class="prow ${m.letto?"":"nl"}" data-pu="${m.uid}"><span class="pfrom">${esc(cart.uso==="inviati"?"A: "+(m.a||[]).map(chi).join(", "):chi(m.da))}</span><span class="psub">${m.stella?"⭐ ":""}${m.risposto?"↩︎ ":""}${m.auto?`<span class="badge">automatica</span> `:""}${m.per?`<span class="badge">per ${esc(m.per)}</span> `:""}${esc(m.oggetto||"(senza oggetto)")}</span><span class="pdate">${m.allegati?ic("clipboard"):""}${dataBreve(m.data)}</span></button>`).join("")
      +(L.mess.length<L.tot?`<button class="btn" data-act="pAltre" style="margin:10px auto;display:flex">${PO.carico?"Carico…":`Carica altre (${L.tot-L.mess.length})`}</button>`:""):`<div class="empty">${PO.cerca?"Nessuna email trovata":"Nessuna email"}</div>`}</div></div>`;
 }
 
@@ -2926,8 +2926,8 @@ async function apriEmail(uid){
   $("#modal").innerHTML=`<div class="mh"><h2 style="font-size:19px">${esc(e.oggetto||"(senza oggetto)")}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
   <div class="mb">
    <div class="phead"><div><b>${esc(e.da?.nome||e.da?.email||"")}</b> <span class="sub">&lt;${esc(e.da?.email||"")}&gt;</span></div><div class="sub">${new Date(e.data||Date.now()).toLocaleString("it-IT")}</div>
-    <div class="sub">A: ${ind(e.a)}${e.cc?.length?`<br>Cc: ${ind(e.cc)}`:""}</div></div>
-   ${isSpam||sp.segnato||/fail/i.test(sp.spf||"")?`<div class="pspam ${isSpam||sp.segnato?"":"warn"}">${ic("alert")}<div><b>${isSpam?"È nella cartella Spam":sp.segnato?"Il server la segna come spam":"Controllo mittente non superato"}</b><br><span>${sp.punti?`Punteggio spam ${esc(sp.punti)} (oltre 5 = spam) · `:""}SPF ${esc(sp.spf||"—")} · DKIM ${esc(sp.dkim||"—")}${sp.dmarc?" · DMARC "+esc(sp.dmarc):""}</span><br><small>Non aprire link o allegati se non conosci il mittente.</small></div></div>`:""}
+    <div class="sub">A: ${ind(e.a)}${e.cc?.length?`<br>Cc: ${ind(e.cc)}`:""}${e.per?`<br>Arrivata a: <b>${esc(e.per)}</b> (indirizzo non ancora creato: puoi crearlo in Caselle)`:""}</div></div>
+   ${isSpam||sp.segnato||/fail/i.test(sp.spf||"")?`<div class="pspam ${isSpam||sp.segnato?"":"warn"}">${ic("alert")}<div><b>${isSpam?"È nella cartella Spam":sp.segnato?"Il controllo la segna come spam":"Controllo mittente non superato"}</b><br><span>${sp.punti?`Punteggio spam ${esc(sp.punti)} (da 5 in su = spam) · `:""}SPF ${esc(sp.spf||"—")} · DKIM ${esc(sp.dkim||"—")}${sp.dmarc?" · DMARC "+esc(sp.dmarc):""}${sp.motivi?.length?"<br>Motivi: "+sp.motivi.map(esc).join(" · "):""}</span><br><small>Non aprire link o allegati se non conosci il mittente.</small></div></div>`:""}
    ${e.allegati?.length?`<div class="patt">${e.allegati.map(a=>`<a class="btn sm" href="${pUrl("allegato",{c:PO.c,f,uid,part:a.part})}" target="_blank" rel="noopener">${ic("clipboard")}${esc(a.nome)} <span class="sub">${a.dim>1e6?(a.dim/1e6).toFixed(1)+" MB":Math.max(1,Math.round(a.dim/1e3))+" KB"}</span></a>`).join("")}</div>`:""}
    ${html?`${remote?`<div class="sub" id="pImgB" style="margin:6px 0">Immagini esterne bloccate per sicurezza. <button class="btn sm" id="pImg">Mostra immagini</button></div>`:""}<iframe class="pframe" id="pFr" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin" referrerpolicy="no-referrer"></iframe>`:`<pre class="ptxt">${esc(e.testo||"")}</pre>`}
   </div>
@@ -2987,8 +2987,12 @@ async function gestisciCaselle(){
   openModal(`<div class="mh"><h2>Caselle email</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="empty">Carico…</div></div>`);
   let pl={collegato:false}, lp=null, errP="";
   try{ pl=await pReq("plesk"); if(pl.collegato) lp=(await pReq("plesk/caselle")).caselle; }catch(e){ errP=e.message; }
-  const cs=PO.caselle||[];
+  const cs=(PO.caselle||[]).filter(x=>x.tipo!=="cf"), cfs=(PO.caselle||[]).filter(x=>x.tipo==="cf");
   $("#modal").innerHTML=`<div class="mh"><h2>Caselle email</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb">
+   <div class="panel" style="margin:0 0 14px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">${ic("send")} Caselle @semistore.it</h3><span class="sp" style="flex:1"></span><button class="btn sm pri" id="cfNew">${ic("plus")}Nuova casella</button></div>
+    <div class="pll">${cfs.map(x=>`<div class="plr"><span><b>${esc(x.email)}</b><br><small class="sub">${esc(x.nome)}${x.auto_on?` · risposta automatica attiva`:""}${x.norisposta?" · solo invio":""}</small></span><div class="plb"><button class="btn sm" data-cfm="${esc(x.id)}">Modifica</button></div></div>`).join("")}</div>
+    <p class="sub">Le email arrivano su Cloudflare e si leggono qui. Gli indirizzi non ancora creati finiscono in info@ con l'etichetta “per …”. Ogni casella può avere la sua risposta automatica.</p></div>
+   ${cs.length||true?`<h3>Vecchio server (fino al trasferimento)</h3>`:""}
    ${pl.collegato?`<div class="panel" style="margin:0 0 14px"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h3 style="margin:0">${ic("plug")} Plesk · ${esc(pl.dominio)}</h3><span class="badge st-Pronto">collegato</span><span class="sp" style="flex:1"></span><button class="btn sm pri" id="plNew">${ic("plus")}Nuova casella</button></div>
      ${errP?`<div class="banner err">${esc(errP)}</div>`:""}
      ${lp?`<div class="pll">${lp.map(x=>`<div class="plr"><b>${esc(x.email)}</b>${x.attiva?"":` <span class="badge">disattivata</span>`}<div class="plb">${x.collegata?`<span class="badge st-Consegnato">${ic("check")}nell'app</span>`:`<button class="btn sm pri" data-plc="${esc(x.nome)}">Collega</button>`}<button class="btn sm ghost" data-plp="${esc(x.nome)}">Password</button><button class="btn sm ghost" data-pld="${esc(x.nome)}">Elimina</button></div></div>`).join("")}</div>
@@ -3001,6 +3005,8 @@ async function gestisciCaselle(){
   $("#modal").querySelectorAll("[data-close]").forEach(b=>b.onclick=closeModal);
   $("#modal").querySelectorAll("[data-mc]").forEach(b=>b.onclick=()=>modCasella(cs.find(x=>x.id===b.dataset.mc)));
   $("#mcN").onclick=()=>modCasella({});
+  $("#cfNew").onclick=()=>modCasellaCf({nuova:true});
+  $("#modal").querySelectorAll("[data-cfm]").forEach(b=>b.onclick=()=>modCasellaCf(cfs.find(x=>x.id===b.dataset.cfm)));
   $("#plEdit").onclick=()=>modPlesk(pl);
   const nw=$("#plNew"); if(nw) nw.onclick=()=>nuovaCasella(pl.dominio);
   $("#modal").querySelectorAll("[data-plc]").forEach(b=>b.onclick=()=>collegaCasella(b.dataset.plc,pl.dominio,false));
@@ -3056,6 +3062,20 @@ function collegaCasella(nome,dom,soloPass){ const em=nome+"@"+dom;
       if(r.password) mostraPassword(r.email,r.password,"Password cambiata in Plesk e casella collegata alla Posta ✓"); else { toast("Collegata ✓"); gestisciCaselle(); } }
     catch(e){ b.disabled=false; b.innerHTML=ic("check")+(soloPass?"Cambia password":"Collega"); toast(e.message); } };
 }
+function modCasellaCf(c){ const n=!!c.nuova; const ind=n?"":c.email.split("@")[0];
+  openModal(`<div class="mh"><h2>${n?"Nuova casella @semistore.it":esc(c.email)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="fs"><div class="f">
+   ${n?`<label class="fl" style="grid-column:span 2">Indirizzo<div style="display:flex;align-items:center;gap:6px"><input id="cfI" placeholder="es. vendite, mario.rossi" autocapitalize="none" style="flex:1"><b>@semistore.it</b></div></label>`:""}
+   <label class="fl" style="grid-column:span 2">Nome mittente<input id="cfN" value="${esc(c.nome||"Semi Store")}"></label>
+   <label class="ck" style="grid-column:span 2"><input type="checkbox" id="cfNr" ${c.norisposta?"checked":""}> Casella “solo invio” (es. sconti@, accesso@: chi risponde riceve la risposta automatica)</label>
+   <label class="ck" style="grid-column:span 2"><input type="checkbox" id="cfA" ${c.auto_on||n?"checked":""}> Risposta automatica a chi scrive (una volta ogni 3 giorni per mittente; mai a newsletter, notifiche e spam)</label>
+   <label class="fl" style="grid-column:span 2">Oggetto della risposta<input id="cfAo" value="${esc(c.auto_oggetto||"Abbiamo ricevuto la tua email")}"></label>
+   <label class="fl" style="grid-column:span 2">Testo della risposta <small class="sub">({nome} = nome di chi scrive, {fuori_orario} = avviso se siamo chiusi)</small><textarea id="cfAt" rows="9">${esc(c.auto_testo||"Ciao {nome},\ngrazie per averci scritto: ti rispondiamo entro un giorno lavorativo{fuori_orario}.\n\nSemi Store · 081 553 6604 · https://semistore.it")}</textarea></label>
+   <label class="fl" style="grid-column:span 2">Firma <small class="sub">(vuota = firma aziendale)</small><textarea id="cfF" rows="5">${esc(c.firma||"")}</textarea></label></div></div></div>
+   <div class="mf">${!n&&ind!=="info"?`<button class="btn danger" id="cfX">Togli casella</button>`:""}<span class="sp" style="flex:1"></span><button class="btn" data-close>Annulla</button><button class="btn pri" id="cfOk">${ic("check")}Salva</button></div>`);
+  $("#cfOk").onclick=async()=>{ try{ const r=await pPost("caselle",{azione:"cfsalva",nuova:n,indirizzo:n?$("#cfI").value:ind,nome:$("#cfN").value,norisposta:$("#cfNr").checked,auto_on:$("#cfA").checked,auto_oggetto:$("#cfAo").value,auto_testo:$("#cfAt").value,firma:$("#cfF").value});
+    toast(n?"Casella creata ✓ Riceve subito le email":"Salvato"); await caricaCaselle(true); if(n){ PO.c=r.id; PO.f="INBOX"; } render(); gestisciCaselle(); }catch(e){ toast(e.message); } };
+  const x=$("#cfX"); if(x) x.onclick=async()=>{ if(x.dataset.sure!=="1"){ x.dataset.sure="1"; x.textContent="Sicuro? Le sue email passano in info@"; return; } try{ await pPost("caselle",{azione:"cfelimina",indirizzo:ind}); toast("Casella tolta"); if(PO.c===c.id) PO.c="cf-info"; await caricaCaselle(true); render(); gestisciCaselle(); }catch(e){ toast(e.message); } };
+}
 function modCasella(c){ const n=!c.id;
   openModal(`<div class="mh"><h2>${n?"Aggiungi casella":esc(c.email)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><div class="fs"><div class="f">
    <label class="fl">Email<input id="mcE" type="email" value="${esc(c.email||"")}" placeholder="info@semistore.it"></label>
@@ -3075,7 +3095,7 @@ function modCasella(c){ const n=!c.id;
 function bindPosta(){ const m=$("#main");
   m.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ PO.c=b.dataset.pc; PO.f="INBOX"; PO.cerca=""; render(); });
   m.querySelectorAll("[data-pf]").forEach(b=>b.onclick=()=>{ PO.f=b.dataset.pf; PO.cerca=""; render(); });
-  m.querySelectorAll("[data-pu]").forEach(b=>b.onclick=()=>apriEmail(Number(b.dataset.pu)));
+  m.querySelectorAll("[data-pu]").forEach(b=>b.onclick=()=>apriEmail(/^\d+$/.test(b.dataset.pu)?Number(b.dataset.pu):b.dataset.pu));
   const q=$("#pQ"); if(q) q.onkeydown=e=>{ if(e.key==="Enter"){ PO.cerca=q.value.trim(); render(); } };
   if(q) q.onsearch=()=>{ PO.cerca=q.value.trim(); render(); };
 }

@@ -1,0 +1,9 @@
+# Worker che riceve la posta di semistore.it da Cloudflare Email Routing e la passa all'app (semistore.it/api/posta/in).
+# Segreto da impostare in Cloudflare (Worker → Impostazioni → Variabili e segreti): ADMIN_TOKEN = lo stesso del sito.
+name = "semistore-posta"
+main = "index.js"
+compatibility_date = "2024-09-01"
+workers_dev = false
+
+[vars]
+SITO = "https://semistore.it"
