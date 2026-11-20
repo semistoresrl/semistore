@@ -326,7 +326,7 @@ export async function pleskXml(cfg, corpo) {
   let r;
   try {
     r = await fetch(url + '/enterprise/control/agent.php', { method: 'POST', headers: { 'content-type': 'text/xml', HTTP_AUTH_LOGIN: cfg.login, HTTP_AUTH_PASSWD: cfg.pass, HTTP_PRETTY_PRINT: 'TRUE' },
-      body: `<?xml version="1.0" encoding="UTF-8"?><packet>${corpo}</packet>` });
+      body: `<?xml version="1.0" encoding="UTF-8"?><packet>${corpo}</packet>`, signal: AbortSignal.timeout(20000) });
   } catch (e) { throw new Error(`Plesk non raggiungibile su ${url} (${e.message}). Controlla indirizzo e porta (di solito 8443) e che il pannello abbia un certificato SSL valido.`); }
   const t = await r.text();
   if (!r.ok) throw new Error(`Plesk ha risposto ${r.status}`);
