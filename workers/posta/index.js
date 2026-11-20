@@ -1,25 +1,16 @@
-// Riceve ogni email per @semistore.it (Email Routing → "Invia a un Worker") e la consegna all'app.
-// Se l'app non risponde riprova; se proprio non riesce la rifiuta con errore temporaneo,
-// così il server di chi scrive la rimanda più tardi e non si perde nulla.
+// Riceve ogni email per @semistore.it (Email Routing → "Invia a un Worker") e la salva nell'archivio dell'app (D1).
+// Se il salvataggio non riesce l'email viene rifiutata con errore, così chi scrive lo sa e nulla si perde in silenzio.
+import { riceviEmail } from '../../functions/_lib/postacf.js';
 export default {
-  async email(message, env) {
+  async email(message, env, ctx) {
     const raw = await new Response(message.raw).arrayBuffer();
-    let ultimo = '';
-    for (let i = 0; i < 4; i++) {
-      try {
-        const r = await fetch((env.SITO || 'https://semistore.it') + '/api/posta/in', {
-          method: 'POST',
-          headers: { 'content-type': 'message/rfc822', 'x-posta-token': env.POSTA_TOKEN || env.ADMIN_TOKEN || '', 'x-da': message.from, 'x-a': message.to },
-          body: raw,
-        });
-        if (r.ok) return;
-        ultimo = r.status + ' ' + (await r.text()).slice(0, 200);
-        if (r.status === 401) break;
-      } catch (e) { ultimo = e.message; }
-      await new Promise((ok) => setTimeout(ok, 800 * (i + 1)));
+    let r, errore = '';
+    for (let i = 0; i < 3 && !r; i++) {
+      try { r = await riceviEmail(env, raw, { da: message.from, a: message.to, senzaAuto: true }); }
+      catch (e) { errore = e.message; await new Promise((ok) => setTimeout(ok, 500 * (i + 1))); }
     }
-    console.log('consegna non riuscita', message.to, ultimo);
-    throw new Error('Consegna temporaneamente non riuscita, riprova più tardi');
+    if (!r) { console.log('email non salvata', message.to, errore); message.setReject('Errore temporaneo della casella, riprova più tardi'); return; }
+    if (!r.doppione && r.cartella === 'arrivo') ctx.waitUntil(fetch((env.SITO || 'https://semistore.it') + '/api/posta/auto', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: r.id }) }).catch(() => {}));
   },
-  async fetch() { return new Response('Posta Semi Store: questo indirizzo non ha pagine.', { status: 404 }); },
+  async fetch() { return new Response('Posta Semi Store', { status: 404 }); },
 };

@@ -100,7 +100,7 @@ export async function valutaSpam(d, h, x, da) {
 }
 
 /* ---------- arrivo di un'email ---------- */
-export async function riceviEmail(env, raw, { da: busta, a: destBusta, importa } = {}) {
+export async function riceviEmail(env, raw, { da: busta, a: destBusta, importa, senzaAuto } = {}) {
   const d = await cdb(env);
   const bin = typeof raw === 'string' ? raw : u82bin(new Uint8Array(raw));
   const x = leggiMime(bin), h = x.h;
@@ -125,7 +125,7 @@ export async function riceviEmail(env, raw, { da: busta, a: destBusta, importa }
   for (let i = 0; i < parti; i++) ops.push(d.prepare('INSERT INTO pmail_raw(id,n,dati) VALUES(?,?,?)').bind(id, i, u8.subarray(i * CHUNK, (i + 1) * CHUNK)));
   for (let i = 0; i < ops.length; i += 4) await d.batch(ops.slice(i, i + 4));
   let auto = null;
-  if (!importa && cartella === 'arrivo') auto = await rispostaAutomatica(env, d, casella, h, da, x).catch((e) => 'errore: ' + e.message);
+  if (!importa && !senzaAuto && cartella === 'arrivo') auto = await rispostaAutomatica(env, d, casella, h, da, x).catch((e) => 'errore: ' + e.message);
   return { id, casella, cartella, spam: spam.punti, auto };
 }
 export async function grezzoCf(d, id) {
@@ -185,4 +185,15 @@ export async function salvaInviata(d, { casella, a, cc, oggetto, testo, html, mi
   for (let i = 0; i < parti; i++) ops.push(d.prepare('INSERT INTO pmail_raw(id,n,dati) VALUES(?,?,?)').bind(id, i, u8.subarray(i * CHUNK, (i + 1) * CHUNK)));
   for (let i = 0; i < ops.length; i += 4) await d.batch(ops.slice(i, i + 4));
   return id;
+}
+
+/* risposta automatica per un'email già salvata (la chiama il Worker dopo aver salvato: il Worker non ha la chiave di Resend) */
+export async function autoPerEmail(env, id) {
+  const d = await cdb(env);
+  try { await d.prepare('ALTER TABLE pmail ADD COLUMN autofatto INTEGER DEFAULT 0').run(); } catch (e) {}
+  const r = await d.prepare("SELECT * FROM pmail WHERE id=? AND cartella='arrivo' AND at > ? AND IFNULL(autofatto,0)=0").bind(String(id), Date.now() - 3600e3).first();
+  if (!r) return 'niente';
+  await d.prepare('UPDATE pmail SET autofatto=1 WHERE id=?').bind(r.id).run();
+  const raw = await grezzoCf(d, r.id); const x = leggiMime(raw);
+  return rispostaAutomatica(env, d, r.casella, x.h, { nome: r.da_nome, email: r.da_email }, x);
 }
