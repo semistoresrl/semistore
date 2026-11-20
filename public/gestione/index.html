@@ -969,6 +969,130 @@ function stampaBollino(t,w){
   w=w||window.open("","_blank"); if(!w){ toast("Il telefono ha bloccato la finestra: consenti i popup per semistore.it"); return; }
   w.document.open(); w.document.write(bollinoHtml(t)); w.document.close();
 }
+/* ---------- SCHEDA DI LAVORAZIONE A4 (20/11): copia laboratorio + ricevuta cliente da staccare ---------- */
+function schedaHtml(t){
+  const num=t.num||"(nuova)", gar=t.tipo==="garanzia", tt=totali(t), e=getEsploso(t.modello,t.type);
+  const descrMod=e?.descr||e?.nome||e?.titolo||"";
+  const ric=(t.ricambi||[]).filter(p=>p.codice||p.descr);
+  const vuote=Math.max(0,8-ric.length);
+  const stIdx=STATI.indexOf(t.stato||"Ricevuto");
+  const ck=(on,txt)=>`<div class="ck"><span class="bx">${on?"✕":""}</span>${txt}</div>`;
+  const indir=[t.ind,[t.cap,t.citta].filter(Boolean).join(" ")+(t.prov?` (${String(t.prov).toUpperCase()})`:"")].filter(s=>s&&s.trim()).map(esc).join("<br>");
+  const righe=(s,n)=>s?`<div class="tx">${esc(s)}</div>`:Array.from({length:n},()=>`<div class="ln"></div>`).join("");
+  const dAcq=t.dataAcquisto?fmtD(new Date(t.dataAcquisto+"T12:00:00")):"&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;/";
+  const dFine=t.prontoAt?fmtD(t.prontoAt):"&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;/";
+  const bc=t.num?code128Svg(t.num,34):"";
+  return `<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scheda ${esc(num)}</title><style>
+  @page{size:A4;margin:9mm 10mm}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;color:#000;background:#e9e9e9;font-size:9pt;line-height:1.25}
+  .pg{width:190mm;min-height:277mm;margin:12px auto;background:#fff;padding:0;display:flex;flex-direction:column}
+  .hd{display:flex;justify-content:space-between;gap:6mm;border-bottom:2.4pt solid #000;padding-bottom:3mm}
+  .brand{display:flex;gap:3mm;align-items:flex-start}
+  .logo{background:#000;color:#ffcd00;font-weight:900;font-size:15pt;letter-spacing:.5pt;padding:1.6mm 2.6mm;border-radius:1.2mm;line-height:1;white-space:nowrap}
+  .logo small{display:block;color:#fff;font-size:6pt;letter-spacing:1.4pt;margin-top:1mm}
+  .az{font-size:7.6pt;line-height:1.35}.az b{font-size:8.6pt}
+  .nr{text-align:right;min-width:62mm}.nr .k{font-size:7.5pt;font-weight:900;letter-spacing:1pt}
+  .nr .n{font-size:21pt;font-weight:900;line-height:1.05}.nr .bc{width:62mm;height:9mm;display:block;margin:1mm 0 1mm auto}
+  .nr .d{font-size:8pt}
+  .tg{display:inline-block;border:1.4pt solid #000;padding:.3mm 2mm;font-weight:900;font-size:8pt;margin-top:1mm}.tg.g{background:#000;color:#fff}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:3mm;margin-top:3mm}
+  .bxx{border:1pt solid #000;padding:2mm 2.5mm}
+  .lb{font-size:6.8pt;font-weight:900;text-transform:uppercase;letter-spacing:.8pt;color:#333;margin-bottom:1mm}
+  .big{font-size:10.5pt;font-weight:900}
+  .kv{display:grid;grid-template-columns:23mm 1fr;gap:.6mm 2mm;font-size:8.6pt}.kv span:nth-child(odd){color:#444}
+  .mono{font-family:"Courier New",monospace;font-weight:700}
+  .ln{border-bottom:.6pt solid #999;height:5.2mm}
+  .tx{white-space:pre-wrap;min-height:10.4mm;font-size:9pt}
+  .ck{display:flex;align-items:center;gap:1.6mm;font-size:8.4pt;padding:.55mm 0}
+  .bx{width:3.4mm;height:3.4mm;border:1pt solid #000;display:inline-flex;align-items:center;justify-content:center;font-size:7pt;font-weight:900;flex:none}
+  .g3{display:grid;grid-template-columns:52mm 1fr;gap:3mm;margin-top:3mm}
+  table{width:100%;border-collapse:collapse;font-size:8.4pt}
+  th{font-size:6.8pt;text-transform:uppercase;letter-spacing:.6pt;text-align:left;border-bottom:1pt solid #000;padding:1mm 1.2mm}
+  td{border-bottom:.5pt solid #bbb;padding:0 1.2mm;height:5.4mm}
+  td.r,th.r{text-align:right;white-space:nowrap}
+  tr.mo td{border-top:1pt solid #000;font-weight:700}
+  .tot{display:grid;grid-template-columns:1fr auto;gap:.6mm 4mm;margin-top:2mm;font-size:8.6pt;margin-left:auto;width:74mm}
+  .tot b{font-size:10.5pt}.tot .r{text-align:right}
+  .fi{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;margin-top:3mm;font-size:8.4pt}
+  .fi div{border-bottom:.8pt solid #000;padding-top:7mm}
+  .cut{margin:4mm 0 3mm;border-top:1.2pt dashed #000;position:relative;text-align:center}
+  .cut span{position:relative;top:-2.3mm;background:#fff;padding:0 2mm;font-size:7.5pt;font-weight:700}
+  .rc{display:grid;grid-template-columns:1fr 60mm;gap:4mm;flex:1}
+  .rc .n{font-size:17pt;font-weight:900;line-height:1}
+  .rc .bc{width:60mm;height:9mm;display:block;margin:1.5mm 0}
+  .nota{font-size:7.4pt;line-height:1.35;color:#222}
+  .fill{flex:1}
+  .bar{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;justify-content:center;padding:10px;background:#15171a;z-index:9}
+  .bar button{font-size:18px;font-weight:800;padding:12px 22px;border-radius:12px;border:0;background:#f5b800;cursor:pointer}.bar button.n{background:#fff}
+  body{padding-top:66px}
+  @media print{.bar{display:none}body{padding:0;background:#fff}.pg{margin:0;min-height:0;height:277mm}}
+  @media screen and (max-width:800px){.pg{zoom:.5}}
+  </style></head><body><div class="bar"><button onclick="print()">Stampa</button><button class="n" onclick="close()">Chiudi</button></div>
+  <div class="pg">
+   <div class="hd">
+    <div class="brand"><div class="logo">SEMI STORE<small>ASSISTENZA</small></div>
+     <div class="az"><b>SE.M.I. S.R.L.</b> · Centro assistenza autorizzato DEWALT · STANLEY · BLACK+DECKER<br>Laboratorio: Viale G. Marconi 225, 80020 Casavatore (NA)<br>Tel. 081 553 6604 · WhatsApp 375 626 6947 · info@semistore.it<br>P.IVA 07149740636 · semistore.it</div></div>
+    <div class="nr"><div class="k">SCHEDA DI LAVORAZIONE</div><div class="n">${esc(num)}</div>${bc}
+     <div class="d">Ingresso <b>${fmtD(t.createdAt||Date.now())}</b>${t.tecnico?` · Tecnico <b>${esc(t.tecnico)}</b>`:""}</div>
+     <span class="tg ${gar?"g":""}">${gar?"IN GARANZIA":"A PAGAMENTO"}</span> <span class="tg">${esc(t.stato||"Ricevuto")}</span></div>
+   </div>
+   <div class="g2">
+    <div class="bxx"><div class="lb">Cliente</div><div class="big">${esc(t.cliente||"")}</div>
+     <div style="margin:.8mm 0 1.2mm">${indir||"&nbsp;"}</div>
+     <div class="kv"><span>Telefono</span><span class="mono">${esc(t.tel||"")}</span><span>Email</span><span>${esc(t.email||"")}</span><span>P.IVA / C.F.</span><span class="mono">${esc(t.piva||"")}</span></div></div>
+    <div class="bxx"><div class="lb">Utensile</div><div class="big">${esc(t.modello||"")}${t.type?` <span style="font-weight:400;font-size:8.6pt">Type ${esc(t.type)}</span>`:""}</div>
+     <div style="margin:.8mm 0 1.2mm">${esc(descrMod)||"&nbsp;"}</div>
+     <div class="kv"><span>Matricola</span><span class="mono">${esc(t.matricola||"")}</span><span>Data acquisto</span><span>${dAcq}</span><span>Accessori</span><span><b>${esc(t.accessori||"SOLO UTENSILE")}</b></span></div></div>
+   </div>
+   ${t.note?`<div class="bxx" style="margin-top:3mm"><div class="lb">Riferimenti e note</div><div class="tx" style="min-height:0">${esc(t.note)}</div></div>`:""}
+   <div class="g2">
+    <div class="bxx"><div class="lb">Difetto dichiarato dal cliente</div>${righe(t.difetto,2)}</div>
+    <div class="bxx"><div class="lb">Difetto riscontrato / diagnosi</div>${righe(t.diagnosi,2)}</div>
+   </div>
+   <div class="g3">
+    <div class="bxx"><div class="lb">Lavorazione</div>
+     ${ck(false,"Revisione generale utensile")}${ck(false,"Rigenerazione / controllo batterie")}
+     ${ck(t.preventivo!=null||stIdx===2,"Preventivo")}${ck(stIdx===3,"Attesa ricambi")}
+     ${ck(gar,"In garanzia")}${ck(gar&&t.gar?.stato&&t.gar.stato!=="Da inserire","Attesa garanzia")}
+     ${ck(!gar&&stIdx>=5,"Garanzia 3 mesi sulla riparazione")}${ck(false,"Spedire al cliente")}
+     ${ck(false,"Recupero spese trasporto")}${ck(false,"Non riparato")}
+     <div style="margin-top:2mm;font-size:8.4pt">Preventivo: <b>${t.preventivo!=null&&t.preventivo!==""?eur(t.preventivo):"€ ________"}</b></div>
+     <div style="margin-top:1.5mm;font-size:8.4pt">Sconto ricambi: <b>${tt.sc?String(tt.sc).replace(".",",")+"%":"—"}</b></div>
+     <div style="margin-top:1.5mm;font-size:8.4pt">Fine riparazione: <b>${dFine}</b></div></div>
+    <div class="bxx"><div class="lb">Ricambi e manodopera</div>
+     <table><thead><tr><th style="width:30mm">Codice</th><th>Descrizione</th><th class="r" style="width:11mm">Q.tà</th><th class="r" style="width:19mm">Prezzo</th><th class="r" style="width:20mm">Importo</th></tr></thead><tbody>
+      ${ric.map(p=>`<tr><td class="mono">${esc(p.codice||"")}</td><td>${esc(p.descr||"")}</td><td class="r">${esc(p.qty??"")}</td><td class="r">${gar?"":eur(Number(p.prezzo)||0)}</td><td class="r">${gar?"":eur((Number(p.qty)||0)*(Number(p.prezzo)||0))}</td></tr>`).join("")}
+      ${"<tr><td></td><td></td><td></td><td></td><td></td></tr>".repeat(vuote)}
+      <tr class="mo"><td class="mono">MANOD.</td><td>${esc(t.manodoperaDescr||"Manodopera")}</td><td></td><td></td><td class="r">${gar?"":tt.mo?eur(tt.mo):""}</td></tr>
+     </tbody></table>
+     ${gar?`<div class="tot"><span>Intervento in garanzia</span><b class="r">€ 0,00</b></div>`:`<div class="tot">
+      <span>Ricambi</span><span class="r">${ric.length?eur(tt.ricL):""}</span>
+      ${tt.sc?`<span>Sconto ricambi ${String(tt.sc).replace(".",",")}%</span><span class="r">− ${eur(tt.scV)}</span>`:""}
+      <span>Manodopera</span><span class="r">${tt.mo?eur(tt.mo):""}</span>
+      <span><b>Totale IVA inclusa</b></span><b class="r">${tt.totale?eur(tt.totale):"€ ________"}</b></div>`}
+    </div>
+   </div>
+   <div class="fi"><div>Firma tecnico</div><div>Data consegna</div><div>Firma cliente per ritiro</div></div>
+   <div class="fill"></div>
+   <div class="cut"><span>✂ ricevuta per il cliente – staccare qui</span></div>
+   <div class="rc">
+    <div><div class="lb">Ricevuta di consegna utensile in assistenza</div>
+     <div class="kv" style="grid-template-columns:20mm 1fr"><span>Cliente</span><span><b>${esc(t.cliente||"")}</b>${t.tel?" · "+esc(t.tel):""}</span>
+      <span>Utensile</span><span><b>${esc(t.modello||"")}</b>${t.matricola?" · matr. "+esc(t.matricola):""}</span>
+      <span>Accessori</span><span>${esc(t.accessori||"Solo utensile")}</span>
+      <span>Difetto</span><span>${esc(String(t.difetto||"").slice(0,160))}</span>
+      <span>Intervento</span><span>${gar?"In garanzia (da verificare dal centro assistenza)":"A pagamento"}${!gar&&t.preventivo!=null&&t.preventivo!==""?" · preventivo "+eur(t.preventivo):""}</span></div>
+     <p class="nota" style="margin-top:2mm">Segui la riparazione su <b>semistore.it/assistenza</b> con il numero scheda e il telefono lasciato. Ti avvisiamo noi quando è pronto. Per il ritiro porta questa ricevuta.</p>
+     <p class="nota">SE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947 · Lun–Ven 8:30–13:00 / 14:30–18:00</p></div>
+    <div style="text-align:right"><div class="lb">Rip. n.</div><div class="n">${esc(num)}</div>${bc.replace('class="bc"','class="bc" style="margin-left:auto"')}<div style="font-size:8.4pt">del ${fmtD(t.createdAt||Date.now())}</div></div>
+   </div>
+  </div><script>addEventListener("load",()=>setTimeout(()=>print(),350))<\/script></body></html>`;
+}
+function stampaScheda(t,w){
+  w=w||window.open("","_blank"); if(!w){ toast("Il telefono ha bloccato la finestra: consenti i popup per semistore.it"); return; }
+  w.document.open(); w.document.write(schedaHtml(t)); w.document.close();
+}
 function topBy(arr,keyFn,valFn=()=>1,n=8){
   const m=new Map(); arr.forEach(x=>{const k=keyFn(x); if(!k) return; m.set(k,(m.get(k)||0)+valFn(x));});
   return [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,n);
@@ -1116,7 +1240,7 @@ function tkCard(t){
       <span class="tg ${t.tipo==="garanzia"?"gar":"pag"}">${t.tipo==="garanzia"?"GARANZIA":"PAGAMENTO"}</span>
       ${t.origine==="sito"?`<span class="tg web">SITO</span>`:""}
       ${t.tecnico?`<span class="c" style="margin-left:auto">${esc(t.tecnico)}</span>`:""}
-      <button class="btn sm ghost" data-bol="${esc(t.id)}" title="Stampa bollino" style="${t.tecnico?"":"margin-left:auto;"}padding:2px 6px">${ic("tag")}</button>
+      <button class="btn sm ghost" data-bol="${esc(t.id)}" title="Stampa bollino" style="${t.tecnico?"":"margin-left:auto;"}padding:2px 6px">${ic("tag")}</button><button class="btn sm ghost" data-sch="${esc(t.id)}" title="Stampa scheda A4" style="padding:2px 6px">${ic("clipboard")}</button>
     </div></div>`;
 }
 function vLavorazioni(){
@@ -1130,7 +1254,7 @@ function vLavorazioni(){
 function tTable(list){
   if(!list.length) return `<div class="panel"><div class="empty">Nessuna scheda. Crea la prima con “Nuova scheda”.</div></div>`;
   return `<table><thead><tr><th>N°</th><th>Ingresso</th><th>Cliente</th><th>Utensile</th><th>Tipo</th><th>Stato</th><th>Tecnico</th><th class="num">Totale</th><th></th></tr></thead><tbody>
-  ${list.map(t=>`<tr class="click" data-open="${esc(t.id)}"><td class="mono">${esc(t.num)}</td><td>${fmtD(t.createdAt)}</td><td>${esc(t.cliente)}<div class="sub">${esc(t.tel||"")}</div></td><td><b>${esc(t.modello)}</b><div class="mono" style="color:var(--muted)">${esc(t.matricola||"")}</div></td><td><span class="tg ${t.tipo==="garanzia"?"gar":"pag"}">${t.tipo==="garanzia"?"GAR":"PAG"}</span></td><td><span class="badge ${stCls(t.stato)}">${esc(t.stato)}</span></td><td>${esc(t.tecnico||"—")}</td><td class="num">${t.tipo==="garanzia"?"—":eur(totali(t).totale)}</td><td><button class="btn sm ghost" data-bol="${esc(t.id)}" title="Stampa bollino">${ic("tag")}</button></td></tr>`).join("")}
+  ${list.map(t=>`<tr class="click" data-open="${esc(t.id)}"><td class="mono">${esc(t.num)}</td><td>${fmtD(t.createdAt)}</td><td>${esc(t.cliente)}<div class="sub">${esc(t.tel||"")}</div></td><td><b>${esc(t.modello)}</b><div class="mono" style="color:var(--muted)">${esc(t.matricola||"")}</div></td><td><span class="tg ${t.tipo==="garanzia"?"gar":"pag"}">${t.tipo==="garanzia"?"GAR":"PAG"}</span></td><td><span class="badge ${stCls(t.stato)}">${esc(t.stato)}</span></td><td>${esc(t.tecnico||"—")}</td><td class="num">${t.tipo==="garanzia"?"—":eur(totali(t).totale)}</td><td><button class="btn sm ghost" data-bol="${esc(t.id)}" title="Stampa bollino">${ic("tag")}</button><button class="btn sm ghost" data-sch="${esc(t.id)}" title="Stampa scheda A4">${ic("clipboard")}</button></td></tr>`).join("")}
   </tbody></table>`;
 }
 function vSchede(){ return header("Archivio schede","Tutte le schede di assistenza, cercabili per cliente, modello o matricola",`<button class="btn pri edit-only" data-act="new">＋ Nuova scheda</button>`)+filtBar(true)+tTable(filtered()); }
@@ -1692,6 +1816,7 @@ function bindView(){
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
   m.querySelectorAll("[data-bol]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const t=S.tickets.find(x=>x.id===b.dataset.bol); if(t) stampaBollino(t); });
+  m.querySelectorAll("[data-sch]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const t=S.tickets.find(x=>x.id===b.dataset.sch); if(t) stampaScheda(t); });
   m.querySelectorAll("[data-lay]").forEach(b=>b.onclick=()=>{S.layout=b.dataset.lay;render()});
   m.querySelectorAll("[data-car]").forEach(b=>b.onclick=()=>openCarico(itm(b.dataset.car)));
   m.querySelectorAll("[data-edric]").forEach(b=>b.onclick=()=>openRic(itm(b.dataset.edric)));
@@ -1968,7 +2093,7 @@ function openTicket(t, fromReq, draft){
   <div class="mf">
     ${!isNew?`<button class="btn danger edit-only" id="tDel" style="margin-right:auto">Elimina</button>`:""}
     <button class="btn" data-close>Chiudi</button>
-    ${!isNew?`<button class="btn" id="tBol" type="button">${ic("tag")}Stampa bollino</button>`:""}
+    ${!isNew?`<button class="btn" id="tBol" type="button">${ic("tag")}Stampa bollino</button><button class="btn" id="tSch" type="button">${ic("clipboard")}Stampa scheda</button>`:""}
     ${isNew?`<button class="btn edit-only" id="tSaveBol" type="button">${ic("tag")}Apri e stampa bollino</button>`:""}
     <button class="btn pri edit-only" id="tSave">${isNew?"Apri scheda":"Salva"}</button>
   </div>`);
@@ -2091,6 +2216,7 @@ function openTicket(t, fromReq, draft){
   ps.onblur=()=>setTimeout(()=>pl.style.display="none",150);
   drawRows(); drawEsp(); drawUsual();
   const bol=$("#tBol"); if(bol) bol.onclick=()=>{ snapshotForm(); stampaBollino({...t,stato}); };
+  const sch=$("#tSch"); if(sch) sch.onclick=()=>{ snapshotForm(); stampaScheda({...t,stato}); };
 
   const del=$("#tDel"); if(del){ let armed=false; del.onclick=async()=>{ if(!armed){armed=true;del.textContent="Confermi? I ricambi tornano a magazzino";return}
     const ok=await write(async()=>{ for(const p of origRic){ if(itm(p.codice)&&p.qty) await muovi(p.codice,+p.qty,"reso da scheda eliminata",t.num); } await S.db.doc("tickets/"+t.id).delete(); },"Scheda eliminata"); if(ok) closeModal(); }; }
@@ -3563,7 +3689,7 @@ function wizRicevo(){
     const ok=await write(async()=>{ const ref=S.db.collection("tickets").doc(); await ref.set(data); try{ const cid=await cliDaScheda(data); if(cid&&cid!==data.cliId){ data.cliId=cid; await ref.update({cliId:cid}); } }catch(e){} },"Scheda "+num+" aperta");
     if(!ok) return;
     const msg=`Ciao ${nome1(t.cliente)}, abbiamo ricevuto il tuo ${t.modello} (scheda ${num}). Ti avvisiamo appena è pronto. Puoi seguire la riparazione su semistore.it/assistenza con il numero di scheda e il tuo telefono. Semi Store`;
-    wizDone("✅","Scheda aperta",`Scrivi sul cartellino dell'utensile:`,`<div class="wnum">${esc(num)}</div><button class="wbig" id="wBol">${ic("tag")}Stampa il bollino</button>${waLink(t.tel,"x")?`<a class="wbig wa" href="${esc(waLink(t.tel,msg))}" target="_blank" rel="noopener">${ic("chat")}Manda la ricevuta su WhatsApp</a>`:""}`); const wb=$("#wBol"); if(wb) wb.onclick=()=>stampaBollino(data); };
+    wizDone("✅","Scheda aperta",`Scrivi sul cartellino dell'utensile:`,`<div class="wnum">${esc(num)}</div><button class="wbig" id="wBol">${ic("tag")}Stampa il bollino</button><button class="wbig" id="wSch">${ic("clipboard")}Stampa la scheda A4 con ricevuta</button>${waLink(t.tel,"x")?`<a class="wbig wa" href="${esc(waLink(t.tel,msg))}" target="_blank" rel="noopener">${ic("chat")}Manda la ricevuta su WhatsApp</a>`:""}`); const wb=$("#wBol"); if(wb) wb.onclick=()=>stampaBollino(data); const ws=$("#wSch"); if(ws) ws.onclick=()=>stampaScheda(data); };
   wizStep(s1);
 }
 
