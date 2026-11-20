@@ -1,43 +1,45 @@
 ---
-// Sezione "Buoni regalo" in home, separata dal programma punti: si compra un buono da regalare o per sé.
+// Sezione "Buoni regalo" in home, separata dal programma punti, con lo stesso stile delle altre sezioni del sito.
 import { SITO } from '../data/sito.js';
+import CartaBuono from './CartaBuono.astro';
 const R = SITO.buoniRegalo;
 ---
-<section class="bb" aria-labelledby="bb-h">
-  <div class="wrap bb-in">
-    <div class="bb-tx">
-      <p class="bb-k">🎁 Buoni regalo</p>
-      <h2 id="bb-h" class="bb-h">Non sai quale utensile scegliere? <span>Regala un buono.</span></h2>
-      <p class="bb-d">Senza scadenza, su tutto semistore.it, anche in più volte. Arriva subito per email, con il tuo messaggio, a te o direttamente a chi lo riceve.</p>
-      <div class="bb-tagli">
-        {R.tagli.map((t) => <a href={`/buono-regalo/?importo=${t}`} class="bb-t">{t} €</a>)}
-        <a href="/buono-regalo/" class="bb-t bb-alt">Altro importo</a>
+<section class="sec bb" aria-labelledby="bb-h">
+  <div class="wrap">
+    <div class="card bb-in">
+      <div class="bb-tx">
+        <p class="kicker bb-k">Buoni regalo</p>
+        <h2 id="bb-h" class="h2 bb-h">Non sai quale utensile scegliere? Regala un buono</h2>
+        <p class="bb-d">Senza scadenza, su tutto semistore.it, anche in più volte. Arriva subito per email con un codice segreto, a te o direttamente a chi lo riceve.</p>
+        <div class="bb-tagli" role="list">
+          {R.tagli.map((t) => <a role="listitem" href={`/buono-regalo/?importo=${t}`} class="bb-t">{t} €</a>)}
+          <a role="listitem" href="/buono-regalo/" class="bb-t bb-alt">Altro importo</a>
+        </div>
+        <a href="/buono-regalo/" class="btn btn-y bb-go">Crea il tuo buono</a>
       </div>
+      <a href="/buono-regalo/" class="bb-stack" aria-label="Crea il tuo buono regalo">
+        <CartaBuono class="bb-c bb-c1" valore={25} tema="cantiere" piccola />
+        <CartaBuono class="bb-c bb-c2" valore={100} tema="compleanno" piccola />
+        <CartaBuono class="bb-c bb-c3" valore={50} tema="natale" piccola />
+      </a>
     </div>
-    <a href="/buono-regalo/" class="bb-cards" aria-label="Scegli il tuo buono regalo">
-      <span class="bb-c bb-c1"><i>🛠️</i><b>25 €</b></span>
-      <span class="bb-c bb-c2"><i>🎉</i><b>100 €</b></span>
-      <span class="bb-c bb-c3"><i>🎄</i><b>50 €</b><small>SEMI STORE · BUONO REGALO</small></span>
-      <span class="btn btn-y bb-go">Crea il tuo buono →</span>
-    </a>
   </div>
 </section>
 <style>
-  .bb{background:#fffaf0;border-top:1px solid #f5b80044;border-bottom:1px solid #f5b80044;margin:28px 0}
-  .bb-in{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:center;padding-top:32px;padding-bottom:32px}
-  .bb-k{margin:0;font-weight:800;color:#b3261e;letter-spacing:.06em;text-transform:uppercase;font-size:13px}
-  .bb-h{margin:6px 0 8px;font-size:clamp(26px,3.6vw,40px);line-height:1.05}.bb-h span{color:#b3261e;display:block}
-  .bb-d{color:var(--mut);max-width:520px;margin:0 0 16px}
-  .bb-tagli{display:flex;flex-wrap:wrap;gap:8px}
-  .bb-t{padding:10px 18px;border-radius:12px;background:#fff;border:2px solid var(--line);font-weight:800;color:var(--ink)}
-  .bb-t:hover{border-color:var(--y);color:var(--ink)}.bb-alt{font-weight:700;color:var(--mut)}
-  .bb-cards{position:relative;height:250px;display:block;color:#fff}
-  .bb-c{position:absolute;width:230px;aspect-ratio:1.6;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:2px;box-shadow:0 16px 30px #0003;transition:transform .3s}
-  .bb-c i{font-style:normal;font-size:24px}.bb-c b{font-size:32px;line-height:1.1}.bb-c small{color:var(--y);font-weight:800;letter-spacing:.08em;font-size:10px;margin-top:auto}
-  .bb-c1{background:linear-gradient(135deg,#23262b,#15171a);right:30%;top:0;transform:rotate(-9deg)}
-  .bb-c2{background:linear-gradient(135deg,#7b3fe4,#3b1d73);right:2%;top:10px;transform:rotate(8deg)}
-  .bb-c3{background:linear-gradient(135deg,#d0342c,#7a1410);right:14%;top:44px;z-index:2}
-  .bb-cards:hover .bb-c1{transform:rotate(-13deg) translateX(-8px)}.bb-cards:hover .bb-c2{transform:rotate(12deg) translateX(8px)}.bb-cards:hover .bb-c3{transform:translateY(-6px)}
-  .bb-go{position:absolute;right:16%;bottom:0;z-index:3}
-  @media (max-width:820px){.bb-in{grid-template-columns:1fr}.bb-cards{height:230px;max-width:420px;width:100%;margin:0 auto}.bb-c{width:200px}}
+  .bb-in{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,48px);align-items:center;padding:clamp(20px,4vw,40px);overflow:hidden}
+  .bb-k{margin:0;color:var(--mut)}
+  .bb-h{margin:6px 0 10px;line-height:1.02}
+  .bb-d{color:var(--mut);margin:0 0 18px;max-width:520px}
+  .bb-tagli{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .bb-t{min-height:44px;display:inline-flex;align-items:center;padding:0 18px;border-radius:8px;background:var(--bg);border:1px solid var(--line);font-weight:800;color:var(--ink)}
+  .bb-t:hover{border-color:var(--y);background:#fffbea;color:var(--ink)}.bb-alt{font-weight:700;color:var(--mut)}
+  .bb-stack{position:relative;display:block;height:clamp(230px,26vw,300px)}
+  .bb-stack :global(.bb-c){position:absolute;width:min(78%,330px);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+  .bb-stack :global(.bb-c1){left:0;top:0;transform:rotate(-8deg)}
+  .bb-stack :global(.bb-c2){right:0;top:4%;transform:rotate(7deg)}
+  .bb-stack :global(.bb-c3){left:11%;bottom:0;z-index:2}
+  .bb-stack:hover :global(.bb-c1){transform:rotate(-12deg) translate(-10px,-4px)}
+  .bb-stack:hover :global(.bb-c2){transform:rotate(11deg) translate(10px,-4px)}
+  .bb-stack:hover :global(.bb-c3){transform:translateY(-8px)}
+  @media (max-width:860px){.bb-in{grid-template-columns:1fr}.bb-stack{height:min(62vw,280px);max-width:440px;width:100%;margin:0 auto}}
 </style>

@@ -1,0 +1,50 @@
+---
+// Carta del buono regalo in stile "targhetta tecnica" da utensile: lamiera scura, rivetti, banda di sicurezza gialla,
+// dati come in una scheda tecnica e un disegno a tratto del tema (tutti e 4 nel markup: il tema si cambia con data-tema).
+interface Props { valore?: string | number; tema?: string; per?: string; da?: string; msg?: string; id?: string; class?: string; piccola?: boolean }
+const { valore = 50, tema = 'natale', per = '', da = '', msg = '', id, class: cls = '', piccola = false } = Astro.props;
+const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazie: 'Edizione Grazie', cantiere: 'Edizione Buon lavoro' };
+---
+<div class:list={['cb', cls, { 'cb-s': piccola }]} data-tema={tema} id={id} aria-label={`Buono regalo Semi Store da ${valore} euro`}>
+  <span class="cb-band" aria-hidden="true"></span>
+  <i class="cb-r cb-r1"></i><i class="cb-r cb-r2"></i><i class="cb-r cb-r3"></i><i class="cb-r cb-r4"></i>
+  <svg class="cb-art" viewBox="0 0 120 120" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Natale: albero fatto di lame da sega, con bulloni come palline -->
+    <g class="t-natale"><path d="M60 14l-22 30h10l-18 26h12l-20 28h76L78 70h12L72 44h10z"/><path d="M38 44l6-4 6 4 6-4 6 4 6-4 6 4M30 70l7-4 7 4 7-4 7 4 7-4 7 4 7-4 7 4"/><path d="M54 98v12h12V98"/><circle cx="52" cy="58" r="3.5"/><circle cx="70" cy="82" r="3.5"/><circle cx="46" cy="86" r="3.5"/><path d="M60 6l2.5 5 5.5.8-4 3.9.9 5.5L60 18.6l-4.9 2.6.9-5.5-4-3.9 5.5-.8z"/></g>
+    <!-- Compleanno: valigetta degli attrezzi con il fiocco -->
+    <g class="t-compleanno"><rect x="16" y="44" width="88" height="60" rx="6"/><path d="M46 44V34a4 4 0 0 1 4-4h20a4 4 0 0 1 4 4v10M16 66h88M54 66v8h12v-8"/><path d="M60 44c-8-14-24-14-24-4s16 4 24 4c8 0 24 6 24-4s-16-10-24 4z"/></g>
+    <!-- Grazie: due chiavi inglesi che formano un cuore -->
+    <g class="t-grazie"><path d="M60 102L22 64a20 20 0 0 1 28-28l10 10"/><path d="M60 102l38-38a20 20 0 0 0-28-28L60 46"/><path d="M30 40l-8-8M90 40l8-8"/><circle cx="60" cy="72" r="7"/><path d="M60 65v-6M60 85v-6"/></g>
+    <!-- Buon lavoro: trapano avvitatore -->
+    <g class="t-cantiere"><path d="M20 34h58a10 10 0 0 1 10 10v8a10 10 0 0 1-10 10H54l-6 34H30l6-34H20z"/><path d="M88 46h10M98 40v18M98 49h14"/><rect x="26" y="96" width="30" height="12" rx="3"/><path d="M42 72h8"/></g>
+  </svg>
+  <span class="cb-k">Semi Store · Buono regalo</span>
+  <span class="cb-ed" data-ed>{ED[tema] || ED.natale}</span>
+  <b class="cb-v"><span data-valore>{valore}</span><small>€</small></b>
+  <span class="cb-per" data-per>{per ? <>Per <b>{per}</b>{da && <> · da <b>{da}</b></>}</> : ''}</span>
+  <q class="cb-msg" data-msg hidden={!msg}>{msg}</q>
+  <span class="cb-spec"><span>Validità <b>senza scadenza</b></span><span>Uso <b>tutto il sito</b></span></span>
+  <span class="cb-foot"><span class="cb-bar" aria-hidden="true"></span><span class="cb-cod">SEMI-••••-••••-••••</span></span>
+</div>
+<style is:global>
+  .cb{--y:#f5b800;position:relative;aspect-ratio:1.6;border-radius:18px;padding:20px 22px 18px 34px;color:#fff;overflow:hidden;isolation:isolate;
+    background:repeating-linear-gradient(100deg,#ffffff06 0 2px,transparent 2px 5px),linear-gradient(145deg,#2c3036,#15171a 60%,#0f1013);
+    box-shadow:inset 0 1px 0 #ffffff1f,0 18px 34px #0000003d;display:flex;flex-direction:column;gap:2px;font-family:'Archivo Variable',system-ui,sans-serif;container-type:inline-size}
+  .cb-band{position:absolute;left:0;top:0;bottom:0;width:16px;background:repeating-linear-gradient(-45deg,var(--y) 0 9px,#15171a 9px 18px)}
+  .cb-r{position:absolute;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#c9cbcf,#5c5f65 70%);box-shadow:0 1px 1px #0008}
+  .cb-r1{top:10px;left:24px}.cb-r2{top:10px;right:10px}.cb-r3{bottom:10px;left:24px}.cb-r4{bottom:10px;right:10px}
+  .cb-art{position:absolute;right:-4%;top:12%;width:46%;height:auto;color:var(--y);opacity:.9;z-index:-1}
+  .cb-art g{display:none}.cb[data-tema=natale] .t-natale,.cb[data-tema=compleanno] .t-compleanno,.cb[data-tema=grazie] .t-grazie,.cb[data-tema=cantiere] .t-cantiere{display:inline}
+  .cb-k{font-family:ui-monospace,Menlo,monospace;font-size:clamp(9px,3cqi,12px);letter-spacing:.16em;text-transform:uppercase;color:var(--y);font-weight:700}
+  .cb-ed{font-size:clamp(9px,2.8cqi,12px);color:#c9cbcf;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+  .cb-v{font-size:clamp(34px,17cqi,64px);line-height:1;font-weight:900;letter-spacing:-.02em;margin-top:4px;text-shadow:0 2px 0 #0006}
+  .cb-v small{font-size:.5em;margin-left:4px;color:var(--y)}
+  .cb-per{font-size:clamp(12px,4.2cqi,16px);min-height:1.2em}.cb-per b{color:#fff}
+  .cb-msg{font-size:clamp(11px,3.6cqi,14px);font-style:italic;color:#e8e9eb;max-width:62%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .cb-msg[hidden]{display:none}
+  .cb-spec{display:flex;gap:14px;margin-top:auto;font-family:ui-monospace,Menlo,monospace;font-size:clamp(8px,2.8cqi,11px);text-transform:uppercase;letter-spacing:.06em;color:#9a9da3}.cb-spec b{color:#fff;font-weight:700}
+  .cb-foot{display:flex;align-items:center;gap:10px;margin-top:8px;padding-top:8px;border-top:1px dashed #ffffff2a}
+  .cb-bar{height:20px;width:30%;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 4px,#fff 4px 5px,transparent 5px 8px,#fff 8px 11px,transparent 11px 13px);opacity:.75}
+  .cb-cod{font-family:ui-monospace,Menlo,monospace;font-size:clamp(9px,3.2cqi,13px);letter-spacing:.12em;color:#c9cbcf}
+  .cb-s .cb-spec,.cb-s .cb-msg,.cb-s .cb-ed{display:none}
+</style>

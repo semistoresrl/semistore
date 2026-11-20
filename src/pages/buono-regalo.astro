@@ -2,8 +2,9 @@
 // Buoni regalo: per sé o da regalare, senza scadenza, su tutto il sito, con codice segreto inviato via email.
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
+import CartaBuono from '../components/CartaBuono.astro';
 const R = SITO.buoniRegalo;
-const TEMI = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], grazie: ['#1d6b35', '💛'], cantiere: ['#15171a', '🛠️'] };
+const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazie: 'Edizione Grazie', cantiere: 'Edizione Buon lavoro' };
 ---
 <Base title="Buoni regalo Semi Store" description="Regala utensili DEWALT, STANLEY e BLACK+DECKER: buono regalo Semi Store senza scadenza, da usare su tutto semistore.it anche in più volte.">
   <section class="wrap sec br">
@@ -31,7 +32,7 @@ const TEMI = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], gra
 
           <fieldset><legend>2. Stile</legend>
             <div class="br-temi">
-              {R.temi.map((t, i) => <label><input type="radio" name="tema" value={t.id} checked={i === 0} /><span style={`--c:${TEMI[t.id][0]}`}><i>{TEMI[t.id][1]}</i>{t.nome}</span></label>)}
+              {R.temi.map((t, i) => <label><input type="radio" name="tema" value={t.id} checked={i === 0} /><span><CartaBuono tema={t.id} valore="" piccola class="br-mini" />{t.nome}</span></label>)}
             </div>
           </fieldset>
 
@@ -57,14 +58,7 @@ const TEMI = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], gra
       </div>
 
       <div class="br-prev" aria-live="polite">
-        <div class="br-card" id="card" style={`--c:${TEMI.natale[0]}`}>
-          <span class="br-ico" id="c-ico">🎄</span>
-          <span class="br-logo">SEMI STORE · BUONO REGALO</span>
-          <b class="br-val" id="c-val">50 €</b>
-          <span class="br-per" id="c-per">Per <b>…</b></span>
-          <q class="br-msg" id="c-msg" hidden></q>
-          <span class="br-cod">SEMI-••••-••••-••••</span>
-        </div>
+        <CartaBuono id="card" valore={50} tema="natale" per="…" />
         <ul class="br-pro">
           <li>⏳ <b>Senza scadenza</b></li>
           <li>🧰 Su <b>tutti i prodotti</b> del sito, anche in più volte</li>
@@ -75,9 +69,9 @@ const TEMI = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], gra
     </div>
   </section>
 </Base>
-<script define:vars={{ temi: TEMI }}>window.__TEMI = temi;</script>
+<script define:vars={{ ed: ED }}>window.__ED = ed;</script>
 <script>
-  const TEMI = (window as any).__TEMI;
+  const ED = (window as any).__ED;
   const f = document.getElementById('f') as HTMLFormElement;
   const $ = (id: string) => document.getElementById(id)!;
   const val = (n: string) => (f.elements.namedItem(n) as any)?.value ?? '';
@@ -88,12 +82,12 @@ const TEMI = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], gra
     (f.querySelector('.br-altro') as HTMLElement).hidden = sel('importo') !== 'altro';
     const regalo = sel('perChi') === 'regalo';
     (f.querySelector('[data-reg]') as HTMLElement).hidden = !regalo;
-    const t = TEMI[sel('tema')];
-    $('card').style.setProperty('--c', t[0]); $('c-ico').textContent = t[1];
-    $('c-val').textContent = (importo() || 0) + ' €';
+    const c = $('card'), q = (k: string) => c.querySelector(`[data-${k}]`) as HTMLElement;
+    c.dataset.tema = sel('tema'); q('ed').textContent = ED[sel('tema')];
+    q('valore').textContent = String(importo() || 0);
     const per = val('destinatario').trim(), da = val('mittente').trim();
-    $('c-per').innerHTML = regalo ? `Per <b>${esc(per || '…')}</b>${da ? ` · da <b>${esc(da)}</b>` : ''}` : 'Per me';
-    const m = val('messaggio').trim(); $('c-msg').hidden = !regalo || !m; $('c-msg').textContent = m;
+    q('per').innerHTML = regalo ? `Per <b>${esc(per || '…')}</b>${da ? ` · da <b>${esc(da)}</b>` : ''}` : 'Per me';
+    const m = val('messaggio').trim(); q('msg').hidden = !regalo || !m; q('msg').textContent = m;
   }
   // importo scelto dalla home (/buono-regalo/?importo=100)
   const imp = new URL(location.href).searchParams.get('importo');
@@ -122,20 +116,18 @@ const TEMI = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], gra
   .br-tagli,.br-temi,.br-chi{display:flex;flex-wrap:wrap;gap:8px}
   .br-f input[type=radio]{position:absolute;opacity:0}
   .br-tagli span,.br-chi span{display:block;min-width:74px;text-align:center;padding:12px 16px;border:2px solid var(--line);border-radius:12px;background:#fff;font-weight:800;cursor:pointer}
-  .br-temi span{display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;font-weight:700;cursor:pointer}
-  .br-temi i{font-style:normal;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--c)}
+  .br-temi{display:grid;grid-template-columns:repeat(4,1fr)}
+  .br-temi span{display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px;border:2px solid var(--line);border-radius:12px;background:#fff;font-weight:700;font-size:14px;cursor:pointer;text-align:center}
+  .br-temi :global(.br-mini){width:100%;padding:8px 8px 8px 16px;border-radius:8px;box-shadow:none}
+  .br-temi :global(.br-mini .cb-band){width:8px}.br-temi :global(.br-mini .cb-r),.br-temi :global(.br-mini .cb-foot),.br-temi :global(.br-mini .cb-k),.br-temi :global(.br-mini .cb-v),.br-temi :global(.br-mini .cb-per){display:none}
+  .br-temi :global(.br-mini .cb-art){width:70%;right:15%;top:8%}
+  @media (max-width:520px){.br-temi{grid-template-columns:1fr 1fr}}
   .br-f input:checked+span{border-color:var(--y);background:#fffbea;box-shadow:0 0 0 3px #f5b80033}
   .br-f input:focus-visible+span{outline:2px solid var(--ink)}
   .br-reg{display:flex;flex-direction:column;gap:12px}.br-g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .opz{font-weight:400;color:var(--mut)}.br-pay{align-self:flex-start;font-size:17px;padding:0 26px}
   .br-err{color:#b3261e;font-weight:700;margin:0}.br-n{font-size:13px;color:var(--mut);margin:0}
   .br-prev{position:sticky;top:110px;display:flex;flex-direction:column;gap:16px}
-  .br-card{aspect-ratio:1.6;border-radius:20px;padding:22px;color:#fff;background:radial-gradient(circle at 85% 15%,#ffffff2e,transparent 45%),linear-gradient(135deg,var(--c),#15171a 130%);display:flex;flex-direction:column;gap:4px;box-shadow:0 20px 40px #0003;position:relative;overflow:hidden;transition:background .3s}
-  .br-card::after{content:'';position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;border-radius:30px;background:#f5b800;opacity:.18;transform:rotate(30deg)}
-  .br-ico{font-size:30px}.br-logo{color:var(--y);font-weight:800;letter-spacing:.12em;font-size:12px}
-  .br-val{font-size:clamp(38px,6vw,54px);line-height:1}.br-per{font-size:16px}
-  .br-msg{font-style:italic;background:#ffffff1f;border-radius:10px;padding:8px 10px;font-size:14px;max-height:4.6em;overflow:hidden}
-  .br-cod{margin-top:auto;font-family:ui-monospace,monospace;letter-spacing:.08em;opacity:.8}
   .br-pro{list-style:none;margin:0;padding:0;display:grid;gap:8px}
   .br-ok{max-width:620px;margin:0 auto;padding:28px;text-align:center}
   @media (max-width:860px){.br-g{grid-template-columns:1fr}.br-prev{position:static;order:-1}.br-g2{grid-template-columns:1fr}}

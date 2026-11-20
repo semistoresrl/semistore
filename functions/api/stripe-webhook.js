@@ -129,14 +129,18 @@ async function buonoRegalo(env, o, origin) {
   });
   const eur = (c) => (c / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
   const esc = (t) => String(t || '').replace(/[<>&]/g, '');
-  const COL = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], grazie: ['#1d6b35', '💛'], cantiere: ['#15171a', '🛠️'] }[md.tema] || ['#15171a', '🎁'];
-  const carta = `<div style="background:${COL[0]};color:#fff;border-radius:16px;padding:22px;margin:0 0 16px;text-align:left">
-      <div style="font-size:30px">${COL[1]}</div>
-      <div style="color:#f5b800;font-weight:800;letter-spacing:2px;font-size:12px;margin-top:6px">BUONO REGALO SEMI STORE</div>
-      <div style="font-size:40px;font-weight:900;margin:4px 0">${eur(importo)}</div>
-      ${md.destinatario ? `<div style="font-size:16px">Per <b>${esc(md.destinatario)}</b>${md.mittente ? ` · da <b>${esc(md.mittente)}</b>` : ''}</div>` : ''}
-      ${md.messaggio ? `<div style="margin-top:10px;font-style:italic;background:#ffffff1f;padding:10px;border-radius:10px">“${esc(md.messaggio)}”</div>` : ''}
-    </div>
+  const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazie: 'Edizione Grazie', cantiere: 'Edizione Buon lavoro' }[md.tema] || 'Buono regalo';
+  // carta "targhetta tecnica" (solo tabelle e stili in linea, per tutti i programmi di posta)
+  const carta = `<table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:separate;margin:0 0 16px;text-align:left"><tr>
+      <td width="14" style="background:#f5b800 repeating-linear-gradient(-45deg,#f5b800 0 8px,#15171a 8px 16px);border-radius:14px 0 0 14px">&nbsp;</td>
+      <td style="background:#1d2024;color:#fff;border-radius:0 14px 14px 0;padding:18px 20px;font-family:Arial,sans-serif">
+        <div style="font:700 11px monospace;letter-spacing:2px;color:#f5b800;text-transform:uppercase">Semi Store · Buono regalo</div>
+        <div style="font-size:11px;color:#c9cbcf;text-transform:uppercase;letter-spacing:1px;margin-top:2px">${ED}</div>
+        <div style="font-size:44px;font-weight:900;line-height:1.1;margin:6px 0 4px">${eur(importo)}</div>
+        ${md.destinatario ? `<div style="font-size:15px">Per <b>${esc(md.destinatario)}</b>${md.mittente ? ` · da <b>${esc(md.mittente)}</b>` : ''}</div>` : ''}
+        ${md.messaggio ? `<div style="margin-top:10px;font-style:italic;color:#e8e9eb;border-left:3px solid #f5b800;padding-left:10px">“${esc(md.messaggio)}”</div>` : ''}
+        <div style="margin-top:14px;padding-top:10px;border-top:1px dashed #ffffff33;font:11px monospace;color:#9a9da3;text-transform:uppercase;letter-spacing:1px">Validità <b style="color:#fff">senza scadenza</b> &nbsp;·&nbsp; Uso <b style="color:#fff">tutto il sito</b></div>
+      </td></tr></table>
     <p style="margin:0 0 8px">Il tuo codice segreto:</p>
     <div style="display:inline-block;background:#fff;border:2px dashed #f5b800;padding:12px 18px;border-radius:10px;font:700 20px monospace;letter-spacing:1px">${codice}</div>
     <p style="margin:14px 0 6px;font-size:14px">Si usa su tutto <b>semistore.it</b>, anche in più volte, <b>senza scadenza</b>. Scrivilo nel carrello alla voce "Hai un codice sconto o un buono?", oppure aggiungilo al tuo account per non perderlo.</p>
