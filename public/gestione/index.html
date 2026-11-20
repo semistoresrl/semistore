@@ -626,6 +626,10 @@ textarea.winp{min-height:110px;font-size:20px}
 .wpi>button{flex:1;text-align:left;background:none;border:0;font:inherit;padding:6px;cursor:pointer}.wpi>button b{display:block;font-size:17px}.wpi small{font-size:13px;color:var(--muted)}
 .wpq{display:flex;align-items:center;gap:6px}.wpq b{min-width:26px;text-align:center;font-size:20px}.wpq button{width:40px;height:40px;border-radius:12px;border:2px solid var(--line);background:#fff;font-size:22px;font-weight:800;cursor:pointer}
 .wtxt{margin-top:12px}.wtxt summary{color:var(--muted);cursor:pointer;font-size:14px}.wtxt pre{white-space:pre-wrap;font-size:12px;background:var(--paper);border-radius:10px;padding:10px;max-height:260px;overflow:auto}
+.bcwrap{position:relative;display:block;flex:0 0 auto;min-width:0;max-width:100%;width:100%}.gs{min-width:0}.toolbar .bcwrap{flex:1 1 200px;width:auto}.bcwrap>input{width:100%;padding-right:46px!important;box-sizing:border-box}
+.bcbtn{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:38px;height:34px;border-radius:8px;background:transparent;color:#15171a;cursor:pointer;overflow:hidden;z-index:2}
+.bcbtn:hover,.bcbtn:active{background:#0000000d}.bcbtn svg{width:20px;height:20px}.bcbtn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0;width:100%}.bcbtn.load{background:#fff4cc}
+.gs .bcwrap{flex:1 1 0;min-width:0}
 </style>
 </head>
 <body>
@@ -789,7 +793,8 @@ async function init(){
   db.collection("mag").onSnapshot(s=>{
     const m=new Map(), ch=new Set();
     s.docs.forEach(d=>{ ch.add(d.id); const it=d.data()?.items||{}; for(const k in it){ const r=it[k]; if(r&&r.codice) m.set(String(r.codice).toUpperCase(),{...r}); } });
-    S.mag=m; S.magChunks=ch; s.metadata.fromCache?schedule():done("r");
+    const em={}; for(const r of m.values()){ if(r.ean) String(r.ean).split(/[ ,;]+/).forEach(e=>{ if(e) em[e]=r.codice; }); }
+    S.mag=m; S.magChunks=ch; S.eanMag=em; s.metadata.fromCache?schedule():done("r");
   },err);
   db.collection("movimenti").orderBy("at","desc").limit(1000).onSnapshot(s=>{S.movimenti=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("m");},err);
   db.collection("richieste").onSnapshot(s=>{S.richieste=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("q");},err);
@@ -1263,7 +1268,7 @@ function vImpostazioni(){
   </div>
   <div class="fs" style="max-width:640px"><span class="lg">Inventario</span>
    <p style="margin:0 0 10px">${nf(S.mag.size)} articoli in archivio. ${S.cfg.inventarioAt?"Inventario iniziale caricato il "+fmtD(S.cfg.inventarioAt)+".":""} Ultimo aggiornamento da Excel: ${S.cfg.excelAt?fmtDT(S.cfg.excelAt):"mai"}.</p>
-   <div class="edit-only"><button class="btn" data-act="import">⇪ Aggiorna da Excel del gestionale</button></div>
+   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="import">⇪ Aggiorna da Excel del gestionale</button><button class="btn" data-act="impSbd">⇪ Carica listino e costi SBD</button></div>
   </div>`;
 }
 
@@ -1654,7 +1659,7 @@ function openSyncGar(){
 /* ---------- binding ---------- */
 function bindView(){
   const m=$("#main");
-  const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impCli:()=>openImportClienti(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -1805,6 +1810,41 @@ function openImport(){
   };
 }
 
+/* ---------- listino e costi Stanley Black & Decker dalle fatture (20/11) ---------- */
+function openImportSbd(){
+  openModal(`<div class="mh"><h2>Listino e costi SBD</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><div class="fs"><p style="margin-top:0">Carica il file <b>Prezzi_acquisto_SBD_da_fatture.xlsx</b>: per ogni codice mette il <b>costo d'acquisto</b> (ultima fattura), il <b>listino</b> e il <b>codice a barre EAN</b>. Le giacenze e i prezzi già decisi non vengono toccati.</p>
+   <label class="btn pri">${ic("up")}Scegli il file<input type="file" id="sbF" accept=".xlsx,.xls,.csv" style="display:none"></label>
+   <label class="ck" style="margin-top:12px"><input type="checkbox" id="sbNew" checked> Aggiungi anche i codici che non sono ancora in magazzino (giacenza 0)</label>
+   <div id="sbPrev" style="margin-top:12px"></div><div class="prog" id="sbProg" style="display:none"><i></i></div></div></div>
+  <div class="mf"><button class="btn" data-close>Annulla</button><button class="btn pri" id="sbOk" disabled>Carica</button></div>`);
+  let L=null;
+  $("#sbF").onchange=async e=>{ const f=e.target.files[0]; if(!f) return;
+    try{ const wb=XLSX.read(await f.arrayBuffer(),{type:"array"}); const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:""});
+      const H=rows[0].map(h=>String(h).toLowerCase()), ix=re=>H.findIndex(h=>re.test(h));
+      const c={cod:ix(/^codice$|^cod/),des:ix(/^descr/),ean:ix(/^ean/),lis:ix(/^listino/),cos:ix(/^recons|costo netto ultimo/),q12:ix(/ultimi 12/)};
+      if(c.cod<0||c.cos<0){ $("#sbPrev").innerHTML=`<div class="banner err" style="margin:0">Non è il file giusto: mancano le colonne Codice e RECONS.</div>`; return; }
+      const n=v=>Number(String(v).replace(",","."))||0;
+      L=rows.slice(1).map(r=>({codice:String(r[c.cod]).trim().toUpperCase(),descr:c.des>=0?String(r[c.des]).trim():"",ean:c.ean>=0?String(r[c.ean]).replace(/\D/g,""):"",listino:c.lis>=0?n(r[c.lis]):0,costo:n(r[c.cos]),q12:c.q12>=0?n(r[c.q12]):0})).filter(r=>r.codice&&r.costo>0);
+      const pres=L.filter(r=>itm(r.codice)).length;
+      $("#sbPrev").innerHTML=`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc"><b>${nf(L.length)} codici</b>: ${nf(pres)} già in magazzino (aggiorno costo, listino ed EAN), ${nf(L.length-pres)} nuovi.</div>`;
+      $("#sbOk").disabled=false; }catch(x){ $("#sbPrev").innerHTML=`<div class="banner err" style="margin:0">File non leggibile</div>`; } };
+  $("#sbOk").onclick=async()=>{ if(!L) return; const addNew=$("#sbNew").checked, by={}; let n=0, nu=0;
+    for(const r of L){ const cur=itm(r.codice), ivato=r.listino?Math.round(r.listino*122)/100:0; let f;
+      if(!cur){ if(!addNew) continue; const tipo=classify(r.codice,r.descr);
+        f={codice:r.codice,descr:r.descr||r.codice,tipo,giacenza:0,scortaMin:0,forn:"Stanley Black & Decker",costo:r.costo,...(r.listino?{prezzoNetto:r.listino,prezzo:ivato,prezzoFonte:"listino SBD (fatture)"}:{}),...(r.ean?{ean:r.ean}:{}),acq12:r.q12,costoAt:Date.now()};
+        if(tipo==="vendita") f.cat="Altro"; nu++;
+      } else { f={};
+        if(r.costo!==Number(cur.costo)) f.costo=r.costo; f.costoAt=Date.now();
+        if(r.ean&&!String(cur.ean||"").includes(r.ean)) f.ean=cur.ean?cur.ean+" "+r.ean:r.ean;
+        if(r.listino&&!Number(cur.prezzo)&&!Number(cur.prezzoNetto)){ f.prezzoNetto=r.listino; f.prezzo=ivato; f.prezzoFonte="listino SBD (fatture)"; }
+        if(!cur.forn) f.forn="Stanley Black & Decker"; if(r.q12) f.acq12=r.q12; }
+      (by[chunkOf(r.codice)]=by[chunkOf(r.codice)]||{})[keyOf(r.codice)]=f; n++; }
+    const b=$("#sbOk"); b.disabled=true; $("#sbProg").style.display="block";
+    const ok=await write(async()=>{ await writeChunks(by,(a,t)=>{ $("#sbProg i").style.width=(a/t*100)+"%"; b.textContent=`Carico ${a}/${t}…`; }); await S.db.doc("config/impostazioni").set({...S.cfg,sbdAt:Date.now()}); },`${nf(n)} codici caricati (${nf(nu)} nuovi)`);
+    if(ok) closeModal(); else { b.disabled=false; b.textContent="Carica"; } };
+}
+
 /* ---------- modal ---------- */
 function openModal(html){ $("#modal").innerHTML=html; $("#ov").classList.add("show"); $("#ov").scrollTop=0; $("#modal").querySelectorAll("[data-close]").forEach(b=>b.onclick=closeModal); }
 function closeModal(){ $("#ov").classList.remove("show"); }
@@ -1822,7 +1862,7 @@ function infoRic(cod,mod,ty){
   const dw=S.ricDW.get(cod); let ep=null; const e=mod?getEsploso(mod,ty):null; ep=(e?.parti||[]).find(p=>p.codice===cod)||null;
   if(!ep) for(const x of S.esplosi.values()){ ep=(x.parti||[]).find(p=>p.codice===cod); if(ep) break; }
   let ult=null; if(!r) for(const t of S.tickets){ const p=(t.ricambi||[]).find(q=>q.codice===cod&&Number(q.prezzo)>0); if(p&&(!ult||(t.updatedAt||0)>ult.at)) ult={...p,at:t.updatedAt||0}; }
-  return {codice:r?r.codice:cod, descr:r?.descr||dw?.descr||ep?.descr||ult?.descr||"", prezzo:Number(r?.prezzo)||Number(dw?.prezzo)||Number(ep?.prezzo)||Number(ult?.prezzo)||0, costo:Number(r?.costo)||0, trovato:!!(r||dw||ep||ult)};
+  return {codice:r?r.codice:cod, descr:r?.descr||dw?.descr||ep?.descr||ult?.descr||"", prezzo:Number(r?.prezzo)||(Number(r?.prezzoNetto)||Number(dw?.prezzo)||Number(ep?.prezzo)?Math.round((Number(r?.prezzoNetto)||Number(dw?.prezzo)||Number(ep?.prezzo))*122)/100:0)||Number(ult?.prezzo)||0, costo:Number(r?.costo)||0, trovato:!!(r||dw||ep||ult)};
 }
 function openTicket(t, fromReq, draft){
   const isNew=!t;
@@ -3293,10 +3333,29 @@ async function leggiBarcode(file){
 }
 const pulisciBC=t=>String(t||"").trim().replace(/\s+/g,"");
 const sembraBC=t=>/^\d{8,14}$/.test(pulisciBC(t));
-function trovaDaBC(t,tipo){ t=pulisciBC(t); let c=S.ean[t]||(t.length===12?S.ean["0"+t]:null)||(t.length===13&&t[0]==="0"?S.ean[t.slice(1)]:null);
+function trovaDaBC(t,tipo){ t=pulisciBC(t); const E=k=>S.ean[k]||(S.eanMag||{})[k]; let c=E(t)||(t.length===12?E("0"+t):null)||(t.length===13&&t[0]==="0"?E(t.slice(1)):null);
   let it=c?itm(c):null; if(!it) it=itmV(t); if(it&&tipo&&it.tipo!==tipo) return null; return it; }
 async function collegaBC(t,it){ t=pulisciBC(t); if(!t||!it) return; S.ean[t]=it.codice;
   if(S.db&&S.canWrite) try{ await S.db.doc("ean/"+t).set({codice:it.codice,at:Date.now(),by:S.me||null}); toast("Codice a barre collegato a "+it.codice); }catch(e){} }
+/* ---------- CODICE A BARRE OVUNQUE (20/11): tasto fotocamera accanto a ogni campo di ricerca ---------- */
+const BC_SEL='input[type=search]:not(#pQ),#pSearch,#tMat,#eQ,#cq,input[data-bc]';
+function bcCampo(inp){ if(inp.dataset.bcOn||inp.closest("#login")||(inp.id==="gq"&&innerWidth<760)) return; inp.dataset.bcOn="1";
+  const w=document.createElement("span"); w.className="bcwrap"; inp.parentNode.insertBefore(w,inp); w.appendChild(inp);
+  const lb=document.createElement("label"); lb.className="bcbtn"; lb.title="Cerca con la fotocamera (codice a barre)"; lb.innerHTML=`${ic("barcode")}<input type="file" accept="image/*" capture="environment" aria-label="Leggi codice a barre">`; w.appendChild(lb);
+  const f=lb.querySelector("input"); f.onclick=e=>e.stopPropagation();
+  f.onchange=async()=>{ const file=f.files&&f.files[0]; f.value=""; if(!file) return; lb.classList.add("load"); toast("Leggo il codice…");
+    let t=null; try{ t=await leggiBarcode(file); }catch(e){ lb.classList.remove("load"); toast("Lettore non disponibile: controlla la connessione"); return; }
+    lb.classList.remove("load"); if(!t){ toast("Non riesco a leggerlo: riprova più vicino e con più luce"); return; }
+    bip(); t=pulisciBC(t);
+    const tk=S.tickets.find(x=>String(x.num||"").toUpperCase()===t.toUpperCase());
+    if(tk&&!["pSearch","tMat","cq","eQ"].includes(inp.id)){ toast("Scheda "+tk.num); openTicket(tk); return; }
+    let v=tk?tk.num:t; if(!tk&&inp.id!=="tMat"&&sembraBC(t)){ const it=trovaDaBC(t); if(it) v=it.codice; else toast("Codice a barre "+t+" non collegato a nessun prodotto"); }
+    inp.value=v; inp.focus(); inp.dispatchEvent(new Event("input",{bubbles:true})); inp.dispatchEvent(new Event("change",{bubbles:true}));
+    if(inp.id!=="tMat"&&inp.id!=="tCli") inp.dispatchEvent(new KeyboardEvent("keydown",{key:"Enter",bubbles:true})); };
+}
+function bcOvunque(root){ (root||document).querySelectorAll(BC_SEL).forEach(bcCampo); }
+new MutationObserver(()=>{ clearTimeout(bcOvunque._t); bcOvunque._t=setTimeout(()=>bcOvunque(),60); }).observe(document.body,{childList:true,subtree:true});
+setTimeout(()=>bcOvunque(),300);
 const bip=()=>{ try{ navigator.vibrate&&navigator.vibrate(60); }catch(e){} };
 /* tasto fotocamera: è una <label> con dentro l'input file, così si apre anche da un tasto che fa altro */
 const scanLabel=(id,txt,cls="")=>`<div class="wscan ${cls}" data-scanbox="${id}">${ic("barcode")}<span>${txt}</span><input id="${id}" class="scanfile" type="file" accept="image/*" capture="environment" aria-label="${esc(txt)}"></div>`;
