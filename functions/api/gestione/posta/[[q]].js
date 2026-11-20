@@ -172,5 +172,5 @@ export async function onRequest({ request, env, params }) {
       return json({ ok: true, id, copia });
     }
     return json({ error: 'non trovato' }, 404);
-  } catch (e) { return json({ error: spiega(e.message || 'errore') }, e.s || 502); }
+  } catch (e) { return json({ error: spiega(e.message || 'errore') }, e.s || 400); }
 }
