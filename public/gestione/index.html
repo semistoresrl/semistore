@@ -2858,6 +2858,7 @@ function wizEsplosi(pre){
    POSTA (solo amministratore, solo sul sito): caselle @semistore.it del server Plesk.
    Le email restano sul server: tutto quello che si fa qui si vede anche in webmail.semistore.it.
    ===================================================================== */
+const FIRMA_SEMI="SEMI STORE · SE.M.I. S.R.L.\nConcessionario DEWALT Lazio, Campania, Molise\nCentro assistenza autorizzato DEWALT · STANLEY · BLACK+DECKER\n\nPunto vendita e laboratorio: Viale G. Marconi 225, 80020 Casavatore (NA)\nTel. 081 553 6604 · WhatsApp +39 375 626 6947 · info@semistore.it\nLun–Ven 8:30–13:00 / 14:30–18:00\n\nNegozio online: https://semistore.it\nAssistenza e stato riparazione: https://semistore.it/assistenza/\nTi siamo stati utili? Lasciaci una recensione: https://search.google.com/local/writereview?placeid=ChIJpQmSJREIOxMRsHBGmNErdn0\nInstagram e TikTok @semistore.it\n\nSE.M.I. S.R.L. – Sede legale: Centro Direzionale Isola E7, 80143 Napoli (NA)\nP.IVA e C.F. 07149740636 – REA NA-583904 – Capitale sociale € 49.000,00 i.v.\nPEC: semi@pec.it\n\nQuesta email e gli eventuali allegati sono riservati e destinati solo alle persone indicate. Se l'hai ricevuta per errore, avvisaci rispondendo e cancellala: è vietato usarla, copiarla o inoltrarla. I dati personali sono trattati secondo il Regolamento UE 2016/679 (GDPR); informativa: https://semistore.it/privacy/";
 const PO={caselle:null,c:null,f:"INBOX",cartelle:{},liste:{},cerca:"",prima:0,carico:false,nuove:{},timer:null};
 const pReq=(p)=>window.SEMI.req("posta/"+p), pPost=(p,b)=>window.SEMI.post("posta/"+p,b);
 const pUrl=(p,q)=>"/api/gestione/posta/"+p+"?"+new URLSearchParams(q);
@@ -3062,7 +3063,7 @@ function modCasella(c){ const n=!c.id;
    <label class="fl" style="grid-column:span 2">Password della casella${n?"":" (lascia vuoto per non cambiarla)"}<input id="mcP" type="password" autocomplete="new-password"></label>
    <label class="fl">Server posta (IMAP)<input id="mcH" value="${esc(c.host||"mail.semistore.it")}"></label><label class="fl">Porta<input id="mcPo" type="number" value="${c.porta||993}"></label>
    <label class="fl">Server invio (SMTP)<input id="mcSh" value="${esc(c.shost||"")}" placeholder="uguale al server posta"></label><label class="fl">Porta invio<input id="mcSp" type="number" value="${c.sporta||465}"></label>
-   <label class="fl" style="grid-column:span 2">Firma<textarea id="mcF" rows="3" placeholder="Semi Store · SE.M.I. S.R.L.&#10;Viale G. Marconi 225, Casavatore (NA) · 081 553 6604">${esc(c.firma||"")}</textarea></label></div></div>
+   <label class="fl" style="grid-column:span 2">Firma<textarea id="mcF" rows="8">${esc(c.firma||FIRMA_SEMI)}</textarea></label></div></div>
    <p class="sub">I dati del server li trovi in Plesk → Posta → la casella → “Impostazioni client di posta” (di solito mail.semistore.it, 993 e 465). L'app prova a entrare prima di salvare. La password resta cifrata sul server.</p></div>
    <div class="mf">${n?"":`<button class="btn danger" id="mcX">Togli dall'app</button>`}<span class="sp" style="flex:1"></span><button class="btn" data-close>Annulla</button><button class="btn pri" id="mcOk">${ic("check")}Prova e salva</button></div>`);
   $("#mcOk").onclick=async()=>{ const b=$("#mcOk"); b.disabled=true; b.textContent="Provo ad entrare…";

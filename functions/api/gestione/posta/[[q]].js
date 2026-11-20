@@ -26,7 +26,24 @@ async function salva(env, d, c) {
     ON CONFLICT(id) DO UPDATE SET email=excluded.email,nome=excluded.nome,utente=excluded.utente,pass=excluded.pass,host=excluded.host,porta=excluded.porta,sic=excluded.sic,shost=excluded.shost,sporta=excluded.sporta,ssic=excluded.ssic,firma=excluded.firma,ordine=excluded.ordine`)
     .bind(c.id, c.email, c.nome, c.utente, await cifra(env, c.pass), c.host, c.porta, c.sic, c.shost, c.sporta, c.ssic, c.firma, c.ordine, Date.now()).run();
 }
-const FIRMA = 'Semi Store · SE.M.I. S.R.L.\nViale G. Marconi 225, 80020 Casavatore (NA) · 081 553 6604 · semistore.it';
+const FIRMA = "SEMI STORE · SE.M.I. S.R.L.
+Concessionario DEWALT Lazio, Campania, Molise
+Centro assistenza autorizzato DEWALT · STANLEY · BLACK+DECKER
+
+Punto vendita e laboratorio: Viale G. Marconi 225, 80020 Casavatore (NA)
+Tel. 081 553 6604 · WhatsApp +39 375 626 6947 · info@semistore.it
+Lun–Ven 8:30–13:00 / 14:30–18:00
+
+Negozio online: https://semistore.it
+Assistenza e stato riparazione: https://semistore.it/assistenza/
+Ti siamo stati utili? Lasciaci una recensione: https://search.google.com/local/writereview?placeid=ChIJpQmSJREIOxMRsHBGmNErdn0
+Instagram e TikTok @semistore.it
+
+SE.M.I. S.R.L. – Sede legale: Centro Direzionale Isola E7, 80143 Napoli (NA)
+P.IVA e C.F. 07149740636 – REA NA-583904 – Capitale sociale € 49.000,00 i.v.
+PEC: semi@pec.it
+
+Questa email e gli eventuali allegati sono riservati e destinati solo alle persone indicate. Se l'hai ricevuta per errore, avvisaci rispondendo e cancellala: è vietato usarla, copiarla o inoltrarla. I dati personali sono trattati secondo il Regolamento UE 2016/679 (GDPR); informativa: https://semistore.it/privacy/";
 async function pleskCfg(env) { const c = await segreto(env, 'plesk'); if (!c) throw Object.assign(new Error('Plesk non collegato'), { s: 400 }); return c; }
 // collega (o ricollega) in app una casella di Plesk con la password data
 async function collegaDaPlesk(env, d, cfg, email, pass, nome, soloSeOk) {
@@ -65,7 +82,7 @@ export async function onRequest({ request, env, params }) {
       const c = {
         id: prima?.id || crypto.randomUUID().slice(0, 8), email, nome: String(body.nome || '').trim() || email.split('@')[0], utente: String(body.utente || '').trim() || email,
         host: String(body.host || '').trim() || 'mail.' + email.split('@')[1], porta: Number(body.porta) || 993, sic: body.sic || '',
-        shost: String(body.shost || '').trim(), sporta: Number(body.sporta) || 465, ssic: body.ssic || '', firma: String(body.firma ?? prima?.firma ?? ''), ordine: Number(body.ordine ?? prima?.ordine ?? 0),
+        shost: String(body.shost || '').trim(), sporta: Number(body.sporta) || 465, ssic: body.ssic || '', firma: String(body.firma ?? prima?.firma ?? '') || FIRMA, ordine: Number(body.ordine ?? prima?.ordine ?? 0),
       };
       const loc = (h) => /^(localhost|127\.0\.0\.1)$/.test(h || c.host);
       if (!c.sic) c.sic = c.porta === 993 ? 'ssl' : c.porta === 143 ? 'starttls' : loc() ? 'nessuna' : 'ssl';
