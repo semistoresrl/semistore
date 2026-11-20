@@ -1008,9 +1008,34 @@ function render(){
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = !S.db ? `<div class="banner err">L'archivio condiviso non è ancora collegato. Apri la pagina da claude.ai con il tuo account per vedere e salvare i dati.</div>`:"";
   const fns={posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
-  m.innerHTML = nodb + ro + fns[S.view](st);
+  const html = nodb + ro + fns[S.view](st);
+  const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
+  S._vistaPrec=S.view;
+  if(!(tieni && patchTieni(m,html,ae))){
+    m.innerHTML = html;
+    if(aid){ const n=document.getElementById(aid); if(n&&n.tagName==="INPUT"&&n.type==="search"){ n.focus(); try{n.setSelectionRange(pos,pos)}catch(e){} } }
+  }
   bindView();
-  if(aid){ const n=document.getElementById(aid); if(n&&n.tagName==="INPUT"&&n.type==="search"){ n.focus(); try{n.setSelectionRange(pos,pos)}catch(e){} } }
+}
+/* Aggiorna la pagina senza ricreare il campo in cui si sta scrivendo: resta la tastiera,
+   il cursore e il suggerimento della tastiera del telefono (niente blocchi mentre si scrive). */
+function patchTieni(m,html,vivo){
+  const tpl=document.createElement("div"); tpl.innerHTML=html;
+  const nuovo=[...tpl.querySelectorAll("[id]")].find(e=>e.id===vivo.id); if(!nuovo) return false;
+  const pv=[],pn=[]; for(let n=vivo;n&&n!==m;n=n.parentNode) pv.unshift(n); for(let n=nuovo;n&&n!==tpl;n=n.parentNode) pn.unshift(n);
+  if(pv.length!==pn.length||pv.some((n,i)=>n.tagName!==pn[i].tagName)) return false;
+  let padreV=m, padreN=tpl;
+  for(let i=0;i<pv.length;i++){
+    const v=pv[i], n=pn[i];
+    [...padreV.childNodes].forEach(c=>{ if(c!==v) c.remove(); });
+    let prima=true;
+    [...padreN.childNodes].forEach(c=>{ if(c===n){ prima=false; return; } prima?padreV.insertBefore(c,v):padreV.appendChild(c); });
+    const campo=(v===vivo);
+    [...v.attributes].forEach(a=>{ if(!n.hasAttribute(a.name)&&!(campo&&a.name==="value")) v.removeAttribute(a.name); });
+    [...n.attributes].forEach(a=>{ if(campo&&a.name==="value") return; if(v.getAttribute(a.name)!==a.value) v.setAttribute(a.name,a.value); });
+    padreV=v; padreN=n;
+  }
+  return true;
 }
 const VICON={"posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
@@ -1392,7 +1417,8 @@ function bindVault(){
   m.querySelectorAll("[data-v-act]").forEach(b=>b.onclick=()=>acts[b.dataset.vAct]());
   const ps=$("#vSearch"), pl=$("#vList"); if(!ps) return;
   const add=(c,d,p)=>{ ps.value=""; pl.style.display="none"; addToFoglio([{codice:c,descr:d,qty:1,prezzo:p}],null); };
-  ps.oninput=()=>{ const q=ps.value.toLowerCase().trim(); if(q.length<2){pl.style.display="none";return}
+  ps.oninput=()=>{ clearTimeout(ps._t); ps._t=setTimeout(()=>ps._cerca(),100); };
+  ps._cerca=()=>{ const q=ps.value.toLowerCase().trim(); if(q.length<2){pl.style.display="none";return}
     const hits=[]; for(const r of S.mag.values()){ if(r.tipo==="ricambio"&&(r.codice+" "+r.descr).toLowerCase().includes(q)) hits.push(r); if(hits.length>40) break; }
     pl.innerHTML=hits.slice(0,10).map(r=>`<div data-c="${esc(r.codice)}"><span><span class="mono">${esc(r.codice)}</span> ${esc(r.descr)}</span><span class="sub">disp. ${r.giacenza||0}</span></div>`).join("")+`<div data-free="1" class="sub">＋ Aggiungi “${esc(ps.value.trim().toUpperCase())}” come codice libero</div>`;
     pl.style.display="block";
@@ -2043,7 +2069,8 @@ function openTicket(t, fromReq, draft){
   const addPart=(r,free,ep)=>{ if(r&&r.sostDa&&itm(r.sostDa)){ toast(`${r.codice} è sostituito da ${r.sostDa}: uso il nuovo codice`); r=itm(r.sostDa); }
     const inf=infoRic(r?r.codice:free);
     const ex=rows.find(p=>p.codice===inf.codice); if(ex){ex.qty++;} else rows.push({codice:inf.codice,descr:inf.descr||ep?.descr||"(fuori magazzino)",qty:1,prezzo:inf.prezzo||Number(ep?.prezzo)||0,costo:inf.costo||(r?0:Number(ep?.prezzo)||0)}); ps.value=""; pl.style.display="none"; drawRows(); drawUsual(); };
-  ps.oninput=()=>{ const q=ps.value.toLowerCase().trim(); if(q.length<2){pl.style.display="none";return}
+  ps.oninput=()=>{ clearTimeout(ps._t); ps._t=setTimeout(()=>ps._cerca(),100); };
+  ps._cerca=()=>{ const q=ps.value.toLowerCase().trim(); if(q.length<2){pl.style.display="none";return}
     const mod=($("#tMod").value||"").toLowerCase().trim();
     const esp=getEsploso($("#tMod").value,$("#tType").value), inEsp=new Map((esp?.parti||[]).map(p=>[p.codice,p]));
     const score=r=>(r.tipo==="ricambio"?2:0)+(inEsp.has(r.codice)?5:0)+(mod&&String(r.compat||"").toLowerCase().includes(mod)?3:0)+(r.giacenza>0?1:0)+(String(r.codice).toLowerCase().startsWith(q)?4:0);
@@ -3644,7 +3671,8 @@ function initShell(){
     const rc=q.length>=3?cercaRicambi(q).slice(0,5):[];
     const od=S.ordiniWeb.filter(o=>[o.num,o.cliente,o.tel,o.email,o.rif,o.tracking].some(x=>x&&String(x).toLowerCase().includes(ql))).sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,4);
     return {tk,rc,Q,od}; };
-  gq.oninput=()=>{ const q=gq.value.trim(); if(q.length<2){gl.style.display="none";return}
+  gq.oninput=()=>{ clearTimeout(gq._t); gq._t=setTimeout(gqCerca,120); };
+  const gqCerca=()=>{ const q=gq.value.trim(); if(q.length<2){gl.style.display="none";return}
     const {tk,rc,Q,od}=cerca(q);
     gl.innerHTML=(od.length?`<div class="gh">${ic("cart")} Ordini online</div>`+od.map(o=>`<div class="gi" data-k="o" data-v="${esc(o.id)}"><span><b class="mono">${esc(o.num)}</b> ${esc(o.cliente||"")} <span class="sub">${esc(CANALI[o.canale]||"")}</span></span><span class="badge ${ordCls(o.stato)}">${esc(o.stato)}</span></div>`).join(""):"")+(tk.length?`<div class="gh">${ic("folder")} Schede</div>`+tk.map(t=>`<div class="gi" data-k="t" data-v="${esc(t.id)}"><span><b class="mono">${esc(t.num||"")}</b> ${esc(t.cliente||"")} <span class="sub">${esc(t.modello||"")}</span></span><span class="badge ${stCls(t.stato)}">${esc(t.stato)}</span></div>`).join(""):"")
       +(rc.length?`<div class="gh">${ic("box")} Ricambi</div>`+rc.map(r=>`<div class="gi" data-k="r" data-v="${esc(r.codice)}"><span><b class="mono">${esc(r.codice)}</b> ${esc(r.descr||"")}</span><span class="sub">${r.mag&&r.mag.giacenza>0?"disp. "+r.mag.giacenza:r.prezzo?eur(r.prezzo):""}</span></div>`).join(""):"")
