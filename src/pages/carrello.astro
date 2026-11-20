@@ -93,8 +93,8 @@ import { SITO } from '../data/sito.js';
       const c = calcolaPunti({ base, spesaPrima: io?.punti?.spesa || 0, primo: io ? !io.punti?.ordini : true });
       const nb = prossimoBonus(base);
       ptc.innerHTML = (io
-        ? `<b>+${c.punti.toLocaleString('it-IT')} Punti Semi</b> con questo ordine <small>(livello ${c.livello.nome})</small>`
-        : `<b>Guadagna ${c.punti.toLocaleString('it-IT')} Punti Semi</b> con questo ordine: <a class="ul" href="/account/?dopo=/carrello/">entra o registrati</a>`)
+        ? `<span><b>+${c.punti.toLocaleString('it-IT')} Punti Semi</b> con questo ordine <small>(livello ${c.livello.nome})</small></span>`
+        : `<span><b>Guadagna ${c.punti.toLocaleString('it-IT')} Punti Semi</b> con questo ordine: <a class="ptc-a" href="/account/?dopo=/carrello/">entra o registrati</a></span>`)
         + (nb ? `<span class="ptc-h">Aggiungi <b>${eur(nb.da - base)}</b> e ottieni il <b>bonus carrello +${nb.pct}%</b> punti</span>` : '')
         + `<a class="ptc-l" href="/punti/">Come funzionano i punti</a>`;
     }
@@ -190,7 +190,7 @@ import { SITO } from '../data/sito.js';
   .wal{display:flex;flex-direction:column;gap:6px;background:#fffbea;border:1px solid #f5b80066;border-radius:10px;padding:10px 12px;font-size:14px}
   .wl{display:flex;align-items:center;gap:8px;cursor:pointer}.wl span{margin-left:auto;font-weight:800}
   .ptc{display:flex;flex-direction:column;gap:4px;background:#15171a;color:#fff;border-radius:10px;padding:12px 14px;font-size:14px}.ptc b{color:var(--y)}.ptc small{color:#c9cbcf}
-  .ptc .ul,.ptc-l{color:#fff;text-decoration:underline}.ptc-h{color:#e8e9eb}.ptc-l{font-size:12.5px;color:#c9cbcf}
+  .ptc-a,.ptc-l{color:#fff;text-decoration:underline}.ptc-h{color:#e8e9eb}.ptc-l{font-size:12.5px;color:#c9cbcf}
   .fs{display:flex;flex-direction:column;gap:8px;background:#fff8dc;border:1px solid #f5b80066;border-radius:10px;padding:12px;font-size:14px}.fs.ok{background:#e8f5ec;border-color:#1a7a4344}
   .fs-b{height:8px;border-radius:4px;background:#0000000f;overflow:hidden}.fs-b i{display:block;height:100%;background:var(--y);border-radius:4px;transition:width .3s}.fs.ok .fs-b i{background:var(--ok)}
   .cart{display:grid;grid-template-columns:minmax(0,2fr) minmax(min(280px,100%),1fr);gap:20px;align-items:start}
