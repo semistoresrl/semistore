@@ -1372,7 +1372,7 @@ function vCatalogo(st){
    <button class="btn sm edit-only" data-act="pubAll" ${l.length?"":"disabled"}>Pubblica i ${nf(l.length)} filtrati</button><button class="btn sm ghost edit-only" data-act="unpubAll" ${l.length?"":"disabled"}>Togli dal sito</button></div>
   ${l.length?`<table><thead><tr><th style="width:34px">Sito</th><th style="width:54px">Foto</th><th>Codice</th><th>Prodotto</th><th>Categoria</th><th>Marca</th><th class="num">Giacenza</th><th class="num">Prezzo €</th><th></th></tr></thead><tbody>
   ${l.slice((pg-1)*PAGE,pg*PAGE).map(r=>`<tr><td><input type="checkbox" data-pub="${esc(r.codice)}" ${r.pubblica?"checked":""} ${S.canWrite?"":"disabled"} aria-label="Pubblica sul sito"></td><td>${r.foto?`<img src="/_blob/${esc(r.foto)}" alt="" style="width:40px;height:40px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:6px">`:r.fotoUrl?`<a href="${esc(r.fotoUrl)}" target="_blank" rel="noopener" class="badge ${r.fotoSimile?"st-Preventivo_inviato":"st-Pronto"}" title="${r.fotoSimile?"Foto dello stesso modello ("+esc(r.fotoSimile)+"): verifica":"Foto ufficiale DEWALT"}">${r.fotoSimile?"simile":"vedi"}</a>`:`<span class="sub">—</span>`}</td><td class="mono">${esc(r.codice)}${r.sostDa?`<div><span class="tag-s">→ ${esc(r.sostDa)}</span></div>`:""}</td><td>${esc(r.titolo?r.titolo.replace(/^\S+\s+\S+\s+–\s+/,""):r.descr)}${r.verificare?` <span class="tag-v" title="Giacenza nel gestionale: ${esc(r.giacGest)}">DA CONTARE</span>`:""}${r.descrizione&&!r.descrOk?` <span class="tag-s" title="Descrizione del gestionale incompleta: controlla la scheda">SCHEDA DA COMPLETARE</span>`:""}</td><td class="sub">${esc(r.cat||"")}${r.piatt?"<br>"+esc(r.piatt):""}</td><td class="sub">${esc(r.marca||"")}</td><td class="num">${nf(r.giacenza)}</td>
-  <td class="num"><input class="inl" type="number" step="0.01" min="0" data-prz="${esc(r.codice)}" value="${r.prezzo||""}" placeholder="—" ${S.canWrite?"":"disabled"}>${r.prezzoNetto?`<div class="sub" title="${esc(r.prezzoFonte||"")}">${r.prezzoScade&&r.prezzoListinoNetto&&r.prezzoListinoNetto!==r.prezzoNetto?`promo ${eur(r.prezzoNetto)} + IVA fino al ${r.prezzoScade.split("-").reverse().join("/")} · <s>listino ${eur(r.prezzoListinoNetto)}</s>`:`listino ${eur(r.prezzoNetto)} + IVA`}</div>`:""}</td><td class="num edit-only"><button class="btn sm ghost" data-edric="${esc(r.codice)}">Modifica</button></td></tr>`).join("")}</tbody></table>${pager(l.length,pg,"c")}`
+  <td class="num"><input class="inl" type="number" step="0.01" min="0" data-prz="${esc(r.codice)}" value="${r.prezzo||""}" placeholder="—" ${S.canWrite&&puoPrezzi()?"":"disabled"}>${r.prezzoNetto?`<div class="sub" title="${esc(r.prezzoFonte||"")}">${r.prezzoScade&&r.prezzoListinoNetto&&r.prezzoListinoNetto!==r.prezzoNetto?`promo ${eur(r.prezzoNetto)} + IVA fino al ${r.prezzoScade.split("-").reverse().join("/")} · <s>listino ${eur(r.prezzoListinoNetto)}</s>`:`listino ${eur(r.prezzoNetto)} + IVA`}</div>`:""}</td><td class="num edit-only"><button class="btn sm ghost" data-edric="${esc(r.codice)}">Modifica</button></td></tr>`).join("")}</tbody></table>${pager(l.length,pg,"c")}`
   :`<div class="panel"><div class="empty">${tot?"Nessun prodotto con questi filtri":"Catalogo vuoto"}</div></div>`}`;
 }
 function vVerifiche(st){
@@ -1506,7 +1506,7 @@ function vVault(){
       <button class="btn" data-v-act="low" ${low.length?"":"disabled"}>＋ Sotto scorta (${low.length})</button></div>
     ${righe.length?`<table class="parts"><thead><tr><th>Codice</th><th>Descrizione</th><th>Per schede</th><th class="num" style="width:80px">Q.tà</th><th class="num" style="width:110px">Prezzo €</th><th class="num">Importo</th><th style="width:30px"></th></tr></thead><tbody>
     ${righe.map((r,i)=>`<tr><td class="mono"><a href="${sdCerca(r.codice)}" target="_blank" rel="noopener" style="color:inherit">${esc(r.codice)}</a></td><td>${esc(r.descr)}</td><td class="mono sub">${esc((r.schede||[]).join(", "))||"scorta"}</td>
-      <td><input type="number" min="0" step="1" data-vq="${i}" value="${r.qty}" style="text-align:right" ${S.canWrite?"":"disabled"}></td><td><input type="number" min="0" step="0.01" data-vp="${i}" value="${r.prezzo||""}" placeholder="—" style="text-align:right" ${S.canWrite?"":"disabled"}></td>
+      <td><input type="number" min="0" step="1" data-vq="${i}" value="${r.qty}" style="text-align:right" ${S.canWrite?"":"disabled"}></td><td><input type="number" min="0" step="0.01" data-vp="${i}" value="${r.prezzo||""}" placeholder="—" style="text-align:right" ${S.canWrite&&puoPrezzi()?"":"disabled"}></td>
       <td class="num">${eur(r.qty*(r.prezzo||0))}</td><td class="edit-only"><button class="btn sm ghost danger" data-vrm="${i}">×</button></td></tr>`).join("")}</tbody></table>
     <div class="toolbar" style="margin-top:12px">
       <button class="btn pri" data-v-act="copy">⧉ Copia per il portale DEWALT</button>
@@ -2077,7 +2077,7 @@ function openTicket(t, fromReq, draft){
       <table class="parts"><thead><tr><th>Codice</th><th>Descrizione</th><th class="num" style="width:80px">Q.tà</th><th class="num" style="width:110px">Prezzo</th><th class="num" style="width:100px">Importo</th><th style="width:30px"></th></tr></thead><tbody id="pRows"></tbody>
         <tfoot><tr><td colspan="6" style="padding-top:6px"><button class="btn sm ghost edit-only" id="pAddRow" type="button">＋ Riga: scrivi il codice</button> <span class="sub">descrizione e prezzo si compilano da soli</span></td></tr>
         <tr class="morow"><td class="mono">MANOD.</td><td colspan="2"><input id="tMoD" placeholder="Manodopera: scrivi il lavoro fatto" value="${esc(t.manodoperaDescr||"")}"></td><td></td><td><input id="tMo" type="number" step="0.01" min="0" inputmode="decimal" placeholder="€" style="text-align:right" value="${t.manodopera!=null&&t.manodopera!==""?esc(t.manodopera):(Number(t.ore)||0)>0?esc(Math.round((Number(t.ore)||0)*(Number(t.tariffa??S.cfg.tariffa)||0)*100)/100):""}"></td><td></td></tr></tfoot></table>
-      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:10px"><label class="fl" style="max-width:190px">Sconto ricambi cliente (%)<input id="tSc" type="number" step="0.5" min="0" max="100" inputmode="decimal" placeholder="0" value="${Number(t.scontoRic)>0?esc(t.scontoRic):""}"></label><span class="sub" id="tScInfo"></span></div>
+      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:10px"><label class="fl" style="max-width:190px">Sconto ricambi cliente (%)<input id="tSc" type="number" step="0.5" min="0" max="100" inputmode="decimal" placeholder="0" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""} value="${Number(t.scontoRic)>0?esc(t.scontoRic):""}"></label><span class="sub" id="tScInfo"></span></div>
       <div id="tUsual" style="margin-top:8px"></div>
       <div class="tot" id="tTot"></div>
       <div id="tMiss" style="margin-top:10px"></div>
@@ -2105,7 +2105,7 @@ function openTicket(t, fromReq, draft){
   const drawRows=()=>{
     $("#pRows").innerHTML = rows.length? rows.map((p,i)=>{const r=itm(p.codice); const disp=r?(Number(r.giacenza)||0):null;
       return `<tr><td class="mono">${p.nuova?`<input data-cod="${i}" value="${esc(p.codice)}" placeholder="codice" autocapitalize="characters" style="width:110px;text-transform:uppercase">`:esc(p.codice)}</td><td>${p.nuova?`<input data-des="${i}" value="${esc(p.descr)}" placeholder="descrizione">`:esc(p.descr)}${disp!=null?`<div style="font-size:11px;color:${disp<=0?"var(--bad)":"var(--muted)"}">in magazzino: ${disp}${r.verificare?" (da contare)":""}</div>`:`<div style="font-size:11px;color:var(--warn)">non a magazzino</div>`}</td>
-      <td><input type="number" min="0" step="1" data-q="${i}" value="${p.qty}" style="text-align:right"></td><td><input type="number" step="0.01" data-p="${i}" value="${p.prezzo}" style="text-align:right"></td><td class="num">${eur(p.qty*p.prezzo)}</td><td><button class="btn sm ghost danger" data-rm="${i}">×</button></td></tr>`}).join("")
+      <td><input type="number" min="0" step="1" data-q="${i}" value="${p.qty}" style="text-align:right"></td><td><input type="number" step="0.01" data-p="${i}" value="${p.prezzo}" style="text-align:right" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></td><td class="num">${eur(p.qty*p.prezzo)}</td><td><button class="btn sm ghost danger" data-rm="${i}">×</button></td></tr>`}).join("")
       : `<tr><td colspan="6" class="empty">Nessun ricambio aggiunto</td></tr>`;
     $("#pRows").querySelectorAll("[data-q]").forEach(x=>x.oninput=()=>{rows[x.dataset.q].qty=Math.max(0,parseInt(x.value)||0);drawTot()});
     $("#pRows").querySelectorAll("[data-p]").forEach(x=>x.oninput=()=>{rows[x.dataset.p].prezzo=Number(x.value)||0;drawTot()});
@@ -2269,7 +2269,7 @@ function openRic(r){
     <label class="fl">Giacenza${isNew?"":" (rettifica inventario)"}<input id="rGia" type="number" value="${esc(r.giacenza||0)}"></label>
     <label class="fl">Scorta minima<input id="rMin" type="number" min="0" value="${esc(r.scortaMin||0)}"></label>
     <label class="fl">Costo d'acquisto (€)<input id="rCos" type="number" step="0.01" value="${esc(r.costo||"")}"></label>
-    <label class="fl">Prezzo al cliente (€)<input id="rPre" type="number" step="0.01" value="${esc(r.prezzo||"")}"></label>
+    <label class="fl">Prezzo al cliente (€)<input id="rPre" type="number" step="0.01" value="${esc(r.prezzo||"")}" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></label>
     <label class="fl">Sostituito da (codice nuovo)<input id="rSos" value="${esc(r.sostDa)}"></label>
     <label class="fl">Fornitore<input id="rFor" value="${esc(r.forn)}"></label>
   </div>
@@ -2584,7 +2584,7 @@ function openOrdine(o){
     $("#oTot").innerHTML=`${msg}<span>Articoli <b>${eur(t.sub)}</b></span>${t.sc?`<span>Sconto <b>−${eur(t.sc)}</b></span>`:""}${t.sp?`<span>Spedizione <b>${eur(t.sp)}</b></span>`:""}<span>Totale <b style="font-size:20px">${eur(t.tot)}</b></span>`; };
   const drawRighe=()=>{
     $("#oRighe").innerHTML=`<table class="parts"><thead><tr><th style="width:150px">Codice</th><th>Descrizione</th><th style="width:70px" class="num">Q.tà</th><th style="width:100px" class="num">Prezzo €</th><th style="width:90px" class="num">Magazzino</th><th style="width:40px"></th></tr></thead><tbody>${righe.map((r,k)=>{ const it=itmV(r.codice); const g=it?Number(it.giacenza)||0:null;
-      return `<tr><td><input data-rk="${k}" data-f="codice" list="ordCodes" class="mono" value="${esc(r.codice)}" placeholder="codice"></td><td><input data-rk="${k}" data-f="descr" value="${esc(r.descr)}"></td><td><input data-rk="${k}" data-f="qty" type="number" min="1" class="num" value="${r.qty||1}"></td><td><input data-rk="${k}" data-f="prezzo" type="number" step="0.01" min="0" class="num" value="${r.prezzo||""}"></td><td class="num">${g==null?`<span class="sub">—</span>`:`<b class="${g>=(r.qty||1)?"":"low"}" style="${g>=(r.qty||1)?"color:var(--ok)":""}">${g} disp.</b>`}</td><td><button class="btn sm ghost edit-only" data-rdel="${k}" aria-label="Togli">${ic("x")}</button></td></tr>`;}).join("")}</tbody></table>`;
+      return `<tr><td><input data-rk="${k}" data-f="codice" list="ordCodes" class="mono" value="${esc(r.codice)}" placeholder="codice"></td><td><input data-rk="${k}" data-f="descr" value="${esc(r.descr)}"></td><td><input data-rk="${k}" data-f="qty" type="number" min="1" class="num" value="${r.qty||1}"></td><td><input data-rk="${k}" data-f="prezzo" type="number" step="0.01" min="0" class="num" value="${r.prezzo||""}" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></td><td class="num">${g==null?`<span class="sub">—</span>`:`<b class="${g>=(r.qty||1)?"":"low"}" style="${g>=(r.qty||1)?"color:var(--ok)":""}">${g} disp.</b>`}</td><td><button class="btn sm ghost edit-only" data-rdel="${k}" aria-label="Togli">${ic("x")}</button></td></tr>`;}).join("")}</tbody></table>`;
     md.querySelectorAll("[data-rk]").forEach(inp=>inp.onchange=()=>{ const r=righe[inp.dataset.rk], f=inp.dataset.f;
       r[f]=f==="qty"?Math.max(1,parseInt(inp.value)||1):f==="prezzo"?Number(inp.value)||0:inp.value.trim();
       if(f==="codice"){ r.codice=r.codice.toUpperCase(); const it=itmV(r.codice); if(it){ r.codice=it.codice; if(!r.descr) r.descr=(it.titolo||it.descr||"").slice(0,120); if(!r.prezzo&&it.prezzo) r.prezzo=it.prezzo; } }
@@ -2660,7 +2660,7 @@ function openReso(r,ord){
     const dl=[]; if(ordine&&ordine.consegnatoAt&&/Recesso/.test(g.motivo)){ const t=ordine.consegnatoAt+14*864e5; dl.push(`Recesso: il cliente poteva chiederlo fino al <b>${fmtDay(t)}</b> (14 giorni dalla consegna)${(g.at||Date.now())>t?` — <b class="low">richiesta fuori termine</b>`:""}.`); }
     if(g.stato!=="Chiuso") dl.push(`Rimborso da fare entro <b>${fmtDay((g.at||Date.now())+14*864e5)}</b>${tot?" · valore articoli "+eur(tot):""}.`);
     $("#rInfo").innerHTML=dl.length?`<div class="banner">${dl.join("<br>")}</div>`:""; };
-  const drawRighe=()=>{ $("#rRighe").innerHTML=`<table class="parts"><thead><tr><th style="width:36px"></th><th style="width:140px">Codice</th><th>Descrizione</th><th style="width:70px" class="num">Q.tà</th><th style="width:96px" class="num">Prezzo €</th><th style="width:150px">Torna in vendita?</th></tr></thead><tbody>${righe.map((x,k)=>`<tr><td><input type="checkbox" data-xk="${k}" data-f="sel" ${x.sel?"checked":""} style="width:auto"></td><td><input data-xk="${k}" data-f="codice" class="mono" value="${esc(x.codice)}"></td><td><input data-xk="${k}" data-f="descr" value="${esc(x.descr)}"></td><td><input data-xk="${k}" data-f="qty" type="number" min="1" value="${x.qty||1}"></td><td><input data-xk="${k}" data-f="prezzo" type="number" step="0.01" value="${x.prezzo||""}"></td><td><select data-xk="${k}" data-f="rivend"><option value="1" ${x.rivend?"selected":""}>Sì, integro</option><option value="" ${x.rivend?"":"selected"}>No (difettoso/rovinato)</option></select></td></tr>`).join("")}</tbody></table>`;
+  const drawRighe=()=>{ $("#rRighe").innerHTML=`<table class="parts"><thead><tr><th style="width:36px"></th><th style="width:140px">Codice</th><th>Descrizione</th><th style="width:70px" class="num">Q.tà</th><th style="width:96px" class="num">Prezzo €</th><th style="width:150px">Torna in vendita?</th></tr></thead><tbody>${righe.map((x,k)=>`<tr><td><input type="checkbox" data-xk="${k}" data-f="sel" ${x.sel?"checked":""} style="width:auto"></td><td><input data-xk="${k}" data-f="codice" class="mono" value="${esc(x.codice)}"></td><td><input data-xk="${k}" data-f="descr" value="${esc(x.descr)}"></td><td><input data-xk="${k}" data-f="qty" type="number" min="1" value="${x.qty||1}"></td><td><input data-xk="${k}" data-f="prezzo" type="number" step="0.01" value="${x.prezzo||""}" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></td><td><select data-xk="${k}" data-f="rivend"><option value="1" ${x.rivend?"selected":""}>Sì, integro</option><option value="" ${x.rivend?"":"selected"}>No (difettoso/rovinato)</option></select></td></tr>`).join("")}</tbody></table>`;
     md.querySelectorAll("[data-xk]").forEach(inp=>inp.onchange=()=>{ const x=righe[inp.dataset.xk], f=inp.dataset.f; x[f]=f==="sel"?inp.checked:f==="rivend"?!!inp.value:f==="qty"?Math.max(1,parseInt(inp.value)||1):f==="prezzo"?Number(inp.value)||0:f==="codice"?inp.value.trim().toUpperCase():inp.value.trim(); drawQA(); }); };
   $("#rMot").onchange=()=>{ if(/difettoso|Danneggiato/i.test($("#rMot").value)) righe.forEach(x=>x.rivend=false); drawRighe(); drawQA(); };
   ["rTel","rCli"].forEach(i=>$("#"+i).addEventListener("change",drawQA));
@@ -2826,6 +2826,7 @@ function bindNuovo(){
    ===================================================================== */
 const SUL_SITO=!!window.SEMI;
 const isAdmin=()=>SUL_SITO&&window.SEMI.io?.ruolo==="admin";
+const puoPrezzi=()=>!SUL_SITO||isAdmin(); // gli operatori non cambiano i prezzi (controllato anche dal server)
 const NOMI_COL={tickets:"Scheda",mag:"Magazzino",movimenti:"Movimento",richieste:"Richiesta dal sito",ordini:"Foglio DEWALT",esplosi:"Distinta",ricambiDW:"Ricambio DEWALT",ordiniWeb:"Ordine online",consegne:"Scaffale consegne",clienti:"Clienti",resi:"Reso",ean:"Codice a barre",sconti:"Codice sconto",config:"Impostazioni",utenti:"Utente","*":"Archivio"};
 const NOMI_CAMPI={ubic:"scaffale",posto:"ripiano",incassare:"da incassare",modo:"ritiro/consegna",chiusoAt:"chiuso",stato:"stato",giacenza:"pezzi",prezzoSito:"prezzo",prezzo:"prezzo listino",cliente:"cliente",tel:"telefono",modello:"modello",difetto:"difetto",diagnosi:"lavoro fatto",preventivo:"preventivo",ricambi:"ricambi",tecnico:"tecnico",scaffale:"scaffale",note:"note",verificare:"da contare",daInviare:"da inviare",posto:"posto scaffale",tracking:"tracciamento",pagato:"pagato",esito:"esito",rimborso:"rimborso",tipo:"tipo",ore:"ore",storico:"storico"};
 const decK=k=>String(k).replace(/~([0-9a-f]{2})/g,(m,h)=>String.fromCharCode(parseInt(h,16)));
@@ -3600,7 +3601,7 @@ function vFacile(st){
     ${B("arrivo","truck","f-p","È arrivata merce","Carica i pezzi in magazzino")}
     ${B("cerca","search","f-w","Cerco un prezzo","Prezzo e quanti ne ho")}
     ${B("conta","clipboard","f-w","Conto la merce","Scrivo quanti pezzi ci sono")}
-    ${B("prezzo","tag","f-w","Cambio un prezzo","Nuovo prezzo di vendita")}
+    ${puoPrezzi()?B("prezzo","tag","f-w","Cambio un prezzo","Nuovo prezzo di vendita"):""}
     ${B("esplosi","drill","f-w","Esplosi e ricambi","Disegni DEWALT e pezzi")}
     <a class="fbtn f-w" href="#ordini">${ordAp?`<span class="fbg">${ordAp}</span>`:""}${ic("send")}<b>Ordini online</b><small>Sito, TikTok, WhatsApp</small></a>
   </div>
@@ -3720,7 +3721,7 @@ function wizVendo(pre){
   wizOpen("Vendo al banco","f-b"); const cart=[];
   const scegli=step(()=>pickItem(cart.length?"Cosa aggiungi?":"Cosa vendi?",{tipo:"vendita",onPick:it=>{ WZ.it=it; wizStep(quanti); }}));
   const quanti=step(()=>{ const it=WZ.it;
-    wz(itemCard(it)+`<div class="wq sm">Quanti pezzi?</div>${qtyBox("wq1",1,1)}<div class="wq sm">Prezzo a pezzo (€)</div><input class="winp" id="wpz" type="number" step="0.01" min="0" inputmode="decimal" value="${prezzoVendita(it)||""}">`,
+    wz(itemCard(it)+`<div class="wq sm">Quanti pezzi?</div>${qtyBox("wq1",1,1)}<div class="wq sm">Prezzo a pezzo (€)</div><input class="winp" id="wpz" type="number" step="0.01" min="0" inputmode="decimal" value="${prezzoVendita(it)||""}" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}>${puoPrezzi()||prezzoVendita(it)?"":`<div class="sub" style="margin-top:6px">Questo articolo non ha un prezzo: chiedi all'amministratore di metterlo.</div>`}`,
       wBtn("wAdd","Aggiungi alla vendita","pri","plus")); bindQty();
     $("#wAdd").onclick=()=>{ const q=Math.max(1,parseInt($("#wq1").value)||1), p=Number($("#wpz").value)||0; if(!p){ toast("Scrivi il prezzo"); return; }
       cart.push({codice:it.codice,descr:nomeDi(it).slice(0,120),qty:q,prezzo:p}); wizStep(riepilogo); }; });
@@ -3770,6 +3771,7 @@ function wizConta(pre){
 
 /* ---------- 6. Cambio un prezzo ---------- */
 function wizPrezzo(pre){
+  if(!puoPrezzi()){ toast("Solo l'amministratore può cambiare i prezzi"); return; }
   wizOpen("Cambio un prezzo","f-w");
   const scegli=step(()=>pickItem("Di quale prodotto?",{tipo:"vendita",onPick:it=>{ WZ.it=it; wizStep(nuovo); }}));
   const nuovo=step(()=>{ const it=WZ.it, p=prezzoVendita(it);
@@ -3786,7 +3788,7 @@ function wizPrezzo(pre){
 function wizCerca(){
   wizOpen("Cerco un prezzo","f-w");
   const scegli=step(()=>pickItem("Cosa cerchi?",{onPick:it=>{ WZ.it=it; wizStep(scheda); }}));
-  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button><button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
+  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
     const v=$("#aV"); if(v) v.onclick=()=>{ wizClose(); wizVendo(it); }; const p=$("#aP"); if(p) p.onclick=()=>{ wizClose(); wizPrezzo(it); };
     $("#aC").onclick=()=>{ wizClose(); wizConta(it); };
     $("#wAn").onclick=()=>{ WZ.stack=[]; wizStep(scegli); }; });

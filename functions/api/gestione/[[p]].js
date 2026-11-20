@@ -107,6 +107,7 @@ export async function onRequest(ctx) {
       else if (op === 'merge') dopo = fondi(prima || {}, o.d || {});
       else if (op === 'set' || op === 'add') dopo = o.d || {};
       else return json({ error: 'operazione non valida' }, 400);
+      if (!admin && dopo) await bloccaPrezzi(d, c, prima, dopo); // solo l'amministratore cambia i prezzi
       const u = Date.now();
       const testo = dopo == null ? null : JSON.stringify(dopo);
       if (testo && testo.length > 1_800_000) return json({ error: 'documento troppo grande', code: 'quota_exceeded' }, 413);
@@ -210,4 +211,43 @@ async function sessione(d, email, request, extra) {
     d.prepare('UPDATE utenti SET ultimo=? WHERE email=?').bind(Date.now(), email),
   ]);
   return new Response(JSON.stringify({ ok: true, ...extra }), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'set-cookie': cookieSessione(tok) } });
+}
+
+// Gli operatori non possono cambiare i prezzi: qualunque prezzo modificato da loro torna com'era.
+// Magazzino: prezzo listino e prezzo sul sito. Schede: prezzo dei ricambi già presenti (i nuovi prendono quello del magazzino) e sconto ricambi.
+// Ordini: prezzo delle righe già presenti e sconto.
+const CAMPI_PREZZO = ['prezzo', 'prezzoSito', 'prezzoSitoAt', 'prezzoManuale'];
+async function bloccaPrezzi(d, c, prima, dopo) {
+  if (c === 'mag' && dopo.items && typeof dopo.items === 'object') {
+    for (const k of Object.keys(dopo.items)) {
+      const n = dopo.items[k], v = prima?.items?.[k];
+      if (!n || typeof n !== 'object') continue;
+      for (const f of CAMPI_PREZZO) { if (v && v[f] !== undefined) n[f] = v[f]; else delete n[f]; }
+    }
+  }
+  const righe = (lista, vecchie) => {
+    if (!Array.isArray(lista)) return [];
+    const pv = new Map((Array.isArray(vecchie) ? vecchie : []).map((r) => [String(r?.codice || '').toUpperCase(), r?.prezzo]));
+    const nuove = [];
+    for (const r of lista) {
+      if (!r || typeof r !== 'object') continue;
+      const k = String(r.codice || '').toUpperCase();
+      if (k && pv.has(k)) r.prezzo = pv.get(k); else if (k) nuove.push(r);
+    }
+    return nuove;
+  };
+  if (c === 'tickets') {
+    const nuove = righe(dopo.ricambi, prima?.ricambi);
+    for (const r of nuove) { const pz = await prezzoMag(d, r.codice); if (pz > 0) r.prezzo = pz; }
+    if (prima) dopo.scontoRic = prima.scontoRic ?? 0;
+  }
+  if (c === 'ordiniWeb' && prima) {
+    righe(dopo.righe, prima.righe);
+    dopo.sconto = prima.sconto ?? 0;
+  }
+}
+async function prezzoMag(d, codice) {
+  const r = await d.prepare(`SELECT json_extract(j.value,'$.prezzo') p FROM docs, json_each(docs.d,'$.items') j
+    WHERE docs.c='mag' AND upper(json_extract(j.value,'$.codice'))=? LIMIT 1`).bind(String(codice).toUpperCase()).first().catch(() => null);
+  return Number(r?.p) || 0;
 }
