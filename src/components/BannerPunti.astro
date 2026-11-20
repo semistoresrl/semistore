@@ -40,5 +40,6 @@ const giorno = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-I
   .bp-d{margin:4px 0 0;color:#d6d7da;font-size:14.5px}.bp-d b{color:#fff}
   .bp-cta{display:flex;flex-direction:column;align-items:center;gap:6px}.bp-cta .btn{white-space:nowrap}
   .bp-lk{color:#d6d7da;font-size:13.5px;text-decoration:underline}.bp-lk:hover{color:var(--y)}
-  @media (max-width:760px){.bp-in{grid-template-columns:auto 1fr;gap:12px}.bp-ico{width:48px;height:48px}.bp-ico svg{width:34px;height:34px}.bp-cta{grid-column:1/-1;flex-direction:row;justify-content:space-between}}
+  @media (max-width:760px){.bp-in{grid-template-columns:auto 1fr;gap:12px}.bp-ico{width:48px;height:48px}.bp-ico svg{width:34px;height:34px}.bp-cta{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;justify-content:space-between;gap:8px 14px}}
+  @media (max-width:400px){.bp-in{grid-template-columns:1fr}.bp-ico{display:none}.bp-cta .btn{white-space:normal;flex:1 1 auto;text-align:center}}
 </style>
