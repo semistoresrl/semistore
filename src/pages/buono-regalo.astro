@@ -32,7 +32,7 @@ const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazi
 
           <fieldset><legend>2. Stile</legend>
             <div class="br-temi">
-              {R.temi.map((t, i) => <label><input type="radio" name="tema" value={t.id} checked={i === 0} /><span><CartaBuono tema={t.id} valore="" piccola class="br-mini" />{t.nome}</span></label>)}
+              {R.temi.map((t, i) => <label><input type="radio" name="tema" value={t.id} checked={i === 0} /><span><span aria-hidden="true" class="br-mw"><CartaBuono tema={t.id} valore="" piccola class="br-mini" /></span>{t.nome}</span></label>)}
             </div>
           </fieldset>
 
@@ -60,10 +60,10 @@ const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazi
       <div class="br-prev" aria-live="polite">
         <CartaBuono id="card" valore={50} tema="natale" per="…" />
         <ul class="br-pro">
-          <li>⏳ <b>Senza scadenza</b></li>
-          <li>🧰 Su <b>tutti i prodotti</b> del sito, anche in più volte</li>
-          <li>🔒 Codice <b>segreto</b>: si può salvare nell'account per non perderlo</li>
-          <li>⭐ Chi lo spende accumula comunque i <a class="ul" href="/punti/">Punti Semi</a></li>
+          <li><b>Senza scadenza</b></li>
+          <li>Su <b>tutti i prodotti</b> del sito, anche in più volte</li>
+          <li>Codice <b>segreto</b>: si può salvare nell'account per non perderlo</li>
+          <li>Chi lo spende accumula comunque i <a class="ul" href="/punti/">Punti Semi</a></li>
         </ul>
       </div>
     </div>
@@ -128,7 +128,7 @@ const ED = { natale: 'Edizione Natale', compleanno: 'Edizione Compleanno', grazi
   .opz{font-weight:400;color:var(--mut)}.br-pay{align-self:flex-start;font-size:17px;padding:0 26px}
   .br-err{color:#b3261e;font-weight:700;margin:0}.br-n{font-size:13px;color:var(--mut);margin:0}
   .br-prev{position:sticky;top:110px;display:flex;flex-direction:column;gap:16px}
-  .br-pro{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .br-pro{list-style:none;margin:0;padding:0;display:grid;gap:8px}.br-pro li{position:relative;padding-left:28px}.br-pro li::before{content:'';position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:5px;background:var(--y) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2315171a' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center/12px no-repeat}.br-mw{display:block;width:100%}
   .br-ok{max-width:620px;margin:0 auto;padding:28px;text-align:center}
   @media (max-width:860px){.br-g{grid-template-columns:1fr}.br-prev{position:static;order:-1}.br-g2{grid-template-columns:1fr}}
 </style>
