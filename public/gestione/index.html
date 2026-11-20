@@ -1412,9 +1412,12 @@ function vImpostazioni(){
    </div>
    <div style="margin-top:12px" class="edit-only"><button class="btn pri" data-act="savecfg">Salva impostazioni</button></div>
   </div>
+  <div class="fs" style="max-width:640px"><span class="lg">Controllo dati</span>
+   <p style="margin:0 0 10px">Controlla magazzino, prezzi, costi, codici a barre, schede, clienti, impostazioni e utenti, e dice cosa sistemare.</p>
+   <button class="btn pri" data-act="controllo">${ic("check")}Fai tutti i controlli</button></div>
   <div class="fs" style="max-width:640px"><span class="lg">Clienti</span>
    <p style="margin:0 0 10px">${nf(S.clienti.size)} clienti in archivio${S.clienti.size?` (${nf([...S.clienti.values()].filter(c=>c.origine==="danea").length)} da Danea, ${nf([...S.clienti.values()].filter(c=>scontoNum(c.sconto)).length)} con sconto ricambi)`:""}. Nella scheda il cliente si compila da solo scrivendo nome, telefono o P.IVA.</p>
-   <div class="edit-only"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button></div>
+   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button></div>
   </div>
   <div class="fs" style="max-width:640px"><span class="lg">Inventario</span>
    <p style="margin:0 0 10px">${nf(S.mag.size)} articoli in archivio. ${S.cfg.inventarioAt?"Inventario iniziale caricato il "+fmtD(S.cfg.inventarioAt)+".":""} Ultimo aggiornamento da Excel: ${S.cfg.excelAt?fmtDT(S.cfg.excelAt):"mai"}.</p>
@@ -1811,7 +1814,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -1985,17 +1988,68 @@ function openImportSbd(){
   $("#sbOk").onclick=async()=>{ if(!L) return; const addNew=$("#sbNew").checked, by={}; let n=0, nu=0;
     for(const r of L){ const cur=itm(r.codice), ivato=r.listino?Math.round(r.listino*122)/100:0; let f;
       if(!cur){ if(!addNew) continue; const tipo=classify(r.codice,r.descr);
-        f={codice:r.codice,descr:r.descr||r.codice,tipo,giacenza:0,scortaMin:0,forn:"Stanley Black & Decker",costo:r.costo,...(r.listino?{prezzoNetto:r.listino,prezzo:ivato,prezzoFonte:"listino SBD (fatture)"}:{}),...(r.ean?{ean:r.ean}:{}),acq12:r.q12,costoAt:Date.now()};
+        f={codice:r.codice,descr:r.descr||r.codice,tipo,giacenza:0,scortaMin:0,forn:"Stanley Black & Decker",costo:r.costo,...(r.listino?{prezzoNetto:r.listino,prezzo:ivato,prezzoFonte:"listino al pubblico (Danea/SBD)"}:{}),...(r.ean?{ean:r.ean}:{}),acq12:r.q12,costoAt:Date.now()};
         if(tipo==="vendita") f.cat="Altro"; nu++;
       } else { f={};
         if(r.costo!==Number(cur.costo)) f.costo=r.costo; f.costoAt=Date.now();
         if(r.ean&&!String(cur.ean||"").includes(r.ean)) f.ean=cur.ean?cur.ean+" "+r.ean:r.ean;
-        if(r.listino&&!Number(cur.prezzo)&&!Number(cur.prezzoNetto)){ f.prezzoNetto=r.listino; f.prezzo=ivato; f.prezzoFonte="listino SBD (fatture)"; }
+        const daNoi=cur.prezzoFonte==="listino SBD (fatture)"||cur.prezzoFonte==="listino al pubblico (Danea/SBD)";
+        if(r.listino&&(daNoi||(!Number(cur.prezzo)&&!Number(cur.prezzoNetto)))){ if(Number(cur.prezzoNetto)!==r.listino){ f.prezzoNetto=r.listino; f.prezzo=ivato; } f.prezzoFonte="listino al pubblico (Danea/SBD)"; }
+        else if(!r.listino&&daNoi){ f.prezzoNetto=0; f.prezzo=0; f.prezzoFonte=""; }
         if(!cur.forn) f.forn="Stanley Black & Decker"; if(r.q12) f.acq12=r.q12; }
       (by[chunkOf(r.codice)]=by[chunkOf(r.codice)]||{})[keyOf(r.codice)]=f; n++; }
     const b=$("#sbOk"); b.disabled=true; $("#sbProg").style.display="block";
     const ok=await write(async()=>{ await writeChunks(by,(a,t)=>{ $("#sbProg i").style.width=(a/t*100)+"%"; b.textContent=`Carico ${a}/${t}…`; }); await S.db.doc("config/impostazioni").set({...S.cfg,sbdAt:Date.now()}); },`${nf(n)} codici caricati (${nf(nu)} nuovi)`);
     if(ok) closeModal(); else { b.disabled=false; b.textContent="Carica"; } };
+}
+
+/* ---------- CONTROLLO DATI (20/11): verifica completa dopo trasferimento e caricamenti ---------- */
+async function openControllo(){
+  openModal(`<div class="mh"><h2>Controllo dati</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb" id="ckB"><div class="empty">Controllo in corso…</div></div>
+  <div class="mf"><button class="btn" id="ckCsv">${ic("down")}Scarica elenco da sistemare</button><button class="btn pri" data-close>Chiudi</button></div>`);
+  let utenti=S.utenti; if(!utenti&&window.SEMI&&SEMI.io&&SEMI.io.ruolo==="admin"){ try{ utenti=(await SEMI.req("utenti")).utenti; }catch(e){} }
+  const R=[], csv=[["Controllo","Codice / scheda","Descrizione","Dettaglio"]];
+  const add=(st,t,d,lista)=>{ R.push({st,t,d,n:lista?lista.length:null}); (lista||[]).forEach(x=>csv.push([t,...x])); };
+  const I=[...S.mag.values()], ric=I.filter(r=>r.tipo==="ricambio"), ven=I.filter(r=>r.tipo==="vendita");
+  add(I.length>5000?"ok":"warn","Articoli in archivio",`${nf(I.length)} articoli: ${nf(ric.length)} ricambi, ${nf(ven.length)} prodotti in vendita${I.length>5000?"":" — sembrano pochi: il trasferimento o il file SBD forse non sono entrati tutti"}`);
+  const conG=I.filter(r=>(Number(r.giacenza)||0)>0), valore=conG.reduce((a,r)=>a+(Number(r.giacenza)||0)*(Number(r.costo)||0),0);
+  add("ok","Valore del magazzino",`${nf(conG.length)} articoli con giacenza · valore a costo ${eur(valore)}`);
+  const noCosto=conG.filter(r=>!Number(r.costo)); add(noCosto.length?"warn":"ok","Articoli con giacenza ma senza costo d'acquisto",noCosto.length?`${nf(noCosto.length)} articoli: il valore del magazzino è più basso del vero`:"tutti hanno il costo",noCosto.map(r=>[r.codice,r.descr,"giacenza "+r.giacenza]));
+  const noPrezzo=I.filter(r=>!Number(r.prezzo)&&!Number(r.prezzoNetto)&&!(r.prezzoSito>0)); add(noPrezzo.length?"warn":"ok","Articoli senza prezzo di vendita",noPrezzo.length?`${nf(noPrezzo.length)} (di cui ${nf(noPrezzo.filter(r=>(Number(r.giacenza)||0)>0).length)} con giacenza)`:"tutti hanno un prezzo",noPrezzo.sort((a,b)=>(Number(b.giacenza)||0)-(Number(a.giacenza)||0)).map(r=>[r.codice,r.descr,"giacenza "+(r.giacenza||0)]));
+  const sottoCosto=I.filter(r=>{ const c=Number(r.costo)||0, pv=Number(r.prezzoSito)>0?Number(r.prezzoSito):Number(r.prezzo)||0; return c>0&&pv>0&&pv/1.22<c; });
+  add(sottoCosto.length?"bad":"ok","Venduti sotto costo (prezzo senza IVA minore del costo)",sottoCosto.length?`${nf(sottoCosto.length)} articoli`:"nessuno",sottoCosto.map(r=>{ const pv=Number(r.prezzoSito)>0?Number(r.prezzoSito):Number(r.prezzo); return [r.codice,r.descr,`costo ${eur(r.costo)} · prezzo ${eur(pv)} IVA incl.`]; }));
+  const ver=I.filter(r=>r.verificare); add(ver.length?"warn":"ok","Da contare (giacenza dubbia nel vecchio gestionale)",ver.length?`${nf(ver.length)} articoli: contali con “Conto la merce”`:"nessuno",ver.map(r=>[r.codice,r.descr,"nel gestionale "+(r.giacGest??"")]));
+  const neg=I.filter(r=>(Number(r.giacenza)||0)<0); add(neg.length?"bad":"ok","Giacenze negative",neg.length?`${nf(neg.length)} articoli`:"nessuna",neg.map(r=>[r.codice,r.descr,"giacenza "+r.giacenza]));
+  const sost=I.filter(r=>r.sostDa&&!itm(r.sostDa)); add(sost.length?"warn":"ok","Codici sostituiti da un codice che non c'è in archivio",sost.length?`${nf(sost.length)}`:"nessuno",sost.map(r=>[r.codice,r.descr,"sostituito da "+r.sostDa]));
+  const eanMap=new Map(); I.forEach(r=>String(r.ean||"").split(/[ ,;]+/).filter(Boolean).forEach(e=>{ (eanMap.get(e)||eanMap.set(e,[]).get(e)).push(r.codice); })); Object.entries(S.ean||{}).forEach(([e,c])=>{ const l=eanMap.get(e)||eanMap.set(e,[]).get(e); if(!l.includes(c)) l.push(c); });
+  const eanDup=[...eanMap.entries()].filter(([,l])=>l.length>1); const conEan=I.filter(r=>r.ean).length;
+  add(eanDup.length?"warn":"ok","Codici a barre",`${nf(conEan)} articoli con EAN${eanDup.length?` · ${nf(eanDup.length)} codici a barre su più articoli`:""}`,eanDup.map(([e,l])=>[l.join(" / "),"",`EAN ${e}`]));
+  const pubNo=ven.filter(r=>r.pubblica&&!(Number(r.prezzo)||Number(r.prezzoSito))); add(pubNo.length?"bad":"ok","Prodotti pubblicati sul sito senza prezzo",pubNo.length?`${nf(pubNo.length)}`:"nessuno",pubNo.map(r=>[r.codice,r.descr,""]));
+  const pubFoto=ven.filter(r=>r.pubblica&&!r.foto&&!r.fotoUrl); add(pubFoto.length?"warn":"ok","Prodotti pubblicati senza foto",pubFoto.length?`${nf(pubFoto.length)}`:"nessuno",pubFoto.map(r=>[r.codice,r.descr,""]));
+  const dav=I.filter(r=>r.daInviare); add(dav.length?"warn":"ok","Cambi non ancora inviati a sito e negozi",dav.length?`${nf(dav.length)}: premi “Aggiorna sito e negozi”`:"tutto inviato");
+  // blocchi archivio
+  let maxCh=0, maxId=""; for(const ch of S.magChunks||[]){ const items={}; I.forEach(r=>{ if(chunkOf(r.codice)===ch) items[keyOf(r.codice)]=r; }); const l=JSON.stringify(items).length; if(l>maxCh){ maxCh=l; maxId=ch; } }
+  add(maxCh>1.4e6?"bad":"ok","Spazio dell'archivio magazzino",`blocco più grande ${(maxCh/1e6).toFixed(2)} MB su 1,8 MB`);
+  // schede
+  const T=S.tickets, nums=new Map(); T.forEach(t=>{ if(t.num) nums.set(t.num,(nums.get(t.num)||0)+1); });
+  const dupN=[...nums.entries()].filter(([,n])=>n>1), senzaN=T.filter(t=>!t.num), aperte=T.filter(t=>APERTI.includes(t.stato)), ferme=aperte.filter(t=>days(t.createdAt)>14);
+  add(dupN.length||senzaN.length?"bad":"ok","Schede di assistenza",`${nf(T.length)} schede, ${nf(aperte.length)} aperte${dupN.length?` · ${dupN.length} numeri doppi`:""}${senzaN.length?` · ${senzaN.length} senza numero`:""}`,[...dupN.map(([n,c])=>[n,"","numero usato "+c+" volte"]),...senzaN.map(t=>["(senza numero)",t.cliente||"",t.modello||""])]);
+  add(ferme.length?"warn":"ok","Schede ferme da più di 14 giorni",ferme.length?`${nf(ferme.length)}`:"nessuna",ferme.map(t=>[t.num,t.cliente||"",`${t.stato} da ${days(t.createdAt)} giorni`]));
+  const pronteNo=T.filter(t=>t.stato==="Pronto"&&!t.avvisatoAt); add(pronteNo.length?"warn":"ok","Utensili pronti con cliente non avvisato",pronteNo.length?`${nf(pronteNo.length)}`:"nessuno",pronteNo.map(t=>[t.num,t.cliente||"",t.tel||"senza telefono"]));
+  // clienti
+  const C=[...S.clienti.values()]; add(C.length>1000?"ok":"warn","Clienti in archivio",`${nf(C.length)} clienti, ${nf(C.filter(c=>c.origine==="danea").length)} da Danea, ${nf(C.filter(c=>scontoNum(c.sconto)).length)} con sconto${C.length>1000?"":" — carica Clienti_Danea_SEMI.xlsx da Impostazioni → Clienti"}`);
+  // impostazioni
+  const tec=S.cfg.tecnici||[]; add(tec.some(x=>/^Tecnico \d$/.test(x))||!tec.length?"warn":"ok","Tecnici nelle impostazioni",tec.length?tec.join(", ")+(tec.some(x=>/^Tecnico \d$/.test(x))?" — metti i nomi veri (es. Francesco, Gianluigi, Mario)":""):"nessun tecnico");
+  add(S.cfg.sapId?"ok":"warn","Codice cliente DEWALT (SAP)",S.cfg.sapId||"mancante: serve per il file garanzie (è 1051657)");
+  add(S.cfg.bollino?"ok":"warn","Formato bollino",S.cfg.bollino?(BOLLINI[S.cfg.bollino]||[S.cfg.bollino])[0]:"non scelto (uso 62 × 29 mm): controlla la misura delle etichette e premi Salva impostazioni");
+  // utenti
+  if(utenti){ const mai=utenti.filter(u=>u.attivo&&!u.ultimo); const adm=utenti.filter(u=>u.ruolo==="admin"&&u.attivo);
+    add(mai.length?"warn":"ok","Persone che non sono ancora entrate",mai.length?mai.map(u=>u.nome).join(", "):"tutti entrati");
+    const senzaRec=adm.filter(u=>!u.recupero&&/^(info|amministrazione|ordini|assistenza)@semistore\.it$/.test(u.email)); add(senzaRec.length?"bad":"ok","Accesso dell'amministratore",senzaRec.length?`${senzaRec.map(u=>u.nome).join(", ")} usa una casella che si legge solo nell'app: aggiungi l'email di recupero in Utenti`:"ok, c'è un modo per rientrare"); }
+  const ico={ok:"✅",warn:"⚠️",bad:"⛔"}, ord={bad:0,warn:1,ok:2};
+  R.sort((a,b)=>ord[a.st]-ord[b.st]);
+  $("#ckB").innerHTML=`<p class="sub" style="margin-top:0">${R.filter(r=>r.st==="bad").length} da sistemare subito · ${R.filter(r=>r.st==="warn").length} da controllare · ${R.filter(r=>r.st==="ok").length} a posto</p>`+R.map(r=>`<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)"><span style="font-size:20px">${ico[r.st]}</span><div><b>${esc(r.t)}</b><div class="sub">${esc(r.d)}</div></div></div>`).join("");
+  $("#ckCsv").onclick=()=>{ const t=csv.map(r=>r.map(csvCell).join(";")).join("\n"); const b=new Blob(["\ufeff"+t],{type:"text/csv;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="controllo-dati-"+new Date().toISOString().slice(0,10)+".csv"; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),1000); };
 }
 
 /* ---------- modal ---------- */
