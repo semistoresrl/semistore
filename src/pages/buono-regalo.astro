@@ -95,6 +95,9 @@ const TEMI = { natale: ['#b3261e', '🎄'], compleanno: ['#7b3fe4', '🎉'], gra
     $('c-per').innerHTML = regalo ? `Per <b>${esc(per || '…')}</b>${da ? ` · da <b>${esc(da)}</b>` : ''}` : 'Per me';
     const m = val('messaggio').trim(); $('c-msg').hidden = !regalo || !m; $('c-msg').textContent = m;
   }
+  // importo scelto dalla home (/buono-regalo/?importo=100)
+  const imp = new URL(location.href).searchParams.get('importo');
+  if (imp) { const r = f.querySelector<HTMLInputElement>(`input[name=importo][value="${CSS.escape(imp)}"]`); if (r) r.checked = true; else { (f.querySelector('input[name=importo][value=altro]') as HTMLInputElement).checked = true; (f.elements.namedItem('altro') as HTMLInputElement).value = imp; } }
   f.addEventListener('input', aggiorna); f.addEventListener('change', aggiorna); aggiorna();
   f.addEventListener('submit', async (e) => {
     e.preventDefault();

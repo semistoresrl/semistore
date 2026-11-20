@@ -5,7 +5,7 @@ import { movimento } from '../_lib/db.js';
 import { configurato } from '../_lib/tiktok.js';
 import { sincronizza } from '../_lib/sincronizza.js';
 import { dbc, aggiungiPunti, email as inviaEmail, cornice, bottone, linkAccesso } from '../_lib/clienti.js';
-import { dbb, crea as creaBuono, conferma as confermaBuoni } from '../_lib/buoni.js';
+import { dbb, crea as creaBuono, conferma as confermaBuoni, ripristina as ripristinaBuoni, annullaRimborsato } from '../_lib/buoni.js';
 import { calcolaPunti } from '../../src/lib/punti.js';
 import { SITO } from '../../src/data/sito.js';
 
@@ -24,7 +24,19 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (!(await verifica(env.STRIPE_WEBHOOK_SECRET, corpo, request.headers.get('stripe-signature')))) return new Response('firma non valida', { status: 400 });
   const ev = JSON.parse(corpo);
   // rimborso (anche parziale) o recesso: si tolgono i punti in proporzione. Evento da attivare in Stripe: charge.refunded
-  if (ev.type === 'charge.refunded') { try { await togliPunti(env, ev.data.object); } catch (e) { console.error('rimborso', e); } return new Response('ok'); }
+  // rimborso (anche parziale): toglie i punti, restituisce ai buoni usati la quota rimborsata, annulla i buoni regalo rimborsati
+  if (ev.type === 'charge.refunded') {
+    const ch = ev.data.object;
+    try {
+      const b = ch.payment_intent && await annullaRimborsato(env, ch.payment_intent, Number(ch.amount_refunded || 0));
+      if (!b) {
+        await togliPunti(env, ch);
+        const o = ch.payment_intent && await (await dbc(env)).prepare('SELECT sessione FROM ordini WHERE pi=?').bind(ch.payment_intent).first();
+        if (o && ch.amount) await ripristinaBuoni(env, o.sessione, Number(ch.amount_refunded || 0) / Number(ch.amount));
+      }
+    } catch (e) { console.error('rimborso', e); }
+    return new Response('ok');
+  }
   if (ev.type !== 'checkout.session.completed' || !['paid', 'no_payment_required'].includes(ev.data?.object?.payment_status)) return new Response('ok');
   const sid = ev.data.object.id;
   if (ev.data.object.metadata?.tipo === 'buono_regalo') {
@@ -113,7 +125,7 @@ async function buonoRegalo(env, o, origin) {
   if (!cl && email && !regalo) cl = await clienti.prepare('SELECT * FROM clienti WHERE email=?').bind(email).first();
   const { codice } = await creaBuono(env, {
     tipo: 'regalo', importo, cliente: regalo ? null : cl?.id || null, acquirente: email,
-    destinatario: md.destinatario || null, emailDest: md.emailDest || null, messaggio: md.messaggio || null, tema: md.tema || null, mittente: md.mittente || null, sessione: o.id,
+    destinatario: md.destinatario || null, emailDest: md.emailDest || null, messaggio: md.messaggio || null, tema: md.tema || null, mittente: md.mittente || null, sessione: o.id, pi: o.payment_intent || null,
   });
   const eur = (c) => (c / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
   const esc = (t) => String(t || '').replace(/[<>&]/g, '');

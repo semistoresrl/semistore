@@ -89,6 +89,7 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
           <button class="btn">Aggiungi</button>
           <p class="acc-err" role="alert" hidden></p>
         </form>
+        <div data-acquistati></div>
         <div data-converti></div>
         <p class="acc-note"><a class="ul" href="/buono-regalo/">🎁 Regala un buono a un amico o a un parente</a></p>
       </div>
@@ -238,6 +239,8 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
     const j = await (await fetch('/api/buoni/miei', { cache: 'no-store' })).json().catch(() => ({ buoni: [] }));
     const l = j.buoni || [];
     $('[data-buoni]').innerHTML = l.length ? `<ul class="acc-bu">${l.map((b: any) => `<li class="${b.disponibile > 0 ? '' : 'off'}"><span class="bu-t ${b.soloPremi ? 'p' : 'r'}">${b.soloPremi ? 'Buono punti' : 'Buono regalo'}</span><span class="mono">…${esc(b.fine)}</span><b>${eur(b.disponibile)}</b><small>${b.disponibile > 0 ? (b.soloPremi ? 'sui prodotti del Catalogo Premi' : 'su tutto il sito') : 'speso'}${b.importo !== b.disponibile && b.disponibile > 0 ? ` · su ${eur(b.importo)}` : ''}</small></li>`).join('')}</ul><p class="acc-note">Si applicano da soli nel carrello. Nessuna scadenza.</p>` : '<p>Nessun buono per ora.</p>';
+    const ac = j.acquistati || [];
+    $('[data-acquistati]').innerHTML = ac.length ? `<h3>Buoni regalo che hai comprato</h3><ul class="acc-bu">${ac.map((b: any) => `<li class="${b.stato === 'annullato' ? 'off' : ''}"><span class="bu-t r">${b.destinatario ? 'Per ' + esc(b.destinatario) : 'Per te'}</span><span class="mono">…${esc(b.fine)}</span><b>${eur(b.importo)}</b><small>${b.stato === 'annullato' ? 'rimborsato' : b.disponibile < b.importo ? `usato in parte · restano ${eur(b.disponibile)}` : 'non ancora usato'} · ${data(b.creato)}${b.rimborsabile ? ` · <button type="button" class="lnk" data-rimb="${b.id}">Recesso: rimborsa</button>` : ''}</small></li>`).join('')}</ul>` : '';
     const aperto = Date.now() >= new Date(PX.catalogo + 'T00:00:00+01:00').getTime();
     const saldo = me.punti.saldo || 0;
     $('[data-converti]').innerHTML = `<h3>Converti i punti in buoni</h3>${aperto ? '' : `<p class="acc-note">Dal <b>25 dicembre</b> con il Catalogo Premi 2027. Intanto accumula: più punti converti insieme, più valgono.</p>`}
@@ -252,6 +255,15 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
     const j = await r.json();
     if (!r.ok) { alert(j.error || 'Errore'); t.disabled = false; return; }
     await carica();
+  });
+  $('[data-acquistati]').addEventListener('click', async (e) => {
+    const t = (e.target as HTMLElement).closest('[data-rimb]') as HTMLButtonElement; if (!t) return;
+    if (!confirm('Vuoi annullare questo buono e ricevere il rimborso sul metodo di pagamento usato? Il codice non sarà più valido.')) return;
+    t.disabled = true;
+    const r = await fetch('/api/buoni/rimborso', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: t.dataset.rimb }) });
+    const j = await r.json();
+    alert(r.ok ? 'Rimborso avviato: arriva in 5–10 giorni lavorativi. Ti abbiamo mandato una conferma via email.' : (j.error || 'Errore'));
+    await mostraBuoni();
   });
   const fa = $<HTMLFormElement>('[data-f="aggiungi"]');
   fa.addEventListener('submit', async (e) => {
@@ -307,6 +319,8 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
   .liv-b{height:10px;border-radius:5px;background:#0000000f;margin:12px 0 8px;overflow:hidden}.liv-b i{display:block;height:100%;background:var(--y)}
   .acc-bu{list-style:none;margin:0 0 6px;padding:0;display:grid;gap:8px}.acc-bu li{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:4px 10px;border-top:1px solid var(--line);padding-top:8px}
   .acc-bu li b{justify-self:end}.acc-bu li small{grid-column:1/-1;color:var(--mut)}.acc-bu li.off{opacity:.5}
+  .lnk{border:0;background:none;padding:0;color:#b3261e;text-decoration:underline;cursor:pointer;font:inherit}
+  [data-acquistati] h3{font-size:16px;margin:16px 0 6px}
   .bu-t{font-size:12px;font-weight:800;border-radius:6px;padding:2px 8px}.bu-t.r{background:#e8f5ec;color:#1d6b35}.bu-t.p{background:#fff4c7}
   .acc-add{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin:14px 0}.acc-add .field{flex:1;min-width:220px}.acc-add .acc-err{flex-basis:100%}
   [data-converti] h3{font-size:16px;margin:16px 0 6px}.conv{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}

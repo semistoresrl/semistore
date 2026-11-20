@@ -36,9 +36,6 @@ const g = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('it-IT', {
     <p class="pt-box">Il catalogo sarà pubblicato qui il <b>{g(P.catalogo)}</b>, con i prodotti su cui usare i buoni punti. Più punti converti insieme, più vale il buono:</p>
     <div class="pt-conv">{P.buoni.map((c) => <div class="card"><b>{c.euro} €</b><span>{c.punti.toLocaleString('it-IT')} punti</span></div>)}</div>
 
-    <h2 id="regalo">Buoni regalo</h2>
-    <p>Vuoi fare un regalo? I <a class="ul" href="/buono-regalo/">buoni regalo Semi Store</a> valgono su tutto il sito, senza scadenza, e arrivano subito per email con un codice segreto.</p>
-
     <h2 id="regolamento">Regolamento del programma fedeltà "{P.nome}"</h2>
     <p class="pt-agg">Versione del 20 novembre 2026</p>
     <ol class="pt-reg">

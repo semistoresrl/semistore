@@ -4,6 +4,7 @@
 // GET  /api/buoni/miei                → buoni dell'account
 // POST /api/buoni/aggiungi {codice}   → collega un buono all'account (poi si usa senza riscrivere il codice)
 // POST /api/buoni/converti {punti}    → converte i punti in un buono (dal giorno del catalogo premi)
+// POST /api/buoni/rimborso {id}        → recesso: rimborso automatico di un buono regalo comprato da te, entro 14 giorni e mai usato
 import { cliente as clienteDi, json, EMAIL_OK, normEmail, aggiungiPunti, email as inviaEmail, cornice } from '../../_lib/clienti.js';
 import { dbb, perCodice, disponibile, pubblico, crea } from '../../_lib/buoni.js';
 import { SITO } from '../../../src/data/sito.js';
@@ -21,6 +22,7 @@ export async function onRequest(ctx) {
     if (via === 'miei' && m === 'GET') return await miei(ctx);
     if (via === 'aggiungi' && m === 'POST') return await aggiungi(ctx);
     if (via === 'converti' && m === 'POST') return await converti(ctx);
+    if (via === 'rimborso' && m === 'POST') return await rimborso(ctx);
   } catch (e) { console.error('buoni', e); return json({ error: 'Errore momentaneo, riprova tra poco.' }, 500); }
   return json({ error: 'non trovato' }, 404);
 }
@@ -91,7 +93,14 @@ async function miei({ request, env }) {
   const l = (await d.prepare("SELECT * FROM buoni WHERE cliente=? AND stato<>'annullato' ORDER BY creato DESC").bind(cl.id).all()).results;
   const out = [];
   for (const b of l) out.push(pubblico(b, await disponibile(env, b)));
-  return json({ buoni: out });
+  // buoni regalo comprati da questo account (anche se regalati): stato e rimborso entro 14 giorni se mai usati
+  const acq = (await d.prepare("SELECT * FROM buoni WHERE tipo='regalo' AND acquirente=? ORDER BY creato DESC LIMIT 30").bind(cl.email).all()).results;
+  const acquistati = [];
+  for (const b of acq) {
+    const disp = await disponibile(env, b);
+    acquistati.push({ ...pubblico(b, disp), rimborsabile: rimborsabile(b, disp) });
+  }
+  return json({ buoni: out, acquistati });
 }
 
 async function aggiungi({ request, env }) {
@@ -127,4 +136,39 @@ async function converti({ request, env }) {
     testo: `Buono punti da ${t.euro} €: ${codice}\nGià nel tuo account, si applica da solo nel carrello sui prodotti del Catalogo Premi. Senza scadenza. Codice segreto: non condividerlo.`,
   });
   return json({ ok: true, buono: { id, fine: codice.slice(-4), importo: t.euro * 100 } });
+}
+
+const GG_RECESSO = 14;
+const rimborsabile = (b, disp) => b.tipo === 'regalo' && b.stato === 'attivo' && !!b.pi && b.saldo === b.importo && disp === b.importo
+  && Date.now() - new Date(b.creato).getTime() <= GG_RECESSO * 86400e3;
+
+async function rimborso({ request, env }) {
+  const cl = await clienteDi(request, env);
+  if (!cl) return json({ error: 'Entra nel tuo account.' }, 401);
+  let q; try { q = await request.json(); } catch { return json({ error: 'richiesta non valida' }, 400); }
+  const d = await dbb(env);
+  const b = await d.prepare("SELECT * FROM buoni WHERE id=? AND tipo='regalo' AND acquirente=?").bind(String(q.id || ''), cl.email).first();
+  if (!b) return json({ error: 'Buono non trovato tra quelli che hai acquistato.' }, 404);
+  if (!rimborsabile(b, await disponibile(env, b))) return json({ error: 'Il rimborso automatico vale entro 14 giorni dall\'acquisto e solo se il buono non è mai stato usato. Per altri casi scrivici.' }, 409);
+  // prima blocco il buono (così nessuno può spenderlo mentre rimborso), poi chiedo il rimborso a Stripe
+  const blocco = await d.prepare("UPDATE buoni SET stato='annullato' WHERE id=? AND stato='attivo' AND saldo=importo").bind(b.id).run();
+  if (!blocco.meta.changes) return json({ error: 'Riprova tra un attimo.' }, 409);
+  const f = new URLSearchParams({ payment_intent: b.pi, reason: 'requested_by_customer' });
+  f.set('metadata[motivo]', 'Recesso buono regalo dal sito');
+  const r = await fetch('https://api.stripe.com/v1/refunds', { method: 'POST', headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'content-type': 'application/x-www-form-urlencoded', 'idempotency-key': 'rimb-' + b.id }, body: f });
+  const j = await r.json();
+  if (!r.ok) {
+    await d.prepare("UPDATE buoni SET stato='attivo' WHERE id=?").bind(b.id).run();
+    console.error('Stripe rimborso', j.error?.message);
+    return json({ error: 'Il rimborso automatico non è riuscito: scrivici a ' + SITO.email + ' e lo facciamo noi.' }, 502);
+  }
+  await d.prepare("UPDATE buoni SET saldo=0 WHERE id=?").bind(b.id).run();
+  await d.prepare('INSERT OR IGNORE INTO buoni_mov(id,buono,delta,motivo,quando) VALUES(?,?,?,?,?)').bind(`rimbb:${b.id}:${b.importo}`, b.id, -b.importo, 'Recesso: buono rimborsato', new Date().toISOString()).run();
+  const eu = eur(b.importo);
+  await inviaEmail(env, { a: cl.email, da: env.EMAIL_FROM || 'Semi Store <info@semistore.it>', oggetto: `Rimborso del buono regalo da ${eu}`,
+    html: cornice('Rimborso avviato', `<p style="margin:0">Abbiamo annullato il buono …${b.fine} e avviato il rimborso di <b>${eu}</b> sullo stesso metodo di pagamento. Di solito arriva in 5–10 giorni lavorativi.</p>`),
+    testo: `Abbiamo annullato il buono …${b.fine} e avviato il rimborso di ${eu} sullo stesso metodo di pagamento (5–10 giorni lavorativi).` });
+  await inviaEmail(env, { a: (env.EMAIL_TO || SITO.email).split(','), da: env.EMAIL_FROM || 'Semi Store <info@semistore.it>', oggetto: `Recesso buono regalo ${eu}`,
+    testo: `Il cliente ${cl.email} ha esercitato il recesso sul buono regalo …${b.fine} (${eu}). Buono annullato e rimborso Stripe avviato in automatico (${j.id}).` });
+  return json({ ok: true });
 }
