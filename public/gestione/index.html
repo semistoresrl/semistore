@@ -3560,8 +3560,8 @@ function vTikTok(){
   const prob=d.prodotti.filter(p=>p.problema), ok=d.prodotti.filter(p=>!p.problema);
   const scad=o=>{ if(!o.scadenza) return ""; const h=(o.scadenza*1000-Date.now())/3600e3; return h<0?`<b class="low">in ritardo</b>`:h<24?`<b class="low">entro ${Math.max(1,Math.round(h))} ore</b>`:`entro il ${ttData(o.scadenza)}`; };
   const pRow=p=>`<tr><td><b>${esc(p.titolo)}</b>${p.avvisi.length?`<div class="sub" style="color:var(--bad)">${p.avvisi.map(esc).join("<br>")}</div>`:""}</td>
-    <td class="mono">${p.sku?esc(p.sku):`<span class="low">manca</span>`}</td><td>${esc(p.statoNome)}</td><td class="num">${nf(p.scorte)}</td><td class="num">${p.prezzo?ttE(p.prezzo):"—"}</td><td class="num">${nf(p.venduti)}</td></tr>`;
-  const pTab=l=>`<table><thead><tr><th>Prodotto</th><th>SKU venditore</th><th>Stato</th><th class="num">Scorte</th><th class="num">Prezzo</th><th class="num">Venduti</th></tr></thead><tbody>${l.map(pRow).join("")}</tbody></table>`;
+    <td class="mono">${p.sku?esc(p.sku):`<span class="low">manca</span>`}</td><td>${p.magazzino?`<span class="mono">${esc(p.magazzino.codice||p.magazzino.slug)}</span><div class="sub">${nf(p.magazzino.qty)} pz sul sito</div>`:`<span class="low">non collegato</span>`}</td><td>${esc(p.statoNome)}</td><td class="num">${nf(p.scorte)}</td><td class="num">${p.prezzo?ttE(p.prezzo):"—"}</td><td class="num">${nf(p.venduti)}</td></tr>`;
+  const pTab=l=>`<table><thead><tr><th>Prodotto</th><th>SKU venditore</th><th>Magazzino</th><th>Stato</th><th class="num">Scorte</th><th class="num">Prezzo</th><th class="num">Venduti</th></tr></thead><tbody>${l.map(pRow).join("")}</tbody></table>`;
   return header("TikTok Shop",`Ordini aggiornati ${ttFa(d.aggiornato.ordini)} · prodotti ${ttFa(d.aggiornato.prodotti)}`,
     `<a class="btn" href="${TT_SELLER}" target="_blank" rel="noopener">${ic("ext")}Seller Center</a><button class="btn pri" data-act="ttAgg" ${TT.lavoro?"disabled":""}>${ic("swap")}${TT.lavoro?"Aggiorno…":"Aggiorna da TikTok"}</button>`)+
   (TT.msg?`<div class="banner">${esc(TT.msg)}</div>`:"")+(TT.err?`<div class="banner err">${esc(TT.err)}</div>`:"")+

@@ -7,6 +7,30 @@ import { chiama } from './tiktok.js';
 const INIZIO = Math.floor(Date.UTC(2026, 6, 1) / 1000); // 01/07/2026: il primo ordine è del 13/07
 const cent = (v) => Math.round((Number(v) || 0) * 100);
 
+// Collega un articolo TikTok alla riga del magazzino del sito (tabella giacenze), così una vendita TikTok scala la giacenza.
+// Ordine: id SKU TikTok già collegato → id prodotto → codice uguale (maiuscole, spazi, trattini e suffisso -QW/-QZ/-XJ ignorati) → slug.
+const normCod = (c) => String(c || '').toUpperCase().trim().replace(/-(QW|QZ|XJ|GB|LX|XE|KR)$/, '').replace(/[^A-Z0-9]/g, '');
+export async function indiceGiacenze(d) {
+  const righe = (await d.prepare("SELECT slug, codice, qty, tt_product, tt_sku, json_extract(dati,'$.modello') modello FROM giacenze").all()).results;
+  const perSku = new Map(), perProd = new Map(), perCod = new Map(), perSlug = new Map();
+  for (const r of righe) {
+    if (r.tt_sku) perSku.set(String(r.tt_sku), r);
+    if (r.tt_product) perProd.set(String(r.tt_product), r);
+    for (const c of [r.codice, r.modello]) { const k = normCod(c); if (k && !perCod.has(k)) perCod.set(k, r); }
+    perSlug.set(r.slug, r);
+  }
+  return ({ skuId, prodId, sellerSku }) => {
+    if (skuId && perSku.has(String(skuId))) return { r: perSku.get(String(skuId)), come: 'collegamento TikTok' };
+    if (prodId && perProd.has(String(prodId))) return { r: perProd.get(String(prodId)), come: 'collegamento TikTok' };
+    for (const sku of String(sellerSku || '').split(',')) {
+      const k = normCod(sku);
+      if (k && perCod.has(k)) return { r: perCod.get(k), come: 'codice' };
+      if (perSlug.has(sku.trim())) return { r: perSlug.get(sku.trim()), come: 'slug' };
+    }
+    return null;
+  };
+}
+
 let pronto = false;
 export async function tdb(env) {
   const d = await db(env);
@@ -117,12 +141,16 @@ export async function riepilogo(env) {
   const daSpedire = ord.filter((o) => ['AWAITING_SHIPMENT', 'PARTIALLY_SHIPPING'].includes(o.stato))
     .sort((a, b) => (a.scadenza || a.creato) - (b.scadenza || b.creato))
     .map((o) => ({ id: o.id, creato: o.creato, scadenza: o.scadenza, totale: o.totale, stato: NOMI_STATO[o.stato] || o.stato, articoli: o.articoli.map((a) => ({ nome: a.n, sku: a.sku, q: a.q })) }));
+  const trova = await indiceGiacenze(d).catch(() => () => null);
   const prodotti = prod.filter((p) => p.stato !== 'DELETED').map((p) => {
     const v = venduti[p.id];
     const avvisi = [...p.problemi];
     if (!p.sku) avvisi.push('Manca lo SKU venditore (codice prodotto)');
+    const g = trova({ prodId: p.id, sellerSku: p.sku });
+    if (!g && p.stato === 'ACTIVATE') avvisi.push('Non collegato al magazzino del sito: le vendite TikTok non scalano la giacenza (lo SKU deve essere uguale al codice del magazzino)');
     return { id: p.id, titolo: p.titolo, stato: p.stato, statoNome: NOMI_PROD[p.stato] || p.stato, sku: p.sku, scorte: p.scorte, prezzo: p.prezzo,
-      venduti: v?.pezzi || 0, avvisi, problema: !['ACTIVATE', 'SELLER_DEACTIVATED', 'DRAFT'].includes(p.stato) || !p.sku };
+      venduti: v?.pezzi || 0, avvisi, magazzino: g ? { slug: g.r.slug, codice: g.r.codice, qty: g.r.qty, come: g.come } : null,
+      problema: !['ACTIVATE', 'SELLER_DEACTIVATED', 'DRAFT'].includes(p.stato) || !p.sku || (!g && p.stato === 'ACTIVATE') };
   }).sort((a, b) => (b.problema - a.problema) || (b.venduti - a.venduti) || a.titolo.localeCompare(b.titolo));
   const s = (await getImp(env, 'tiktok_dati')) || {};
   return {
