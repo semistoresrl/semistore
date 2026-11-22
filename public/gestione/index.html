@@ -889,7 +889,7 @@ function cercaCli(q,n=6){
 }
 const cliTrova=(tel,piva)=>{ const tk=telKey(tel), pk=soloCifre(piva).length>=11?soloCifre(piva):""; if(!tk&&!pk) return null;
   for(const c of S.clienti.values()){ if((tk&&(telKey(c.tel)===tk||telKey(c.cell)===tk))||(pk&&soloCifre(c.piva)===pk)) return c; } return null; };
-const cliRiga=c=>`${esc(c.nome)}<small style="display:block">${esc([c.tel||c.cell,c.citta].filter(Boolean).join(" · "))}${c.id&&scontoNum(c.sconto)?` · <b>sconto ${scontoNum(c.sconto)}%</b>`:""}${c.daSchede?" · da schede":""}</small>`;
+const cliRiga=c=>`${esc(c.nome)}<small style="display:block">${esc([c.tel||c.cell,c.citta].filter(Boolean).join(" · "))}${c.id&&scontoNum(c.sconto)?` · <b>sconto ${scontoNum(c.sconto)}%</b>`:""}${c.pagamento?" · "+esc(c.pagamento):""}${c.daSchede?" · da schede":""}</small>`;
 // salva o aggiorna il cliente in archivio partendo da una scheda (non sovrascrive i dati Danea già presenti)
 async function cliDaScheda(d){
   let c=d.cliId?S.clienti.get(d.cliId):null; if(!c) c=cliTrova(d.tel,d.piva);
@@ -903,7 +903,7 @@ async function cliDaScheda(d){
 // import anagrafica clienti da Danea (Excel o CSV esportato da Anagrafiche → Clienti)
 function openImportClienti(){
   openModal(`<div class="mh"><h2>Importa clienti da Danea</h2><span class="sp"></span><button class="x" data-close>×</button></div>
-  <div class="mb"><p style="margin-top:0">In Danea: <b>Anagrafiche → Clienti</b>, seleziona tutti, <b>Esporta → Excel</b>. Poi carica qui il file. I clienti già presenti vengono aggiornati, quelli nuovi aggiunti. Lo sconto ricambi si prende dalla colonna <b>Sconti</b>.</p>
+  <div class="mb"><p style="margin-top:0">In Danea: <b>Anagrafiche → Clienti</b>, seleziona tutti, <b>Esporta → Excel</b>. Poi carica qui il file. I clienti già presenti vengono aggiornati, quelli nuovi aggiunti. Lo sconto ricambi si prende dalla colonna <b>Sconti</b>, la modalità di pagamento dalla colonna <b>Pagamento</b>.</p>
    <label class="btn pri">${ic("up")}Scegli il file Excel o CSV<input type="file" id="icF" accept=".xlsx,.xls,.csv,.txt" style="display:none"></label>
    <div id="icRes" style="margin-top:12px"></div></div>
   <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="icGo" disabled>Importa</button></div>`);
@@ -911,8 +911,8 @@ function openImportClienti(){
   $("#icF").onchange=async e=>{ const f=e.target.files[0]; if(!f) return;
     try{ const wb=XLSX.read(await f.arrayBuffer(),{type:"array"}); const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:""});
       lista=leggiClienti(rows);
-      $("#icRes").innerHTML=lista.length?`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc"><b>${nf(lista.length)} clienti</b> letti, ${nf(lista.filter(c=>scontoNum(c.sconto)).length)} con sconto.</div>
-        <div class="sub" style="margin-top:8px">${lista.slice(0,5).map(c=>esc(c.nome)+(c.citta?" · "+esc(c.citta):"")+(scontoNum(c.sconto)?" · sconto "+scontoNum(c.sconto)+"%":"")).join("<br>")}</div>`:`<div class="banner err" style="margin:0">Non trovo le colonne dei clienti (serve almeno “Denominazione” o “Ragione sociale”).</div>`;
+      $("#icRes").innerHTML=lista.length?`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc"><b>${nf(lista.length)} clienti</b> letti, ${nf(lista.filter(c=>scontoNum(c.sconto)).length)} con sconto, ${nf(lista.filter(c=>c.pagamento).length)} con modalità di pagamento.</div>
+        <div class="sub" style="margin-top:8px">${lista.slice(0,5).map(c=>esc(c.nome)+(c.citta?" · "+esc(c.citta):"")+(scontoNum(c.sconto)?" · sconto "+scontoNum(c.sconto)+"%":"")+(c.pagamento?" · "+esc(c.pagamento):"")).join("<br>")}</div>`:`<div class="banner err" style="margin:0">Non trovo le colonne dei clienti (serve almeno “Denominazione” o “Ragione sociale”).</div>`;
       $("#icGo").disabled=!lista.length; }catch(x){ $("#icRes").innerHTML=`<div class="banner err" style="margin:0">File non leggibile</div>`; } };
   $("#icGo").onclick=async()=>{ const b=$("#icGo"); b.disabled=true; const per={};
     lista.forEach(c=>{ const id=c.cod?"D"+String(c.cod).replace(/[^\w-]/g,""):"N"+normNome(c.nome).replace(/ /g,"").slice(0,20)+soloCifre(c.tel).slice(-4); delete c.cod; c.origine="danea"; c.updatedAt=Date.now(); (per[cliChunk(id)]=per[cliChunk(id)]||{})[id]=c; });
@@ -924,7 +924,7 @@ function leggiClienti(rows){
   let hi=rows.findIndex(r=>r.some(c=>/denominaz|ragione sociale|^nome$|cognome e nome/i.test(String(c).trim()))); if(hi<0) return [];
   const H=rows[hi].map(h=>String(h).trim().toLowerCase()), col=re=>H.findIndex(h=>re.test(h));
   const c={cod:col(/^cod(\.|ice)?( cliente)?$|^cod\. ?anag|^id$/),nome:col(/denominaz|ragione sociale|^nome$|cognome e nome/),ind:col(/^indirizzo/),cap:col(/^cap$/),citta:col(/^citt|^comune|^localit/),prov:col(/^prov/),
-    piva:col(/partita ?iva|^p\.? ?iva/),cf:col(/codice fiscale|^c\.? ?f\.?$/),tel:col(/^tel/),cell:col(/^cell/),email:col(/e-?mail(?! pec)|^mail/),pec:col(/pec/),sconto:col(/^sconti?$|sconto/),listino:col(/^listino/),note:col(/^note/),referente:col(/referente/)};
+    piva:col(/partita ?iva|^p\.? ?iva/),cf:col(/codice fiscale|^c\.? ?f\.?$/),tel:col(/^tel/),cell:col(/^cell/),email:col(/e-?mail(?! pec)|^mail/),pec:col(/pec/),sconto:col(/^sconti?$|sconto/),listino:col(/^listino/),note:col(/^note/),referente:col(/referente/),pagamento:col(/^pagamento$|modalit.{0,3} ?(di )?pagament|condizion.{0,4} ?(di )?pagament|^tipo pagamento|^cond\. ?pag/)};
   const g=(r,k)=>c[k]>=0?String(r[c[k]]??"").trim():"";
   return rows.slice(hi+1).map(r=>{ const o={}; for(const k in c){ const v=g(r,k); if(v) o[k]=v; } if(o.prov) o.prov=o.prov.toUpperCase().slice(0,2); return o; }).filter(o=>o.nome&&o.nome.length>1);
 }
@@ -2590,21 +2590,22 @@ async function movOrdine(o,sign,causale){
 function ordFilt(){
   const q=S.oq.toLowerCase().trim();
   return S.ordiniWeb.filter(o=>{
-    if(S.oFilt==="aperti"&&!ORD_APERTI.includes(o.stato)) return false;
-    if(S.oFilt!=="aperti"&&S.oFilt!=="tutti"&&o.stato!==S.oFilt) return false;
+    if(S.oFilt==="dainc"){ if(o.pagato||o.stato==="Annullato") return false; }
+    else if(S.oFilt==="aperti"&&!ORD_APERTI.includes(o.stato)) return false;
+    else if(S.oFilt!=="aperti"&&S.oFilt!=="tutti"&&o.stato!==S.oFilt) return false;
     if(S.oCan&&o.canale!==S.oCan) return false;
     if(q&&![o.num,o.cliente,o.tel,o.email,o.rif,o.tracking,...(o.righe||[]).map(r=>r.codice+" "+r.descr)].join(" ").toLowerCase().includes(q)) return false;
     return true;
-  }).sort((a,b)=>(ORD_APERTI.indexOf(a.stato)<0)-(ORD_APERTI.indexOf(b.stato)<0)||(b.at||0)-(a.at||0));
+  }).sort((a,b)=>S.oFilt==="dainc"?((a.scadenza||a.at||0)-(b.scadenza||b.at||0)):((ORD_APERTI.indexOf(a.stato)<0)-(ORD_APERTI.indexOf(b.stato)<0)||(b.at||0)-(a.at||0)));
 }
 function vOrdini(){
   const all=S.ordiniWeb, cnt=s=>all.filter(o=>o.stato===s).length;
   const l=ordFilt();
-  const dacf=all.filter(o=>o.stato==="Da confermare");
+  const dacf=all.filter(o=>o.stato==="Da confermare"), dinc=all.filter(o=>!o.pagato&&o.stato!=="Annullato"), dsc=dinc.filter(scaduto);
   return header("Ordini online","Sito, TikTok Shop, WhatsApp, telefono e negozio in un'unica lista",
     `<button class="btn" data-act="impOrd">${ic("up")}Importa ordini</button><button class="btn pri edit-only" data-act="newOrd">${ic("plus")}Nuovo ordine</button>`)+
   (dacf.length?`<div class="banner">${ic("clock")} <b>${dacf.length} ${dacf.length===1?"ordine da confermare":"ordini da confermare"}</b>: sul sito i prodotti sono “su conferma”, il cliente va avvisato entro 1 giorno lavorativo (disponibile → conferma, non disponibile → rimborso).</div>`:"")+
-  `<div class="bigchips">${[["aperti","Da evadere",all.filter(o=>ORD_APERTI.includes(o.stato)).length],...ORD_STATI.map(s=>[s,s,cnt(s)]),["Annullato","Annullati",cnt("Annullato")],["tutti","Tutti",all.length]].map(([k,t,n])=>`<button class="bchip ${S.oFilt===k?"on":""}" data-of="${esc(k)}"><b>${n}</b><span>${t}</span></button>`).join("")}</div>
+  `${dsc.length?`<div class="banner err">${ic("clock")} <b>${dsc.length} ${dsc.length===1?"pagamento scaduto":"pagamenti scaduti"}</b> per ${eur(dsc.reduce((a,o)=>a+ordTot(o).tot,0))}: tocca “Da incassare”.</div>`:""}<div class="bigchips">${[["aperti","Da evadere",all.filter(o=>ORD_APERTI.includes(o.stato)).length],["dainc","Da incassare",dinc.length],...ORD_STATI.map(s=>[s,s,cnt(s)]),["Annullato","Annullati",cnt("Annullato")],["tutti","Tutti",all.length]].map(([k,t,n])=>`<button class="bchip ${S.oFilt===k?"on":""}" data-of="${esc(k)}"><b>${n}</b><span>${t}</span></button>`).join("")}</div>
   <div class="toolbar"><input type="search" id="oq" placeholder="Cerca cliente, numero ordine, codice prodotto, tracciamento…" value="${esc(S.oq)}">
    <div class="chips">${[["","Tutti i canali"],...Object.entries(CANALI)].map(([k,t])=>`<button class="chip ${S.oCan===k?"on":""}" data-oc="${k}">${t}</button>`).join("")}</div></div>
   ${l.length?`<div class="olist">${l.map(oCard).join("")}</div>`:`<div class="panel"><div class="empty">${all.length?"Nessun ordine con questi filtri":`Nessun ordine ancora.<br><span class="sub">Importa gli ordini da Stripe o TikTok Shop, oppure registra a mano un ordine arrivato su WhatsApp o per telefono.</span>`}</div></div>`}`;
@@ -2613,7 +2614,7 @@ function oCard(o){
   const t=ordTot(o), late=o.stato==="Da confermare"&&Date.now()-(o.at||0)>864e5;
   return `<div class="ocard ${late?"late":""}" data-oo="${esc(o.id)}">
    <div class="oc1">${canBadge(o.canale)}<b class="mono">${esc(o.num)}</b><span class="sub">${fmtDT(o.at)}</span><span class="sp"></span><span class="badge ${ordCls(o.stato)}">${esc(o.stato)}</span></div>
-   <div class="oc2"><div><b>${esc(o.cliente||"Cliente")}</b><div class="sub">${esc(ordArt(o))}</div></div><div class="ot">${eur(t.tot)}<div class="sub">${o.consegna==="ritiro"?"ritiro in negozio":"spedizione"}${o.pagato?" · pagato":" · <b class='low'>da pagare</b>"}</div></div></div>
+   <div class="oc2"><div><b>${esc(o.cliente||"Cliente")}</b><div class="sub">${esc(ordArt(o))}</div></div><div class="ot">${eur(t.tot)}<div class="sub">${o.consegna==="ritiro"?"ritiro in negozio":"spedizione"}${o.pagato?" · pagato":" · <b class='low'>da pagare</b>"}${!o.pagato&&o.scadenza?`<div class="sub ${scaduto(o)?"low":""}">${scaduto(o)?"<b>scaduto</b> il":"entro il"} ${fmtG(o.scadenza)}</div>`:""}</div></div></div>
    ${late?`<div class="oc3 low">${ic("alert")} In attesa da oltre 24 ore</div>`:""}
   </div>`;
 }
@@ -2746,8 +2747,9 @@ function openOrdine(o){
      <label class="fl" style="grid-column:span 2">Link tracciamento (solo per “Altro”)<input id="oTrkU" value="${esc(o.trackUrl)}"></label>
     </div>
     <div class="f" style="margin-top:10px">
-     <label class="fl">Metodo<select id="oMet">${["","Carta (Stripe)","TikTok Shop","Contanti","POS","Bonifico","Contrassegno"].map(m=>`<option ${o.metodo===m?"selected":""}>${m}</option>`).join("")}</select></label>
+     <label class="fl">Metodo<select id="oMet">${[...new Set(["","Carta (Stripe)","TikTok Shop","Contanti","POS","Bonifico","RiBa","Assegno","Contrassegno",o.metodo||""])].map(m=>`<option ${o.metodo===m?"selected":""}>${m}</option>`).join("")}</select></label>
      <label class="ck" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="oPag" ${o.pagato?"checked":""}> Pagato</label>
+     <label class="fl">Da pagare entro<input id="oScad" type="date" value="${o.scadenza?new Date(o.scadenza).toISOString().slice(0,10):""}"></label>${o.termini?`<div class="sub" style="align-self:end;padding-bottom:10px">Termini: ${esc(o.termini)}${o.rate?" · rate "+o.rate.map(fmtG).join(", "):""}</div>`:""}${o.pagatoAt?`<div class="sub" style="align-self:end;padding-bottom:10px">Pagato il ${fmtG(o.pagatoAt)}</div>`:""}
     </div>
    </div>
    <div class="fs"><span class="lg">Note</span><textarea id="oNote" rows="2">${esc(o.note)}</textarea>
@@ -2759,7 +2761,7 @@ function openOrdine(o){
   const gather=()=>({...o,cliente:$("#oCli").value.trim(),tel:$("#oTel").value.trim(),email:$("#oMail").value.trim(),canale:$("#oCan").value,rif:$("#oRif").value.trim(),
     codiceSconto:$("#oCod").value.trim().toUpperCase(),sconto:Number($("#oSc").value)||0,spedizione:Number($("#oSp").value)||0,
     ind:$("#oInd").value.trim(),citta:$("#oCitta").value.trim(),prov:$("#oProv").value.trim().toUpperCase(),cap:$("#oCap").value.trim(),corriere:$("#oCor").value,tracking:$("#oTrk").value.trim(),trackUrl:$("#oTrkU").value.trim(),
-    metodo:$("#oMet").value,pagato:$("#oPag").checked,note:$("#oNote").value.trim(),righe:righe.filter(r=>r.codice||r.descr)});
+    metodo:$("#oMet").value,pagato:$("#oPag").checked,scadenza:$("#oScad").value?new Date($("#oScad").value+"T12:00:00").getTime():null,note:$("#oNote").value.trim(),righe:righe.filter(r=>r.codice||r.descr)});
   const drawStep=()=>{ const i=ORD_STATI.indexOf(o.stato);
     $("#oStep").innerHTML=(o.stato==="Annullato"?`<button class="cur" style="background:#eee">Annullato</button>`:"")+ORD_STATI.map((s,k)=>s==="Spedito"&&o.consegna==="ritiro"&&o.stato!=="Spedito"?"":`<button data-st="${s}" class="${k<i?"done":""} ${k===i?"cur":""}">${s==="Pronto"&&o.consegna==="ritiro"?"Pronto al ritiro":s==="Consegnato"&&o.consegna==="ritiro"?"Ritirato":s}</button>`).join("");
     $("#oStep").querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{ if(!S.canWrite) return; o.stato=b.dataset.st; drawStep(); drawQA(); });
@@ -2802,6 +2804,7 @@ function openOrdine(o){
     if(g.stato!==prevStato||isNew) g.storico=[...(g.storico||[]),{at:Date.now(),stato:g.stato,by:S.me||null}];
     if(g.stato==="Consegnato"&&!g.consegnatoAt) g.consegnatoAt=Date.now();
     if(g.stato==="Spedito"&&!g.speditoAt) g.speditoAt=Date.now();
+    if(g.pagato&&!o.pagato){ g.pagatoAt=Date.now(); g.daPagare=false; } if(!g.pagato) g.pagatoAt=null;
     const scala=!g.scaricato&&["Pronto","Spedito","Consegnato"].includes(g.stato);
     const rientra=g.scaricato&&g.stato==="Annullato";
     if(scala) g.scaricato=true; if(rientra) g.scaricato=false;
@@ -3260,7 +3263,7 @@ function wizScaffale(apri){
     wz(`<div class="wcard"><div class="wsub">Ripiano</div><div class="wnum" style="margin:2px 0 8px">${esc(c.posto||"—")}</div><div class="wname">${esc(c.cliente)}</div>
       <div class="wsub">${esc(c.cosa||"")}${c.ordineNum?` · ordine ${esc(c.ordineNum)}`:""}</div>
       <div class="wrow"><div><small>${c.modo==="consegna"?"Consegniamo noi":"Ritira il cliente"}</small><div class="wstock" style="font-size:20px">${c.modo==="consegna"?(c.quando?fmtDay(new Date(c.quando).getTime()):"da fissare"):"in negozio"}</div></div>
-       <div><small>${da?"Da incassare":"Pagamento"}</small><div class="wprice">${da?eur(c.incassare):"Pagato"}</div></div></div>
+       <div><small>${da?(c.pagaDopo?"Paga dopo":"Da incassare"):"Pagamento"}</small><div class="wprice">${da?eur(c.incassare):"Pagato"}</div>${da&&c.pagaDopo?`<small>entro il ${fmtG(c.scadenza)}${c.metodo?" · "+esc(c.metodo):""}</small>`:""}</div></div>
       ${c.modo==="consegna"&&c.ind?`<div class="wsub" style="margin-top:8px">${ic("truck")} ${esc(c.ind)}</div>`:""}${c.note?`<div class="wsub" style="margin-top:6px">${esc(c.note)}</div>`:""}${c.mancano?`<div class="wwarn">Mancano ancora: ${esc(c.mancano)}${Number(c.resto)>0?` · resto da incassare all'arrivo ${eur(c.resto)}`:""}</div>`:""}${c.docNum?`<div class="wsub" style="margin-top:6px">Documento ${esc(c.docNum)}</div>`:""}${c.doc?`<a class="wlink" href="/_blob/${esc(c.doc)}" target="_blank" rel="noopener">${ic("clipboard")}Vedi il documento</a>`:""}
       <div class="wsub" style="margin-top:8px">Sullo scaffale da ${g?g+" giorni":"oggi"}${c.chi?" · messo da "+esc(c.chi):""}</div>${g>7?`<div class="wwarn">Fermo da più di una settimana: richiama il cliente</div>`:""}</div>
       <div class="wyn">${waBtn(c.tel,c.modo==="consegna"?cMsgCons(c):cMsg(c),c.modo==="consegna"?"Avvisa: lo portiamo noi":"Avvisa: è pronto").replace('class="btn wa','class="wbig wa')}
@@ -3270,10 +3273,19 @@ function wizScaffale(apri){
     $("#wMv").onclick=()=>wizStep(sposta); $("#wArt").onclick=()=>{ WZ.ed=null; wizStep(articoli); };
     $("#wTo").onclick=async()=>{ const b=$("#wTo"); if(b.dataset.sure!=="1"){ b.dataset.sure="1"; b.innerHTML=ic("alert")+"Sicuro? Tocca di nuovo"; return; }
       if(await write(()=>S.db.collection("consegne").doc(c.id).update({stato:"annullato",chiusoAt:Date.now()}),"Tolto dallo scaffale")){ WZ.stack=[]; wizStep(lista); } };
-    $("#wGo").onclick=()=>{ if(da) wizStep(incasso); else chiudi(c,null); }; });
+    $("#wGo").onclick=()=>{ if(da&&c.pagaDopo) chiudiDopo(c,{scadenza:c.scadenza,rate:c.rate||null,termini:c.termini||"",metodo:c.metodo||"Bonifico"}); else if(da) wizStep(incasso); else chiudi(c,null); }; });
   const incasso=step(()=>{ const c=S.consegne.find(x=>x.id===WZ.c);
-    wz(`<div class="wq">Incassa ${eur(c.incassare)}</div><div class="wsub">Come ha pagato?</div><div class="wchips big">${["Contanti","POS","Bonifico","Già pagato"].map(m=>`<button data-m="${m}">${m}</button>`).join("")}</div>`,"");
-    $("#wzB").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>chiudi(c,b.dataset.m)); });
+    wz(`<div class="wq">Incassa ${eur(c.incassare)}</div><div class="wsub">Come ha pagato?</div><div class="wchips big">${["Contanti","POS","Bonifico","Già pagato"].map(m=>`<button data-m="${m}">${m}</button>`).join("")}</div>
+      <div class="wyn" style="margin-top:14px"><button class="wbig sec" id="wDopo">${ic("clock")}Non paga ora: paga dopo</button></div>`,"");
+    $("#wzB").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>chiudi(c,b.dataset.m));
+    $("#wDopo").onclick=()=>wizStep(incDopo); });
+  const incDopo=step(()=>{ const c=S.consegne.find(x=>x.id===WZ.c); if(!c){ wizBack(); return; }
+    const cl=c.cliId?S.clienti.get(c.cliId):cercaCli(c.cliente,1).find(x=>normNome(x.nome)===normNome(c.cliente));
+    wzScadenza(c.cliente,cl?.pagamento,c.incassare,t=>chiudiDopo({...c,...(cl?.id&&!c.cliId?{cliId:cl.id}:{})},t)); });
+  const chiudiDopo=async(c,t)=>{ const now=Date.now();
+    const ok=await write(async()=>{ const id=await debitoDaConsegna(c,t);
+      await S.db.collection("consegne").doc(c.id).update({stato:"consegnato",chiusoAt:now,pagato:false,pagaDopo:true,scadenza:t.scadenza,termini:t.termini,metodo:t.metodo,...(id?{debito:id}:{})}); },"Consegnato: da incassare entro il "+fmtG(t.scadenza));
+    if(ok) wizDone("🕒",c.modo==="consegna"?"Consegnato, paga dopo":"Ritirato, paga dopo",`${esc(c.cliente)}<br>${eur(c.incassare)} da pagare entro il <b>${fmtG(t.scadenza)}</b> (${esc(t.metodo)})<br>Lo trovi in Ordini online → Da incassare.`,`<button class="wbig sec" id="wBk">${ic("box")}Torna allo scaffale</button>`)||($("#wBk").onclick=()=>{ WZ.stack=[]; wizStep(lista); }); };
   const chiudi=async(c,metodo)=>{ const now=Date.now();
     const ok=await write(async()=>{ await S.db.collection("consegne").doc(c.id).update({stato:"consegnato",chiusoAt:now,pagato:true,...(metodo?{metodo}:{})});
       if(c.ordineId){ const o=S.ordiniWeb.find(x=>x.id===c.ordineId); if(o&&!["Consegnato","Annullato"].includes(o.stato)) await S.db.collection("ordiniWeb").doc(o.id).update({stato:"Consegnato",pagato:true,...(metodo&&metodo!=="Già pagato"&&!o.metodo?{metodo}:{}),updatedAt:now,storico:[...(o.storico||[]),{at:now,stato:"Consegnato"}]}); } });
@@ -3324,21 +3336,35 @@ function wizScaffale(apri){
       <input class="winp" id="w3" value="${esc(WZ.n.extra||"")}" placeholder="Altro nel pacco (scrivi a mano)">
       <details class="wtxt"><summary>Testo letto dal documento</summary><pre>${esc(a.testo.slice(0,3000))}</pre></details>`, wBtn("wN","Avanti","pri","chev"));
     const salvaCampi=()=>{ WZ.n.cliente=$("#w1").value.trim(); WZ.n.tel=$("#w2").value.trim(); WZ.n.extra=$("#w3").value.trim(); const c=$("#wCol"); if(c) WZ.n.collega=c.checked; };
+    $("#w1").insertAdjacentHTML("afterend",`<div id="w1L" class="pkl"></div>${WZ.n.pagCli?`<div class="wsub">${ic("user")} Cliente in archivio · pagamento <b>${esc(WZ.n.pagCli)}</b></div>`:""}`);
+    suggCli($("#w1"),$("#w1L"),c=>{ salvaCampi(); WZ.n.cliente=c.nome; WZ.n.tel=c.tel||c.cell||WZ.n.tel; WZ.n.cliId=c.id||""; WZ.n.pagCli=c.pagamento||""; rev._run(); });
     bindArt(P,()=>rev._run(),salvaCampi);
     { const c=$("#wCol"); if(c) c.onchange=()=>{ salvaCampi(); rev._run(); }; }
     $("#wN").onclick=()=>{ salvaCampi(); const on=P.filter(p=>p.on!==false);
       const col=!!(a.ordine&&WZ.n.collega), d=col?daOrdine(a.ordine):null, totDoc=col?(a.ordine.pagato?0:ordTot(a.ordine).tot):(a.totale||0), pagato=col?d.pagato:false;
       const k=contoPacco(on,totDoc,pagato);
       const cosa=[k.cosa,WZ.n.extra].filter(Boolean).join(", ");
-      let n={cliente:WZ.n.cliente,tel:WZ.n.tel,cosa,extra:WZ.n.extra||"",prodotti:on.map(p=>({codice:p.codice,nome:p.nome||"",qty:p.qty,sc:scDi(p),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})})),mancano:k.mancano,totDoc,docNum:a.docNum||"",docFile:WZ.docFile,modo:"ritiro",incassare:k.base?k.incassare:(totDoc||""),pagato};
+      let n={cliente:WZ.n.cliente,tel:WZ.n.tel,...(WZ.n.cliId?{cliId:WZ.n.cliId}:{}),...(WZ.n.pagCli?{pagCli:WZ.n.pagCli}:{}),cosa,extra:WZ.n.extra||"",prodotti:on.map(p=>({codice:p.codice,nome:p.nome||"",qty:p.qty,sc:scDi(p),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})})),mancano:k.mancano,totDoc,docNum:a.docNum||"",docFile:WZ.docFile,modo:"ritiro",incassare:k.base?k.incassare:(totDoc||""),pagato};
       if(col){ n={...d,...n,cliente:n.cliente||d.cliente,tel:n.tel||d.tel,cosa:n.cosa||d.cosa}; }
       if(!n.cliente){ toast("Scrivi il nome del cliente"); $("#w1").focus(); return; }
       const keep=WZ.n; WZ.n=n; WZ.n._prev=keep; wizStep(nuovo3); }; });
-  const nuovo2=step(()=>{ const n=WZ.n;
-    wz(`<div class="wq">Nome del cliente</div><input class="winp" id="w1" value="${esc(n.cliente||"")}" placeholder="Nome e cognome" autofocus>
+  const nuovo2=step(()=>{ const n=WZ.n; n.prodotti=n.prodotti||[]; const P=n.prodotti;
+    const tot=P.filter(p=>p.on!==false).reduce((a,p)=>a+(Number(p.qty)||0)*(Number(p.prezzo)||0),0);
+    wz(`<div class="wq">Nome del cliente</div><input class="winp" id="w1" value="${esc(n.cliente||"")}" placeholder="Nome, telefono o partita IVA"><div id="w1L" class="pkl"></div>
+      ${n.cliId||n.pagCli?`<div class="wsub">${ic("user")} Cliente in archivio${n.pagCli?` · pagamento <b>${esc(n.pagCli)}</b>`:""}</div>`:""}
       <div class="wq sm">Telefono</div><input class="winp" id="w2" type="tel" inputmode="tel" value="${esc(n.tel||"")}" placeholder="es. 333 1234567">
-      <div class="wq sm">Cosa c'è nel pacco?</div><input class="winp" id="w3" value="${esc(n.cosa||"")}" placeholder="es. Trapano DCD796 + 2 batterie">`, wBtn("wN","Avanti","pri","chev"));
-    $("#wN").onclick=()=>{ n.cliente=$("#w1").value.trim(); n.tel=$("#w2").value.trim(); n.cosa=$("#w3").value.trim(); if(!n.cliente){ toast("Scrivi il nome del cliente"); return; } wizStep(nuovo3); }; });
+      <div class="wq sm">Cosa c'è nel pacco?</div><input class="winp" id="wP" placeholder="Cerca il prodotto: codice o nome"><div id="wPL" class="pkl"></div>
+      ${P.length?artRighe(P)+(tot?`<div class="wcalc">Valore ${eur(tot)}</div>`:""):""}
+      <input class="winp" id="w3" value="${esc(P.length?(n.extra||""):(n.cosa||""))}" placeholder="${P.length?"Altro nel pacco (scrivi a mano)":"oppure scrivi a mano, es. Trapano DCD796 + 2 batterie"}">`, wBtn("wN","Avanti","pri","chev"));
+    const salva=()=>{ n.cliente=$("#w1").value.trim(); n.tel=$("#w2").value.trim(); if(P.length) n.extra=$("#w3").value.trim(); else n.cosa=$("#w3").value.trim(); };
+    suggCli($("#w1"),$("#w1L"),c=>{ salva(); n.cliente=c.nome; n.tel=c.tel||c.cell||n.tel; n.cliId=c.id||""; n.pagCli=c.pagamento||""; if(!n.ind) n.ind=[c.ind,c.cap,c.citta].filter(Boolean).join(" "); nuovo2._run(); });
+    suggProd($("#wP"),$("#wPL"),it=>{ salva(); if(!P.length&&n.cosa){ n.extra=n.cosa; n.cosa=""; } const ex=P.find(p=>p.codice===it.codice&&p.on!==false); if(ex){ ex.qty=(Number(ex.qty)||0)+1; ex.sc=scDi(ex)+1; }
+      else P.push({codice:it.codice,nome:nomeDi(it),qty:1,sc:1,...(prezzoVendita(it)>0?{prezzo:prezzoVendita(it)}:{})}); nuovo2._run(); setTimeout(()=>$("#wP")&&$("#wP").focus(),30); });
+    bindArt(P,()=>nuovo2._run(),salva);
+    $("#wN").onclick=()=>{ salva(); if(!n.cliente){ toast("Scrivi il nome del cliente"); $("#w1").focus(); return; }
+      const on=P.filter(p=>p.on!==false); n.prodotti=on.map(p=>({codice:p.codice,nome:p.nome||"",qty:Number(p.qty)||0,sc:scDi(p),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})}));
+      if(on.length){ const k=contoPacco(n.prodotti,0,false); n.cosa=[k.cosa,n.extra].filter(Boolean).join(", "); n.mancano=k.mancano; n.totDoc=0; n.incassare=k.base?k.incassare:""; n.pagato=false; }
+      wizStep(nuovo3); }; });
   const nuovo3=step(()=>{ const n=WZ.n;
     wz(`<div class="wq">Come arriva al cliente?</div><div class="wyn"><button class="wbig ${n.modo==="consegna"?"sec":"pri"}" data-md="ritiro">${ic("store")}Viene a ritirarlo</button><button class="wbig ${n.modo==="consegna"?"pri":"sec"}" data-md="consegna">${ic("truck")}Glielo portiamo noi</button></div>
       <div id="wCons" style="display:${n.modo==="consegna"?"block":"none"}"><div class="wq sm">Indirizzo</div><input class="winp" id="wInd" value="${esc(n.ind||"")}" placeholder="Via, numero, città">
@@ -3347,12 +3373,20 @@ function wizScaffale(apri){
     $("#wN").onclick=()=>{ n.modo=n.modo||"ritiro"; if(n.modo==="consegna"){ n.ind=$("#wInd").value.trim(); n.quando=$("#wQ").value; } wizStep(nuovo4); }; });
   const nuovo4=step(()=>{ const n=WZ.n;
     const k=n.prodotti&&n.prodotti.length?contoPacco(n.prodotti,n.totDoc,n.pagato):null;
+    if(!n.pagCli&&n.cliente){ const c=n.cliId?S.clienti.get(n.cliId):cercaCli(n.cliente,1).find(x=>normNome(x.nome)===normNome(n.cliente)); if(c){ n.pagCli=c.pagamento||""; if(c.id&&!n.cliId) n.cliId=c.id; } }
+    const pi=pagInfo(n.pagCli);
     wz(`<div class="wq">${k&&k.qui<k.pz?"Quanto deve pagare adesso?":"Quanto deve ancora pagare?"}</div>${k?contoTxt(k,n.totDoc):""}<input class="winp huge" id="wI" type="number" step="0.01" min="0" inputmode="decimal" value="${n.pagato?0:(n.incassare||"")}" placeholder="0">
-      <div class="wsub">${k&&k.qui<k.pz?"Già calcolato solo su quello che c'è sullo scaffale: puoi correggerlo. ":""}Scrivi 0 se ha già pagato (es. ordine con carta sul sito).</div>`, wBtn("wN","Avanti","pri","chev"));
-    $("#wN").onclick=()=>{ n.incassare=Math.max(0,Math.round(Number($("#wI").value)*100)/100||0); n.pagato=!n.incassare; n.resto=k&&k.mancano?Math.max(0,Math.round(((k.base||0)-n.incassare)*100)/100):0; wizStep(nuovo5); }; });
+      <div class="wsub">${k&&k.qui<k.pz?"Già calcolato solo su quello che c'è sullo scaffale: puoi correggerlo. ":""}Scrivi 0 se ha già pagato (es. ordine con carta sul sito).</div>
+      ${n.pagCli?`<div class="wsub">Pagamento del cliente in Danea: <b>${esc(n.pagCli)}</b></div>`:""}
+      <div class="wyn"><button class="wbig ${pi?.differito?"ok":"sec"}" id="wDopo">${ic("clock")}Paga dopo (a scadenza)${pi?.differito?`<small style="display:block;font-weight:600">${esc(pi.testo)}</small>`:""}</button></div>`, wBtn("wN","Paga al ritiro: avanti","pri","chev"));
+    const imp=()=>{ n.incassare=Math.max(0,Math.round(Number($("#wI").value)*100)/100||0); n.pagato=!n.incassare; n.resto=k&&k.mancano?Math.max(0,Math.round(((k.base||0)-n.incassare)*100)/100):0; };
+    $("#wN").onclick=()=>{ imp(); n.pagaDopo=false; delete n.scadenza; delete n.termini; delete n.rate; wizStep(nuovo5); };
+    $("#wDopo").onclick=()=>{ imp(); if(!n.incassare){ toast("Scrivi l'importo da pagare"); $("#wI").focus(); return; } wizStep(nuovoDopo); }; });
+  const nuovoDopo=step(()=>{ const n=WZ.n;
+    wzScadenza(n.cliente,n.pagCli,n.incassare,t=>{ n.pagaDopo=true; n.scadenza=t.scadenza; n.termini=t.termini; n.metodo=t.metodo; if(t.rate) n.rate=t.rate; else delete n.rate; wizStep(nuovo5); }); });
   const nuovo5=step(()=>{ const n=WZ.n;
     wz(`<div class="wq">Su quale ripiano lo metti?</div><div class="wsub">Scrivi il ripiano anche sul pacco.</div>${ripChips(n.posto)}`,"");
-    bindRip(async p=>{ n.posto=p; const now=Date.now(); const {docFile,_prev,_da,...pul}=n; const d={...pul,stato:"sullo scaffale",at:now,chi:window.SEMI?.io?.nome||S.me||""};
+    bindRip(async p=>{ n.posto=p; const now=Date.now(); const {docFile,_prev,_da,pagCli,...pul}=n; const d={...pul,stato:"sullo scaffale",at:now,chi:window.SEMI?.io?.nome||S.me||""};
       if(docFile&&S.assets){ try{ toast("Salvo la foto del documento…"); const a=await S.assets.upload(docFile); d.doc=a.id; }catch(e){ toast("Foto del documento non salvata"); } }
       let ok=await write(async()=>{ await S.db.collection("consegne").add(d);
         if(n.ordineId){ const o=S.ordiniWeb.find(x=>x.id===n.ordineId); if(o&&o.stato!=="Pronto") await S.db.collection("ordiniWeb").doc(o.id).update({stato:"Pronto",updatedAt:now,storico:[...(o.storico||[]),{at:now,stato:"Pronto"}]}); } });
@@ -3979,9 +4013,96 @@ function wizConsegno(){
   wizStep(lista);
 }
 
+/* ---------- MODALITÀ DI PAGAMENTO E PAGAMENTO POSTICIPATO (22/11) ---------- */
+// legge le condizioni di pagamento scritte in Danea (es. "Ri.Ba. 30/60 gg f.m.", "Bonifico 30 gg d.f.", "Rimessa diretta")
+function pagInfo(s){
+  const t=String(s||"").toLowerCase(); if(!t.trim()) return null;
+  const gg=[...t.matchAll(/(\d{1,3})(?=\s*(?:\/|-|gg|g\b|giorn|d\.?f|f\.?m|$))/g)].map(m=>+m[1]).filter(n=>n>0&&n<=365);
+  const fm=/f\.?\s?m\.?|fine\s*mese/.test(t), riba=/ri\.?\s?ba|ricevuta banc|\brb\b|\br\.\s?b\./.test(t);
+  const metodo=riba?"RiBa":/bonific/.test(t)?"Bonifico":/contant|rimessa/.test(t)?"Contanti":/assegn/.test(t)?"Assegno":/\bpos\b|carta|bancomat/.test(t)?"POS":/sdd|rid\b|addebito/.test(t)?"Addebito SDD":"";
+  return {testo:String(s).trim(),giorni:gg,fm,metodo,differito:gg.length>0||riba};
+}
+// scadenze dalla data della vendita (una per rata); fine mese = ultimo giorno del mese di scadenza
+function pagScadenze(info,da=Date.now()){
+  if(!info||!info.differito) return [];
+  return (info.giorni.length?info.giorni:[30]).map(g=>{ const d=new Date(da); d.setHours(12,0,0,0); d.setDate(d.getDate()+g); if(info.fm){ d.setMonth(d.getMonth()+1,0); } return d.getTime(); });
+}
+const fmtG=t=>t?new Date(t).toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric"}):"—";
+const daIncassare=()=>S.ordiniWeb.filter(o=>!o.pagato&&o.stato!=="Annullato"&&o.canale==="banco");
+const scaduto=o=>o.scadenza&&o.scadenza<Date.now()-864e5/2&&!o.pagato;
+// passo "entro quando paga" condiviso (banco e scaffale): scadenze da Danea, fine mese, 30/60 gg o data scelta
+function wzScadenza(nome,pagamento,tot,fai){
+  const pi=pagInfo(pagamento), sc=pagScadenze(pi);
+  const g12=d=>{ d.setHours(12,0,0,0); return d; }, fineMese=(()=>{ const d=g12(new Date()); d.setMonth(d.getMonth()+1,0); return d.getTime(); })(), tra=n=>{ const d=g12(new Date()); d.setDate(d.getDate()+n); return d.getTime(); };
+  const opz=[...(sc.length?[["danea",`Come da Danea: ${pi.testo}`,sc[0],sc]]:[]),["fm","Fine mese",fineMese],["30","Tra 30 giorni",tra(30)],["60","Tra 60 giorni",tra(60)]];
+  wz(`<div class="wq">Entro quando paga?</div><div class="wsub">${esc(nome||"")}${tot?" · "+eur(tot):""}</div>
+    <div class="wyn">${opz.map(([k,t,d,r])=>`<button class="wbig ${k==="danea"?"ok":"sec"}" data-sc="${k}">${ic("clock")}${esc(t)}<small style="display:block;font-weight:600">${r&&r.length>1?r.map(fmtG).join(" · "):fmtG(d)}</small></button>`).join("")}</div>
+    <div class="wq sm">Oppure scegli la data</div><input class="winp" id="wDt" type="date" min="${new Date().toISOString().slice(0,10)}">
+    <div class="wq sm">Come pagherà</div><div class="wchips" id="wMet">${[...new Set([pi?.metodo,"Bonifico","RiBa","Contanti","POS","Assegno"].filter(Boolean))].map(m=>`<button data-m="${esc(m)}" class="${(pi?.metodo||"Bonifico")===m?"on":""}">${esc(m)}</button>`).join("")}</div>`,
+    wBtn("wOkD","Registra: paga il giorno scelto","ok","check"));
+  let met=pi?.metodo||"Bonifico"; $("#wMet").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ met=b.dataset.m; $("#wMet").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); });
+  $("#wzB").querySelectorAll("[data-sc]").forEach(b=>b.onclick=()=>{ const o=opz.find(x=>x[0]===b.dataset.sc); b.disabled=true; fai({scadenza:o[2],rate:o[3]&&o[3].length>1?o[3]:null,termini:o[1].replace(/^Come da Danea: /,""),metodo:met}); });
+  $("#wOkD").onclick=()=>{ const v=$("#wDt").value; if(!v){ toast("Scegli una data o tocca una delle scadenze"); return; } fai({scadenza:new Date(v+"T12:00:00").getTime(),rate:null,termini:"data concordata",metodo:met}); };
+}
+// suggerimenti mentre si scrive: clienti dell'archivio (anche Danea) e prodotti del magazzino
+function suggCli(inp,box,onPick){ if(!inp||!box) return;
+  const draw=()=>{ const l=inp.value.trim().length>=2?cercaCli(inp.value,6):[];
+    box.innerHTML=l.map((c,i)=>`<button type="button" class="pki" data-ci="${i}"><span><b>${esc(c.nome)}</b><small>${esc([c.tel||c.cell,c.citta,c.piva&&"P.IVA "+c.piva].filter(Boolean).join(" · "))}</small></span><span class="pkr">${c.pagamento?`<small>${esc(c.pagamento)}</small>`:""}${scontoNum(c.sconto)?`<small style="display:block">sconto ${scontoNum(c.sconto)}%</small>`:""}</span></button>`).join("");
+    box.querySelectorAll("[data-ci]").forEach(b=>b.onclick=()=>{ box.innerHTML=""; onPick(l[b.dataset.ci]); }); };
+  inp.setAttribute("autocomplete","off"); inp.addEventListener("input",()=>{ clearTimeout(inp._sc); inp._sc=setTimeout(draw,120); });
+}
+function cercaProd(q,n=6){ const ql=String(q||"").toLowerCase().trim(), nn=normC(q), words=ql.split(/\s+/).filter(Boolean); if(ql.length<2) return [];
+  return allItems().filter(r=>r.tipo==="vendita"&&((nn.length>=2&&normC(r.codice).includes(nn))||words.every(w=>(r.codice+" "+nomeDi(r)+" "+(r.descr||"")).toLowerCase().includes(w))))
+    .sort((a,b)=>(normC(b.codice).startsWith(nn))-(normC(a.codice).startsWith(nn))||(Number(b.giacenza)>0)-(Number(a.giacenza)>0)).slice(0,n); }
+function suggProd(inp,box,onPick){ if(!inp||!box) return;
+  const draw=()=>{ const l=cercaProd(inp.value,6);
+    box.innerHTML=l.map((r,i)=>`<button type="button" class="pki" data-pi2="${i}"><span><b>${esc(nomeDi(r))}</b><small class="mono">${esc(r.codice)}</small></span><span class="pkr">${prezzoVendita(r)?`<b>${eur(prezzoVendita(r))}</b>`:""}<small style="display:block">${r.verificare?"da contare":(Number(r.giacenza)||0)+" pz"}</small></span></button>`).join("");
+    box.querySelectorAll("[data-pi2]").forEach(b=>b.onclick=()=>{ box.innerHTML=""; inp.value=""; onPick(l[b.dataset.pi2]); }); };
+  inp.setAttribute("autocomplete","off"); inp.addEventListener("input",()=>{ clearTimeout(inp._sp); inp._sp=setTimeout(draw,120); });
+}
+// vendita da pagare dopo nata dallo scaffale: aggiorna l'ordine collegato o crea la vendita "da incassare"
+async function debitoDaConsegna(c,t){ const now=Date.now(), base={pagato:false,daPagare:true,scadenza:t.scadenza,...(t.rate?{rate:t.rate}:{}),termini:t.termini,metodo:t.metodo};
+  if(c.ordineId){ const o=S.ordiniWeb.find(x=>x.id===c.ordineId); if(o){ await S.db.collection("ordiniWeb").doc(o.id).update({...base,stato:"Consegnato",consegnatoAt:o.consegnatoAt||now,updatedAt:now,storico:[...(o.storico||[]),{at:now,stato:"Consegnato",by:S.me||null}]}); return o.id; } }
+  const imp=Math.round((Number(c.incassare)||0)*100)/100, P=(c.prodotti||[]).filter(p=>(Number(p.qty)||0)>0);
+  const somma=Math.round(P.reduce((a,p)=>a+(Number(p.qty)||0)*(Number(p.prezzo)||0),0)*100)/100;
+  const righe=P.length&&P.every(p=>Number(p.prezzo)>0)&&Math.abs(somma-imp)<0.01?P.map(p=>({codice:p.codice||"",descr:p.nome||p.codice||"",qty:Number(p.qty)||1,prezzo:Number(p.prezzo)})):[{codice:"",descr:c.cosa||"Merce dallo scaffale consegne",qty:1,prezzo:imp}];
+  const o={canale:"banco",stato:"Consegnato",consegna:"ritiro",cliente:c.cliente||"",tel:c.tel||"",...(c.cliId?{cliId:c.cliId}:{}),righe,spedizione:0,sconto:0,at:now,consegnatoAt:now,scaricato:true,rif:"Scaffale consegne"+(c.posto?" · ripiano "+c.posto:""),
+    num:nextCode(S.ordiniWeb,"W"),storico:[{at:now,stato:"Consegnato",by:S.me||null}],updatedAt:now,...base};
+  const r=await S.db.collection("ordiniWeb").add(o); return r?.id||null;
+}
+// tutte le modalità di pagamento usate in archivio (da Danea) più le più comuni, per sceglierle velocemente
+function modiPagamento(){ const n=new Map(); for(const c of cliAll()) if(c.pagamento) n.set(c.pagamento,(n.get(c.pagamento)||0)+1);
+  return [...new Set([...[...n.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]),"Rimessa diretta","Contanti","POS","Bonifico anticipato","Bonifico 30 gg d.f.","Bonifico 30 gg f.m.","RiBa 30 gg f.m.","RiBa 30/60 gg f.m.","RiBa 60/90 gg f.m."])]; }
+// scheda cliente veloce (dalla ricerca in alto)
+function openCliente(c){
+  const nn=normNome(c.nome), tk=telKey(c.tel||c.cell);
+  const mio=x=>(c.id&&x.cliId===c.id)||(tk&&telKey(x.tel)===tk)||normNome(x.cliente)===nn;
+  const sch=S.tickets.filter(mio).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const ord=S.ordiniWeb.filter(mio).sort((a,b)=>(b.at||0)-(a.at||0));
+  const deb=ord.filter(o=>!o.pagato&&o.stato!=="Annullato"), debTot=deb.reduce((a,o)=>a+ordTot(o).tot,0), pi=pagInfo(c.pagamento);
+  openModal(`<div class="mh"><h2>${esc(c.nome)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb">
+   <div class="kpis" style="margin-bottom:12px">
+    <div class="kpi"><div class="l">Pagamento</div><div class="v" style="font-size:16px">${esc(c.pagamento||"—")}</div><div class="s">${pi?.differito?"posticipato":c.pagamento?"subito":"non indicato in Danea"}</div></div>
+    <div class="kpi ${debTot?"hl":""}"><div class="l">Da incassare</div><div class="v">${eur(debTot)}</div><div class="s">${deb.length} ${deb.length===1?"vendita":"vendite"}${deb.some(scaduto)?` · <b class="low">scaduto</b>`:""}</div></div>
+    <div class="kpi"><div class="l">Sconto ricambi</div><div class="v">${scontoNum(c.sconto)?scontoNum(c.sconto)+"%":"—"}</div><div class="s">${sch.length} schede · ${ord.length} vendite</div></div>
+   </div>
+   ${c.id?`<div class="f" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:12px"><label class="fl" style="flex:1">Modalità di pagamento del cliente<input id="clPag" list="clPagL" value="${esc(c.pagamento||"")}" placeholder="es. Rimessa diretta, Bonifico 30 gg d.f., RiBa 30/60 gg f.m."></label>
+    <datalist id="clPagL">${modiPagamento().map(m=>`<option value="${esc(m)}">`).join("")}</datalist><button class="btn edit-only" id="clPagS" type="button">${ic("check")}Salva</button></div>`:""}
+   <div class="sub" style="margin-bottom:10px">${[c.tel&&`Tel. <a href="tel:${esc(c.tel)}">${esc(c.tel)}</a>`,c.cell&&`Cell. <a href="tel:${esc(c.cell)}">${esc(c.cell)}</a>`,c.email&&esc(c.email),c.piva&&"P.IVA "+esc(c.piva),[c.ind,c.cap,c.citta,c.prov].filter(Boolean).map(esc).join(" ")].filter(Boolean).join(" · ")}</div>
+   ${deb.length?`<h3 style="font-size:14px;margin:14px 0 6px">Da incassare</h3><table><tbody>${deb.map(o=>`<tr data-o="${esc(o.id)}" style="cursor:pointer"><td class="mono">${esc(o.num)}</td><td>${fmtG(o.at)}</td><td>${esc(ordArt(o))}</td><td>${o.scadenza?`scade ${fmtG(o.scadenza)}`:""}${scaduto(o)?` <b class="low">scaduto</b>`:""}</td><td class="num"><b>${eur(ordTot(o).tot)}</b></td></tr>`).join("")}</tbody></table>`:""}
+   ${sch.length?`<h3 style="font-size:14px;margin:14px 0 6px">Schede</h3><table><tbody>${sch.slice(0,8).map(t=>`<tr data-t="${esc(t.id)}" style="cursor:pointer"><td class="mono">${esc(t.num)}</td><td>${esc(t.modello||"")}</td><td>${esc(t.stato)}</td><td>${fmtG(t.createdAt)}</td></tr>`).join("")}</tbody></table>`:""}
+   ${ord.length-deb.length?`<h3 style="font-size:14px;margin:14px 0 6px">Ultime vendite</h3><table><tbody>${ord.filter(o=>!deb.includes(o)).slice(0,6).map(o=>`<tr data-o="${esc(o.id)}" style="cursor:pointer"><td class="mono">${esc(o.num)}</td><td>${fmtG(o.at)}</td><td>${esc(ordArt(o))}</td><td class="num">${eur(ordTot(o).tot)}</td></tr>`).join("")}</tbody></table>`:""}
+  </div><div class="mf"><button class="btn" data-close>Chiudi</button><span class="sp" style="flex:1"></span><button class="btn pri edit-only" id="clV">${ic("cart")}Vendi a questo cliente</button></div>`);
+  $("#modal").querySelectorAll("[data-o]").forEach(r=>r.onclick=()=>{ closeModal(); openOrdine(S.ordiniWeb.find(o=>o.id===r.dataset.o)); });
+  $("#modal").querySelectorAll("[data-t]").forEach(r=>r.onclick=()=>{ closeModal(); openTicket(S.tickets.find(t=>t.id===r.dataset.t)); });
+  $("#clV").onclick=()=>{ closeModal(); wizVendo(null,c); };
+  const ps=$("#clPagS"); if(ps) ps.onclick=async()=>{ const v=$("#clPag").value.trim();
+    if(await write(()=>S.db.doc("clienti/"+cliChunk(c.id)).merge({items:{[c.id]:{pagamento:v,updatedAt:Date.now()}}}),"Pagamento salvato")){ c.pagamento=v; closeModal(); openCliente(c); } };
+}
+
 /* ---------- 3. Vendo al banco ---------- */
-function wizVendo(pre){
-  wizOpen("Vendo al banco","f-b"); const cart=[];
+function wizVendo(pre,cliPre){
+  wizOpen("Vendo al banco","f-b"); const cart=[]; let cli=cliPre||null;
   const scegli=step(()=>pickItem(cart.length?"Cosa aggiungi?":"Cosa vendi?",{tipo:"vendita",onPick:it=>{ WZ.it=it; wizStep(quanti); }}));
   const quanti=step(()=>{ const it=WZ.it;
     wz(itemCard(it)+`<div class="wq sm">Quanti pezzi?</div>${qtyBox("wq1",1,1)}<div class="wq sm">Prezzo a pezzo (€)</div><input class="winp" id="wpz" type="number" step="0.01" min="0" inputmode="decimal" value="${prezzoVendita(it)||""}" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}>${puoPrezzi()||prezzoVendita(it)?"":`<div class="sub" style="margin-top:6px">Questo articolo non ha un prezzo: chiedi all'amministratore di metterlo.</div>`}`,
@@ -3993,12 +4114,32 @@ function wizVendo(pre){
       <div class="wtot"><small>Totale</small><b>${eur(tot)}</b></div><button class="wbig sec" id="wMore">${ic("plus")}Aggiungi un altro prodotto</button>`,
       wBtn("wFine","Incassa "+eur(tot),"ok","euro"));
     $("#wzB").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ cart.splice(Number(b.dataset.del),1); if(!cart.length){ WZ.stack=[]; wizStep(scegli); } else riepilogo._run(); });
-    $("#wMore").onclick=()=>wizStep(scegli); $("#wFine").onclick=()=>wizStep(paga); });
-  const paga=step(()=>{ wz(`<div class="wq">Come paga?</div><div class="wyn">${[["Contanti","euro"],["POS","tag"],["Bonifico","send"]].map(([m,i])=>`<button class="wbig" data-pay="${m}">${ic(i)}${m}</button>`).join("")}</div>`);
-    $("#wzB").querySelectorAll("[data-pay]").forEach(b=>b.onclick=async()=>{ if(!S.canWrite){ toast("Non hai i permessi per modificare"); return; } b.disabled=true;
-      const now=Date.now(), o={canale:"banco",stato:"Consegnato",consegna:"ritiro",pagato:true,metodo:b.dataset.pay,cliente:"Cliente al banco",righe:clean(cart),spedizione:0,sconto:0,at:now,consegnatoAt:now,scaricato:true,num:nextCode(S.ordiniWeb,"W"),storico:[{at:now,stato:"Consegnato",by:S.me||null}],updatedAt:now};
-      const ok=await write(async()=>{ await S.db.collection("ordiniWeb").add(o); await movOrdine(o,-1,"vendita negozio"); },"Vendita registrata");
-      if(ok) wizDone("💶","Venduto!",`Totale ${eur(ordTot(o).tot)} · ${esc(b.dataset.pay)}<br>Ricorda lo scontrino dal registratore.`); }); });
+    $("#wMore").onclick=()=>wizStep(scegli); $("#wFine").onclick=()=>wizStep(chi); });
+  const chi=step(()=>{ wz(`<div class="wq">Chi compra?</div><input class="winp" id="wc" placeholder="Nome, telefono o partita IVA" autocomplete="off" value="${esc(cli?.nome||"")}">
+      <div class="wsub">Scrivi qualche lettera: ti suggerisco i clienti dell'archivio (anche Danea). Serve per pagare dopo.</div><div id="wcL" class="pkl"></div>`,
+      wBtn("wAnon","Cliente al banco (senza nome)","sec","user"));
+    const inp=$("#wc"), L=$("#wcL");
+    const draw=()=>{ const q=inp.value.trim(), l=cercaCli(q,8);
+      L.innerHTML=l.map((c,i)=>`<button class="pki" data-ci="${i}"><span><b>${esc(c.nome)}</b><small>${esc([c.tel||c.cell,c.citta,c.piva&&"P.IVA "+c.piva].filter(Boolean).join(" · "))}</small></span><span class="pkr">${c.pagamento?`<small>${esc(c.pagamento)}</small>`:""}${daIncassare().some(o=>(c.id&&o.cliId===c.id)||normNome(o.cliente)===normNome(c.nome))?`<small class="low">ha conti aperti</small>`:""}</span></button>`).join("")
+        +(q.length>=2?`<button class="pki" data-nuovo="1"><span><b>${ic("plus")} Nuovo cliente: “${esc(q)}”</b><small>Lo aggiungo all'archivio</small></span></button>`:"");
+      L.querySelectorAll("[data-ci]").forEach(b=>b.onclick=()=>{ cli=l[b.dataset.ci]; wizStep(paga); });
+      const nv=L.querySelector("[data-nuovo]"); if(nv) nv.onclick=()=>{ cli={id:"",nome:q,nuovo:true}; wizStep(paga); }; };
+    inp.oninput=()=>{ clearTimeout(inp._t); inp._t=setTimeout(draw,120); }; draw();
+    inp.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); const f=L.querySelector("button"); if(f) f.click(); } };
+    $("#wAnon").onclick=()=>{ cli=null; wizStep(paga); }; if(!cli) setTimeout(()=>inp.focus(),50); });
+  const registra=async(extra,titolo,sotto)=>{ if(!S.canWrite){ toast("Non hai i permessi per modificare"); return; }
+    const now=Date.now(), o={canale:"banco",stato:"Consegnato",consegna:"ritiro",cliente:cli?.nome||"Cliente al banco",...(cli?{tel:cli.tel||cli.cell||"",email:cli.email||""}:{}),righe:clean(cart),spedizione:0,sconto:0,at:now,consegnatoAt:now,scaricato:true,num:nextCode(S.ordiniWeb,"W"),storico:[{at:now,stato:"Consegnato",by:S.me||null}],updatedAt:now,...extra};
+    const ok=await write(async()=>{ if(cli&&(cli.nuovo||!cli.id)) cli.id=await cliDaScheda({cliente:cli.nome,tel:cli.tel||cli.cell||"",email:cli.email||"",piva:cli.piva||""}); if(cli?.id) o.cliId=cli.id;
+      await S.db.collection("ordiniWeb").add(o); await movOrdine(o,-1,"vendita negozio"); },"Vendita registrata");
+    if(ok) wizDone(titolo[0],titolo[1],`${cli?esc(cli.nome)+"<br>":""}Totale ${eur(ordTot(o).tot)} · ${sotto}<br>Ricorda lo scontrino dal registratore.`); };
+  const paga=step(()=>{ const pi=pagInfo(cli?.pagamento), aperti=cli?daIncassare().filter(o=>(cli.id&&o.cliId===cli.id)||normNome(o.cliente)===normNome(cli.nome)):[];
+    wz(`<div class="wq">Come paga?</div>${cli?`<div class="wcard"><div class="wname">${esc(cli.nome)}</div>${cli.pagamento?`<div class="wsub">Pagamento in Danea: <b>${esc(cli.pagamento)}</b></div>`:""}${aperti.length?`<div class="wwarn">Ha già ${aperti.length} ${aperti.length===1?"vendita":"vendite"} da pagare: ${eur(aperti.reduce((a,o)=>a+ordTot(o).tot,0))}${aperti.some(scaduto)?" (scadute)":""}</div>`:""}</div>`:""}
+      <div class="wyn">${[["Contanti","euro"],["POS","tag"],["Bonifico","send"]].map(([m,i])=>`<button class="wbig ${!pi?.differito&&pi?.metodo===m?"ok":""}" data-pay="${m}">${ic(i)}${m}</button>`).join("")}
+      <button class="wbig ${pi?.differito?"ok":"sec"}" id="wDopo">${ic("clock")}Paga dopo${pi?.differito?`<small style="display:block;font-weight:600">${esc(pi.testo)}</small>`:""}</button></div>`);
+    $("#wzB").querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>{ b.disabled=true; registra({pagato:true,metodo:b.dataset.pay,pagatoAt:Date.now()},["💶","Venduto!"],esc(b.dataset.pay)); });
+    $("#wDopo").onclick=()=>{ if(!cli){ toast("Per pagare dopo serve il nome del cliente"); wizStep(chi); return; } wizStep(quando); }; });
+  const quando=step(()=>{ const tot=cart.reduce((a,r)=>a+r.qty*r.prezzo,0);
+    wzScadenza(cli.nome,cli.pagamento,tot,t=>registra({pagato:false,metodo:t.metodo,daPagare:true,scadenza:t.scadenza,...(t.rate?{rate:t.rate}:{}),termini:t.termini},["🕒","Venduto, paga dopo"],`da pagare entro il <b>${fmtG(t.scadenza)}</b> (${esc(t.metodo)})`)); });
   if(pre){ WZ.it=pre; WZ.stack=[scegli]; wizStep(quanti); } else wizStep(scegli);
 }
 
@@ -4048,14 +4189,14 @@ function wizPrezzo(pre){
 }
 
 /* ---------- 7. Cerco un prezzo ---------- */
-function wizCerca(){
+function wizCerca(pre){
   wizOpen("Cerco un prezzo","f-w");
   const scegli=step(()=>pickItem("Cosa cerchi?",{onPick:it=>{ WZ.it=it; wizStep(scheda); }}));
   const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
     const v=$("#aV"); if(v) v.onclick=()=>{ wizClose(); wizVendo(it); }; const p=$("#aP"); if(p) p.onclick=()=>{ wizClose(); wizPrezzo(it); };
     $("#aC").onclick=()=>{ wizClose(); wizConta(it); };
     $("#wAn").onclick=()=>{ WZ.stack=[]; wizStep(scegli); }; });
-  wizStep(scegli);
+  if(pre){ WZ.it=pre; WZ.stack=[scegli]; wizStep(scheda); } else wizStep(scegli);
 }
 
 /* ---------- 8. Aggiorna sito e negozi ---------- */
@@ -4109,17 +4250,26 @@ function initShell(){
     if(kind==="t") openTicket(S.tickets.find(t=>t.id===val));
     else if(kind==="r"){ S.rq=val; location.hash="ricambi"; render(); }
     else if(kind==="o") openOrdine(S.ordiniWeb.find(o=>o.id===val));
-    else if(kind==="s"){ S.filt.q=val; S.filt.stato="tutti"; location.hash="schede"; render(); } };
+    else if(kind==="s"){ S.filt.q=val; S.filt.stato="tutti"; location.hash="schede"; render(); }
+    else if(kind==="c"){ const c=GS.cl[Number(val)]; if(c) openCliente(c); }
+    else if(kind==="p"){ const it=itm(val); if(it) wizCerca(it); } };
+  const GS={cl:[]};
   const cerca=q=>{ const ql=q.toLowerCase(), Q=q.toUpperCase(), qd=q.replace(/\D/g,"");
     const tk=S.tickets.filter(t=>[t.num,t.cliente,t.modello,t.matricola,t.tel].some(x=>x&&String(x).toLowerCase().includes(ql)) || (qd.length>=5&&String(t.tel||"").replace(/\D/g,"").includes(qd)))
       .sort((a,b)=>(APERTI.includes(b.stato)-APERTI.includes(a.stato))||(b.createdAt||0)-(a.createdAt||0)).slice(0,5);
     const rc=q.length>=3?cercaRicambi(q).slice(0,5):[];
     const od=S.ordiniWeb.filter(o=>[o.num,o.cliente,o.tel,o.email,o.rif,o.tracking].some(x=>x&&String(x).toLowerCase().includes(ql))).sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,4);
-    return {tk,rc,Q,od}; };
+    const cl=cercaCli(q,4);
+    const n=normC(q), words=ql.split(/\s+/).filter(Boolean);
+    const pr=q.length>=2?allItems().filter(r=>r.tipo==="vendita"&&((n.length>=2&&normC(r.codice).includes(n))||words.every(w=>(r.codice+" "+nomeDi(r)+" "+(r.descr||"")).toLowerCase().includes(w))))
+      .sort((a,b)=>(normC(b.codice).startsWith(n))-(normC(a.codice).startsWith(n))||(Number(b.giacenza)>0)-(Number(a.giacenza)>0)).slice(0,5):[];
+    return {tk,rc,Q,od,cl,pr}; };
   gq.oninput=()=>{ clearTimeout(gq._t); gq._t=setTimeout(gqCerca,120); };
   const gqCerca=()=>{ const q=gq.value.trim(); if(q.length<2){gl.style.display="none";return}
-    const {tk,rc,Q,od}=cerca(q);
-    gl.innerHTML=(od.length?`<div class="gh">${ic("cart")} Ordini online</div>`+od.map(o=>`<div class="gi" data-k="o" data-v="${esc(o.id)}"><span><b class="mono">${esc(o.num)}</b> ${esc(o.cliente||"")} <span class="sub">${esc(CANALI[o.canale]||"")}</span></span><span class="badge ${ordCls(o.stato)}">${esc(o.stato)}</span></div>`).join(""):"")+(tk.length?`<div class="gh">${ic("folder")} Schede</div>`+tk.map(t=>`<div class="gi" data-k="t" data-v="${esc(t.id)}"><span><b class="mono">${esc(t.num||"")}</b> ${esc(t.cliente||"")} <span class="sub">${esc(t.modello||"")}</span></span><span class="badge ${stCls(t.stato)}">${esc(t.stato)}</span></div>`).join(""):"")
+    const {tk,rc,Q,od,cl,pr}=cerca(q); GS.cl=cl;
+    gl.innerHTML=(cl.length?`<div class="gh">${ic("user")} Clienti</div>`+cl.map((c,i)=>`<div class="gi" data-k="c" data-v="${i}"><span><b>${esc(c.nome)}</b> <span class="sub">${esc([c.tel||c.cell,c.citta].filter(Boolean).join(" · "))}</span></span><span class="sub">${esc(c.pagamento||"")}</span></div>`).join(""):"")
+      +(pr.length?`<div class="gh">${ic("tag")} Prodotti in vendita</div>`+pr.map(r=>`<div class="gi" data-k="p" data-v="${esc(r.codice)}"><span><b class="mono">${esc(r.codice)}</b> ${esc(nomeDi(r))}</span><span class="sub">${prezzoVendita(r)?eur(prezzoVendita(r))+" · ":""}${r.verificare?"?":(Number(r.giacenza)||0)} pz</span></div>`).join(""):"")
+      +(od.length?`<div class="gh">${ic("cart")} Ordini online</div>`+od.map(o=>`<div class="gi" data-k="o" data-v="${esc(o.id)}"><span><b class="mono">${esc(o.num)}</b> ${esc(o.cliente||"")} <span class="sub">${esc(CANALI[o.canale]||"")}</span></span><span class="badge ${ordCls(o.stato)}">${esc(o.stato)}</span></div>`).join(""):"")+(tk.length?`<div class="gh">${ic("folder")} Schede</div>`+tk.map(t=>`<div class="gi" data-k="t" data-v="${esc(t.id)}"><span><b class="mono">${esc(t.num||"")}</b> ${esc(t.cliente||"")} <span class="sub">${esc(t.modello||"")}</span></span><span class="badge ${stCls(t.stato)}">${esc(t.stato)}</span></div>`).join(""):"")
       +(rc.length?`<div class="gh">${ic("box")} Ricambi</div>`+rc.map(r=>`<div class="gi" data-k="r" data-v="${esc(r.codice)}"><span><b class="mono">${esc(r.codice)}</b> ${esc(r.descr||"")}</span><span class="sub">${r.mag&&r.mag.giacenza>0?"disp. "+r.mag.giacenza:r.prezzo?eur(r.prezzo):""}</span></div>`).join(""):"")
       +`<div class="gi gf" data-k="r" data-v="${esc(q)}">${ic("search")} Cerca “${esc(q)}” tra i ricambi e su DEWALT Service</div>`
       +(tk.length?`<div class="gi gf" data-k="s" data-v="${esc(q)}">${ic("folder")} Tutte le schede con “${esc(q)}”</div>`:"");
