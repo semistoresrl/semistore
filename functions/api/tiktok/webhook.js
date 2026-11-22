@@ -3,14 +3,16 @@
 // se viene annullato la rimette.
 import { db, movimento } from '../../_lib/db.js';
 import { verificaWebhook, chiama } from '../../_lib/tiktok.js';
+import { salvaOrdine } from '../../_lib/tiktok-dati.js';
 
 const PAGATO = ['ON_HOLD', 'AWAITING_SHIPMENT', 'PARTIALLY_SHIPPING', 'AWAITING_COLLECTION', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'];
 
 async function gestisci(env, ordineId, stato) {
-  if (!PAGATO.includes(stato) && stato !== 'CANCELLED') return;
   const d = await db(env);
   const o = (await chiama(env, 'GET', '/order/202309/orders', { query: { ids: ordineId } })).orders?.[0];
   if (!o) return;
+  await salvaOrdine(env, o).catch(() => {}); // pannello admin → TikTok Shop, aggiornato in tempo reale
+  if (!PAGATO.includes(stato) && stato !== 'CANCELLED') return;
   for (const li of o.line_items || []) {
     const r = await d.prepare('SELECT slug FROM giacenze WHERE tt_sku=? OR codice=? LIMIT 1').bind(String(li.sku_id || ''), String(li.seller_sku || '')).first()
       || await d.prepare('SELECT slug FROM giacenze WHERE slug=? LIMIT 1').bind(String(li.seller_sku || '')).first();

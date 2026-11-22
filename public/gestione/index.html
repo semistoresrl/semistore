@@ -657,6 +657,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#movimenti" data-v="movimenti"><svg class="i"><use href="#i-swap"/></svg><span>Movimenti</span></a>
 <div class="ng">Vendite</div><a href="#catalogo" data-v="catalogo"><svg class="i"><use href="#i-store"/></svg><span>Catalogo vendita</span><span class="ct" id="ctPub">0</span></a>
 <a href="#sconti" data-v="sconti"><svg class="i"><use href="#i-tag"/></svg><span>Codici sconto</span></a>
+<a href="#tiktok" data-v="tiktok" class="adm-only"><svg class="i"><use href="#i-store"/></svg><span>TikTok Shop</span><span class="ct" id="ctTT" data-z>0</span></a>
 <a href="#canali" data-v="canali"><svg class="i"><use href="#i-plug"/></svg><span>Canali e integrazioni</span></a>
 <div class="ng">Sistema</div><a href="#impostazioni" data-v="impostazioni"><svg class="i"><use href="#i-cog"/></svg><span>Impostazioni</span></a>
 <a href="#utenti" data-v="utenti" class="adm-only"><svg class="i"><use href="#i-user"/></svg><span>Utenti</span></a>
@@ -1108,7 +1109,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -1132,7 +1133,7 @@ function render(){
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = !S.db ? `<div class="banner err">L'archivio condiviso non è ancora collegato. Apri la pagina da claude.ai con il tuo account per vedere e salvare i dati.</div>`:"";
-  const fns={posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
   S._vistaPrec=S.view;
@@ -1162,7 +1163,7 @@ function patchTieni(m,html,vivo){
   }
   return true;
 }
-const VICON={"posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={"tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -1814,7 +1815,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -2923,7 +2924,7 @@ function sitoBarra(){
   tb.insertAdjacentHTML("beforebegin",`${isAdmin()?`<button class="live" id="tbLive" title="Persone sul sito">${ic("globe")}<span><b id="lvN">·</b> ora</span><span class="lvd"><b id="lvO">·</b> oggi</span></button>`:""}
     <button class="btn usr" id="tbUser" title="Esci">${esc((io.nome||"?").slice(0,1).toUpperCase())}<span>${esc(io.nome||"")}${isAdmin()?" · admin":""}</span></button>`);
   $("#tbUser").onclick=()=>{ openModal(`<div class="mh"><h2>${esc(io.nome)}</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb"><p>${esc(io.email)} · ${isAdmin()?"amministratore":"operatore"}</p><p class="sub">Resti collegato 30 giorni su questo telefono o computer.</p></div><div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn danger" id="uEsci">${ic("x")}Esci</button></div>`); $("#uEsci").onclick=window.SEMI.esci; };
-  if(isAdmin()){ liveTick(); setInterval(liveTick,30000); $("#tbLive").onclick=openLive; try{ avviaPosta(); }catch(e){} }
+  if(isAdmin()){ liveTick(); setInterval(liveTick,30000); $("#tbLive").onclick=openLive; try{ avviaPosta(); }catch(e){} ttCarica(); setInterval(()=>{ if(!TT.lavoro) ttCarica(); },5*60e3); }
 }
 async function liveTick(){ try{ const r=await window.SEMI.req("presenze"); $("#lvN").textContent=r.live; $("#lvO").textContent=r.visitatori; }catch(e){} }
 function openLive(){
@@ -3410,6 +3411,73 @@ function vPosta(){
      +(L.mess.length<L.tot?`<button class="btn" data-act="pAltre" style="margin:10px auto;display:flex">${PO.carico?"Carico…":`Carica altre (${L.tot-L.mess.length})`}</button>`:""):`<div class="empty">${PO.cerca?"Nessuna email trovata":"Nessuna email"}</div>`}</div></div>`;
 }
 
+/* ---------- TIKTOK SHOP (22/11): dati dal negozio via Open API, solo amministratore ---------- */
+const TT={d:null,err:"",msg:"",lavoro:false,auto:false};
+const ttE=c=>eur((Number(c)||0)/100);
+const ttData=s=>s?new Date(s*1000).toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit",year:"2-digit"}):"—";
+const ttOra=s=>s?new Date(s*1000).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+const ttMese=m=>{ const [a,b]=m.split("-"); return new Date(+a,+b-1,1).toLocaleDateString("it-IT",{month:"short",year:"2-digit"}); };
+const ttFa=ms=>{ if(!ms) return "mai"; const m=Math.round((Date.now()-ms)/60000); return m<1?"adesso":m<60?`${m} min fa`:m<1440?`${Math.round(m/60)} ore fa`:new Date(ms).toLocaleDateString("it-IT"); };
+async function ttReq(metodo,corpo){
+  const r=await fetch("/api/tiktok/dati",{method:metodo,credentials:"same-origin",headers:corpo?{"content-type":"application/json"}:{},body:corpo?JSON.stringify(corpo):undefined});
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||("Errore "+r.status)); return j;
+}
+async function ttCarica(){ try{ TT.d=await ttReq("GET"); TT.err=""; }catch(e){ TT.err=e.message; }
+  const c=$("#ctTT"), n=TT.d?.daSpedire?.length||0; if(c){ c.textContent=n; c.toggleAttribute("data-z",!n); }
+  if(S.view==="tiktok") render(); }
+async function ttSync(tipo,completo){
+  if(TT.lavoro) return; TT.lavoro=true; let pg="",filtro=null,n=0;
+  try{
+    do{ TT.msg=tipo==="ordini"?`Leggo gli ordini da TikTok… ${n}`:`Leggo i prodotti da TikTok… ${n}`; if(S.view==="tiktok") render();
+      const r=await ttReq("POST",{azione:tipo,pageToken:pg||undefined,filtro:filtro||undefined,completo:!!completo});
+      n+=r.letti||0; pg=r.pageToken||""; filtro=r.filtro||null;
+    }while(pg);
+    TT.msg=""; TT.err="";
+  }catch(e){ TT.msg=""; TT.err=e.message; }
+  TT.lavoro=false; await ttCarica();
+}
+async function ttAggiorna(completo){ await ttSync("ordini",completo); if(!TT.err) await ttSync("prodotti"); }
+function vTikTok(){
+  if(!SUL_SITO) return header("TikTok Shop","")+`<div class="panel"><div class="empty">Si usa dall'app sul sito: semistore.it/gestione</div></div>`;
+  if(!isAdmin()) return header("TikTok Shop","Solo per l'amministratore");
+  if(!TT.d&&!TT.err){ ttCarica(); return header("TikTok Shop","Carico i dati…"); }
+  const d=TT.d||{aggiornato:{},totali:{},mesi:[],stati:[],piuVenduti:[],daSpedire:[],prodotti:[],ultimi:[]};
+  if(TT.d&&!TT.auto&&!TT.lavoro){ TT.auto=true; // all'apertura: aggiorna da solo se i dati sono vecchi
+    const vO=!d.aggiornato.ordini||Date.now()-d.aggiornato.ordini>10*60e3, vP=!d.aggiornato.prodotti||Date.now()-d.aggiornato.prodotti>6*3600e3;
+    if(vO||vP) setTimeout(async()=>{ if(vO) await ttSync("ordini"); if(vP&&!TT.err) await ttSync("prodotti"); },0); }
+  const t=d.totali, max=Math.max(1,...d.mesi.map(m=>m.incasso));
+  const prob=d.prodotti.filter(p=>p.problema), ok=d.prodotti.filter(p=>!p.problema);
+  const scad=o=>{ if(!o.scadenza) return ""; const h=(o.scadenza*1000-Date.now())/3600e3; return h<0?`<b class="low">in ritardo</b>`:h<24?`<b class="low">entro ${Math.max(1,Math.round(h))} ore</b>`:`entro il ${ttData(o.scadenza)}`; };
+  const pRow=p=>`<tr><td><b>${esc(p.titolo)}</b>${p.avvisi.length?`<div class="sub" style="color:var(--bad)">${p.avvisi.map(esc).join("<br>")}</div>`:""}</td>
+    <td class="mono">${p.sku?esc(p.sku):`<span class="low">manca</span>`}</td><td>${esc(p.statoNome)}</td><td class="num">${nf(p.scorte)}</td><td class="num">${p.prezzo?ttE(p.prezzo):"—"}</td><td class="num">${nf(p.venduti)}</td></tr>`;
+  const pTab=l=>`<table><thead><tr><th>Prodotto</th><th>SKU venditore</th><th>Stato</th><th class="num">Scorte</th><th class="num">Prezzo</th><th class="num">Venduti</th></tr></thead><tbody>${l.map(pRow).join("")}</tbody></table>`;
+  return header("TikTok Shop",`Ordini aggiornati ${ttFa(d.aggiornato.ordini)} · prodotti ${ttFa(d.aggiornato.prodotti)}`,
+    `<a class="btn" href="${TT_SELLER}" target="_blank" rel="noopener">${ic("ext")}Seller Center</a><button class="btn pri" data-act="ttAgg" ${TT.lavoro?"disabled":""}>${ic("swap")}${TT.lavoro?"Aggiorno…":"Aggiorna da TikTok"}</button>`)+
+  (TT.msg?`<div class="banner">${esc(TT.msg)}</div>`:"")+(TT.err?`<div class="banner err">${esc(TT.err)}</div>`:"")+
+  (!d.aggiornato.ordini&&!TT.lavoro?`<div class="panel"><div class="empty">Nessun dato ancora: premi “Aggiorna da TikTok” per importare tutti gli ordini dal 1° luglio 2026 e i prodotti.</div></div>`:`
+  ${d.daSpedire.length?`<div class="panel" style="border:2px solid var(--bad);margin-bottom:18px"><h3>${ic("truck")}Da spedire: ${d.daSpedire.length}<span class="sp"></span><a class="btn sm" href="${TT_SELLER}" target="_blank" rel="noopener">${ic("ext")}Spedisci su TikTok</a></h3>
+    <table><tbody>${d.daSpedire.map(o=>`<tr><td class="mono">${esc(o.id)}</td><td>${ttData(o.creato)}</td><td>${o.articoli.map(a=>`${a.q>1?a.q+"× ":""}${esc(a.nome)}${a.sku?` <span class="sub mono">${esc(a.sku)}</span>`:""}`).join("<br>")}</td><td class="num">${ttE(o.totale)}</td><td>${scad(o)}</td></tr>`).join("")}</tbody></table></div>`:""}
+  <div class="kpis">
+    <div class="kpi hl"><div class="l">Incasso lordo</div><div class="v">${ttE(t.incasso)}</div><div class="s">dal ${ttData(t.primo)}</div></div>
+    <div class="kpi"><div class="l">Ordini validi</div><div class="v">${nf(t.ordini)}</div><div class="s">${nf(t.annullati)} annullati · ${nf(t.campioni)} campioni gratuiti</div></div>
+    <div class="kpi"><div class="l">Scontrino medio</div><div class="v">${ttE(t.scontrinoMedio)}</div><div class="s">per ordine valido</div></div>
+    <div class="kpi"><div class="l">Prodotti</div><div class="v">${nf(ok.filter(p=>p.stato==="ACTIVATE").length)}</div><div class="s">pubblicati · <b ${prob.length?'class="low"':""}>${nf(prob.length)} con problemi</b></div></div>
+  </div>
+  <div class="grid2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-bottom:18px">
+   <div class="panel"><h3>${ic("euro")}Incasso per mese</h3>
+    ${d.mesi.length?`<div style="display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:18px">${d.mesi.map(m=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px" title="${m.ordini} ordini · ${m.annullati} annullati · ${m.campioni} campioni">
+      <span style="font-size:11px;font-weight:700;white-space:nowrap">${ttE(m.incasso).replace(",00","")}</span><div style="width:100%;max-width:46px;background:var(--ink);border-radius:6px 6px 0 0;height:${Math.max(2,m.incasso/max*120)}px"></div>
+      <span class="sub" style="font-size:11px">${ttMese(m.mese)}</span><span class="sub" style="font-size:11px">${m.ordini} ord.</span></div>`).join("")}</div>`:`<div class="empty">Nessun ordine</div>`}</div>
+   <div class="panel"><h3>${ic("clipboard")}Ordini per stato</h3><table><tbody>${d.stati.map(s=>`<tr><td>${esc(s.nome)}</td><td class="num"><b>${nf(s.n)}</b></td></tr>`).join("")}</tbody></table></div>
+   <div class="panel"><h3>${ic("store")}Più venduti</h3>${d.piuVenduti.length?`<table><tbody>${d.piuVenduti.map(v=>`<tr><td>${esc(v.nome)}<div class="sub mono">${esc(v.sku||"")}</div></td><td class="num"><b>${nf(v.pezzi)}</b> pz</td><td class="num">${ttE(v.incasso)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">—</div>`}</div>
+  </div>
+  ${prob.length?`<div class="panel" style="margin-bottom:18px"><h3>${ic("x")}Prodotti con problemi: ${prob.length}</h3>
+    <p class="sub" style="margin:-4px 0 10px">Quasi sempre serve l'autorizzazione del marchio: carica la lettera DEWALT/SBD in Seller Center → Account → Autorizzazioni brand. Lo SKU venditore va messo uguale al codice del magazzino.</p>${pTab(prob)}</div>`:""}
+  <div class="panel" style="margin-bottom:18px"><h3>${ic("box")}Prodotti su TikTok: ${ok.length}</h3>${ok.length?pTab(ok):`<div class="empty">—</div>`}</div>
+  <div class="panel"><h3>${ic("cart")}Ultimi ordini</h3><table><thead><tr><th>Ordine</th><th>Data</th><th>Articoli</th><th>Stato</th><th class="num">Totale</th></tr></thead><tbody>
+    ${d.ultimi.map(o=>`<tr><td class="mono">${esc(o.id)}</td><td>${ttOra(o.creato)}</td><td>${esc(o.articoli)}${o.campione?` <span class="chip">campione</span>`:""}</td><td>${esc(o.stato)}</td><td class="num">${ttE(o.totale)}</td></tr>`).join("")}</tbody></table>
+    <p class="sub" style="margin-top:10px">Visualizzazioni e conversioni non sono disponibili dall'API: restano in Seller Center → Analisi dati. Nomi e indirizzi dei clienti non vengono copiati qui.</p></div>`);
+}
 /* ---------- lettura ---------- */
 async function apriEmail(uid){
   const c=PO.caselle.find(x=>x.id===PO.c), f=PO.f, cs=PO.cartelle[PO.c]||[], cart=cs.find(x=>x.nome===f)||{};
