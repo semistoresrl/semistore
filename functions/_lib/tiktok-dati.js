@@ -43,6 +43,7 @@ export async function tdb(env) {
       d.prepare(`CREATE TABLE IF NOT EXISTS tt_prodotti (id TEXT PRIMARY KEY, titolo TEXT, stato TEXT, sku TEXT,
         scorte INTEGER, prezzo INTEGER, problemi TEXT, creato INTEGER, aggiornato INTEGER, visto TEXT)`),
     ]);
+    try { await d.prepare('ALTER TABLE tt_prodotti ADD COLUMN sku_id TEXT').run(); } catch {}
     pronto = true;
   }
   return d;
@@ -101,16 +102,17 @@ export async function paginaProdotti(env, { pageToken } = {}) {
         problemi = (det.audit_failed_reasons || []).flatMap((x) => [...(x.reasons || []), ...(x.suggestions || []).map((s) => 'Suggerimento: ' + s)]);
       } catch (e) { problemi = ['Motivo non leggibile: ' + e.message]; }
     }
-    await d.prepare(`INSERT INTO tt_prodotti(id,titolo,stato,sku,scorte,prezzo,problemi,creato,aggiornato,visto) VALUES(?,?,?,?,?,?,?,?,?,?)
+    await d.prepare(`INSERT INTO tt_prodotti(id,titolo,stato,sku,scorte,prezzo,problemi,creato,aggiornato,visto,sku_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)
         ON CONFLICT(id) DO UPDATE SET titolo=excluded.titolo, stato=excluded.stato, sku=excluded.sku, scorte=excluded.scorte, prezzo=excluded.prezzo,
-        problemi=excluded.problemi, aggiornato=excluded.aggiornato, visto=excluded.visto`)
-      .bind(String(p.id), p.title || '', p.status || '', sku, scorte, prezzo, JSON.stringify(problemi), Number(p.create_time) || 0, Number(p.update_time) || 0, ora).run();
+        problemi=excluded.problemi, aggiornato=excluded.aggiornato, visto=excluded.visto, sku_id=excluded.sku_id`)
+      .bind(String(p.id), p.title || '', p.status || '', sku, scorte, prezzo, JSON.stringify(problemi), Number(p.create_time) || 0, Number(p.update_time) || 0, ora, skus[0]?.id ? String(skus[0].id) : null).run();
   }
   const prossima = r.next_page_token || '';
   if (!prossima) { // fine giro: quelli non più restituiti da TikTok sono stati cancellati
     const s = (await getImp(env, 'tiktok_dati')) || {};
     if (s.prodottiInizio) await d.prepare('DELETE FROM tt_prodotti WHERE visto < ?').bind(s.prodottiInizio).run();
     await setImp(env, 'tiktok_dati', { ...s, prodotti: Date.now(), prodottiInizio: null });
+    await collegaProdotti(env).catch(() => {});
   }
   return { letti: (r.products || []).length, totale: r.total_count ?? null, pageToken: prossima, fatto: !prossima };
 }
@@ -164,4 +166,32 @@ export async function riepilogo(env) {
     ultimi: ord.slice(0, 30).map((o) => ({ id: o.id, creato: o.creato, stato: NOMI_STATO[o.stato] || o.stato, totale: o.totale, campione: !!o.campione,
       articoli: o.articoli.map((a) => `${a.q > 1 ? a.q + '× ' : ''}${a.n}`).join(', '), tracking: o.tracking })),
   };
+}
+
+// Prodotto su TikTok → riga del magazzino del sito. Usato quando un articolo del magazzino non è ancora collegato:
+// si cerca tra i prodotti TikTok già letti (tt_prodotti) per codice, senza chiamare TikTok.
+export async function prodottoTikTokPer(d, codici) {
+  const voluti = new Set(codici.map(normCod).filter(Boolean));
+  if (!voluti.size) return null;
+  const l = (await d.prepare("SELECT id, sku, sku_id, prezzo FROM tt_prodotti WHERE stato NOT IN ('DELETED') AND sku_id IS NOT NULL").all()).results;
+  for (const p of l) if (String(p.sku || '').split(',').some((x) => voluti.has(normCod(x)))) return { product: p.id, sku: p.sku_id, prezzo: p.prezzo || null };
+  return null;
+}
+export async function ttProdottiLetti(d) { return (await d.prepare('SELECT COUNT(*) n FROM tt_prodotti').first().catch(() => null))?.n || 0; }
+
+// Dopo aver letto i prodotti da TikTok: collega al magazzino del sito quelli nuovi (aggiunti a mano in Seller Center)
+// e li mette in coda, così giacenza e prezzo si allineano da soli.
+export async function collegaProdotti(env) {
+  const d = await tdb(env);
+  const trova = await indiceGiacenze(d);
+  const l = (await d.prepare("SELECT id, sku, sku_id FROM tt_prodotti WHERE stato NOT IN ('DELETED') AND sku_id IS NOT NULL").all()).results;
+  let n = 0;
+  for (const p of l) {
+    const g = trova({ prodId: p.id, sellerSku: p.sku });
+    if (!g || g.r.tt_product) continue;
+    await d.prepare(`UPDATE giacenze SET tt_product=?, tt_sku=?, tt_esistente=1, tt_qty=NULL, tt_prezzo=NULL, tt_stato='in vendita', tt_errore=NULL, tt_da_sync=1 WHERE slug=? AND tt_product IS NULL`)
+      .bind(p.id, p.sku_id, g.r.slug).run();
+    n++;
+  }
+  return n;
 }

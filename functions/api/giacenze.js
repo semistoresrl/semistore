@@ -55,7 +55,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       ON CONFLICT(slug) DO UPDATE SET qty=excluded.qty, codice=COALESCE(excluded.codice, codice),
         prezzo=COALESCE(excluded.prezzo, prezzo), dati=CASE WHEN excluded.dati='{}' THEN dati ELSE excluded.dati END,
         aggiornata=excluded.aggiornata,
-        tt_da_sync=CASE WHEN ?=1 AND (tt_product IS NOT NULL OR excluded.qty > 0) THEN 1 ELSE tt_da_sync END`)
+        tt_da_sync=CASE WHEN ?=1 AND (tt_product IS NOT NULL OR (excluded.qty > 0 AND COALESCE(tt_stato,'') <> 'non su TikTok')) THEN 1 ELSE tt_da_sync END`)
       .bind(slug, g.codice || null, qty, prezzo, JSON.stringify(dati), ora, tiktok && qty > 0 ? 1 : 0, tiktok ? 1 : 0));
     esito.salvati++;
   }

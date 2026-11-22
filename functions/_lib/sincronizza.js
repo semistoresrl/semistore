@@ -4,6 +4,11 @@
 import prodotti from '../../src/data/prodotti.json';
 import { db, getImp } from './db.js';
 import { chiama, magazzino, caricaFoto, categoriaConsigliata, marchio, attributi } from './tiktok.js';
+import { prodottoTikTokPer, ttProdottiLetti } from './tiktok-dati.js';
+
+const SI = (v) => ['1', 'true', 'si', 'sì'].includes(String(v || '').toLowerCase());
+// Scelta del cliente (22/11): su TikTok vanno solo i prodotti che ci sono già (o che aggiunge lui in Seller Center).
+// Il sito non crea più schede da solo, salvo TIKTOK_CREA_NUOVI=1 o articolo inviato con tiktok:true.
 
 const PER_SLUG = Object.fromEntries(prodotti.map((p) => [p.slug, p]));
 const eur = (cent) => (cent / 100).toFixed(2);
@@ -143,14 +148,16 @@ export async function sincronizza(env, origin, { limite = 40 } = {}) {
   const conta = async () => (await d.prepare('SELECT COUNT(*) n FROM giacenze WHERE tt_da_sync = 1').first()).n;
   const t = await getImp(env, 'tiktok_token');
   if (!t?.access_token) return { creati: 0, aggiornati: 0, errori: 0, restanti: await conta(), attesa: 'TikTok Shop non ancora collegato: i prodotti restano in coda' };
-  const righe = (await d.prepare('SELECT * FROM giacenze WHERE tt_da_sync = 1 ORDER BY aggiornata LIMIT 30').all()).results;
+  const righe = (await d.prepare('SELECT * FROM giacenze WHERE tt_da_sync = 1 ORDER BY (tt_product IS NULL), aggiornata LIMIT 30').all()).results;
+  const letti = await ttProdottiLetti(d);
   let budget = limite; // richieste esterne a disposizione in questa chiamata
   const esito = { creati: 0, aggiornati: 0, errori: 0, dettagli: [] };
   const ora = () => new Date().toISOString();
 
   for (const r of righe) {
     const nuovo = !r.tt_product;
-    const costo = nuovo ? 13 : 3;
+    const creaNuovi = SI(env.TIKTOK_CREA_NUOVI) || (() => { try { return JSON.parse(r.dati || '{}').tiktok === true; } catch { return false; } })();
+    const costo = nuovo ? (creaNuovi ? 13 : letti ? 0 : 1) : 3;
     if (budget < costo) break;
     budget -= costo;
     try {
@@ -160,11 +167,16 @@ export async function sincronizza(env, origin, { limite = 40 } = {}) {
       }
       if (nuovo) {
         // già presente su TikTok (caricato a mano)? lo collego e allineo solo la quantità
-        const es = await cercaEsistente(env, scheda(r), r.slug).catch(() => null);
+        const sc = scheda(r);
+        const es = letti ? await prodottoTikTokPer(d, [sc.modello, sc.codice, r.codice, r.slug]) : await cercaEsistente(env, sc, r.slug).catch(() => null);
         if (es) {
           await d.prepare('UPDATE giacenze SET tt_product=?, tt_sku=?, tt_qty=NULL, tt_prezzo=?, tt_stato=?, tt_errore=NULL, tt_da_sync=1, tt_sync=?, tt_esistente=1 WHERE slug=?')
             .bind(es.product, es.sku, es.prezzo, 'in vendita', ora(), r.slug).run();
           esito.collegati = (esito.collegati || 0) + 1; esito.dettagli.push({ slug: r.slug, esito: 'già su TikTok: collegato' });
+          continue;
+        }
+        if (!creaNuovi) { // non è su TikTok: resta solo sul sito
+          await d.prepare("UPDATE giacenze SET tt_da_sync=0, tt_stato='non su TikTok', tt_errore=NULL, tt_sync=? WHERE slug=?").bind(ora(), r.slug).run();
           continue;
         }
         const c = await crea(env, r, origin);
@@ -180,14 +192,14 @@ export async function sincronizza(env, origin, { limite = 40 } = {}) {
           body: { skus: [{ id: r.tt_sku, inventory: [{ warehouse_id: await magazzino(env), quantity: Math.max(0, r.qty) }] }] },
         });
       }
-      const prezzoManuale = r.tt_esistente && !['1', 'true', 'si', 'sì'].includes(String(env.TIKTOK_ALLINEA_PREZZI || '').toLowerCase());
+      const prezzoManuale = SI(env.TIKTOK_PREZZI_MANUALI); // scelta del cliente 22/11: i prezzi si allineano anche per i prodotti caricati a mano
       if (prezzo && prezzo !== r.tt_prezzo && !prezzoManuale) {
         await chiama(env, 'POST', `/product/202309/products/${r.tt_product}/prices/update`, {
           body: { skus: [{ id: r.tt_sku, price: { amount: eur(prezzo), currency: 'EUR' } }] },
         });
       }
       await d.prepare('UPDATE giacenze SET tt_qty=?, tt_prezzo=?, tt_da_sync=0, tt_sync=?, tt_errore=NULL, tt_stato=? WHERE slug=?')
-        .bind(r.qty, prezzoManuale ? r.tt_prezzo : prezzo, ora(), r.qty > 0 ? (r.tt_stato === 'bozza' ? 'bozza' : 'in vendita') : 'esaurito', r.slug).run();
+        .bind(r.qty, prezzoManuale || !prezzo ? r.tt_prezzo : prezzo, ora(), r.qty > 0 ? (r.tt_stato === 'bozza' ? 'bozza' : 'in vendita') : 'esaurito', r.slug).run();
       esito.aggiornati++;
     } catch (e) {
       await d.prepare('UPDATE giacenze SET tt_errore=?, tt_stato=?, tt_da_sync=0, tt_sync=? WHERE slug=?')
