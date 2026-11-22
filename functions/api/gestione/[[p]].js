@@ -188,6 +188,25 @@ export async function onRequest(ctx) {
     await d.prepare('INSERT OR REPLACE INTO files(id,tipo,nome,dati,at,chi) VALUES(?,?,?,?,?,?)').bind(id, tipo, nome, buf, Date.now(), io.nome).run();
     return json({ id, contentType: tipo });
   }
+  // esportazione completa (solo admin): elenco tabelle e righe a pagine, senza segreti, codici, sessioni e contenuti binari
+  if (p === 'esporta' && m === 'GET') {
+    if (!io || io.ruolo !== 'admin') return json({ error: 'solo amministratore' }, 403);
+    const NO_TAB = /^(codici|sessioni|csessioni|accessi|segreti|pmail_raw|sqlite_sequence|_cf_.*|d1_.*)$/;
+    const NO_COL = /^(hash|pass|token|h|dati)$/;
+    const u = new URL(request.url), t = u.searchParams.get('t') || '';
+    const tabs = (await d.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all()).results.map(r => r.name).filter(n => !NO_TAB.test(n));
+    if (!t) {
+      const out = [];
+      for (const n of tabs) { try { out.push({ t: n, n: (await d.prepare(`SELECT COUNT(*) n FROM "${n}"`).first()).n }); } catch (e) {} }
+      return json({ tabelle: out, at: Date.now() });
+    }
+    if (!tabs.includes(t)) return json({ error: 'tabella non esportabile' }, 400);
+    const cols = (await d.prepare(`PRAGMA table_info("${t}")`).all()).results.map(c => c.name).filter(c => !NO_COL.test(c));
+    if (!cols.length) return json({ righe: [], fine: true });
+    const da = Math.max(0, Number(u.searchParams.get('da')) || 0), quanti = Math.min(1000, Math.max(50, Number(u.searchParams.get('n')) || 500));
+    const righe = (await d.prepare(`SELECT ${cols.map(c => `"${c}"`).join(',')} FROM "${t}" ORDER BY rowid LIMIT ? OFFSET ?`).bind(quanti, da).all()).results;
+    return json({ colonne: cols, righe, fine: righe.length < quanti });
+  }
   if (p === 'presenze' && m === 'GET') {
     if (!admin) return json({ error: 'solo amministratore' }, 403);
     const q = new URL(request.url).searchParams;

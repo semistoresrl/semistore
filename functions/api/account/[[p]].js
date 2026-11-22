@@ -149,7 +149,7 @@ async function salva({ request, env }) {
 
 async function esci({ request, env }) {
   const t = (request.headers.get('cookie') || '').match(new RegExp(`(?:^|;\\s*)${COOKIE}=([^;]+)`))?.[1];
-  if (t) await (await dbc(env)).prepare('DELETE FROM sessioni WHERE h=?').bind(await hash(decodeURIComponent(t))).run();
+  if (t) await (await dbc(env)).prepare('DELETE FROM csessioni WHERE h=?').bind(await hash(decodeURIComponent(t))).run();
   return json({ ok: true }, 200, { 'set-cookie': cookieVia() });
 }
 
@@ -158,7 +158,7 @@ async function elimina({ request, env }) {
   if (!c) return json({ error: 'Sessione scaduta: entra di nuovo.' }, 401);
   const d = await dbc(env);
   await d.batch([
-    d.prepare('DELETE FROM sessioni WHERE cliente=?').bind(c.id),
+    d.prepare('DELETE FROM csessioni WHERE cliente=?').bind(c.id),
     d.prepare('DELETE FROM punti_mov WHERE cliente=?').bind(c.id),
     d.prepare('UPDATE ordini SET cliente=NULL WHERE cliente=?').bind(c.id), // gli ordini restano per gli obblighi fiscali (10 anni)
     d.prepare('DELETE FROM clienti WHERE id=?').bind(c.id),

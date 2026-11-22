@@ -27,8 +27,8 @@ export async function dbc(env) {
         creato TEXT, aggiornato TEXT, ultimo_accesso TEXT)`),
       d.prepare(`CREATE TABLE IF NOT EXISTS accessi (
         h TEXT PRIMARY KEY, email TEXT NOT NULL, scade INTEGER NOT NULL, riusabile INTEGER NOT NULL DEFAULT 0, usato INTEGER NOT NULL DEFAULT 0)`),
-      d.prepare(`CREATE TABLE IF NOT EXISTS sessioni (h TEXT PRIMARY KEY, cliente TEXT NOT NULL, scade INTEGER NOT NULL)`),
-      d.prepare('CREATE INDEX IF NOT EXISTS s_cliente ON sessioni(cliente)'),
+      d.prepare(`CREATE TABLE IF NOT EXISTS csessioni (h TEXT PRIMARY KEY, cliente TEXT NOT NULL, scade INTEGER NOT NULL)`),
+      d.prepare('CREATE INDEX IF NOT EXISTS cs_cliente ON csessioni(cliente)'),
       d.prepare(`CREATE TABLE IF NOT EXISTS ordini (
         sessione TEXT PRIMARY KEY, cliente TEXT, email TEXT, totale INTEGER, spedizione INTEGER,
         punti INTEGER NOT NULL DEFAULT 0, fattura INTEGER NOT NULL DEFAULT 0, dati_fattura TEXT,
@@ -57,7 +57,7 @@ export async function cliente(request, env) {
   const t = leggiCookie(request, COOKIE);
   if (!t || t.length > 100) return null;
   const d = await dbc(env);
-  const s = await d.prepare('SELECT cliente, scade FROM sessioni WHERE h=?').bind(await hash(t)).first();
+  const s = await d.prepare('SELECT cliente, scade FROM csessioni WHERE h=?').bind(await hash(t)).first();
   if (!s || s.scade < Date.now()) return null;
   return await d.prepare('SELECT * FROM clienti WHERE id=?').bind(s.cliente).first();
 }
@@ -67,7 +67,7 @@ export const cookieVia = () => `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure;
 
 export async function nuovaSessione(env, idCliente) {
   const t = casuale(24), d = await dbc(env);
-  await d.prepare('INSERT INTO sessioni(h,cliente,scade) VALUES(?,?,?)').bind(await hash(t), idCliente, Date.now() + SESSIONE_GG * 86400e3).run();
+  await d.prepare('INSERT INTO csessioni(h,cliente,scade) VALUES(?,?,?)').bind(await hash(t), idCliente, Date.now() + SESSIONE_GG * 86400e3).run();
   await d.prepare('UPDATE clienti SET ultimo_accesso=? WHERE id=?').bind(new Date().toISOString(), idCliente).run();
   return t;
 }

@@ -1413,6 +1413,9 @@ function vImpostazioni(){
    </div>
    <div style="margin-top:12px" class="edit-only"><button class="btn pri" data-act="savecfg">Salva impostazioni</button></div>
   </div>
+  <div class="fs adm-only" style="max-width:640px;display:block"><span class="lg">Archivio completo</span>
+   <p style="margin:0 0 10px">Scarica <b>tutto il database</b> in un file ZIP con cartelle ordinate: assistenza, magazzino, vendite, clienti, acquisti DEWALT, sito, posta, app e utenti, allegati, più una copia completa per il ripristino. Ogni file porta la data “al”.</p>
+   <button class="btn pri" data-act="esporta">${ic("down")}Scarica tutto il database</button></div>
   <div class="fs" style="max-width:640px"><span class="lg">Controllo dati</span>
    <p style="margin:0 0 10px">Controlla magazzino, prezzi, costi, codici a barre, schede, clienti, impostazioni e utenti, e dice cosa sistemare.</p>
    <button class="btn pri" data-act="controllo">${ic("check")}Fai tutti i controlli</button></div>
@@ -1815,7 +1818,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -2081,6 +2084,114 @@ function openAzzera(){
     if(!d||!d.items){ toast("Copia di sicurezza non trovata"); bk.disabled=false; return; }
     const by={}; let n=0; for(const k in d.items){ const x=d.items[k], cur=itm(x.c); if(!cur) continue; const [ch,kk]=(S.magDove&&S.magDove.get(String(x.c).toUpperCase()))||[chunkOf(x.c),keyOf(x.c)]; (by[ch]=by[ch]||{})[kk]={giacenza:x.g,verificare:x.v,giacGest:x.gg}; n++; }
     const ok=await write(()=>writeChunks(by,(a,t)=>{ bk.textContent=`Rimetto ${a}/${t}…`; }),`Rimesse le quantità di ${nf(n)} articoli`); if(ok) closeModal(); else bk.disabled=false; };
+}
+
+/* =====================================================================
+   ARCHIVIO COMPLETO (22/11): tutto il database in uno ZIP a cartelle (solo admin)
+   ===================================================================== */
+const JSZIP_URL="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js";
+function caricaJSZip(){ if(window.JSZip) return Promise.resolve(); if(caricaJSZip._p) return caricaJSZip._p;
+  return caricaJSZip._p=new Promise((ok,ko)=>{ const sc=document.createElement("script"); sc.src=JSZIP_URL; sc.onload=()=>ok(); sc.onerror=()=>{ caricaJSZip._p=null; ko(new Error("Non riesco a caricare il compressore ZIP: controlla la connessione")); }; document.head.appendChild(sc); }); }
+const ARCH_DATA=/(^|_)(at|u|data|date|creato|aggiornato|ultimo|primo|scade|inviato|giorno|quando)$|At$|^ts$/i;
+const archVal=(k,v)=>{ if(v==null) return ""; if(typeof v==="number"&&v>1e12&&v<4e12&&ARCH_DATA.test(k)){ const d=new Date(v); return d.toLocaleDateString("it-IT")+" "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}); }
+  if(typeof v==="boolean") return v?"sì":"no"; if(Array.isArray(v)) return v.every(x=>x==null||typeof x!=="object")?v.join(", "):JSON.stringify(v); if(typeof v==="object") return JSON.stringify(v); return v; };
+function archCsv(rows,colsPref){ if(!rows.length) return "\ufeff(nessun dato)\n"; const set=new Set(colsPref||[]); rows.forEach(r=>Object.keys(r).forEach(k=>set.add(k)));
+  const cols=[...set]; return "\ufeff"+[cols.map(csvCell).join(";"),...rows.map(r=>cols.map(c=>csvCell(archVal(c,r[c]))).join(";"))].join("\r\n"); }
+// schede: una riga per scheda, più righe ricambi e storico
+function archSchede(T){
+  const s=[], r=[], h=[];
+  T.forEach(t=>{ const tt=totali(t); s.push({numero:t.num,ingresso:t.createdAt,stato:t.stato,tipo:t.tipo,cliente:t.cliente,telefono:t.tel,email:t.email,piva_cf:t.piva,indirizzo:t.ind,citta:t.citta,prov:t.prov,cap:t.cap,
+      modello:t.modello,type:t.type,matricola:t.matricola,accessori:t.accessori,difetto:t.difetto,categoria_guasto:t.categoriaGuasto,diagnosi:t.diagnosi,tecnico:t.tecnico,note:t.note,
+      ricambi_listino:tt.ricL,sconto_perc:tt.sc,sconto_euro:tt.scV,ricambi_netto:tt.ric,manodopera:tt.mo,manodopera_descrizione:t.manodoperaDescr,totale:tt.totale,costo_ricambi:tt.costo,
+      preventivo:t.preventivo,consegnato:t.consegnatoAt,pagato:t.pagato,pagamento:t.pagamento||t.metodoPag,data_acquisto:t.dataAcquisto,richiesta_sito:t.reqId,aggiornato:t.updatedAt,id:t.id});
+    (t.ricambi||[]).forEach(p=>r.push({scheda:t.num,data_scheda:t.createdAt,cliente:t.cliente,modello:t.modello,codice:p.codice,descrizione:p.descr,quantita:p.qty,prezzo:p.prezzo,costo:p.costo}));
+    (t.storico||[]).forEach(x=>h.push({scheda:t.num,stato:x.stato,quando:x.at,chi:x.by&&(x.by.nome||x.by.email||x.by)}));
+  });
+  return {s,r,h};
+}
+async function openEsporta(){
+  openModal(`<div class="mh"><h2>Scarica tutto il database</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><p style="margin-top:0">Il file ZIP contiene cartelle numerate con file <b>CSV</b> (si aprono con Excel), un <b>LEGGIMI</b> con l'elenco di tutto e la cartella <b>99_Backup_completo</b> in JSON per un eventuale ripristino. Non contiene password, codici d'accesso e sessioni.</p>
+   <label class="ck"><input type="checkbox" id="exAll" checked> Includi gli allegati (foto e documenti delle schede, dei pacchi, ecc.)</label>
+   <label class="ck" style="margin-top:6px"><input type="checkbox" id="exEml"> Includi le email complete (.eml): più lento e più pesante</label>
+   <div id="exLog" class="sub" style="margin-top:12px;max-height:180px;overflow:auto"></div><div class="prog" id="exProg" style="display:none;margin-top:8px"><i></i></div></div>
+  <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="exGo">${ic("down")}Prepara il file</button></div>`);
+  const log=t=>{ const l=$("#exLog"); if(l){ l.innerHTML+=esc(t)+"<br>"; l.scrollTop=1e6; } }, prog=(a,t)=>{ const p=$("#exProg i"); if(p) p.style.width=Math.min(100,a/t*100)+"%"; };
+  $("#exGo").onclick=async()=>{ const b=$("#exGo"); b.disabled=true; $("#exProg").style.display="block"; const conAll=$("#exAll").checked, conEml=$("#exEml").checked;
+    try{
+      await caricaJSZip(); const now=new Date(), al=now.toISOString().slice(0,10), ora=now.toTimeString().slice(0,5).replace(":","-");
+      const root=`SEMI_archivio_al_${al}_${ora}`, zip=new JSZip(), Z=zip.folder(root), conta=[];
+      const file=(cart,nome,rows,cols)=>{ Z.folder(cart).file(`${nome}_al_${al}.csv`,archCsv(rows,cols)); conta.push([cart,`${nome}_al_${al}.csv`,rows.length]); };
+      // 1) tabelle del server
+      log("Leggo l'elenco dei dati sul server…"); const elenco=(await SEMI.req("esporta")).tabelle; const T={}; let fatte=0;
+      for(const {t,n} of elenco){ log(`• ${t}: ${nf(n)} righe`); const rows=[]; let da=0, giri=0;
+        while(giri++<2000){ const r=await SEMI.req(`esporta?t=${encodeURIComponent(t)}&da=${da}&n=${t==="docs"||t==="pmail"?300:800}`); rows.push(...r.righe); da+=r.righe.length; if(r.fine||!r.righe.length) break; prog(fatte+da/Math.max(n,1),elenco.length+3); }
+        T[t]=rows; fatte++; prog(fatte,elenco.length+3); }
+      // 2) documenti dell'app per collezione
+      const C={}; (T.docs||[]).forEach(r=>{ let d=null; try{ d=r.d?JSON.parse(r.d):null; }catch(e){} if(!d) return; (C[r.c]=C[r.c]||[]).push({_id:r.id,...d,_aggiornato:r.u,_da:r.chi}); });
+      const items=c=>{ const o=[]; (C[c]||[]).forEach(d=>{ const it=d.items||{}; for(const k in it) o.push({...it[k]}); }); return o; };
+      const plain=c=>(C[c]||[]).map(({items,...d})=>d);
+      log("Preparo le cartelle…");
+      // 01 Assistenza
+      const sch=archSchede(plain("tickets").map(x=>({...x,id:x._id})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)));
+      file("01_Assistenza","schede_riparazione",sch.s); file("01_Assistenza","schede_ricambi_usati",sch.r); file("01_Assistenza","schede_storico_stati",sch.h);
+      file("01_Assistenza","richieste_riparazione_dal_sito",plain("richieste"));
+      file("01_Assistenza","distinte_esplosi",plain("esplosi").map(({parti,...e})=>({...e,ricambi:(parti||[]).length}))); 
+      file("01_Assistenza","distinte_esplosi_ricambi",(C.esplosi||[]).flatMap(e=>(e.parti||[]).map(p=>({distinta:e.modello||e._id,type:e.type,...p}))));
+      // 02 Magazzino
+      const art=items("mag").sort((a,b)=>String(a.codice).localeCompare(String(b.codice)));
+      const colArt=["codice","descr","tipo","giacenza","ubic","costo","costoStimato","prezzoNetto","prezzo","prezzoSito","prezzoFonte","ean","forn","cat","scortaMin","verificare","giacGest","sostDa","pubblica","acq12"];
+      file("02_Magazzino","articoli_tutti",art,colArt); file("02_Magazzino","articoli_con_giacenza",art.filter(r=>(Number(r.giacenza)||0)!==0),colArt);
+      file("02_Magazzino","da_contare",art.filter(r=>r.verificare),colArt);
+      file("02_Magazzino","valore_magazzino",[...new Set(art.map(r=>r.tipo||"altro"))].map(tp=>{ const l=art.filter(r=>(r.tipo||"altro")===tp&&(Number(r.giacenza)||0)>0); return {tipo:tp,articoli:l.length,pezzi:l.reduce((a,r)=>a+(Number(r.giacenza)||0),0),valore_a_costo:Math.round(l.reduce((a,r)=>a+(Number(r.giacenza)||0)*(Number(r.costo)||0),0)*100)/100}; }));
+      file("02_Magazzino","movimenti_magazzino",plain("movimenti").sort((a,b)=>(a.at||0)-(b.at||0)));
+      file("02_Magazzino","codici_a_barre",[...plain("ean").map(e=>({ean:e._id,codice:e.codice,origine:"collegato a mano"})),...art.filter(r=>r.ean).flatMap(r=>String(r.ean).split(/[ ,;]+/).filter(Boolean).map(e=>({ean:e,codice:r.codice,origine:"fatture SBD"})))]);
+      file("02_Magazzino","copia_sicurezza_giacenze",items("backup"));
+      file("02_Magazzino","ricambi_dewalt_catalogo",plain("ricambiDW"));
+      // 03 Vendite
+      file("03_Vendite","ordini_online_app",plain("ordiniWeb")); file("03_Vendite","ordini_pagati_sul_sito",T.ordini||[]); file("03_Vendite","resi",plain("resi"));
+      file("03_Vendite","codici_sconto",plain("sconti")); file("03_Vendite","scaffale_consegne",plain("consegne"));
+      // 04 Clienti
+      file("04_Clienti","clienti_archivio_app",items("clienti").map(c=>({...c,sconto_perc:scontoNum(c.sconto)})),["nome","tel","cell","email","piva","cf","ind","cap","citta","prov","sconto","sconto_perc","listino","origine"]);
+      file("04_Clienti","account_clienti_sito",T.clienti||[]); file("04_Clienti","punti_movimenti",T.punti_mov||[]);
+      file("04_Clienti","buoni",T.buoni||[]); file("04_Clienti","buoni_movimenti",T.buoni_mov||[]); file("04_Clienti","buoni_prenotati",T.buoni_prenotati||[]);
+      // 05 Acquisti DEWALT
+      file("05_Acquisti_DEWALT","ordini_dewalt",plain("ordini").map(({righe,...o})=>({...o,righe:(righe||[]).length})));
+      file("05_Acquisti_DEWALT","ordini_dewalt_righe",(C.ordini||[]).flatMap(o=>(o.righe||[]).map(x=>({ordine:o.num||o._id,data:o.createdAt||o.at,...x}))));
+      // 06 Sito
+      file("06_Sito","giacenze_sito_e_negozi",T.giacenze||[]); file("06_Sito","movimenti_sito",T.movimenti||[]); file("06_Sito","impostazioni_sito",T.impostazioni||[]);
+      file("06_Sito","visite_sito",T.presenze||[]);
+      // 07 Posta
+      file("07_Posta","email",(T.pmail||[]).map(m=>({...m,data:m.data})).sort((a,b)=>(a.data||0)-(b.data||0))); file("07_Posta","caselle",T.pcaselle||[]);
+      file("07_Posta","mittenti_bloccati_o_fidati",T.pmail_liste||[]); file("07_Posta","risposte_automatiche_inviate",T.pmail_auto||[]); if(T.caselle) file("07_Posta","caselle_vecchio_server",T.caselle);
+      // 08 App e utenti
+      file("08_App_e_utenti","utenti",T.utenti||[]); file("08_App_e_utenti","registro_attivita",(T.registro||[]).sort((a,b)=>(a.at||0)-(b.at||0)));
+      file("08_App_e_utenti","impostazioni_app",plain("config").flatMap(c=>Object.entries(c).filter(([k])=>!k.startsWith("_")).map(([k,v])=>({documento:c._id,voce:k,valore:v}))));
+      // altro: collezioni e tabelle non previste sopra
+      const noteC=new Set(["tickets","richieste","esplosi","mag","movimenti","ean","backup","ricambiDW","ordiniWeb","resi","sconti","consegne","clienti","ordini","config"]);
+      Object.keys(C).filter(c=>!noteC.has(c)).forEach(c=>file("09_Altro","app_"+c,(C[c]||[]).some(d=>d.items)?items(c):plain(c)));
+      const noteT=new Set(["docs","ordini","clienti","punti_mov","buoni","buoni_mov","buoni_prenotati","giacenze","movimenti","impostazioni","presenze","pmail","pcaselle","pmail_liste","pmail_auto","caselle","utenti","registro","files"]);
+      Object.keys(T).filter(t=>!noteT.has(t)).forEach(t=>file("09_Altro","tabella_"+t,T[t]));
+      // 10 Allegati
+      const F=T.files||[]; file("10_Allegati","elenco_allegati",F.map(f=>({...f,file:`${f.id}_${String(f.nome||"file").replace(/[\\/:*?"<>|]+/g,"_")}`})));
+      if(conAll&&F.length){ log(`Scarico ${nf(F.length)} allegati…`); const AF=Z.folder("10_Allegati").folder("file"); let k=0;
+        const coda=[...F]; await Promise.all([0,1,2,3].map(async()=>{ while(coda.length){ const f=coda.shift(); try{ const r=await fetch("/_blob/"+encodeURIComponent(f.id),{credentials:"same-origin"}); if(r.ok) AF.file(`${f.id}_${String(f.nome||"file").replace(/[\\/:*?"<>|]+/g,"_")}`,await r.arrayBuffer()); }catch(e){} k++; if(k%10===0) log(`  ${k}/${F.length}`); prog(elenco.length+k/F.length,elenco.length+3); } })); }
+      if(conEml&&(T.pmail||[]).length){ const M=T.pmail; log(`Scarico ${nf(M.length)} email complete…`); let k=0; const coda=[...M];
+        await Promise.all([0,1,2].map(async()=>{ while(coda.length){ const m=coda.shift(); try{ const r=await fetch(`/api/gestione/posta/originale?c=cf-${encodeURIComponent(m.casella)}&uid=${encodeURIComponent(m.id)}`,{credentials:"same-origin"}); if(r.ok) Z.folder("07_Posta").folder("email_complete").folder(String(m.casella||"altro")).file(`${new Date(m.data||m.at||0).toISOString().slice(0,10)}_${String(m.oggetto||"senza oggetto").replace(/[\\/:*?"<>|\s]+/g,"_").slice(0,60)}_${m.id}.eml`,await r.arrayBuffer()); }catch(e){} k++; if(k%25===0) log(`  ${k}/${M.length}`); } })); }
+      // 99 backup completo
+      const B=Z.folder("99_Backup_completo_JSON"); Object.entries(C).forEach(([c,l])=>B.folder("app").file(`${c}.json`,JSON.stringify(l))); Object.entries(T).filter(([t])=>t!=="docs").forEach(([t,l])=>B.folder("tabelle").file(`${t}.json`,JSON.stringify(l)));
+      // LEGGIMI
+      const dt=now.toLocaleDateString("it-IT")+" alle "+now.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+      Z.file("LEGGIMI.txt",["SE.M.I. S.R.L. – Semi Store · archivio completo del database",`Dati al ${dt} · scaricato da ${S.me?.nome||""}`,"",
+        "I file .csv si aprono con Excel (separatore punto e virgola, date gg/mm/aaaa). La cartella 99_Backup_completo_JSON contiene tutti i dati grezzi per un ripristino.",
+        "Non contiene password, codici d'accesso, sessioni né chiavi.","",
+        "CARTELLE","01_Assistenza – schede di riparazione, ricambi usati, storico stati, richieste dal sito, distinte/esplosi","02_Magazzino – articoli (giacenza, scaffale, costo, prezzi, EAN), valore, da contare, movimenti, codici a barre, copia di sicurezza","03_Vendite – ordini online, ordini pagati sul sito, resi, codici sconto, scaffale consegne","04_Clienti – archivio clienti (Danea + schede), account del sito, punti, buoni","05_Acquisti_DEWALT – ordini a DEWALT e righe","06_Sito – giacenze inviate a sito e negozi, movimenti, impostazioni, visite","07_Posta – email (mittente, oggetto, data, anteprima), caselle, liste, risposte automatiche"+(conEml?", email complete .eml":""),"08_App_e_utenti – utenti, registro attività, impostazioni dell'app","09_Altro – dati che non rientrano nelle cartelle sopra","10_Allegati – elenco"+(conAll?" e file":""),"","CONTENUTO",...conta.map(([c,f,n])=>`${c}/${f}: ${n} righe`)].join("\r\n"));
+      log("Comprimo il file…"); b.textContent="Comprimo…";
+      const blob=await zip.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:6}},m=>prog(elenco.length+2+m.percent/100,elenco.length+3));
+      const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=root+".zip"; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000);
+      log(`Fatto: ${root}.zip (${(blob.size/1048576).toFixed(1)} MB)`); b.textContent="Scaricato"; toast("Archivio completo scaricato");
+    }catch(e){ log("Errore: "+(e.message||e)); b.disabled=false; b.textContent="Riprova"; }
+  };
 }
 
 /* ---------- modal ---------- */
