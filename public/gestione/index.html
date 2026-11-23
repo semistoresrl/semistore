@@ -632,7 +632,8 @@ textarea.winp{min-height:110px;font-size:20px}
 .bcbtn:hover,.bcbtn:active{background:#0000000d}.bcbtn svg{width:20px;height:20px}.bcbtn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0;width:100%}.bcbtn.load{background:#fff4cc}
 .gs .bcwrap{flex:1 1 0;min-width:0}
 .ttg{font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted,#666);margin:10px 0 6px}
-.ttl{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.ttl{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:10px}
+#main{min-width:0;overflow-x:hidden}
 .ttc{border:1px solid var(--line,#ddd);border-radius:12px;padding:10px 12px;min-width:0;background:var(--card,#fff)}
 .ttc-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:13px}.ttc-h b{margin-left:auto}.ttc-h .mono{font-size:12px;overflow-wrap:anywhere}
 .ttc-a{margin:6px 0;font-size:14px;line-height:1.35;overflow-wrap:anywhere}.ttc-f{font-size:13px;overflow-wrap:anywhere}
@@ -3634,7 +3635,7 @@ function vTikTok(){
     <div class="kpi"><div class="l">Scontrino medio</div><div class="v">${ttE(t.scontrinoMedio)}</div><div class="s">per ordine valido</div></div>
     <div class="kpi"><div class="l">Prodotti</div><div class="v">${nf(d.prodotti.filter(p=>p.pubblicato).length)}</div><div class="s">pubblicati · <b ${prob.length?'class="low"':""}>${nf(prob.length)} con problemi</b></div></div>
   </div>
-  <div class="grid2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;margin-bottom:18px">
+  <div class="grid2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:18px;margin-bottom:18px">
    <div class="panel"><h3>${ic("euro")}Incasso per mese</h3>
     ${d.mesi.length?`<div style="display:flex;align-items:flex-end;gap:10px;height:170px;padding-top:18px">${d.mesi.map(m=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px" title="${m.ordini} ordini · ${m.annullati} annullati · ${m.campioni} campioni">
       <span style="font-size:11px;font-weight:700;white-space:nowrap">${ttE(m.incasso).replace(",00","")}</span><div style="width:100%;max-width:46px;background:var(--ink);border-radius:6px 6px 0 0;height:${Math.max(2,m.incasso/max*120)}px"></div>
@@ -3653,7 +3654,7 @@ function vTikTok(){
     <p class="sub" style="margin:-4px 0 10px">Quasi sempre serve l'autorizzazione del marchio: carica la lettera DEWALT/SBD in Seller Center → Account → Autorizzazioni brand. Lo SKU venditore va messo uguale al codice del magazzino.</p>${pTab(prob)}</div>`:""}
   <div class="panel" style="margin-bottom:18px"><h3>${ic("box")}Prodotti su TikTok: ${ok.length}</h3>${ok.length?pTab(ok):`<div class="empty">—</div>`}</div>
   <div class="panel"><h3>${ic("cart")}Ultimi ordini</h3><div class="tts"><table><thead><tr><th>Ordine</th><th>Data</th><th>Articoli</th><th>Stato</th><th class="num">Totale</th></tr></thead><tbody>
-    ${d.ultimi.map(o=>`<tr><td class="mono">${esc(o.id)}</td><td>${ttOra(o.creato)}</td><td>${esc(o.articoli)}${o.campione?` <span class="chip">campione</span>`:""}</td><td>${esc(o.stato)}</td><td class="num">${ttE(o.totale)}</td></tr>`).join("")}</tbody></table></div>
+    ${d.ultimi.map(o=>`<tr><td class="mono">${esc(o.id)}</td><td>${ttOra(o.creato)}</td><td style="min-width:180px">${esc(String(o.articoli||"").slice(0,70))}${String(o.articoli||"").length>70?"…":""}${o.campione?` <span class="chip">campione</span>`:""}</td><td>${esc(o.stato)}</td><td class="num">${ttE(o.totale)}</td></tr>`).join("")}</tbody></table></div>
     <p class="sub" style="margin-top:10px">Visualizzazioni e conversioni non sono disponibili dall'API: restano in Seller Center → Analisi dati. Nomi e indirizzi dei clienti non vengono copiati qui.</p></div>`);
 }
 /* ---------- lettura ---------- */
