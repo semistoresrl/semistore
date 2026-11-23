@@ -12,6 +12,7 @@
 //  POST file                     → allegato (corpo = file, header x-nome) → {id}; si legge da /_blob/<id>
 //  GET  presenze?da&a            → solo admin: persone sul sito (in diretta, per periodo)
 import { gdb, json, utente, sha, casuale, cookieSessione, cookieVia, fondi, differenza, mandaEmail, giornoIT } from '../../_lib/gestione.js';
+import { riprovaRicostruzione } from '../../_lib/ricostruzione.js';
 
 const MAX_FILE = 1_900_000;
 const nuovoId = () => casuale(10);
@@ -87,6 +88,7 @@ export async function onRequest(ctx) {
 
   if (p === 'db' && m === 'GET') {
     const since = Number(new URL(request.url).searchParams.get('since') || 0);
+    if (ctx.waitUntil) ctx.waitUntil(riprovaRicostruzione(env).catch(() => {}));
     const ora = Date.now();
     const r = (await d.prepare('SELECT c, id, d, u, chi FROM docs WHERE u >= ? ORDER BY u').bind(since).all()).results;
     return json({ ora, docs: r.map((x) => ({ c: x.c, id: x.id, u: x.u, chi: x.chi, d: x.d == null ? null : JSON.parse(x.d) })) });

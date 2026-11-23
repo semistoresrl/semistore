@@ -6,6 +6,7 @@ import { db, json, getImp, setImp } from '../_lib/db.js';
 import { autorizzato } from '../_lib/gestione.js';
 import { configurato } from '../_lib/tiktok.js';
 import { sincronizza } from '../_lib/sincronizza.js';
+import { riprovaRicostruzione } from '../_lib/ricostruzione.js';
 
 const norm = (c) => String(c || '').toUpperCase().replace(/-[A-Z]{2}$/, '').replace(/[^A-Z0-9]/g, '');
 const PER_CODICE = {};
@@ -21,6 +22,7 @@ export async function onRequestGet({ request, env, waitUntil }) {
   // ?completo=1: [{slug, qty, prezzo}] per il build del sito (scripts/live.mjs), senza cache
   if (completo) return json((await d.prepare('SELECT slug, qty, prezzo FROM giacenze').all()).results);
   const r = (await d.prepare('SELECT slug, qty FROM giacenze').all()).results;
+  waitUntil(riprovaRicostruzione(env).catch(() => {}));
   // avanza la coda TikTok anche con le visite (al massimo una volta al minuto)
   if (configurato(env)) waitUntil((async () => {
     const ultimo = await getImp(env, 'ultimo_sync');
@@ -71,9 +73,15 @@ export async function onRequestPost({ request, env, waitUntil }) {
 
 // Deploy hook (Cloudflare Pages → Impostazioni → Build → Deploy hooks), salvato nella variabile DEPLOY_HOOK_URL.
 // Più invii ravvicinati: Cloudflare mette i build in coda e l'ultimo usa i valori più recenti.
+// 304 = Cloudflare ha già un build in coda per il ramo e non ne crea un altro: segno l'aggiornamento come «in attesa»
+// e lo riprovo da solo (vedi riprovaRicostruzione) finché Cloudflare non lo accetta, così i valori nuovi arrivano sul sito.
 async function ricostruisci(env, si) {
   if (!si) return 'non richiesta';
   if (!env.DEPLOY_HOOK_URL) return 'manca DEPLOY_HOOK_URL';
-  try { const r = await fetch(env.DEPLOY_HOOK_URL, { method: 'POST' }); return r.ok ? 'avviata' : 'errore ' + r.status; }
-  catch (e) { return 'errore: ' + e.message; }
+  try {
+    const r = await fetch(env.DEPLOY_HOOK_URL, { method: 'POST' });
+    if (r.ok) { await setImp(env, 'ricostruzione_pendente', 0).catch(() => {}); return 'avviata'; }
+    if (r.status === 304) { await setImp(env, 'ricostruzione_pendente', Date.now()).catch(() => {}); return 'in coda'; }
+    return 'errore ' + r.status;
+  } catch (e) { return 'errore: ' + e.message; }
 }
