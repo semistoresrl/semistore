@@ -3,6 +3,7 @@
 // stato, importi, articoli e spedizione: niente nome, telefono o indirizzo del cliente (restano su TikTok).
 import { db, getImp, setImp } from './db.js';
 import { chiama } from './tiktok.js';
+import { ordineInApp } from './tiktok-app.js';
 
 const INIZIO = Math.floor(Date.UTC(2026, 6, 1) / 1000); // 01/07/2026: il primo ordine è del 13/07
 const cent = (v) => Math.round((Number(v) || 0) * 100);
@@ -65,24 +66,27 @@ export async function salvaOrdine(env, o) {
     .bind(String(o.id), Number(o.create_time) || 0, Number(o.update_time) || 0, o.status || '', cent(p.total_amount), cent(p.shipping_fee), sc,
       p.currency || 'EUR', o.is_sample_order ? 1 : 0, JSON.stringify(articoli), tr, o.shipping_provider || '',
       Number(o.rts_sla_time || o.shipping_due_time || 0) || null, o.cancel_reason || null, new Date().toISOString()).run();
+  await ordineInApp(env, o).catch((e) => console.log('ordine in app', o.id, e.message)); // anche in Ordini online dell'app
 }
 
 // Una pagina di ordini. filtro: {create_time_ge} per lo storico, {update_time_ge} per gli aggiornamenti.
 export async function paginaOrdini(env, { pageToken, filtro, completo } = {}) {
   const stato = (await getImp(env, 'tiktok_dati')) || {};
-  if (!filtro) filtro = completo || !stato.ordini ? { create_time_ge: INIZIO } : { update_time_ge: Math.floor(stato.ordini / 1000) - 3600 };
+  // la prima volta dopo l'aggiunta in "Ordini online" si rilegge tutto, così anche gli ordini vecchi entrano nell'app
+  if (!filtro) filtro = completo || !stato.ordini || !stato.inApp ? { create_time_ge: INIZIO } : { update_time_ge: Math.floor(stato.ordini / 1000) - 3600 };
   const avvio = Date.now();
   const r = await chiama(env, 'POST', '/order/202309/orders/search', {
     query: { page_size: 50, sort_field: 'create_time', sort_order: 'ASC', page_token: pageToken || undefined }, body: filtro,
   });
   for (const o of r.orders || []) await salvaOrdine(env, o);
   const prossima = r.next_page_token || '';
-  if (!prossima) await setImp(env, 'tiktok_dati', { ...stato, ordini: pageToken ? (stato.ordiniInizio || avvio) : avvio, ordiniInizio: null });
+  if (!prossima) await setImp(env, 'tiktok_dati', { ...stato, ordini: pageToken ? (stato.ordiniInizio || avvio) : avvio, ordiniInizio: null, ...(filtro.create_time_ge ? { inApp: true } : {}) });
   else if (!pageToken) await setImp(env, 'tiktok_dati', { ...stato, ordiniInizio: avvio });
   return { letti: (r.orders || []).length, totale: r.total_count ?? null, pageToken: prossima, filtro, fatto: !prossima };
 }
 
-const OK = ['ACTIVATE', 'SELLER_DEACTIVATED', 'DRAFT', 'DELETED'];
+const PUBBLICATO = ['ACTIVATE', 'LIVE', 'ACTIVE'];
+const OK = ['ACTIVATE', 'LIVE', 'ACTIVE', 'SELLER_DEACTIVATED', 'DRAFT', 'DELETED'];
 // Una pagina di prodotti; per quelli bloccati o rifiutati legge anche il motivo
 export async function paginaProdotti(env, { pageToken } = {}) {
   const d = await tdb(env);
@@ -140,19 +144,21 @@ export async function riepilogo(env) {
     }
   }
   const val = ord.filter(valido), incasso = val.reduce((a, o) => a + o.totale, 0);
-  const daSpedire = ord.filter((o) => ['AWAITING_SHIPMENT', 'PARTIALLY_SHIPPING'].includes(o.stato))
+  // da spedire: da preparare (in attesa di spedizione) + pronti con etichetta, in attesa del ritiro del corriere
+  const daSpedire = ord.filter((o) => ['AWAITING_SHIPMENT', 'PARTIALLY_SHIPPING', 'AWAITING_COLLECTION'].includes(o.stato))
     .sort((a, b) => (a.scadenza || a.creato) - (b.scadenza || b.creato))
-    .map((o) => ({ id: o.id, creato: o.creato, scadenza: o.scadenza, totale: o.totale, stato: NOMI_STATO[o.stato] || o.stato, articoli: o.articoli.map((a) => ({ nome: a.n, sku: a.sku, q: a.q })) }));
+    .map((o) => ({ id: o.id, creato: o.creato, scadenza: o.scadenza, totale: o.totale, stato: NOMI_STATO[o.stato] || o.stato, pronto: o.stato === 'AWAITING_COLLECTION',
+      tracking: o.tracking || '', corriere: o.corriere || '', articoli: o.articoli.map((a) => ({ nome: a.n, sku: a.sku, q: a.q })) }));
   const trova = await indiceGiacenze(d).catch(() => () => null);
   const prodotti = prod.filter((p) => p.stato !== 'DELETED').map((p) => {
     const v = venduti[p.id];
     const avvisi = [...p.problemi];
     if (!p.sku) avvisi.push('Manca lo SKU venditore (codice prodotto)');
     const g = trova({ prodId: p.id, sellerSku: p.sku });
-    if (!g && p.stato === 'ACTIVATE') avvisi.push('Non collegato al magazzino del sito: le vendite TikTok non scalano la giacenza (lo SKU deve essere uguale al codice del magazzino)');
+
     return { id: p.id, titolo: p.titolo, stato: p.stato, statoNome: NOMI_PROD[p.stato] || p.stato, sku: p.sku, scorte: p.scorte, prezzo: p.prezzo,
       venduti: v?.pezzi || 0, avvisi, magazzino: g ? { slug: g.r.slug, codice: g.r.codice, qty: g.r.qty, come: g.come } : null,
-      problema: !['ACTIVATE', 'SELLER_DEACTIVATED', 'DRAFT'].includes(p.stato) || !p.sku || (!g && p.stato === 'ACTIVATE') };
+      pubblicato: PUBBLICATO.includes(p.stato), problema: !PUBBLICATO.includes(p.stato) && !['SELLER_DEACTIVATED', 'DRAFT'].includes(p.stato) || !p.sku };
   }).sort((a, b) => (b.problema - a.problema) || (b.venduti - a.venduti) || a.titolo.localeCompare(b.titolo));
   const s = (await getImp(env, 'tiktok_dati')) || {};
   const cq = (await d.prepare(`SELECT SUM(tt_da_sync=1) coda, SUM(tt_product IS NOT NULL AND COALESCE(tt_stato,'')<>'bozza') online, SUM(tt_stato='bozza') bozze,

@@ -64,6 +64,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
   if (tiktok) waitUntil(sincronizza(env, new URL(request.url).origin, { limite: 40 }).catch(() => {}));
   // ricostruisce il sito (pagine, feed Google/Meta/WhatsApp, checkout) con i valori nuovi: deploy hook di Cloudflare Pages
   esito.ricostruzione = await ricostruisci(env, b.ricostruisci !== false && esito.salvati > 0);
+  // primo invio dall'app (fine inventario): da qui in poi le vendite TikTok scalano anche il magazzino dell'app
+  if (!(await getImp(env, 'tiktok_scarico_da').catch(() => null))) await setImp(env, 'tiktok_scarico_da', Date.now()).catch(() => {});
   return json(esito);
 }
 
