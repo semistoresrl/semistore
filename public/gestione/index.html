@@ -3197,7 +3197,10 @@ async function esportaTutto(){
 
 /* ---------- invio diretto di prezzi e giacenze (sul sito) ---------- */
 async function inviaDiretto(lista,box){
-  const righe=lista.map(r=>({codice:r.codice,qty:r.verificare?0:Math.max(0,Math.floor(Number(r.giacenza)||0)),...(r.prezzoSito!=null?{prezzo:Math.round(Number(r.prezzoSito)*100)}:{})}));
+  // 23/11: anche nome, marca, foto, EAN e descrizione, così TikTok può creare gli articoli che non sono nel catalogo del sito
+  const scheda=r=>{ const x={}; const nome=(r.titolo||r.descr||"").trim(); if(nome) x.nome=nome; if(r.marca) x.marca=r.marca; if(r.fotoUrl) x.immagine=r.fotoUrl;
+    if(r.ean) x.ean=String(r.ean); if(r.descrizione) x.descrizione=r.descrizione; if(r.cat&&r.cat!=="Altro") x.categoria=r.cat; return x; };
+  const righe=lista.map(r=>({codice:r.codice,qty:r.verificare?0:Math.max(0,Math.floor(Number(r.giacenza)||0)),...(r.prezzoSito!=null?{prezzo:Math.round(Number(r.prezzoSito)*100)}:{}),...scheda(itm(r.codice)||r)}));
   box.innerHTML=`<div class="wcard"><b>Invio ${righe.length} articoli…</b></div>`;
   let tot={salvati:0,nonSulSito:[],scartati:[]}, rico="";
   for(let i=0;i<righe.length;i+=1500){ const ult=i+1500>=righe.length;

@@ -51,7 +51,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     let slug = g.slug && SLUGS.has(g.slug) ? g.slug : PER_CODICE[norm(g.codice || g.modello)];
     if (!slug && (g.codice || g.slug)) { slug = g.slug || nuovoSlug(g.marca, g.codice); esito.nonSulSito.push(slug); }
     if (!slug || !Number.isFinite(qty) || qty < 0) { esito.scartati.push(g.codice || g.slug || '?'); continue; }
-    const dati = {}; for (const k of CAMPI) if (g[k] !== undefined && g[k] !== '') dati[k] = g[k];
+    // la scheda inviata dall'app serve solo per gli articoli che non sono nel catalogo del sito: per quelli del sito restano i dati del sito
+    const dati = {}; if (!SLUGS.has(slug)) for (const k of CAMPI) if (g[k] !== undefined && g[k] !== '') dati[k] = g[k];
     const prezzo = Number.isFinite(Number(g.prezzo)) && Number(g.prezzo) > 0 ? Math.round(Number(g.prezzo)) : null;
     istr.push(d.prepare(`INSERT INTO giacenze(slug, codice, qty, prezzo, dati, aggiornata, tt_da_sync) VALUES(?,?,?,?,?,?,?)
       ON CONFLICT(slug) DO UPDATE SET qty=excluded.qty, codice=COALESCE(excluded.codice, codice),
