@@ -624,7 +624,7 @@ textarea.winp{min-height:110px;font-size:20px}
 .wlinkord{display:flex;gap:12px;align-items:flex-start;background:#dde9ff;border-radius:16px;padding:14px;margin:12px 0;font-size:17px;cursor:pointer}.wlinkord input{width:26px;height:26px;flex:none;margin-top:2px}.wlinkord small{display:block;color:var(--muted);font-size:14px}
 .wplist{display:flex;flex-direction:column;gap:8px;margin:6px 0 10px}.wpi{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #1fa855;border-radius:14px;padding:6px}.wpi.off{border-color:var(--line);opacity:.45}.wpi.off b{text-decoration:line-through}
 .wpi>button{flex:1;text-align:left;background:none;border:0;font:inherit;padding:6px;cursor:pointer}.wpi>button b{display:block;font-size:17px}.wpi small{font-size:13px;color:var(--muted)}
-.wpq{display:flex;align-items:center;gap:6px}.wpqs{display:flex;flex-direction:column;gap:4px;align-items:flex-end}.wpq>small{font-size:12px;font-weight:700;min-width:62px;text-align:right}.wpq.qui b{color:#0d5a2e}.wpi.parz{border-color:#e8781c;background:#fff8f0}.wpi.zero{border-color:#d33;background:#fff4f2}.wcalc{background:#fff3c4;border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.45;margin:6px 0 10px}.wcalc b{font-size:18px}.cmeta i.manca{background:#ffe1cc;color:#8a3a00}
+.wpq{display:flex;align-items:center;gap:6px}.wpqs{display:flex;flex-direction:column;gap:4px;align-items:flex-end}.wpq>small{font-size:12px;font-weight:700;min-width:62px;text-align:right}.wpq.qui b{color:#0d5a2e}.wpq.rit b{color:#1d4ed8}.wpi.parz{border-color:#e8781c;background:#fff8f0}.wpi.zero{border-color:#d33;background:#fff4f2}.wcalc{background:#fff3c4;border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.45;margin:6px 0 10px}.wcalc b{font-size:18px}.cmeta i.manca{background:#ffe1cc;color:#8a3a00}
 .wpq b{min-width:26px;text-align:center;font-size:20px}.wpq button{width:40px;height:40px;border-radius:12px;border:2px solid var(--line);background:#fff;font-size:22px;font-weight:800;cursor:pointer}
 .wtxt{margin-top:12px}.wtxt summary{color:var(--muted);cursor:pointer;font-size:14px}.wtxt pre{white-space:pre-wrap;font-size:12px;background:var(--paper);border-radius:10px;padding:10px;max-height:260px;overflow:auto}
 .bcwrap{position:relative;display:block;flex:0 0 auto;min-width:0;max-width:100%;width:100%}.gs{min-width:0}.toolbar .bcwrap{flex:1 1 200px;width:auto}.bcwrap>input{width:100%;padding-right:46px!important;box-sizing:border-box}
@@ -3210,30 +3210,43 @@ const sulloScaffale=()=>S.consegne.filter(c=>c.stato==="sullo scaffale"&&!(c.ord
 const cMsg=c=>`Ciao ${nome1(c.cliente)}, ${c.cosa?c.cosa:"il tuo ordine"}${c.ordineNum?" (ordine "+c.ordineNum+")":""} è pronto da Semi Store, ${SHOP.ind} (${SHOP.orari}).${Number(c.incassare)>0&&!c.pagato?" Importo da saldare: "+eur(c.incassare)+".":""}${c.mancano?" Mancano ancora: "+c.mancano+"; ti avvisiamo appena arrivano.":""} A presto!`;
 /* articoli del pacco: qty = nel documento, sc = sullo scaffale; il dovuto scala in base a quello che c'è davvero */
 const pzUn=p=>Number(p.prezzo)>0?Number(p.prezzo):prezzoVendita(itm(p.codice));
-const scDi=p=>Math.max(0,Math.min(Number(p.qty)||0,p.sc==null?(Number(p.qty)||0):Number(p.sc)||0));
+// pezzi di un articolo: sul documento (qty) = sullo scaffale (sc) + già ritirati dal cliente (rit) + mancanti
+const ritDi=p=>Math.max(0,Math.min(Number(p.qty)||0,Number(p.rit)||0));
+const scDi=p=>Math.max(0,Math.min((Number(p.qty)||0)-ritDi(p),p.sc==null?(Number(p.qty)||0)-ritDi(p):Number(p.sc)||0));
+const mancaDi=p=>Math.max(0,(Number(p.qty)||0)-scDi(p)-ritDi(p));
 const nomeArt=p=>`${p.nome||p.codice}${p.nome&&p.nome!==p.codice?" ("+p.codice+")":""}`;
 function contoPacco(prodotti,totDoc,pagato){
   const l=(prodotti||[]).filter(p=>(Number(p.qty)||0)>0);
-  const pz=l.reduce((a,p)=>a+(Number(p.qty)||0),0), qui=l.reduce((a,p)=>a+scDi(p),0);
+  const pz=l.reduce((a,p)=>a+(Number(p.qty)||0),0), qui=l.reduce((a,p)=>a+scDi(p),0), rit=l.reduce((a,p)=>a+ritDi(p),0);
   const prezzati=l.length&&l.every(p=>pzUn(p)>0);
-  const vT=l.reduce((a,p)=>a+(Number(p.qty)||0)*pzUn(p),0), vQ=l.reduce((a,p)=>a+scDi(p)*pzUn(p),0);
-  const quota=!l.length?1:prezzati&&vT>0?vQ/vT:pz?qui/pz:1;
+  const vT=l.reduce((a,p)=>a+(Number(p.qty)||0)*pzUn(p),0), vQ=l.reduce((a,p)=>a+scDi(p)*pzUn(p),0), vR=l.reduce((a,p)=>a+ritDi(p)*pzUn(p),0);
+  const quota=!l.length?1:prezzati&&vT>0?vQ/vT:pz?qui/pz:1, quotaR=!l.length?0:prezzati&&vT>0?vR/vT:pz?rit/pz:0;
   const base=Number(totDoc)>0?Number(totDoc):prezzati?vT:0;
-  const inc=pagato?0:Math.round(base*quota*100)/100;
-  const manca=l.filter(p=>scDi(p)<(Number(p.qty)||0));
-  return {pz,qui,quota,base,incassare:inc,resto:pagato?0:Math.round((base-inc)*100)/100,manca,
+  const inc=pagato?0:Math.round(base*quota*100)/100, ritV=Math.round(base*quotaR*100)/100;
+  const manca=l.filter(p=>mancaDi(p)>0), ritirati=l.filter(p=>ritDi(p)>0);
+  return {pz,qui,rit,quota,base,incassare:inc,ritVal:ritV,resto:pagato?0:Math.max(0,Math.round((base-inc-ritV)*100)/100),manca,
     cosa:l.filter(p=>scDi(p)>0).map(p=>`${scDi(p)>1?scDi(p)+"× ":""}${nomeArt(p)}`).join(", "),
-    mancano:manca.map(p=>{ const m=(Number(p.qty)||0)-scDi(p); return `${m>1?m+"× ":""}${p.nome||p.codice}`; }).join(", ")};
+    ritirato:ritirati.map(p=>`${ritDi(p)>1?ritDi(p)+"× ":""}${p.nome||p.codice}`).join(", "),
+    mancano:manca.map(p=>{ const m=mancaDi(p); return `${m>1?m+"× ":""}${p.nome||p.codice}`; }).join(", ")};
 }
 const artRighe=(P,attivi=true)=>`<div class="wplist">${P.map((p,k)=>{ const q=Number(p.qty)||0, s=scDi(p), off=attivi&&p.on===false;
-  return `<div class="wpi ${off?"off":s===0?"zero":s<q?"parz":""}" data-pi="${k}"><button data-pt="${k}"><b>${esc(p.nome||p.codice)}</b><small class="mono">${esc(p.codice)}</small>${pzUn(p)>0?`<small> · ${eur(pzUn(p))}</small>`:""}</button>
+  const r=ritDi(p), mc=mancaDi(p);
+  return `<div class="wpi ${off?"off":s===0&&r===0?"zero":mc>0?"parz":""}" data-pi="${k}"><button data-pt="${k}"><b>${esc(p.nome||p.codice)}</b><small class="mono">${esc(p.codice)}</small>${pzUn(p)>0?`<small> · ${eur(pzUn(p))}</small>`:""}</button>
     <span class="wpqs"><span class="wpq"><small>documento</small><button data-pq="${k}" data-d="-1">−</button><b>${q}</b><button data-pq="${k}" data-d="1">＋</button></span>
-    <span class="wpq qui"><small>sullo scaff.</small><button data-ps="${k}" data-d="-1">−</button><b>${s}</b><button data-ps="${k}" data-d="1">＋</button></span></span></div>`; }).join("")}</div>`;
+    <span class="wpq qui"><small>sullo scaff.</small><button data-ps="${k}" data-d="-1">−</button><b>${s}</b><button data-ps="${k}" data-d="1">＋</button></span>
+    <span class="wpq rit"><small>già ritirato</small><button data-pr="${k}" data-d="-1">−</button><b>${r}</b><button data-pr="${k}" data-d="1">＋</button></span></span></div>`; }).join("")}</div>`;
 function bindArt(P,ridisegna,prima){ const z=$("#wzB");
   z.querySelectorAll("[data-pt]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.pt]; p.on=p.on===false; ridisegna(); });
-  z.querySelectorAll("[data-pq]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.pq], s=scDi(p), pieno=s>=(Number(p.qty)||0); p.qty=Math.max(1,(Number(p.qty)||0)+Number(b.dataset.d)); p.sc=pieno?p.qty:Math.min(s,p.qty); ridisegna(); });
-  z.querySelectorAll("[data-ps]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.ps]; p.sc=Math.max(0,Math.min(Number(p.qty)||0,scDi(p)+Number(b.dataset.d))); ridisegna(); }); }
-const contoTxt=(k,totDoc)=>k.qui<k.pz?`<div class="wcalc">Sullo scaffale <b>${k.qui}</b> pezzi su ${k.pz}.${k.base?`<br>${Number(totDoc)>0?"Totale documento":"Valore"} ${eur(k.base)} → da incassare ora <b>${eur(k.incassare)}</b><br>Resta da incassare all'arrivo del resto: ${eur(k.resto)}`:""}<br><small>Mancano: ${esc(k.mancano)}</small></div>`:k.pz?`<div class="wcalc" style="background:#dcf5e6">C'è tutto: ${k.pz} ${k.pz===1?"pezzo":"pezzi"}${k.base?` · da incassare <b>${eur(k.incassare)}</b>`:""}</div>`:"";
+  z.querySelectorAll("[data-pq]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.pq], s=scDi(p), r=ritDi(p), pieno=s+r>=(Number(p.qty)||0); p.qty=Math.max(1,(Number(p.qty)||0)+Number(b.dataset.d)); p.rit=Math.min(r,p.qty); p.sc=pieno?p.qty-ritDi(p):Math.min(s,p.qty-ritDi(p)); ridisegna(); });
+  z.querySelectorAll("[data-ps]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.ps]; p.sc=Math.max(0,Math.min((Number(p.qty)||0)-ritDi(p),scDi(p)+Number(b.dataset.d))); ridisegna(); });
+  // già ritirato: il pezzo che il cliente ha già portato via esce dallo scaffale (o dai mancanti)
+  z.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{ prima&&prima(); const p=P[b.dataset.pr], q=Number(p.qty)||0, d=Number(b.dataset.d), r=ritDi(p), s=scDi(p);
+    if(d>0){ if(r>=q) return; p.rit=r+1; if(mancaDi({...p,sc:s})<0||s+r+1>q) p.sc=Math.max(0,s-1); else p.sc=s; }
+    else { if(r<=0) return; p.rit=r-1; p.sc=s; }
+    ridisegna(); }); }
+const contoTxt=(k,totDoc)=>{ const rt=k.rit?`<br><small>Già ritirato dal cliente: ${esc(k.ritirato)}${k.ritVal?` (${eur(k.ritVal)}, non incluso nell'importo)`:""}</small>`:"";
+  return k.qui+k.rit<k.pz?`<div class="wcalc">Sullo scaffale <b>${k.qui}</b> pezzi su ${k.pz}.${k.base?`<br>${Number(totDoc)>0?"Totale documento":"Valore"} ${eur(k.base)} → da incassare ora <b>${eur(k.incassare)}</b><br>Resta da incassare all'arrivo del resto: ${eur(k.resto)}`:""}<br><small>Mancano: ${esc(k.mancano)}</small>${rt}</div>`
+    :k.pz?`<div class="wcalc" style="background:#dcf5e6">${k.rit?`Sullo scaffale ${k.qui} ${k.qui===1?"pezzo":"pezzi"}, il resto è già ritirato`:`C'è tutto: ${k.pz} ${k.pz===1?"pezzo":"pezzi"}`}${k.base?` · da incassare <b>${eur(k.incassare)}</b>`:""}${rt}</div>`:""; };
 const cMsgCons=c=>`Ciao ${nome1(c.cliente)}, ${c.cosa?c.cosa:"il tuo ordine"}${c.ordineNum?" (ordine "+c.ordineNum+")":""} è pronto: te lo portiamo noi${c.quando?" "+fmtDay(new Date(c.quando).getTime()):""}. Ti avvisiamo quando partiamo. Semi Store`;
 
 /* ---------- scaffale ricambi dentro la scheda prodotto ---------- */
@@ -3272,7 +3285,7 @@ function wizScaffale(apri){
       <div class="wsub">${esc(c.cosa||"")}${c.ordineNum?` · ordine ${esc(c.ordineNum)}`:""}</div>
       <div class="wrow"><div><small>${c.modo==="consegna"?"Consegniamo noi":"Ritira il cliente"}</small><div class="wstock" style="font-size:20px">${c.modo==="consegna"?(c.quando?fmtDay(new Date(c.quando).getTime()):"da fissare"):"in negozio"}</div></div>
        <div><small>${da?(c.pagaDopo?"Paga dopo":"Da incassare"):"Pagamento"}</small><div class="wprice">${da?eur(c.incassare):"Pagato"}</div>${da&&c.pagaDopo?`<small>entro il ${fmtG(c.scadenza)}${c.metodo?" · "+esc(c.metodo):""}</small>`:""}</div></div>
-      ${c.modo==="consegna"&&c.ind?`<div class="wsub" style="margin-top:8px">${ic("truck")} ${esc(c.ind)}</div>`:""}${c.note?`<div class="wsub" style="margin-top:6px">${esc(c.note)}</div>`:""}${c.mancano?`<div class="wwarn">Mancano ancora: ${esc(c.mancano)}${Number(c.resto)>0?` · resto da incassare all'arrivo ${eur(c.resto)}`:""}</div>`:""}${c.docNum?`<div class="wsub" style="margin-top:6px">Documento ${esc(c.docNum)}</div>`:""}${c.doc?`<a class="wlink" href="/_blob/${esc(c.doc)}" target="_blank" rel="noopener">${ic("clipboard")}Vedi il documento</a>`:""}
+      ${c.modo==="consegna"&&c.ind?`<div class="wsub" style="margin-top:8px">${ic("truck")} ${esc(c.ind)}</div>`:""}${c.note?`<div class="wsub" style="margin-top:6px">${esc(c.note)}</div>`:""}${(c.ritirato?`<div class="wsub" style="margin-top:6px">Già ritirato dal cliente: ${esc(c.ritirato)}</div>`:"")}${c.mancano?`<div class="wwarn">Mancano ancora: ${esc(c.mancano)}${Number(c.resto)>0?` · resto da incassare all'arrivo ${eur(c.resto)}`:""}</div>`:""}${c.docNum?`<div class="wsub" style="margin-top:6px">Documento ${esc(c.docNum)}</div>`:""}${c.doc?`<a class="wlink" href="/_blob/${esc(c.doc)}" target="_blank" rel="noopener">${ic("clipboard")}Vedi il documento</a>`:""}
       <div class="wsub" style="margin-top:8px">Sullo scaffale da ${g?g+" giorni":"oggi"}${c.chi?" · messo da "+esc(c.chi):""}</div>${g>7?`<div class="wwarn">Fermo da più di una settimana: richiama il cliente</div>`:""}</div>
       <div class="wyn">${waBtn(c.tel,c.modo==="consegna"?cMsgCons(c):cMsg(c),c.modo==="consegna"?"Avvisa: lo portiamo noi":"Avvisa: è pronto").replace('class="btn wa','class="wbig wa')}
       ${c.tel?`<a class="wbig sec" href="tel:${esc(c.tel)}">${ic("phone")}Chiama ${esc(c.tel)}</a>`:""}
@@ -3312,7 +3325,7 @@ function wizScaffale(apri){
     bindArt(P,()=>{ E.inc=null; articoli._run(); },()=>{ prima(); });
     $("#wSv").onclick=async()=>{ prima(); const act=P.filter(p=>p.on!==false), k=contoPacco(act,c.totDoc,c.pagato);
       const i=$("#wInc"), incN=i?Math.max(0,Math.round((Number(i.value)||0)*100)/100):Number(c.incassare)||0;
-      const upd=P.length?{prodotti:act.map(p=>({codice:p.codice,nome:p.nome||"",qty:Number(p.qty)||0,sc:scDi(p),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})})),cosa:[k.cosa,E.extra].filter(Boolean).join(", ")||c.cosa||"",extra:E.extra,mancano:k.mancano,resto:k.mancano?Math.max(0,Math.round(((k.base||0)-incN)*100)/100):0}:{cosa:(E.cosa??c.cosa??"").trim()};
+      const upd=P.length?{prodotti:act.map(p=>({codice:p.codice,nome:p.nome||"",qty:Number(p.qty)||0,sc:scDi(p),...(ritDi(p)?{rit:ritDi(p)}:{}),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})})),cosa:[k.cosa,E.extra].filter(Boolean).join(", ")||c.cosa||"",extra:E.extra,mancano:k.mancano,ritirato:k.ritirato||"",resto:k.mancano?Math.max(0,Math.round(((k.base||0)-(k.ritVal||0)-incN)*100)/100):0}:{cosa:(E.cosa??c.cosa??"").trim()};
       if(i){ upd.incassare=incN; upd.pagato=!incN; }
       const arrivato=c.mancano&&P.length&&!k.mancano;
       if(await write(()=>S.db.collection("consegne").doc(c.id).update(upd),arrivato?"C'è tutto: avvisa il cliente":"Articoli aggiornati")){ WZ.ed=null; WZ.stack.pop(); wizBack(); } }; });
@@ -3352,7 +3365,7 @@ function wizScaffale(apri){
       const col=!!(a.ordine&&WZ.n.collega), d=col?daOrdine(a.ordine):null, totDoc=col?(a.ordine.pagato?0:ordTot(a.ordine).tot):(a.totale||0), pagato=col?d.pagato:false;
       const k=contoPacco(on,totDoc,pagato);
       const cosa=[k.cosa,WZ.n.extra].filter(Boolean).join(", ");
-      let n={cliente:WZ.n.cliente,tel:WZ.n.tel,...(WZ.n.cliId?{cliId:WZ.n.cliId}:{}),...(WZ.n.pagCli?{pagCli:WZ.n.pagCli}:{}),cosa,extra:WZ.n.extra||"",prodotti:on.map(p=>({codice:p.codice,nome:p.nome||"",qty:p.qty,sc:scDi(p),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})})),mancano:k.mancano,totDoc,docNum:a.docNum||"",docFile:WZ.docFile,modo:"ritiro",incassare:k.base?k.incassare:(totDoc||""),pagato};
+      let n={cliente:WZ.n.cliente,tel:WZ.n.tel,...(WZ.n.cliId?{cliId:WZ.n.cliId}:{}),...(WZ.n.pagCli?{pagCli:WZ.n.pagCli}:{}),cosa,extra:WZ.n.extra||"",prodotti:on.map(p=>({codice:p.codice,nome:p.nome||"",qty:p.qty,sc:scDi(p),...(ritDi(p)?{rit:ritDi(p)}:{}),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})})),mancano:k.mancano,...(k.ritirato?{ritirato:k.ritirato}:{}),totDoc,docNum:a.docNum||"",docFile:WZ.docFile,modo:"ritiro",incassare:k.base?k.incassare:(totDoc||""),pagato};
       if(col){ n={...d,...n,cliente:n.cliente||d.cliente,tel:n.tel||d.tel,cosa:n.cosa||d.cosa}; }
       if(!n.cliente){ toast("Scrivi il nome del cliente"); $("#w1").focus(); return; }
       const keep=WZ.n; WZ.n=n; WZ.n._prev=keep; wizStep(nuovo3); }; });
@@ -3370,7 +3383,7 @@ function wizScaffale(apri){
       else P.push({codice:it.codice,nome:nomeDi(it),qty:1,sc:1,...(prezzoVendita(it)>0?{prezzo:prezzoVendita(it)}:{})}); nuovo2._run(); setTimeout(()=>$("#wP")&&$("#wP").focus(),30); });
     bindArt(P,()=>nuovo2._run(),salva);
     $("#wN").onclick=()=>{ salva(); if(!n.cliente){ toast("Scrivi il nome del cliente"); $("#w1").focus(); return; }
-      const on=P.filter(p=>p.on!==false); n.prodotti=on.map(p=>({codice:p.codice,nome:p.nome||"",qty:Number(p.qty)||0,sc:scDi(p),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})}));
+      const on=P.filter(p=>p.on!==false); n.prodotti=on.map(p=>({codice:p.codice,nome:p.nome||"",qty:Number(p.qty)||0,sc:scDi(p),...(ritDi(p)?{rit:ritDi(p)}:{}),...(Number(p.prezzo)>0?{prezzo:Number(p.prezzo)}:{})}));
       if(on.length){ const k=contoPacco(n.prodotti,0,false); n.cosa=[k.cosa,n.extra].filter(Boolean).join(", "); n.mancano=k.mancano; n.totDoc=0; n.incassare=k.base?k.incassare:""; n.pagato=false; }
       wizStep(nuovo3); }; });
   const nuovo3=step(()=>{ const n=WZ.n;
@@ -3387,7 +3400,7 @@ function wizScaffale(apri){
       <div class="wsub">${k&&k.qui<k.pz?"Già calcolato solo su quello che c'è sullo scaffale: puoi correggerlo. ":""}Scrivi 0 se ha già pagato (es. ordine con carta sul sito).</div>
       ${n.pagCli?`<div class="wsub">Pagamento del cliente in Danea: <b>${esc(n.pagCli)}</b></div>`:""}
       <div class="wyn"><button class="wbig ${pi?.differito?"ok":"sec"}" id="wDopo">${ic("clock")}Paga dopo (a scadenza)${pi?.differito?`<small style="display:block;font-weight:600">${esc(pi.testo)}</small>`:""}</button></div>`, wBtn("wN","Paga al ritiro: avanti","pri","chev"));
-    const imp=()=>{ n.incassare=Math.max(0,Math.round(Number($("#wI").value)*100)/100||0); n.pagato=!n.incassare; n.resto=k&&k.mancano?Math.max(0,Math.round(((k.base||0)-n.incassare)*100)/100):0; };
+    const imp=()=>{ n.incassare=Math.max(0,Math.round(Number($("#wI").value)*100)/100||0); n.pagato=!n.incassare; n.resto=k&&k.mancano?Math.max(0,Math.round(((k.base||0)-(k.ritVal||0)-n.incassare)*100)/100):0; if(k&&k.ritirato) n.ritirato=k.ritirato; else delete n.ritirato; };
     $("#wN").onclick=()=>{ imp(); n.pagaDopo=false; delete n.scadenza; delete n.termini; delete n.rate; wizStep(nuovo5); };
     $("#wDopo").onclick=()=>{ imp(); if(!n.incassare){ toast("Scrivi l'importo da pagare"); $("#wI").focus(); return; } wizStep(nuovoDopo); }; });
   const nuovoDopo=step(()=>{ const n=WZ.n;
