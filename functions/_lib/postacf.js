@@ -82,6 +82,17 @@ export async function valutaSpam(d, h, x, da) {
     'password scaduta', 'verifica il tuo account', 'account sospeso', 'aggiorna i dati di pagamento', 'clicca qui per', 'urgent', 'wire transfer', 'gift card', 'seo service', 'backlink', 'ranking on google', 'web design service'];
   const trov = PAROLE.filter((w) => ogg.includes(w) || corpo.includes(w));
   if (trov.length) { p += Math.min(4, trov.length * 1.5); motivi.push('parole tipiche dello spam: ' + trov.slice(0, 3).join(', ')); }
+  // phishing tipico: un esterno finge di essere il "servizio di posta" e minaccia di chiudere la casella ("Reconfirm email … or get deactivated")
+  const PHISH = ['reconfirm', 'get deactivated', 'be deactivated', 'deactivation', 'still using my account', 'still using this account', 'closing down expired', 'expired and unknown users',
+    'mailbox', 'storage is full', 'quota exceeded', 'verify your email', 'validate your email', 'password expir', 'keep your password', 'email upgrade',
+    'conferma la tua email', 'conferma il tuo indirizzo', 'casella piena', 'casella di posta', 'spazio esaurito', 'verrà disattivat', 'sarà disattivat', 'disattivazione', 'mantenere la password'];
+  const fuori = !String(da?.email || '').toLowerCase().endsWith('@' + DOMINIO);
+  const fish = PHISH.filter((w) => ogg.includes(w) || corpo.includes(w));
+  if (fuori && fish.length) {
+    const nomina = ogg.includes(DOMINIO) || corpo.includes('@' + DOMINIO) || /\bhi info\b|\bciao info\b|\bdear info\b/.test(corpo);
+    p += nomina || fish.length >= 2 ? 6 : 2.5;
+    motivi.push('falso avviso di chiusura/verifica della casella (phishing): ' + fish.slice(0, 3).join(', '));
+  }
   if (/[A-Z]{12,}/.test(dec2047(h.subject || '')) || /!!!|\$\$\$|€€€/.test(ogg)) { p += 1; motivi.push('oggetto urlato'); }
   const nomeDa = String(da?.nome || '').toLowerCase();
   if (/(semi ?store|se\.?m\.?i|dewalt|poste|intesa|unicredit|paypal|amazon|agenzia (delle )?entrate|inps)/.test(nomeDa) && da?.email && !/(semistore\.it|dewalt|sbdinc|stanleyblackanddecker|poste\.it|intesasanpaolo|unicredit|paypal|amazon|agenziaentrate|inps)/.test(da.email)) { p += 3; motivi.push('il nome imita un\'azienda ma l\'indirizzo è diverso'); }

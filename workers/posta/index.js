@@ -1,3 +1,4 @@
+// 23/11: filtro spam con riconoscimento dei falsi avvisi di chiusura casella (phishing) – vedi functions/_lib/postacf.js
 // Riceve ogni email per @semistore.it (Email Routing → "Invia a un Worker") e la salva nell'archivio dell'app (D1).
 // Se il salvataggio non riesce l'email viene rifiutata con errore, così chi scrive lo sa e nulla si perde in silenzio.
 import { riceviEmail } from '../../functions/_lib/postacf.js';
