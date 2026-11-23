@@ -968,7 +968,7 @@ function bollinoHtml(t){
    <div class="r1"><span>SEMI STORE · ASSISTENZA</span><span>${fmtD(t.createdAt||Date.now())}</span></div>
    <div class="r1" style="align-items:center"><span class="num">${esc(num)}</span><span class="tg">${t.tipo==="garanzia"?"GARANZIA":"PAGAMENTO"}</span></div>
    ${t.num?code128Svg(t.num):""}
-   <div class="l"><b>${esc(t.cliente||"")}</b>${t.tel?" · "+esc(t.tel):""}</div>
+   <div class="l"><b>${esc(t.cliente||"")}</b>${t.cliFin?" → "+esc(t.cliFin):(t.tel?" · "+esc(t.tel):"")}</div>
    <div class="l"><b>${esc(t.modello||"")}</b>${t.matricola?" · matr. "+esc(t.matricola):""}${!pic&&t.accessori?" · "+esc(t.accessori):""}</div>
    ${!pic&&t.difetto?`<div class="l sm">${esc(t.difetto)}</div>`:""}
    <div class="l sm">Stato: <b>${esc(t.stato||"Ricevuto")}</b>${t.tecnico?" · "+esc(t.tecnico):""}</div>
@@ -978,6 +978,9 @@ function stampaBollino(t,w){
   w=w||window.open("","_blank"); if(!w){ toast("Il telefono ha bloccato la finestra: consenti i popup per semistore.it"); return; }
   w.document.open(); w.document.write(bollinoHtml(t)); w.document.close();
 }
+/* 23/11: riferimento DDT del cliente che manda l'utensile e cliente finale */
+const ddtTxt=t=>t.ddtNum?`D.D.T. n. ${t.ddtNum}${t.ddtData?" del "+fmtD(new Date(t.ddtData+"T12:00:00")):""}`:"";
+const cliFinTxt=t=>t.cliFin?t.cliFin+(t.cliFinTel?" · "+t.cliFinTel:""):"";
 /* ---------- SCHEDA DI LAVORAZIONE A4 (20/11): copia laboratorio + ricevuta cliente da staccare ---------- */
 function schedaHtml(t){
   const num=t.num||"(nuova)", gar=t.tipo==="garanzia", tt=totali(t), e=getEsploso(t.modello,t.type);
@@ -1049,7 +1052,7 @@ function schedaHtml(t){
    <div class="g2">
     <div class="bxx"><div class="lb">Cliente</div><div class="big">${esc(t.cliente||"")}</div>
      <div style="margin:.8mm 0 1.2mm">${indir||"&nbsp;"}</div>
-     <div class="kv"><span>Telefono</span><span class="mono">${esc(t.tel||"")}</span><span>Email</span><span>${esc(t.email||"")}</span><span>P.IVA / C.F.</span><span class="mono">${esc(t.piva||"")}</span></div></div>
+     <div class="kv"><span>Telefono</span><span class="mono">${esc(t.tel||"")}</span><span>Email</span><span>${esc(t.email||"")}</span><span>P.IVA / C.F.</span><span class="mono">${esc(t.piva||"")}</span>${t.ddtNum?`<span>Vs. DDT</span><span><b>${esc(ddtTxt(t).replace(/^D\.D\.T\. /,""))}</b></span>`:""}${t.cliFin?`<span>Cliente finale</span><span><b>${esc(cliFinTxt(t))}</b></span>`:""}</div></div>
     <div class="bxx"><div class="lb">Utensile</div><div class="big">${esc(t.modello||"")}${t.type?` <span style="font-weight:400;font-size:8.6pt">Type ${esc(t.type)}</span>`:""}</div>
      <div style="margin:.8mm 0 1.2mm">${esc(descrMod)||"&nbsp;"}</div>
      <div class="kv"><span>Matricola</span><span class="mono">${esc(t.matricola||"")}</span><span>Data acquisto</span><span>${dAcq}</span><span>Accessori</span><span><b>${esc(t.accessori||"SOLO UTENSILE")}</b></span></div></div>
@@ -1088,6 +1091,7 @@ function schedaHtml(t){
    <div class="rc">
     <div><div class="lb">Ricevuta di consegna utensile in assistenza</div>
      <div class="kv" style="grid-template-columns:20mm 1fr"><span>Cliente</span><span><b>${esc(t.cliente||"")}</b>${t.tel?" · "+esc(t.tel):""}</span>
+      ${t.ddtNum?`<span>Vs. DDT</span><span>${esc(ddtTxt(t).replace(/^D\.D\.T\. /,""))}</span>`:""}${t.cliFin?`<span>Cliente finale</span><span>${esc(cliFinTxt(t))}</span>`:""}
       <span>Utensile</span><span><b>${esc(t.modello||"")}</b>${descrMod?" – "+esc(descrMod):""}${t.matricola?" · matr. "+esc(t.matricola):""}</span>
       <span>Accessori</span><span>${esc(t.accessori||"Solo utensile")}</span>
       <span>Difetto</span><span>${esc(String(t.difetto||"").slice(0,160))}</span>
@@ -1226,7 +1230,7 @@ function filtered(){
     if(f.stato && f.stato!=="aperti" && f.stato!=="tutti" && t.stato!==f.stato) return false;
     if(f.tipo && t.tipo!==f.tipo) return false;
     if(f.tec && t.tecnico!==f.tec) return false;
-    if(q){ const h=[t.num,t.cliente,t.tel,t.email,t.modello,t.matricola,t.difetto,t.tecnico].join(" ").toLowerCase(); if(!h.includes(q)) return false; }
+    if(q){ const h=[t.num,t.cliente,t.tel,t.email,t.modello,t.matricola,t.difetto,t.tecnico,t.ddtNum,t.cliFin,t.cliFinTel].join(" ").toLowerCase(); if(!h.includes(q)) return false; }
     return true;
   }).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 }
@@ -1244,7 +1248,7 @@ function tkCard(t){
   return `<div class="tk ${old?"old":""}" data-open="${esc(t.id)}">
     <div class="n"><span>${esc(t.num)}</span><span>${days(t.createdAt)} gg</span></div>
     <div class="m">${esc(t.modello||"Utensile")}</div>
-    <div class="c">${esc(t.cliente||"—")}</div>
+    <div class="c">${esc(t.cliente||"—")}${t.cliFin?` <span class="sub">→ ${esc(t.cliFin)}</span>`:""}${t.ddtNum?` <span class="sub">· DDT ${esc(t.ddtNum)}</span>`:""}</div>
     <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
       <span class="tg ${t.tipo==="garanzia"?"gar":"pag"}">${t.tipo==="garanzia"?"GARANZIA":"PAGAMENTO"}</span>
       ${t.origine==="sito"?`<span class="tg web">SITO</span>`:""}
@@ -1263,7 +1267,7 @@ function vLavorazioni(){
 function tTable(list){
   if(!list.length) return `<div class="panel"><div class="empty">Nessuna scheda. Crea la prima con “Nuova scheda”.</div></div>`;
   return `<table><thead><tr><th>N°</th><th>Ingresso</th><th>Cliente</th><th>Utensile</th><th>Tipo</th><th>Stato</th><th>Tecnico</th><th class="num">Totale</th><th></th></tr></thead><tbody>
-  ${list.map(t=>`<tr class="click" data-open="${esc(t.id)}"><td class="mono">${esc(t.num)}</td><td>${fmtD(t.createdAt)}</td><td>${esc(t.cliente)}<div class="sub">${esc(t.tel||"")}</div></td><td><b>${esc(t.modello)}</b><div class="mono" style="color:var(--muted)">${esc(t.matricola||"")}</div></td><td><span class="tg ${t.tipo==="garanzia"?"gar":"pag"}">${t.tipo==="garanzia"?"GAR":"PAG"}</span></td><td><span class="badge ${stCls(t.stato)}">${esc(t.stato)}</span></td><td>${esc(t.tecnico||"—")}</td><td class="num">${t.tipo==="garanzia"?"—":eur(totali(t).totale)}</td><td><button class="btn sm ghost" data-bol="${esc(t.id)}" title="Stampa bollino">${ic("tag")}</button><button class="btn sm ghost" data-sch="${esc(t.id)}" title="Stampa scheda A4">${ic("clipboard")}</button></td></tr>`).join("")}
+  ${list.map(t=>`<tr class="click" data-open="${esc(t.id)}"><td class="mono">${esc(t.num)}</td><td>${fmtD(t.createdAt)}</td><td>${esc(t.cliente)}<div class="sub">${esc(t.tel||"")}${t.cliFin?" · per "+esc(t.cliFin):""}${t.ddtNum?" · DDT "+esc(t.ddtNum):""}</div></td><td><b>${esc(t.modello)}</b><div class="mono" style="color:var(--muted)">${esc(t.matricola||"")}</div></td><td><span class="tg ${t.tipo==="garanzia"?"gar":"pag"}">${t.tipo==="garanzia"?"GAR":"PAG"}</span></td><td><span class="badge ${stCls(t.stato)}">${esc(t.stato)}</span></td><td>${esc(t.tecnico||"—")}</td><td class="num">${t.tipo==="garanzia"?"—":eur(totali(t).totale)}</td><td><button class="btn sm ghost" data-bol="${esc(t.id)}" title="Stampa bollino">${ic("tag")}</button><button class="btn sm ghost" data-sch="${esc(t.id)}" title="Stampa scheda A4">${ic("clipboard")}</button></td></tr>`).join("")}
   </tbody></table>`;
 }
 function vSchede(){ return header("Archivio schede","Tutte le schede di assistenza, cercabili per cliente, modello o matricola",`<button class="btn pri edit-only" data-act="new">＋ Nuova scheda</button>`)+filtBar(true)+tTable(filtered()); }
@@ -2123,7 +2127,7 @@ function archCsv(rows,colsPref){ if(!rows.length) return "\ufeff(nessun dato)\n"
 function archSchede(T){
   const s=[], r=[], h=[];
   T.forEach(t=>{ const tt=totali(t); s.push({numero:t.num,ingresso:t.createdAt,stato:t.stato,tipo:t.tipo,cliente:t.cliente,telefono:t.tel,email:t.email,piva_cf:t.piva,indirizzo:t.ind,citta:t.citta,prov:t.prov,cap:t.cap,
-      modello:t.modello,type:t.type,matricola:t.matricola,accessori:t.accessori,difetto:t.difetto,categoria_guasto:t.categoriaGuasto,diagnosi:t.diagnosi,tecnico:t.tecnico,note:t.note,
+      modello:t.modello,type:t.type,matricola:t.matricola,accessori:t.accessori,ddt_cliente:t.ddtNum,ddt_data:t.ddtData,cliente_finale:t.cliFin,tel_cliente_finale:t.cliFinTel,difetto:t.difetto,categoria_guasto:t.categoriaGuasto,diagnosi:t.diagnosi,tecnico:t.tecnico,note:t.note,
       ricambi_listino:tt.ricL,sconto_perc:tt.sc,sconto_euro:tt.scV,ricambi_netto:tt.ric,manodopera:tt.mo,manodopera_descrizione:t.manodoperaDescr,totale:tt.totale,costo_ricambi:tt.costo,
       preventivo:t.preventivo,consegnato:t.consegnatoAt,pagato:t.pagato,pagamento:t.pagamento||t.metodoPag,data_acquisto:t.dataAcquisto,richiesta_sito:t.reqId,aggiornato:t.updatedAt,id:t.id});
     (t.ricambi||[]).forEach(p=>r.push({scheda:t.num,data_scheda:t.createdAt,cliente:t.cliente,modello:t.modello,codice:p.codice,descrizione:p.descr,quantita:p.qty,prezzo:p.prezzo,costo:p.costo}));
@@ -2258,6 +2262,11 @@ function openTicket(t, fromReq, draft){
       <label class="fl">Città<input id="tCitta" value="${esc(t.citta)}"></label>
       <div style="display:flex;gap:8px"><label class="fl" style="flex:1">Prov.<input id="tProv" list="provList" maxlength="2" placeholder="NA" value="${esc(t.prov)}" style="text-transform:uppercase"></label><label class="fl" style="flex:1">CAP<input id="tCap" inputmode="numeric" maxlength="5" value="${esc(t.cap)}"></label></div>
       <datalist id="provList">${PROVINCE.map(p=>`<option value="${p}">`).join("")}</datalist>
+    </div><div class="f" style="margin-top:8px">
+      <label class="fl">Vs. DDT n.<input id="tDdtN" placeholder="es. 1075" value="${esc(t.ddtNum)}"></label>
+      <label class="fl">DDT del<input id="tDdtD" type="date" value="${esc(t.ddtData)}"></label>
+      <label class="fl">Cliente finale<input id="tCliFin" placeholder="per chi è l'utensile (se lo manda un rivenditore)" value="${esc(t.cliFin)}"></label>
+      <label class="fl">Tel. cliente finale<input id="tCliFinTel" value="${esc(t.cliFinTel)}"></label>
     </div><div id="cliInfo" style="margin-top:8px"></div><div id="cliSug"></div></div>
     <div class="fs"><span class="lg">Utensile</span><div class="f">
       <label class="fl">Modello *<input id="tMod" placeholder="es. DCD796" value="${esc(t.modello)}"><span class="sub" id="tModD" style="font-weight:400;display:block;margin-top:3px">${esc(descrUtensile(t.modello,t.type))}</span></label>
@@ -2409,7 +2418,7 @@ function openTicket(t, fromReq, draft){
   $("#modal").addEventListener("input",()=>{clearTimeout(drawChk._t); drawChk._t=setTimeout(drawChk,300)}); $("#modal").addEventListener("change",drawChk); setTimeout(drawChk,50);
   $("#gCopy").onclick=()=>copyText(garText({...t,cliente:$("#tCli").value,tel:$("#tTel").value,email:$("#tMail").value,modello:$("#tMod").value,matricola:$("#tMat").value,dataAcquisto:$("#tAcq").value,diagnosi:$("#tDia").value,difetto:$("#tDif").value,ricambi:rows,gar:{...garFromForm(),rif:$("#gRif").value.trim()||t.num}}),"Dati garanzia copiati",$("#gCopyT"));
   // keep unsaved edits when a sub-dialog (esploso) replaces this one
-  const snapshotForm=()=>{ Object.assign(t,{cliente:$("#tCli").value,tel:$("#tTel").value,email:$("#tMail").value,piva:$("#tPiva").value,...addrFromForm(),modello:$("#tMod").value,type:$("#tType").value,matricola:$("#tMat").value,dataAcquisto:$("#tAcq").value,tipo:$("#tTipo").value,accessori:$("#tAcc").value,tecnico:$("#tTec").value,difetto:$("#tDif").value,diagnosi:$("#tDia").value,categoriaGuasto:$("#tCat").value,manodopera:$("#tMo").value===""?null:Number($("#tMo").value),manodoperaDescr:$("#tMoD").value,scontoRic:Number($("#tSc").value)||0,cliId,preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value),note:$("#tNote").value,ricambi:rows,stato,gar:garFromForm(),allegati:att}); };
+  const snapshotForm=()=>{ Object.assign(t,{cliente:$("#tCli").value,tel:$("#tTel").value,email:$("#tMail").value,piva:$("#tPiva").value,...addrFromForm(),modello:$("#tMod").value,type:$("#tType").value,matricola:$("#tMat").value,dataAcquisto:$("#tAcq").value,tipo:$("#tTipo").value,accessori:$("#tAcc").value,ddtNum:$("#tDdtN").value,ddtData:$("#tDdtD").value,cliFin:$("#tCliFin").value,cliFinTel:$("#tCliFinTel").value,tecnico:$("#tTec").value,difetto:$("#tDif").value,diagnosi:$("#tDia").value,categoriaGuasto:$("#tCat").value,manodopera:$("#tMo").value===""?null:Number($("#tMo").value),manodoperaDescr:$("#tMoD").value,scontoRic:Number($("#tSc").value)||0,cliId,preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value),note:$("#tNote").value,ricambi:rows,stato,gar:garFromForm(),allegati:att}); };
   const reopen=()=>{ openTicket(isNew?null:{...t,_orig:origRic}, fromReq, isNew?t:null); };
   const ps=$("#pSearch"), pl=$("#pList");
   const addPart=(r,free,ep)=>{ if(r&&r.sostDa&&itm(r.sostDa)){ toast(`${r.codice} è sostituito da ${r.sostDa}: uso il nuovo codice`); r=itm(r.sostDa); }
@@ -2447,6 +2456,7 @@ function openTicket(t, fromReq, draft){
     const data={...t, cliente:cli, tel:$("#tTel").value.trim(), email:$("#tMail").value.trim(), piva:$("#tPiva").value.trim(), ...addrFromForm(),
       modello:mod.toUpperCase(), type:$("#tType").value.trim(), matricola:$("#tMat").value.trim(), allegati:att,
       gar: $("#tTipo").value==="garanzia" ? {...garFromForm(), dataRip:(t.gar?.dataRip)||(["Pronto","Consegnato"].includes(stato)?Date.now():null)} : (t.gar||null), dataAcquisto:$("#tAcq").value, tipo:$("#tTipo").value, accessori:$("#tAcc").value.trim(),
+      ddtNum:$("#tDdtN").value.trim(), ddtData:$("#tDdtD").value, cliFin:$("#tCliFin").value.trim(), cliFinTel:$("#tCliFinTel").value.trim(),
       tecnico:$("#tTec").value, difetto:$("#tDif").value.trim(), diagnosi:$("#tDia").value.trim(), categoriaGuasto:$("#tCat").value,
       ore:0, tariffa:Number(t.tariffa??S.cfg.tariffa)||0, manodopera:$("#tMo").value===""?null:Number($("#tMo").value), manodoperaDescr:$("#tMoD").value.trim(), scontoRic:Number($("#tSc").value)||0, cliId:cliId||null, preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value), note:$("#tNote").value.trim(),
       ricambi:rows.filter(p=>p.qty>0&&p.codice).map(({nuova,...p})=>p), stato, updatedAt:Date.now()};
