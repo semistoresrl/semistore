@@ -981,7 +981,7 @@ function stampaBollino(t,w){
 /* ---------- SCHEDA DI LAVORAZIONE A4 (20/11): copia laboratorio + ricevuta cliente da staccare ---------- */
 function schedaHtml(t){
   const num=t.num||"(nuova)", gar=t.tipo==="garanzia", tt=totali(t), e=getEsploso(t.modello,t.type);
-  const descrMod=e?.descr||e?.nome||e?.titolo||"";
+  const descrMod=descrUtensile(t.modello,t.type);
   const ric=(t.ricambi||[]).filter(p=>p.codice||p.descr);
   const vuote=Math.max(0,8-ric.length);
   const stIdx=STATI.indexOf(t.stato||"Ricevuto");
@@ -1088,7 +1088,7 @@ function schedaHtml(t){
    <div class="rc">
     <div><div class="lb">Ricevuta di consegna utensile in assistenza</div>
      <div class="kv" style="grid-template-columns:20mm 1fr"><span>Cliente</span><span><b>${esc(t.cliente||"")}</b>${t.tel?" · "+esc(t.tel):""}</span>
-      <span>Utensile</span><span><b>${esc(t.modello||"")}</b>${t.matricola?" · matr. "+esc(t.matricola):""}</span>
+      <span>Utensile</span><span><b>${esc(t.modello||"")}</b>${descrMod?" – "+esc(descrMod):""}${t.matricola?" · matr. "+esc(t.matricola):""}</span>
       <span>Accessori</span><span>${esc(t.accessori||"Solo utensile")}</span>
       <span>Difetto</span><span>${esc(String(t.difetto||"").slice(0,160))}</span>
       <span>Intervento</span><span>${gar?"In garanzia (da verificare dal centro assistenza)":"A pagamento"}${!gar&&t.preventivo!=null&&t.preventivo!==""?" · preventivo "+eur(t.preventivo):""}</span></div>
@@ -1448,6 +1448,20 @@ const espKey = (m,t) => keyOf((String(m||"").trim()+"_T"+String(t||"").trim()).t
 function getEsploso(mod,type){ mod=String(mod||"").trim().toUpperCase(); if(!mod) return null;
   if(type){ const e=S.esplosi.get(espKey(mod,type)); if(e) return e; }
   let best=null; for(const e of S.esplosi.values()){ if(String(e.modello).toUpperCase()===mod && (!best||Number(e.type)>Number(best.type))) best=e; } return best; }
+/* 23/11: descrizione dell'utensile in riparazione (esploso → magazzino per codice esatto o stesso modello) */
+function descrUtensile(mod,type){ mod=String(mod||"").trim().toUpperCase(); if(!mod) return "";
+  const e=getEsploso(mod,type), d0=e?.descr||e?.nome||e?.titolo; if(d0) return String(d0);
+  const pulisci=r=>{ let x=String(r.titolo||"").trim();
+    if(x){ x=x.replace(/^\s*(DEWALT|STANLEY|BLACK\s*\+\s*DECKER)\s+\S+\s*[–-]\s*/i,""); return x.replace(/([a-zà-ù])(\d+)\s?v\b/gi,"$1 $2V").replace(/\s{2,}/g," ").trim(); }
+    return String(r.descr||"").trim(); };
+  const base=c=>String(c||"").toUpperCase().replace(/-[A-Z]{2}$/,"");
+  let r=itm(mod); if(r&&(r.titolo||r.descr)) return pulisci(r);
+  const b=base(mod); let best=null;
+  for(const x of S.mag.values()){ if(x.tipo==="ricambio") continue; if(base(x.codice)!==b) continue; if(!best||(x.titolo&&!best.titolo)) best=x; }
+  if(best?.titolo) return pulisci(best);
+  if(/^[A-Z]{2,5}\d{2,4}$/.test(b)){ // solo modello base (es. DCF801): prendo la versione solo corpo, senza la parte sul kit
+    for(const x of S.mag.values()){ if(x.tipo==="ricambio"||!x.titolo) continue; const xb=base(x.codice); if(xb.startsWith(b)&&/^[A-Z0-9]{0,4}$/.test(xb.slice(b.length))){ return pulisci(x).replace(/\s*\([^)]*\)\s*$/,""); } } }
+  return best?pulisci(best):""; }
 async function copyText(txt,label,fallback){
   try{ await navigator.clipboard.writeText(txt); toast(label||"Copiato negli appunti"); }
   catch(e){ const box=`<div class="banner" style="margin-top:10px">La copia automatica non è permessa qui: seleziona il testo e premi Ctrl+C (Cmd+C su Mac).<textarea rows="${Math.min(14,txt.split("\n").length+1)}" style="margin-top:8px;font-family:var(--mono);font-size:12px" readonly>${esc(txt)}</textarea></div>`;
@@ -2246,7 +2260,7 @@ function openTicket(t, fromReq, draft){
       <datalist id="provList">${PROVINCE.map(p=>`<option value="${p}">`).join("")}</datalist>
     </div><div id="cliInfo" style="margin-top:8px"></div><div id="cliSug"></div></div>
     <div class="fs"><span class="lg">Utensile</span><div class="f">
-      <label class="fl">Modello *<input id="tMod" placeholder="es. DCD796" value="${esc(t.modello)}"></label>
+      <label class="fl">Modello *<input id="tMod" placeholder="es. DCD796" value="${esc(t.modello)}"><span class="sub" id="tModD" style="font-weight:400;display:block;margin-top:3px">${esc(descrUtensile(t.modello,t.type))}</span></label>
       <label class="fl">Type (targhetta)<input id="tType" placeholder="es. 2" value="${esc(t.type)}"></label>
       <label class="fl">Matricola / Seriale<input id="tMat" value="${esc(t.matricola)}"></label>
       <label class="fl">Data acquisto<input id="tAcq" type="date" value="${esc(t.dataAcquisto)}"></label>
@@ -2373,7 +2387,8 @@ function openTicket(t, fromReq, draft){
     const bi=$("#tEspImp"); if(bi) bi.onclick=()=>{ snapshotForm(); openEsploso(mod.toUpperCase(),ty,()=>reopen()); };
     box.querySelectorAll("[data-espadd]").forEach(b=>b.onclick=()=>{ const p=e.parti.find(x=>x.codice===b.dataset.espadd); addPart(itm(p.codice)||null,p.codice,p); });
   };
-  let _espT=0; const espLater=()=>{clearTimeout(_espT); _espT=setTimeout(drawEsp,350)}; $("#tMod").addEventListener("input",espLater); $("#tType").addEventListener("input",espLater);
+  const drawModD=()=>{ const b=$("#tModD"); if(b) b.textContent=descrUtensile($("#tMod").value,$("#tType").value); };
+  let _espT=0; const espLater=()=>{clearTimeout(_espT); _espT=setTimeout(()=>{drawEsp();drawModD();},350)}; $("#tMod").addEventListener("input",espLater); $("#tType").addEventListener("input",espLater);
   // photos / documents (assets)
   const att=t.allegati=t.allegati||[];
   const drawAtt=()=>{ $("#tAtt").innerHTML=att.length?att.map((a,i)=>`<div style="width:110px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff">
