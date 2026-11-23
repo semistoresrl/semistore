@@ -1437,7 +1437,7 @@ function vImpostazioni(){
   </div>
   <div class="fs" style="max-width:640px"><span class="lg">Inventario</span>
    <p style="margin:0 0 10px">${nf(S.mag.size)} articoli in archivio. ${S.cfg.inventarioAt?"Inventario iniziale caricato il "+fmtD(S.cfg.inventarioAt)+".":""} Ultimo aggiornamento da Excel: ${S.cfg.excelAt?fmtDT(S.cfg.excelAt):"mai"}.</p>
-   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="import">⇪ Aggiorna da Excel del gestionale</button><button class="btn" data-act="impSbd">⇪ Carica listino e costi SBD</button><button class="btn danger adm-only" data-act="azzera">Azzera tutte le giacenze (nuovo inventario)</button></div>
+   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="import">⇪ Aggiorna da Excel del gestionale</button><button class="btn" data-act="impSbd">⇪ Carica listino e costi SBD</button><button class="btn adm-only" data-act="impFatt">⇪ Carica fatture fornitore</button><button class="btn danger adm-only" data-act="azzera">Azzera tutte le giacenze (nuovo inventario)</button></div>
   </div>`;
 }
 
@@ -1844,7 +1844,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -2031,6 +2031,109 @@ function openImportSbd(){
       (by[chunkOf(r.codice)]=by[chunkOf(r.codice)]||{})[keyOf(r.codice)]=f; n++; }
     const b=$("#sbOk"); b.disabled=true; $("#sbProg").style.display="block";
     const ok=await write(async()=>{ await writeChunks(by,(a,t)=>{ $("#sbProg i").style.width=(a/t*100)+"%"; b.textContent=`Carico ${a}/${t}…`; }); await S.db.doc("config/impostazioni").set({...S.cfg,sbdAt:Date.now()}); },`${nf(n)} codici caricati (${nf(nu)} nuovi)`);
+    if(ok) closeModal(); else { b.disabled=false; b.textContent="Carica"; } };
+}
+
+/* ---------- FATTURE FORNITORE (23/11): XML / P7M / ZIP dall'SDI, Danea o Agenzia delle Entrate ---------- */
+const MIA_PIVA="07149740636";
+async function unzipTutto(buf,out=[],nome=""){ // legge ZIP (anche annidati) con DecompressionStream
+  const b=new Uint8Array(buf), dv=new DataView(b.buffer,b.byteOffset,b.byteLength);
+  let e=-1; for(let i=b.length-22;i>=Math.max(0,b.length-66000);i--) if(dv.getUint32(i,true)===0x06054b50){ e=i; break; }
+  if(e<0) throw new Error("ZIP non valido: "+nome);
+  let n=dv.getUint16(e+10,true), off=dv.getUint32(e+16,true);
+  for(let k=0;k<n;k++){ if(dv.getUint32(off,true)!==0x02014b50) break;
+    const met=dv.getUint16(off+10,true), csz=dv.getUint32(off+20,true), ln=dv.getUint16(off+28,true), lx=dv.getUint16(off+30,true), lc=dv.getUint16(off+32,true), loc=dv.getUint32(off+42,true);
+    const fn=new TextDecoder().decode(b.subarray(off+46,off+46+ln)); off+=46+ln+lx+lc;
+    if(fn.endsWith("/")) continue;
+    const st=loc+30+dv.getUint16(loc+26,true)+dv.getUint16(loc+28,true); let dat=b.subarray(st,st+csz);
+    if(met===8) dat=new Uint8Array(await new Response(new Blob([dat]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer()); else if(met!==0) continue;
+    if(/\.zip$/i.test(fn)) await unzipTutto(dat,out,fn); else out.push({nome:fn.split("/").pop(),dati:dat}); }
+  return out; }
+function contenutoP7m(b){ // estrae il contenuto firmato da un .p7m (DER/BER, anche a pezzi o a lunghezza indefinita)
+  let best=null;
+  const walk=(i,end,depth)=>{ const pezzi=[];
+    while(i<end){ const tag=b[i]; if(tag===0&&b[i+1]===0) return {i:i+2,pezzi,eoc:true};
+      let j=i+1, len=b[j++], indef=false;
+      if(len===0x80){ indef=true; len=-1; } else if(len&0x80){ const n=len&0x7f; len=0; for(let k=0;k<n;k++) len=len*256+b[j++]; }
+      const costr=!!(tag&0x20); let fine;
+      if(costr){ const r=walk(j,indef?end:j+len,depth+1); fine=indef?r.i:j+len;
+        if((tag&0x1f)===4){ const tot=r.pezzi.reduce((a,x)=>a+x.length,0), u=new Uint8Array(tot); let o=0; r.pezzi.forEach(x=>{u.set(x,o);o+=x.length;}); pezzi.push(u); if(!best||u.length>best.length) best=u; } }
+      else { fine=j+len; if(tag===4){ const u=b.subarray(j,fine); pezzi.push(u); if(!best||u.length>best.length) best=u; } }
+      if(len<0&&!costr) return {i:end,pezzi}; i=fine; if(depth>40) break; }
+    return {i,pezzi}; };
+  try{ walk(0,b.length,0); }catch(e){}
+  return best; }
+function xmlDaFile(nome,dati){ // XML semplice o firmato (.p7m, anche in base64)
+  let b=dati, t=new TextDecoder("latin1").decode(b);
+  if(/\.p7m$/i.test(nome)){
+    if(b[0]!==0x30&&/^[A-Za-z0-9+/=\s]+$/.test(t.slice(0,200))){ try{ const bin=atob(t.replace(/[^A-Za-z0-9+/=]/g,"")); b=Uint8Array.from(bin,ch=>ch.charCodeAt(0)); }catch(e){} }
+    const c=contenutoP7m(b); if(c) b=c; t=new TextDecoder("latin1").decode(b); }
+  const i=t.search(/<\?xml|<[A-Za-z0-9_]*:?FatturaElettronica[\s>]/); const m=t.match(/<\/[A-Za-z0-9_]*:?FatturaElettronica>/g);
+  if(i<0||!m) return null; const j=t.lastIndexOf(m[m.length-1])+m[m.length-1].length;
+  let x=t.slice(i,j);
+  try{ x=decodeURIComponent(escape(x)); }catch(e){} // UTF-8
+  x=x.replace(/^<\?xml[^>]*\?>/,""); // la dichiarazione dell'encoding non serve più
+  const d=new DOMParser().parseFromString(x,"application/xml"); return d.getElementsByTagName("parsererror").length?null:d; }
+function leggiFatture(doc,nome){ const q=(el,n)=>el?el.getElementsByTagNameNS("*",n)[0]||el.getElementsByTagName(n)[0]:null, tx=(el,n)=>(q(el,n)?.textContent||"").trim(), all=(el,n)=>[...el.getElementsByTagNameNS("*",n)];
+  const ced=q(doc,"CedentePrestatore"), ces=q(doc,"CessionarioCommittente");
+  const forn=tx(ced,"Denominazione")||[tx(ced,"Nome"),tx(ced,"Cognome")].join(" ").trim();
+  const piva=tx(q(ced,"IdFiscaleIVA"),"IdCodice")||tx(ced,"CodiceFiscale"), dest=tx(q(ces,"IdFiscaleIVA"),"IdCodice")||tx(ces,"CodiceFiscale");
+  return all(doc,"FatturaElettronicaBody").map(body=>{ const g=q(body,"DatiGeneraliDocumento");
+    const L=all(body,"DettaglioLinee").map(l=>{ const cods=all(l,"CodiceArticolo").map(c=>({t:tx(c,"CodiceTipo").toUpperCase(),v:tx(c,"CodiceValore")}));
+      const ean=(cods.find(c=>/EAN|GTIN/.test(c.t))||{}).v||"", cod=(cods.find(c=>!/EAN|GTIN/.test(c.t))||{}).v||"";
+      return {n:Number(tx(l,"NumeroLinea"))||0,codice:cod.toUpperCase(),ean:ean.replace(/\D/g,""),descr:tx(l,"Descrizione"),qty:Number(tx(l,"Quantita"))||0,tot:Number(tx(l,"PrezzoTotale"))||0}; });
+    // righe di rettifica senza codice ("SCONTO x % LINEA n", "MAGGIORAZIONE … LINEA n") sommate alla riga a cui si riferiscono
+    const per={}; L.forEach(l=>per[l.n]=l);
+    const righe=[]; L.forEach(l=>{ const m=!l.codice&&l.descr.match(/LINEA\s*(\d+)/i); if(m&&per[m[1]]&&per[m[1]]!==l){ per[m[1]].adj=(per[m[1]].adj||0)+l.tot; return; } if(l.codice&&l.qty>0) righe.push(l); });
+    righe.forEach(l=>l.costo=Math.round((l.tot+(l.adj||0))/l.qty*100)/100);
+    const tipo=tx(g,"TipoDocumento"), numero=tx(g,"Numero"), data=tx(g,"Data");
+    return {key:(piva+"_"+numero+"_"+data).replace(/[^A-Za-z0-9_-]/g,"-"),forn,piva,dest,tipo,numero,data,totale:Number(tx(g,"ImportoTotaleDocumento"))||0,righe,file:nome,nota:/^TD0[48]$/.test(tipo)}; }); }
+function openImportFatture(){
+  openModal(`<div class="mh"><h2>Carica fatture fornitore</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><div class="fs"><p style="margin-top:0">Scegli le fatture ricevute: file <b>.xml</b>, <b>.p7m</b> o lo <b>.zip</b> scaricato da Danea o dal sito dell'Agenzia delle Entrate (anche più file insieme). Aggiorno il <b>costo d'acquisto</b> e l'<b>EAN</b> degli articoli e, se vuoi, carico la <b>merce in magazzino</b>. Le fatture già caricate vengono saltate.</p>
+   <label class="btn pri">${ic("up")}Scegli i file<input type="file" id="ffF" accept=".xml,.p7m,.zip" multiple style="display:none"></label>
+   <div id="ffPrev" style="margin-top:12px"></div><div class="prog" id="ffProg" style="display:none"><i></i></div></div></div>
+  <div class="mf"><button class="btn" data-close>Annulla</button><button class="btn pri" id="ffOk" disabled>Carica</button></div>`);
+  let F=[];
+  $("#ffF").onchange=async e=>{ const files=[...e.target.files]; if(!files.length) return; $("#ffPrev").innerHTML=`<div class="empty">Leggo i file…</div>`;
+    const docs=[], err=[];
+    for(const f of files){ try{ const buf=await f.arrayBuffer(); const lista=/\.zip$/i.test(f.name)?await unzipTutto(buf,[],f.name):[{nome:f.name,dati:new Uint8Array(buf)}];
+        for(const x of lista){ if(!/\.(xml|p7m)$/i.test(x.nome)||/^(MT|EC|NS|RC|DT|AT|SE)_|_(MT|EC|NS|RC|DT|AT|SE)_\d+\.xml$|metadat/i.test(x.nome)) continue; const d=xmlDaFile(x.nome,x.dati); if(d) docs.push(...leggiFatture(d,x.nome)); else err.push(x.nome); } }
+      catch(x){ err.push(f.name+" ("+x.message+")"); } }
+    const anni={}; for(const a of new Set(docs.map(d=>d.data.slice(0,4)))){ const r=await S.db.doc("fattureForn/"+a).get(); anni[a]=r.exists?(r.data().f||{}):{}; }
+    const visti=new Set(); F=docs.filter(d=>{ if(visti.has(d.key)) return false; visti.add(d.key); return true; });
+    F.forEach(d=>{ d.gia=!!anni[d.data.slice(0,4)]?.[d.key]; d.mie=d.dest&&d.dest!==MIA_PIVA&&d.piva===MIA_PIVA; });
+    const nuove=F.filter(d=>!d.gia&&!d.mie);
+    const inv=Math.max(0,...[...S.mag.values()].map(r=>Number(r.azzeratoAt)||0)); const dInv=inv?new Date(inv).toISOString().slice(0,10):"";
+    nuove.forEach(d=>d.carica=!d.nota&&!!dInv&&d.data>=dInv&&d.righe.length>0);
+    const righeTxt=d=>`${esc(d.data.split("-").reverse().join("/"))} · <b>${esc(d.forn)}</b> n. ${esc(d.numero)} · ${d.nota?"nota di credito":nf(d.righe.length)+" articoli"} · ${eur(d.totale)}`;
+    $("#ffPrev").innerHTML=`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc"><b>${nf(F.length)} fatture</b> lette: ${nf(nuove.length)} nuove${F.length-nuove.length?`, ${nf(F.filter(d=>d.gia).length)} già caricate (le salto)`:""}${F.some(d=>d.mie)?`, ${nf(F.filter(d=>d.mie).length)} emesse da voi (le salto)`:""}${err.length?`, <b>${nf(err.length)} file non leggibili</b>`:""}.</div>
+     ${nuove.length?`<p style="margin:12px 0 6px"><b>Carico la merce in magazzino?</b> ${dInv?`Spuntate quelle arrivate dopo l'inizio dell'inventario (${dInv.split("-").reverse().join("/")}). Togli la spunta se la merce l'avete già caricata o contata.`:"Spunta le fatture la cui merce è appena arrivata."}</p>
+     <div style="max-height:260px;overflow:auto;border:1px solid var(--line,#e5e5e5);border-radius:8px;padding:6px 10px">${nuove.slice(0,400).map((d,i)=>`<label class="ck" style="margin:4px 0"><input type="checkbox" data-ffc="${F.indexOf(d)}" ${d.carica?"checked":""} ${d.nota||!d.righe.length?"disabled":""}> ${righeTxt(d)}</label>`).join("")}${nuove.length>400?`<div class="sub">…e altre ${nf(nuove.length-400)} (solo costi, senza carico)</div>`:""}</div>
+     <label class="ck" style="margin-top:10px"><input type="checkbox" id="ffNew" checked> Aggiungi i codici che non sono ancora in magazzino</label>`:""}
+     ${err.length?`<details style="margin-top:8px"><summary>File non leggibili</summary><div class="sub">${err.slice(0,50).map(esc).join("<br>")}</div></details>`:""}`;
+    $("#ffPrev").querySelectorAll("[data-ffc]").forEach(c=>c.onchange=()=>{ F[+c.dataset.ffc].carica=c.checked; });
+    $("#ffOk").disabled=!nuove.length; };
+  $("#ffOk").onclick=async()=>{ const nuove=F.filter(d=>!d.gia&&!d.mie); if(!nuove.length) return; const addNew=$("#ffNew")?.checked!==false;
+    const b=$("#ffOk"); b.disabled=true; $("#ffProg").style.display="block";
+    // costo più recente per codice (le note di credito non cambiano i costi)
+    const ult={}; nuove.filter(d=>!d.nota).sort((a,c)=>a.data<c.data?-1:1).forEach(d=>d.righe.forEach(l=>{ if(l.costo>0) ult[l.codice]={...l,data:d.data,forn:d.forn}; }));
+    const carico={}; nuove.filter(d=>d.carica).forEach(d=>d.righe.forEach(l=>{ (carico[l.codice]=carico[l.codice]||{q:0,descr:l.descr,rif:[]}); carico[l.codice].q+=l.qty; carico[l.codice].rif.push(`${d.forn.split(" ")[0]} ${d.numero}`); }));
+    const by={}; let nc=0, nn=0, nq=0; const dove=c=>(S.magDove&&S.magDove.get(c))||[chunkOf(c),keyOf(c)];
+    for(const c of new Set([...Object.keys(ult),...Object.keys(carico)])){ const cur=itm(c), u=ult[c], k=carico[c]; let f;
+      if(!cur){ if(!addNew) continue; const descr=(u||k).descr||c, tipo=classify(c,descr); f={codice:c,descr,tipo,giacenza:0,scortaMin:0,forn:u?.forn||"",...(tipo==="vendita"?{cat:"Altro"}:{})}; nn++; }
+      else f={};
+      if(u&&(!cur||!cur.costoData||u.data>=cur.costoData)){ if(!cur||u.costo!==Number(cur.costo)){ f.costo=u.costo; nc++; } f.costoData=u.data; f.costoAt=Date.now(); if(cur?.costoStimato) f.costoStimato=false; if(!cur?.forn&&u.forn) f.forn=u.forn; }
+      const ean=u?.ean; if(ean&&!String(cur?.ean||"").includes(ean)) f.ean=cur?.ean?cur.ean+" "+ean:ean;
+      if(k){ f.giacenza=(Number(cur?.giacenza)||0)+k.q; if((cur?.tipo||f.tipo)==="vendita") f.daInviare=Date.now(); nq+=k.q; }
+      if(!Object.keys(f).length) continue; const [ch,kk]=dove(c); (by[ch]=by[ch]||{})[kk]=f; }
+    const ok=await write(async()=>{
+      await writeChunks(by,(a,t)=>{ $("#ffProg i").style.width=(a/t*80)+"%"; b.textContent=`Aggiorno ${a}/${t}…`; });
+      for(const [c,k] of Object.entries(carico)){ const r=itm(c); await S.db.collection("movimenti").add({at:Date.now(),codice:c,descr:r?.descr||k.descr,tipo:r?.tipo||"",qty:k.q,causale:"arrivo merce (fattura)",rif:[...new Set(k.rif)].join(", ").slice(0,120),by:S.me||null,costo:Number(r?.costo)||0}); }
+      const perAnno={}; nuove.forEach(d=>{ (perAnno[d.data.slice(0,4)]=perAnno[d.data.slice(0,4)]||{})[d.key]={forn:d.forn,piva:d.piva,tipo:d.tipo,numero:d.numero,data:d.data,totale:d.totale,righe:d.righe.length,caricata:!!d.carica,at:Date.now()}; });
+      for(const [a,f] of Object.entries(perAnno)) await S.db.doc("fattureForn/"+a).merge({f});
+      $("#ffProg i").style.width="100%";
+    },`${nf(nuove.length)} fatture caricate: ${nf(nc)} costi aggiornati${nn?`, ${nf(nn)} codici nuovi`:""}${nq?`, ${nf(nq)} pezzi caricati in magazzino`:""}`);
     if(ok) closeModal(); else { b.disabled=false; b.textContent="Carica"; } };
 }
 
