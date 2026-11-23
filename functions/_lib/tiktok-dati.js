@@ -155,7 +155,14 @@ export async function riepilogo(env) {
       problema: !['ACTIVATE', 'SELLER_DEACTIVATED', 'DRAFT'].includes(p.stato) || !p.sku || (!g && p.stato === 'ACTIVATE') };
   }).sort((a, b) => (b.problema - a.problema) || (b.venduti - a.venduti) || a.titolo.localeCompare(b.titolo));
   const s = (await getImp(env, 'tiktok_dati')) || {};
+  const cq = (await d.prepare(`SELECT SUM(tt_da_sync=1) coda, SUM(tt_product IS NOT NULL AND COALESCE(tt_stato,'')<>'bozza') online, SUM(tt_stato='bozza') bozze,
+      SUM(tt_stato='errore') errori, SUM(tt_product IS NULL AND qty>0) mancano FROM giacenze`).first().catch(() => null)) || {};
+  const err = (await d.prepare("SELECT slug, codice, tt_errore e FROM giacenze WHERE tt_stato IN ('errore','bozza') AND tt_errore IS NOT NULL ORDER BY tt_sync DESC LIMIT 300").all().catch(() => ({ results: [] }))).results;
+  const motivi = {};
+  for (const x of err) { const k = String(x.e).replace(/\s+/g, ' ').slice(0, 140); (motivi[k] ||= []).push(x.codice || x.slug); }
   return {
+    invio: { coda: cq.coda || 0, online: cq.online || 0, bozze: cq.bozze || 0, errori: cq.errori || 0, mancano: cq.mancano || 0,
+      motivi: Object.entries(motivi).map(([m, c]) => ({ motivo: m, n: c.length, codici: c.slice(0, 12) })).sort((a, b) => b.n - a.n).slice(0, 12) },
     aggiornato: { ordini: s.ordini || null, prodotti: s.prodotti || null },
     totali: { ordini: val.length, incasso, scontrinoMedio: val.length ? Math.round(incasso / val.length) : 0,
       annullati: ord.filter((o) => o.stato === 'CANCELLED').length, campioni: ord.filter((o) => o.campione).length, primo: ord.length ? ord[ord.length - 1].creato : null },

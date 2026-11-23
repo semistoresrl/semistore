@@ -7,8 +7,8 @@ import { chiama, magazzino, caricaFoto, categoriaConsigliata, marchio, attributi
 import { prodottoTikTokPer, ttProdottiLetti } from './tiktok-dati.js';
 
 const SI = (v) => ['1', 'true', 'si', 'sì'].includes(String(v || '').toLowerCase());
-// Scelta del cliente (22/11): su TikTok vanno solo i prodotti che ci sono già (o che aggiunge lui in Seller Center).
-// Il sito non crea più schede da solo, salvo TIKTOK_CREA_NUOVI=1 o articolo inviato con tiktok:true.
+// Scelta del cliente (23/11): all'invio dell'inventario TUTTO il magazzino con giacenza > 0 va su TikTok.
+// Se il prodotto c'è già (anche caricato a mano) si collega; altrimenti si crea. TIKTOK_CREA_NUOVI=0 per spegnere la creazione.
 
 const PER_SLUG = Object.fromEntries(prodotti.map((p) => [p.slug, p]));
 const eur = (cent) => (cent / 100).toFixed(2);
@@ -106,6 +106,7 @@ export async function cercaEsistente(env, p, slug) {
 async function crea(env, riga, origin) {
   const p = scheda(riga);
   if (!p.nome) throw new Error('Prodotto senza nome: invia nome e marca dall\'app');
+  if (!prezzoTikTok(env, riga.prezzo ?? p.prezzo)) throw new Error('Prodotto senza prezzo: mettilo nell\'app (solo amministratore) e reinvia');
   const immagini = foto(p, origin);
   if (!immagini.length) throw new Error('Prodotto senza foto: TikTok ne richiede almeno una');
   const tit = titolo(p);
@@ -156,7 +157,7 @@ export async function sincronizza(env, origin, { limite = 40 } = {}) {
 
   for (const r of righe) {
     const nuovo = !r.tt_product;
-    const creaNuovi = SI(env.TIKTOK_CREA_NUOVI) || (() => { try { return JSON.parse(r.dati || '{}').tiktok === true; } catch { return false; } })();
+    const creaNuovi = !['0', 'false', 'no'].includes(String(env.TIKTOK_CREA_NUOVI ?? '').toLowerCase()) || (() => { try { return JSON.parse(r.dati || '{}').tiktok === true; } catch { return false; } })();
     const costo = nuovo ? (creaNuovi ? 13 : letti ? 0 : 1) : 3;
     if (budget < costo) break;
     budget -= costo;

@@ -1818,7 +1818,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impCli:()=>openImportClienti(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -2649,7 +2649,7 @@ function canaliList(){
    ...(SUL_SITO?[]:[{n:"App sul sito",i:"up",st:["wait","Da trasferire"],s:"L'app si sposta su semistore.it/gestione con accesso per Gianluca e gli operatori. Esporta qui l'archivio e caricalo nell'app sul sito (Utenti → Trasferimento).",l:[["Apri semistore.it/gestione","https://semistore.it/gestione/"]],a:[["esportaTutto","Esporta tutto per il sito"]]}]),
    {n:"Sito Semi Store",i:"globe",st:["ok","Online"],s:"Su semistore.pages.dev. semistore.it passa al sito nuovo quando arriva il codice di trasferimento del dominio (Register.it).",l:[["Apri il sito",SITO],["Pagina assistenza",SITO+"/assistenza"]]},
    {n:"Pagamenti Stripe",i:"euro",st:["ok","Attivo"],s:"Pagamenti con carta del sito. Da Stripe esporti gli ordini (Pagamenti → Esporta) e fai i rimborsi.",l:[["Pagamenti","https://dashboard.stripe.com/payments"],["Coupon","https://dashboard.stripe.com/coupons"]],a:[["#ordini","Ordini online"]]},
-   {n:"TikTok Shop",i:"store",st:["ok","Collegato"],s:"Negozio collegato (22/11). Con “Aggiorna sito e negozi” si allineano quantità e prezzi dei prodotti che sono già su TikTok; i prodotti nuovi si mettono su TikTok dal Seller Center (con lo SKU uguale al codice del magazzino) e si collegano da soli. Ordini, incassi e prodotti con problemi: menu TikTok Shop.",l:[["Seller Center",TT_SELLER]],a:[["#tiktok","Apri TikTok Shop"]]},
+   {n:"TikTok Shop",i:"store",st:["ok","Collegato"],s:"Negozio collegato (22/11). Con “Aggiorna sito e negozi” tutto il magazzino con giacenza va su TikTok: i prodotti già presenti si collegano (anche quelli caricati a mano, con SKU = codice del magazzino) e si allineano pezzi e prezzi, gli altri si creano. Avanzamento, non riusciti, ordini e incassi: menu TikTok Shop.",l:[["Seller Center",TT_SELLER]],a:[["#tiktok","Apri TikTok Shop"]]},
    {n:"WhatsApp Business",i:"chat",st:["ok","Collegato"],s:"375 626 6947 · pulsante sul sito con domande rapide · catalogo collegato (500 articoli) · da ogni ordine e scheda mandi il messaggio già scritto.",l:[["Apri WhatsApp","https://wa.me/393756266947"]]},
    {n:"Facebook e Instagram",i:"send",st:["ok","Catalogo attivo"],s:"Catalogo “Semi Store” in Commerce Manager, preso ogni giorno dal feed del sito.",l:[["Commerce Manager","https://business.facebook.com/commerce/"],["Feed Meta",SITO+"/feed-meta.xml"]]},
    {n:"Google Merchant",i:"search",st:["todo","Da collegare"],s:"Feed pronto (1.181 prodotti). Da collegare Merchant Center all'account con la scheda Google Maps di Semi.",l:[["Merchant Center","https://merchants.google.com/"],["Feed Google",SITO+"/feed-google.xml"]]},
@@ -2658,7 +2658,7 @@ function canaliList(){
    {n:"Portale DEWALT",i:"truck",st:fTot>=soglia()?["wait","Foglio pronto da inviare"]:["ok",Math.round(fTot)+" € / "+soglia()+" €"],s:"Ordini ricambi a soglia e garanzie (anche da file). Le righe e il file si preparano nell'app.",l:[["Carrello",VT_CARRELLO],["Le mie garanzie",VT_GARLIST]],a:[["#vault","Foglio ricambi"],["#garanzie","Garanzie"]]},
    {n:"DEWALT Service",i:"search",st:["ok","Attivo"],s:"Esplosi, distinte e prezzi guida dei ricambi. Le distinte importate restano nell'app.",l:[["Apri DEWALT Service",SD]],a:[["#ricambi","Cerca ricambio"]]},
    {n:"Danea Easyfatt",i:"folder",st:["ok","A file"],s:"Resta il gestionale delle fatture. Scambio a file: foglio ricambi in CSV, inventario Excel, ordini online in CSV.",a:[["import","Aggiorna magazzino da Excel"],["expOrd","Esporta ordini"]]},
-   {n:"Giacenze per sito e TikTok",i:"box",st:daInviare().length?["wait",daInviare().length+" cambi da inviare"]:["ok","Tutto inviato"],s:`${nf(ven)} prodotti con giacenza. Con “Aggiorna sito e negozi” prezzi e quantità vanno su sito (Disponibile / su conferma), sui prodotti già presenti su TikTok Shop e, entro un giorno, Google, Facebook, Instagram e WhatsApp.`,a:[["invia","Aggiorna sito e negozi"],["expGiac","Esporta giacenze"]]}
+   {n:"Giacenze per sito e TikTok",i:"box",st:daInviare().length?["wait",daInviare().length+" cambi da inviare"]:["ok","Tutto inviato"],s:`${nf(ven)} prodotti con giacenza. Con “Aggiorna sito e negozi” prezzi e quantità vanno su sito (Disponibile / su conferma), TikTok Shop (tutto il magazzino con giacenza) e, entro un giorno, Google, Facebook, Instagram e WhatsApp.`,a:[["invia","Aggiorna sito e negozi"],["expGiac","Esporta giacenze"]]}
   ];
 }
 function vCanali(){
@@ -3175,7 +3175,7 @@ async function inviaDiretto(lista,box){
   await write(()=>writeChunks(by));
   let tt="TikTok Shop: non collegato";
   for(let k=0;k<40;k++){ const r=await fetch("/api/tiktok/sync",{method:"POST",credentials:"same-origin"}); const j=await r.json().catch(()=>({}));
-    if(!r.ok){ tt=r.status===503?"TikTok Shop: non ancora collegato":"TikTok Shop: "+(j.error||"errore"); break; } if(j.attesa){ tt="TikTok Shop: "+j.attesa; break; } if(!j.restanti){ tt="TikTok Shop: aggiornato"; break; } tt=`TikTok Shop: ancora ${j.restanti}…`; }
+    if(!r.ok){ tt=r.status===503?"TikTok Shop: non ancora collegato":"TikTok Shop: "+(j.error||"errore"); break; } if(j.attesa){ tt="TikTok Shop: "+j.attesa; break; } if(!j.restanti){ tt="TikTok Shop: aggiornato"; break; } tt=`TikTok Shop: ancora ${j.restanti} in coda (continua da menu TikTok Shop)`; }
   return {tot,rico,tt};
 }
 
@@ -3581,6 +3581,20 @@ async function ttSync(tipo,completo){
   }catch(e){ TT.msg=""; TT.err=e.message; }
   TT.lavoro=false; await ttCarica();
 }
+// invio del magazzino a TikTok: lavora la coda finché c'è (crea i prodotti nuovi, allinea pezzi e prezzi)
+async function ttInvio(riprova){
+  if(TT.lavoro) return; TT.lavoro=true; let fatti=0,err=0,giri=0;
+  try{ let primo=true;
+    while(giri++<400){ const r=await fetch("/api/tiktok/sync",{method:"POST",credentials:"same-origin",headers:{"content-type":"application/json"},body:JSON.stringify(primo&&riprova?{riprova:true}:{})});
+      primo=false; const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||"errore "+r.status);
+      if(j.attesa){ TT.msg="TikTok: "+j.attesa; break; }
+      fatti+=(j.creati||0)+(j.aggiornati||0)+(j.collegati||0); err+=j.errori||0;
+      TT.msg=`Invio a TikTok: ${nf(fatti)} fatti, ${nf(err)} non riusciti, ${nf(j.restanti||0)} in coda… (lascia aperta questa pagina)`; if(S.view==="tiktok") render();
+      if(!j.restanti){ TT.msg=""; toast(`TikTok aggiornato: ${nf(fatti)} prodotti, ${nf(err)} non riusciti`); break; } }
+    TT.err="";
+  }catch(e){ TT.msg=""; TT.err=e.message; }
+  TT.lavoro=false; await ttSync("prodotti");
+}
 async function ttAggiorna(completo){ await ttSync("ordini",completo); if(!TT.err) await ttSync("prodotti"); }
 function vTikTok(){
   if(!SUL_SITO) return header("TikTok Shop","")+`<div class="panel"><div class="empty">Si usa dall'app sul sito: semistore.it/gestione</div></div>`;
@@ -3616,6 +3630,13 @@ function vTikTok(){
    <div class="panel"><h3>${ic("clipboard")}Ordini per stato</h3><table><tbody>${d.stati.map(s=>`<tr><td>${esc(s.nome)}</td><td class="num"><b>${nf(s.n)}</b></td></tr>`).join("")}</tbody></table></div>
    <div class="panel"><h3>${ic("store")}Più venduti</h3>${d.piuVenduti.length?`<table><tbody>${d.piuVenduti.map(v=>`<tr><td>${esc(v.nome)}<div class="sub mono">${esc(v.sku||"")}</div></td><td class="num"><b>${nf(v.pezzi)}</b> pz</td><td class="num">${ttE(v.incasso)}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">—</div>`}</div>
   </div>
+  ${d.invio?`<div class="panel" style="margin-bottom:18px"><h3>${ic("swap")}Magazzino → TikTok<span class="sp"></span>${d.invio.coda?`<button class="btn pri sm" data-act="ttInv" ${TT.lavoro?"disabled":""}>${ic("send")}Continua l'invio (${nf(d.invio.coda)})</button>`:""}${d.invio.errori?`<button class="btn sm" data-act="ttRip" ${TT.lavoro?"disabled":""}>${ic("swap")}Riprova i non riusciti</button>`:""}</h3>
+    <div class="kpis" style="margin-bottom:10px"><div class="kpi"><div class="l">Su TikTok dal magazzino</div><div class="v">${nf(d.invio.online)}</div><div class="s">collegati o creati</div></div>
+      <div class="kpi"><div class="l">In coda</div><div class="v">${nf(d.invio.coda)}</div><div class="s">${d.invio.coda?"si inviano mentre questa pagina è aperta":"niente da inviare"}</div></div>
+      <div class="kpi"><div class="l">Bozze</div><div class="v">${nf(d.invio.bozze)}</div><div class="s">da completare in Seller Center</div></div>
+      <div class="kpi"><div class="l">Non riusciti</div><div class="v ${d.invio.errori?"low":""}">${nf(d.invio.errori)}</div><div class="s">motivi qui sotto</div></div></div>
+    <p class="sub">Con “Aggiorna sito e negozi” tutto il magazzino con giacenza va su TikTok: i prodotti già presenti si collegano, gli altri si creano (con foto, prezzo, marca e categoria). TikTok può rifiutarne alcuni (autorizzazione del marchio, foto, dati mancanti): restano solo sul sito finché non si sistemano.</p>
+    ${d.invio.motivi.length?`<table><thead><tr><th>Motivo</th><th class="num">Prodotti</th><th>Codici (primi)</th></tr></thead><tbody>${d.invio.motivi.map(m=>`<tr><td>${esc(m.motivo)}</td><td class="num"><b>${nf(m.n)}</b></td><td class="mono sub">${m.codici.map(esc).join(", ")}</td></tr>`).join("")}</tbody></table>`:""}</div>`:""}
   ${prob.length?`<div class="panel" style="margin-bottom:18px"><h3>${ic("x")}Prodotti con problemi: ${prob.length}</h3>
     <p class="sub" style="margin:-4px 0 10px">Quasi sempre serve l'autorizzazione del marchio: carica la lettera DEWALT/SBD in Seller Center → Account → Autorizzazioni brand. Lo SKU venditore va messo uguale al codice del magazzino.</p>${pTab(prob)}</div>`:""}
   <div class="panel" style="margin-bottom:18px"><h3>${ic("box")}Prodotti su TikTok: ${ok.length}</h3>${ok.length?pTab(ok):`<div class="empty">—</div>`}</div>
