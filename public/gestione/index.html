@@ -4360,13 +4360,21 @@ function pickItem(q,{tipo,onPick,hint}){
     const n=normC(q), words=q.toLowerCase().split(/\s+/).filter(Boolean);
     let l=allItems().filter(r=>(!tipo||r.tipo===tipo)&&(normC(r.codice).includes(n)&&n.length>=2||words.every(w=>(r.codice+" "+nomeDi(r)+" "+(r.descr||"")).toLowerCase().includes(w))||(r.ubic&&String(r.ubic).toLowerCase()===q.toLowerCase())));
     l.sort((a,b)=>(normC(b.codice).startsWith(n))-(normC(a.codice).startsWith(n))||(Number(b.giacenza)>0)-(Number(a.giacenza)>0));
-    l=l.slice(0,12);
-    L.innerHTML=l.length?l.map(r=>`<button class="pki" data-pk="${esc(r.codice)}"><span><b>${esc(nomeDi(r))}</b><small class="mono">${esc(r.codice)}${r.ubic?` · <b class="pkubi">${esc(r.ubic)}</b>`:""}</small></span><span class="pkr">${prezzoVendita(r)?`<b>${eur(prezzoVendita(r))}</b>`:""}<small>${r.verificare?"da contare":(Number(r.giacenza)||0)+" in negozio"}</small></span></button>`).join(""):`<div class="wsub">Nessun prodotto trovato con “${esc(q)}”.</div>`;
-    L.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>pick(itm(b.dataset.pk))); };
+    l=l.slice(0,12); const cat=tipo==="ricambio"||l.length>=12?[]:cercaCatalogo(q,Math.min(6,12-l.length),new Set(l.map(r=>normC(r.codice))));
+    L.innerHTML=(l.length||cat.length)?l.map(r=>`<button class="pki" data-pk="${esc(r.codice)}"><span><b>${esc(nomeDi(r))}</b><small class="mono">${esc(r.codice)}${r.ubic?` · <b class="pkubi">${esc(r.ubic)}</b>`:""}</small></span><span class="pkr">${prezzoVendita(r)?`<b>${eur(prezzoVendita(r))}</b>`:""}<small>${r.verificare?"da contare":(Number(r.giacenza)||0)+" in negozio"}</small></span></button>`).join("")+cat.map(r=>{ const pr=prezziDi(r), v=pr.volantino||pr.listino; return `<button class="pki" data-pkc="${esc(r.codice)}"><span><b>${esc(nomeDi(r)||r.descr||r.codice)}</b><small class="mono">${esc(r.codice)} · dal ${pr.volantino?"volantino":"listino"} DEWALT</small></span><span class="pkr">${v?`<b>${eur(v)}</b>`:""}<small>non in magazzino · tocca per aggiungerlo</small></span></button>`; }).join(""):`<div class="wsub">Nessun prodotto trovato con “${esc(q)}”.</div>`;
+    L.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>pick(itm(b.dataset.pk)));
+    L.querySelectorAll("[data-pkc]").forEach(b=>b.onclick=async()=>{ b.disabled=true; const it=await creaDaCatalogo(b.dataset.pkc); if(it) pick(it); else b.disabled=false; }); };
   inp.oninput=()=>{ clearTimeout(inp._t); inp._t=setTimeout(draw,120); };
-  inp.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); const v=inp.value.trim(); if(sembraBC(v)){ inp.value=""; handle(v); return; } const f=L.querySelector("[data-pk]"); if(f) f.click(); } };
+  inp.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); const v=inp.value.trim(); if(sembraBC(v)){ inp.value=""; handle(v); return; } const f=L.querySelector("[data-pk],[data-pkc]"); if(f) f.click(); } };
   bindScan("pkScan",handle);
 }
+// articolo del volantino/listino DEWALT non ancora in magazzino: lo crea (giacenza 0, prezzi come sul sito: volantino −15%, listino −20%)
+async function creaDaCatalogo(cod){ const a=pvArticolo(cod); if(!a) return null; if(itm(a.codice)) return itm(a.codice);
+  const vv=volDi(a.codice), ll=lisDi(a.codice), si=S.sito&&S.sito[normC(a.codice)];
+  const listino=ll?r2(ll.n*1.22):0, prezzo=si?r2(si.p/100):vv?r2(vv.n*0.85*1.22):ll?r2(ll.n*1.22*0.8):0;
+  const it=clean({codice:a.codice,descr:(nomeDi(a)||a.descr||a.codice).slice(0,160),tipo:"vendita",marca:"DEWALT",giacenza:0,scortaMin:0,prezzo,...(listino?{prezzoListino:listino}:{}),...(ll?.e?{ean:ll.e}:{}),forn:"Stanley Black & Decker",creatoDa:"listino",creatoAt:Date.now()});
+  const ok=await write(()=>updItem(a.codice,it),a.codice+" aggiunto al magazzino");
+  return ok?itm(a.codice):null; }
 function itemCard(it){ const s=sitoDi(it);
   return `<div class="wcard"><div class="wname">${esc(nomeDi(it))}</div><div class="mono wsub">${esc(it.codice)}${it.marca?" · "+esc(it.marca):""}</div>
   <div class="wrow"><div><small>Prezzo</small><div class="wprice">${prezzoVendita(it)?eur(prezzoVendita(it)):"—"}</div></div><div><small>In negozio</small><div class="wstock ${(Number(it.giacenza)||0)>0?"":"zero"}">${it.verificare?"?":(Number(it.giacenza)||0)}</div></div></div>
