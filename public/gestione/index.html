@@ -664,6 +664,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#verifiche" data-v="verifiche"><svg class="i"><use href="#i-clipboard"/></svg><span>Da inventariare</span><span class="ct" id="ctVer">0</span></a>
 <a href="#movimenti" data-v="movimenti"><svg class="i"><use href="#i-swap"/></svg><span>Movimenti</span></a>
 <div class="ng">Vendite</div><a href="#catalogo" data-v="catalogo"><svg class="i"><use href="#i-store"/></svg><span>Catalogo vendita</span><span class="ct" id="ctPub">0</span></a>
+<a href="#preventivi" data-v="preventivi"><svg class="i"><use href="#i-euro"/></svg><span>Preventivi</span><span class="ct" id="ctPrev">0</span></a>
 <a href="#sconti" data-v="sconti"><svg class="i"><use href="#i-tag"/></svg><span>Codici sconto</span></a>
 <a href="#tiktok" data-v="tiktok" class="adm-only"><svg class="i"><use href="#i-store"/></svg><span>TikTok Shop</span><span class="ct" id="ctTT" data-z>0</span></a>
 <a href="#canali" data-v="canali"><svg class="i"><use href="#i-plug"/></svg><span>Canali e integrazioni</span></a>
@@ -745,7 +746,7 @@ function garFileLines(t){
   const D=(t.ricambi||[]).filter(p=>p.qty>0).map(p=>["D",ascii(p.codice).toUpperCase(),String(parseInt(p.qty)||1)]);
   return [H,...D].map(r=>r.join("\t"));
 }
-const S = { tickets:[], clienti:new Map(), _cliVer:0, mag:new Map(), magChunks:new Set(), movimenti:[], richieste:[], ordini:[], sito:{}, ean:{}, facile:(()=>{try{return localStorage.getItem("semi-facile")!=="0"}catch(e){return true}})(), ordiniWeb:[], consegne:[], resi:[], sconti:[], oFilt:"aperti", oCan:"", oq:"", rFilt:"aperti", esplosi:new Map(), ricDW:new Map(), rq:"", assets:null,
+const S = { tickets:[], clienti:new Map(), _cliVer:0, mag:new Map(), magChunks:new Set(), movimenti:[], richieste:[], ordini:[], sito:{}, ean:{}, facile:(()=>{try{return localStorage.getItem("semi-facile")!=="0"}catch(e){return true}})(), ordiniWeb:[], consegne:[], preventivi:[], pvFilt:"aperti", resi:[], sconti:[], oFilt:"aperti", oCan:"", oq:"", rFilt:"aperti", esplosi:new Map(), ricDW:new Map(), rq:"", assets:null,
   cfg:{tecnici:["Tecnico 1","Tecnico 2"], tariffa:35, prefisso:"AS", soglia:250},
   loaded:{t:false,r:false,m:false,q:false,c:false,o:false,e:false,d:false,w:false,x:false,z:false}, db:null, user:null, canWrite:true, canEdit:false, me:null, dl:null, gFilt:"aperte",
   view:"cruscotto", filt:{q:"",stato:"aperti",tipo:"",tec:""}, layout:"board",
@@ -813,6 +814,7 @@ async function init(){
   db.collection("ricambiDW").onSnapshot(s=>{const m=new Map(); s.docs.forEach(d=>{const x=d.data(); if(x&&x.codice) m.set(String(x.codice).toUpperCase(),{id:d.id,...x})}); S.ricDW=m; s.metadata.fromCache?schedule():done("d");},err);
   db.collection("ordiniWeb").onSnapshot(s=>{S.ordiniWeb=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("w");},err);
   db.collection("consegne").onSnapshot(s=>{S.consegne=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
+  db.collection("preventivi").onSnapshot(s=>{S.preventivi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("resi").onSnapshot(s=>{S.resi=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("x");},err);
   db.collection("clienti").onSnapshot(s=>{ const m=new Map(); s.docs.forEach(d=>{ const it=d.data()?.items||{}; for(const k in it){ const c=it[k]; if(c&&c.nome) m.set(k,{...c,id:k}); } }); S.clienti=m; S._cliVer++; schedule(); },()=>{});
   db.collection("ean").onSnapshot(s=>{const m={}; s.docs.forEach(d=>m[d.id]=d.data().codice); S.ean=m;},()=>{});
@@ -1124,7 +1126,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -1142,13 +1144,14 @@ function render(){
   $("#ctOrd").textContent=S.ordiniWeb.filter(o=>ORD_APERTI.includes(o.stato)).length; $("#ctOrd").classList.toggle("hot",oCf>0);
   $("#ctResi").textContent=S.resi.filter(r=>r.stato!=="Chiuso").length;
   { const e=$("#ctCons"); if(e){ const n=sulloScaffale().length; e.textContent=n; } }
+  { const e=$("#ctPrev"); if(e){ e.textContent=(S.preventivi||[]).filter(p=>!["accettato","rifiutato","scaduto"].includes(p.stato)).length; } }
   document.querySelectorAll("#nav .ct").forEach(c=>c.toggleAttribute("data-z",/^0( €)?$/.test(c.textContent.trim())));
   const nm=$("#navMore"); if(nm&&nm.querySelector('a[data-v="'+S.view+'"]')) nm.open=true;
   const m=$("#main");
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = !S.db ? `<div class="banner err">L'archivio condiviso non è ancora collegato. Apri la pagina da claude.ai con il tuo account per vedere e salvare i dati.</div>`:"";
-  const fns={tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
   S._vistaPrec=S.view;
@@ -1178,7 +1181,7 @@ function patchTieni(m,html,vivo){
   }
   return true;
 }
-const VICON={"tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={"preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -1847,7 +1850,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -1876,7 +1879,7 @@ function bindView(){
   const sel=(id,fn)=>{const e=$("#"+id); if(e) e.onchange=()=>{fn(e.value);render()}};
   sel("fst",v=>S.filt.stato=v); sel("ftp",v=>S.filt.tipo=v); sel("ftc",v=>S.filt.tec=v);
   sel("cCat",v=>{S.cCat=v;S.cPage=1}); sel("cMarca",v=>{S.cMarca=v;S.cPage=1}); sel("cPiatt",v=>{S.cPiatt=v;S.cPage=1});
-  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar();
+  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi();
   const fst=$("#fst"); if(fst) fst.value=S.filt.stato; const ftp=$("#ftp"); if(ftp) ftp.value=S.filt.tipo; const ftc=$("#ftc"); if(ftc) ftc.value=S.filt.tec;
 }
 async function saveCfg(){
@@ -2140,6 +2143,129 @@ function openImportFatture(){
     if(ok) closeModal(); else { b.disabled=false; b.textContent="Carica"; } };
 }
 
+
+/* ---------- PREVENTIVI (24/11) ---------- */
+const PV_FONTI={auto:"Volantino se c'è, altrimenti listino",volantino:"Volantino (promo)",listino:"Listino",sito:"Prezzo del sito"};
+const PV_STATI={bozza:"Bozza",inviato:"Inviato",accettato:"Accettato",rifiutato:"Rifiutato",scaduto:"Scaduto"};
+const r2=n=>Math.round((Number(n)||0)*100)/100;
+// prezzi al pubblico (IVA inclusa) di un articolo, per fonte
+function prezziDi(it){ if(!it) return {};
+  const promo=it.prezzoScade&&it.prezzoScade>=new Date().toISOString().slice(0,10)&&Number(it.prezzo)>0?r2(it.prezzo):0;
+  const list=Number(it.prezzoListino)>0?r2(it.prezzoListino):Number(it.prezzoListinoNetto)>0?r2(it.prezzoListinoNetto*1.22):(!it.prezzoScade&&Number(it.prezzo)>0?r2(it.prezzo):(Number(it.prezzoNetto)>0&&!it.prezzoScade?r2(it.prezzoNetto*1.22):0));
+  const sito=sitoDi(it)?r2(sitoDi(it).p/100):(it.prezzoSito!=null?r2(it.prezzoSito):0);
+  return {volantino:promo,listino:list||(Number(it.prezzo)>0?r2(it.prezzo):0),sito,scade:promo?it.prezzoScade:""}; }
+function pvRiga(it,qty,fonte){ const pr=prezziDi(it); let f=fonte||"auto";
+  if(f==="auto") f=pr.volantino?"volantino":"listino"; else if(!pr[f]) f=pr.volantino?"volantino":"listino";
+  return {codice:it.codice,nome:nomeDi(it),qty:Number(qty)||1,fonte:f,base:pr[f]||0,sc:null}; }
+function pvScontoRiga(p,r){ if(r.sc!=null&&r.sc!=="") return Number(r.sc)||0; return r.fonte==="volantino"?(Number(p.scVolantino)||0):r.fonte==="listino"?(Number(p.scListino)||0):r.fonte==="sito"?(Number(p.scSito)||0):0; }
+function pvUnit(p,r){ return r2((Number(r.base)||0)*(1-pvScontoRiga(p,r)/100)); }
+function pvTotali(p){ const righe=(p.righe||[]); const lordo=r2(righe.reduce((a,r)=>a+(Number(r.base)||0)*(Number(r.qty)||0),0));
+  const netto=r2(righe.reduce((a,r)=>a+pvUnit(p,r)*(Number(r.qty)||0),0)); const extra=Number(p.sconto)||0; const tot=r2(netto*(1-extra/100));
+  const imp=r2(tot/1.22); return {lordo,netto,extra:r2(netto-tot),totale:tot,imponibile:imp,iva:r2(tot-imp),pezzi:righe.reduce((a,r)=>a+(Number(r.qty)||0),0),risparmio:r2(lordo-tot)}; }
+function nextPrev(){ const y=new Date().getFullYear(), pre="PR-"+y+"-"; let max=0; (S.preventivi||[]).forEach(t=>{ if(String(t.num||"").startsWith(pre)){ const n=parseInt(String(t.num).slice(pre.length),10); if(n>max) max=n; }}); return pre+String(max+1).padStart(4,"0"); }
+function pvNuovo(){ const d=new Date(); d.setDate(d.getDate()+15); return {num:nextPrev(),at:Date.now(),by:S.me||null,cliente:"",tel:"",email:"",piva:"",ind:"",cliId:"",fonte:"auto",scVolantino:0,scListino:0,scSito:0,sconto:0,righe:[],note:"",validita:d.toISOString().slice(0,10),stato:"bozza"}; }
+function vPreventivi(){
+  let l=(S.preventivi||[]).slice().sort((a,b)=>(b.at||0)-(a.at||0)); const oggi=new Date().toISOString().slice(0,10);
+  const st=p=>p.stato==="inviato"&&p.validita&&p.validita<oggi?"scaduto":(p.stato||"bozza");
+  const cnt=k=>l.filter(p=>k==="aperti"?["bozza","inviato"].includes(st(p)):st(p)===k).length;
+  if(S.pvFilt==="aperti") l=l.filter(p=>["bozza","inviato"].includes(st(p))); else if(S.pvFilt!=="tutti") l=l.filter(p=>st(p)===S.pvFilt);
+  if(S.pvq){ const q=S.pvq.toLowerCase(); l=l.filter(p=>[p.num,p.cliente,p.tel,p.piva,...(p.righe||[]).map(r=>r.codice+" "+r.nome)].join(" ").toLowerCase().includes(q)); }
+  return header("Preventivi","Prezzi da listino, volantino o sito, con gli sconti che decidi tu",`<button class="btn pri edit-only" data-act="nuovoPrev">${ic("plus")}Nuovo preventivo</button>`)+`
+  <div class="toolbar"><div class="chips">${[["aperti","Aperti"],["bozza","Bozze"],["inviato","Inviati"],["accettato","Accettati"],["rifiutato","Rifiutati"],["scaduto","Scaduti"],["tutti","Tutti"]].map(([k,t])=>`<button class="chip ${S.pvFilt===k?"on":""}" data-pvf="${k}">${t}${k!=="tutti"?` <small>${cnt(k)}</small>`:""}</button>`).join("")}</div><input id="pvq" placeholder="Cerca numero, cliente o codice" value="${esc(S.pvq||"")}"></div>
+  ${l.length?`<table><thead><tr><th>Numero</th><th>Cliente</th><th>Articoli</th><th class="num">Totale IVA incl.</th><th>Valido fino al</th><th>Stato</th></tr></thead><tbody>${l.map(p=>{const t=pvTotali(p), k=st(p); return `<tr class="click" data-pv="${esc(p.id)}"><td class="mono">${esc(p.num)}<div class="sub">${fmtD(p.at)}${p.by?" · "+esc(p.by):""}</div></td><td><b>${esc(p.cliente||"—")}</b><div class="sub">${esc(p.tel||"")}</div></td><td>${nf((p.righe||[]).length)} righe · ${nf(t.pezzi)} pz<div class="sub">${esc((p.righe||[]).slice(0,3).map(r=>r.codice).join(", "))}${(p.righe||[]).length>3?"…":""}</div></td><td class="num"><b>${eur(t.totale)}</b>${t.risparmio>0?`<div class="sub">−${eur(t.risparmio)} sul pieno</div>`:""}</td><td>${p.validita?p.validita.split("-").reverse().join("/"):"—"}</td><td><span class="badge ${k==="accettato"?"st-Pronto":k==="rifiutato"||k==="scaduto"?"st-Attesa_ricambi":k==="inviato"?"st-Preventivo_inviato":"st-Ricevuto"}">${PV_STATI[k]||k}</span></td></tr>`}).join("")}</tbody></table>`:`<div class="panel"><div class="empty">Nessun preventivo${S.pvFilt!=="tutti"?" con questo filtro":""}. Premi «Nuovo preventivo».</div></div>`}`;
+}
+function bindPreventivi(){ const m=$("#main");
+  m.querySelectorAll("[data-pvf]").forEach(b=>b.onclick=()=>{S.pvFilt=b.dataset.pvf;render()});
+  m.querySelectorAll("[data-pv]").forEach(r=>r.onclick=()=>openPreventivo(S.preventivi.find(p=>p.id===r.dataset.pv)));
+  const q=$("#pvq"); if(q) q.oninput=()=>{ S.pvq=q.value; clearTimeout(q._t); q._t=setTimeout(render,200); }; }
+function openPreventivo(p0){
+  const p=p0?JSON.parse(JSON.stringify(p0)):pvNuovo(); const nuovo=!p.id; const puoSc=puoPrezzi();
+  const draw=()=>{ const t=pvTotali(p), ro=!S.canWrite;
+    openModal(`<div class="mh"><h2>${nuovo?"Nuovo preventivo":"Preventivo "+esc(p.num)}</h2><span class="sp"></span>${!nuovo?`<span class="badge st-Ricevuto">${PV_STATI[p.stato]||p.stato}</span>`:""}<button class="x" data-close>×</button></div>
+    <div class="mb">
+     <div class="fs"><h3>Cliente</h3><div class="f">
+      <label class="fl" style="grid-column:1/-1">Nome / Ragione sociale *<input id="pvCli" value="${esc(p.cliente)}" placeholder="Nome, telefono o partita IVA"><div id="pvCliL" class="pkl" style="margin-top:6px"></div></label>
+      <label class="fl">Telefono<input id="pvTel" type="tel" value="${esc(p.tel)}"></label><label class="fl">Email<input id="pvEm" type="email" value="${esc(p.email)}"></label>
+      <label class="fl">P.IVA / C.F.<input id="pvPiva" value="${esc(p.piva)}"></label><label class="fl">Indirizzo<input id="pvInd" value="${esc(p.ind)}"></label></div></div>
+     <div class="fs"><h3>Prezzi e sconti</h3>
+      <div class="chips" style="margin-bottom:10px">${Object.entries(PV_FONTI).map(([k,v])=>`<button class="chip ${p.fonte===k?"on":""}" data-pvfo="${k}">${v}</button>`).join("")}</div>
+      <div class="f">
+       <label class="fl">Sconto sul volantino %<input id="pvScV" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scVolantino||""}" ${puoSc?"":"disabled"}></label>
+       <label class="fl">Sconto sul listino %<input id="pvScL" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scListino||""}" ${puoSc?"":"disabled"}></label>
+       <label class="fl">Sconto sul prezzo sito %<input id="pvScS" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scSito||""}" ${puoSc?"":"disabled"}></label>
+       <label class="fl">Sconto extra sul totale %<input id="pvScX" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.sconto||""}" ${puoSc?"":"disabled"}></label></div>
+      ${puoSc?`<div class="sub">Gli sconti per fonte valgono per tutte le righe di quella fonte; su una riga puoi metterne uno diverso.</div>`:`<div class="sub">Gli sconti li può cambiare solo l'amministratore.</div>`}</div>
+     <div class="fs"><h3>Articoli</h3>
+      <input id="pvP" placeholder="Cerca il prodotto: codice o nome" autocomplete="off"><div id="pvPL" class="pkl" style="margin-top:6px"></div>
+      <details style="margin:8px 0"><summary class="sub">Incolla un elenco (una riga per articolo: quantità e codice, es. «4 DCD740NT-XJ»)</summary><textarea id="pvBulk" rows="4" style="width:100%;margin-top:6px" placeholder="4 DCD740NT-XJ&#10;2 DT7274-QZ"></textarea><button class="btn sm" id="pvBulkOk" style="margin-top:6px">Aggiungi l'elenco</button><div id="pvBulkEsito" class="sub"></div></details>
+      ${p.righe.length?`<div class="tts"><table><thead><tr><th>Articolo</th><th>Prezzo da</th><th class="num">Pieno</th><th class="num">Sc. %</th><th class="num">Netto</th><th class="num">Q.tà</th><th class="num">Totale</th><th></th></tr></thead><tbody>
+      ${p.righe.map((r,i)=>`<tr><td><b>${esc(r.nome||r.codice)}</b><div class="mono sub">${esc(r.codice)}</div></td><td><select data-pvrf="${i}">${["volantino","listino","sito","manuale"].map(k=>`<option value="${k}" ${r.fonte===k?"selected":""} ${k!=="manuale"&&!(prezziDi(itm(r.codice))[k])?"disabled":""}>${k==="manuale"?"A mano":k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></td>
+       <td class="num"><input class="inl" type="number" step="0.01" min="0" data-pvrb="${i}" value="${r.base||""}" ${r.fonte==="manuale"&&puoSc?"":"disabled"}></td>
+       <td class="num"><input class="inl" type="number" step="0.5" min="0" max="90" data-pvrs="${i}" value="${r.sc==null?"":r.sc}" placeholder="${pvScontoRiga(p,r)}" ${puoSc?"":"disabled"}></td>
+       <td class="num"><b>${eur(pvUnit(p,r))}</b></td><td class="num"><input class="inl" type="number" step="1" min="1" data-pvrq="${i}" value="${r.qty}" style="width:64px"></td><td class="num"><b>${eur(pvUnit(p,r)*r.qty)}</b></td><td><button class="btn sm ghost" data-pvrx="${i}">✕</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Nessun articolo: cercalo qui sopra o incolla l'elenco.</div>`}
+      ${p.righe.some(r=>!r.base)?`<div class="banner" style="margin-top:8px"><b>Righe senza prezzo:</b> ${esc(p.righe.filter(r=>!r.base).map(r=>r.codice).join(", "))}. Scegli «A mano» e scrivi il prezzo.</div>`:""}
+     </div>
+     <div class="fs"><h3>Totale</h3><div class="kpis"><div class="kpi"><div class="l">Prezzo pieno</div><div class="v">${eur(t.lordo)}</div></div><div class="kpi"><div class="l">Sconti</div><div class="v">−${eur(t.risparmio)}</div></div><div class="kpi"><div class="l">Imponibile</div><div class="v">${eur(t.imponibile)}</div></div><div class="kpi hl"><div class="l">Totale IVA inclusa</div><div class="v">${eur(t.totale)}</div></div></div>
+      <div class="f" style="margin-top:10px"><label class="fl">Valido fino al<input id="pvVal" type="date" value="${esc(p.validita||"")}"></label><label class="fl">Stato<select id="pvSt">${Object.entries(PV_STATI).map(([k,v])=>`<option value="${k}" ${p.stato===k?"selected":""}>${v}</option>`).join("")}</select></label>
+      <label class="fl" style="grid-column:1/-1">Note per il cliente<textarea id="pvNote" rows="2">${esc(p.note||"")}</textarea></label></div></div>
+    </div>
+    <div class="mf"><button class="btn" data-close>Chiudi</button>${!nuovo?`<button class="btn" id="pvStampa">🖨 Stampa</button><button class="btn" id="pvWa">${ic("chat")}WhatsApp</button><button class="btn" id="pvMail">${ic("send")}Email</button><button class="btn" id="pvDup">⧉ Copia</button><button class="btn ghost adm-only" id="pvDel">Elimina</button>`:""}<span class="sp"></span><button class="btn pri" id="pvSave" ${ro?"disabled":""}>${nuovo?"Crea preventivo":"Salva"}</button></div>`);
+    const leggi=()=>{ p.cliente=$("#pvCli").value.trim(); p.tel=$("#pvTel").value.trim(); p.email=$("#pvEm").value.trim(); p.piva=$("#pvPiva").value.trim(); p.ind=$("#pvInd").value.trim();
+      if(puoSc){ p.scVolantino=Number($("#pvScV").value)||0; p.scListino=Number($("#pvScL").value)||0; p.scSito=Number($("#pvScS").value)||0; p.sconto=Number($("#pvScX").value)||0; }
+      p.validita=$("#pvVal").value; p.stato=$("#pvSt").value; p.note=$("#pvNote").value.trim();
+      $("#modal").querySelectorAll("[data-pvrq]").forEach(i=>{ p.righe[+i.dataset.pvrq].qty=Math.max(1,Math.floor(Number(i.value)||1)); });
+      $("#modal").querySelectorAll("[data-pvrs]").forEach(i=>{ if(puoSc) p.righe[+i.dataset.pvrs].sc=i.value===""?null:Number(i.value); });
+      $("#modal").querySelectorAll("[data-pvrb]").forEach(i=>{ const r=p.righe[+i.dataset.pvrb]; if(r.fonte==="manuale"&&puoSc) r.base=r2(i.value); }); };
+    const ridis=()=>{ leggi(); draw(); };
+    ["pvScV","pvScL","pvScS","pvScX"].forEach(id=>{ const e=$("#"+id); if(e) e.onchange=ridis; });
+    $("#modal").querySelectorAll("[data-pvrq],[data-pvrs],[data-pvrb]").forEach(i=>i.onchange=ridis);
+    $("#modal").querySelectorAll("[data-pvfo]").forEach(b=>b.onclick=()=>{ leggi(); p.fonte=b.dataset.pvfo; p.righe.forEach(r=>{ if(r.fonte!=="manuale"){ const n=pvRiga(itm(r.codice)||{codice:r.codice},r.qty,p.fonte); r.fonte=n.fonte; r.base=n.base; } }); draw(); });
+    $("#modal").querySelectorAll("[data-pvrf]").forEach(sl=>sl.onchange=()=>{ leggi(); const r=p.righe[+sl.dataset.pvrf]; const k=sl.value; if(k==="manuale"){ r.fonte="manuale"; } else { const pr=prezziDi(itm(r.codice)); r.fonte=k; r.base=pr[k]||0; } draw(); });
+    $("#modal").querySelectorAll("[data-pvrx]").forEach(b=>b.onclick=()=>{ leggi(); p.righe.splice(+b.dataset.pvrx,1); draw(); });
+    suggCli($("#pvCli"),$("#pvCliL"),c=>{ leggi(); p.cliente=c.nome; p.tel=c.tel||c.cell||p.tel; p.email=c.email||p.email; p.piva=c.piva||c.cf||p.piva; p.ind=[c.ind,c.cap,c.citta].filter(Boolean).join(" ")||p.ind; p.cliId=c.id||""; draw(); });
+    const aggiungi=(it,q)=>{ const ex=p.righe.find(r=>r.codice===it.codice); if(ex) ex.qty+=q; else p.righe.push(pvRiga(it,q,p.fonte)); };
+    suggProd($("#pvP"),$("#pvPL"),it=>{ leggi(); aggiungi(it,1); draw(); setTimeout(()=>$("#pvP")&&$("#pvP").focus(),30); });
+    $("#pvBulkOk").onclick=()=>{ leggi(); const mancanti=[]; let n=0;
+      $("#pvBulk").value.split(/\n+/).forEach(l=>{ const m=l.trim().match(/^(\d+)\s*[x×]?\s+(.+)$|^(.+?)\s+[x×]?\s*(\d+)$|^(\S+)$/i); if(!m) return; const q=Number(m[1]||m[4]||1), cod=(m[2]||m[3]||m[5]||"").trim(); if(!cod) return;
+        let it=itm(cod); if(!it){ const l2=cercaProd(cod,3); it=l2.find(x=>normC(x.codice)===normC(cod))||l2.find(x=>normC(x.codice).startsWith(normC(cod)))||null; } if(it){ aggiungi(it,q); n++; } else mancanti.push(cod); });
+      if(mancanti.length) toast("Non trovati: "+mancanti.join(", ")); draw(); if(mancanti.length){ const e=$("#pvBulkEsito"); if(e) e.textContent="Non trovati in magazzino: "+mancanti.join(", "); const d=$("#pvBulk"); if(d) d.value=mancanti.join("\n"); } };
+    $("#pvSave").onclick=async()=>{ leggi(); if(!p.cliente){ toast("Scrivi il nome del cliente"); $("#pvCli").focus(); return; } if(!p.righe.length){ toast("Aggiungi almeno un articolo"); return; }
+      const t=pvTotali(p); const d={...p,totale:t.totale,updatedAt:Date.now()}; delete d.id;
+      const ok=await write(async()=>{ if(nuovo){ d.num=nextPrev(); const r=await S.db.collection("preventivi").add(d); p.id=r?.id; p.num=d.num; } else await S.db.collection("preventivi").doc(p.id).update(d); },nuovo?"Preventivo "+(d.num)+" creato":"Preventivo salvato");
+      if(ok){ closeModal(); if(nuovo&&p.id) setTimeout(()=>openPreventivo({...p,...d,id:p.id}),50); } };
+    const bm=$("#pvMail"); if(bm) bm.onclick=()=>{ leggi(); location.href="mailto:"+encodeURIComponent(p.email||"")+"?subject="+encodeURIComponent("Preventivo "+p.num+" – SE.M.I.")+"&body="+encodeURIComponent(preventivoTesto(p)); };
+    const bs=$("#pvStampa"); if(bs) bs.onclick=()=>{ leggi(); stampaPreventivo(p); };
+    const bw=$("#pvWa"); if(bw) bw.onclick=()=>{ leggi(); const txt=preventivoTesto(p); const tel=String(p.tel||"").replace(/\D/g,""); const num=tel?(tel.startsWith("39")||tel.length>10?tel:"39"+tel):""; window.open("https://wa.me/"+num+"?text="+encodeURIComponent(txt),"_blank"); };
+    const bd=$("#pvDup"); if(bd) bd.onclick=()=>{ leggi(); const c={...JSON.parse(JSON.stringify(p)),at:Date.now(),by:S.me||null,stato:"bozza",num:nextPrev()}; delete c.id; const dd=new Date(); dd.setDate(dd.getDate()+15); c.validita=dd.toISOString().slice(0,10); openPreventivo(c); };
+    const bx=$("#pvDel"); if(bx) bx.onclick=async()=>{ if(!confirm("Eliminare il preventivo "+p.num+"?")) return; if(await write(()=>S.db.collection("preventivi").doc(p.id).delete(),"Preventivo eliminato")) closeModal(); };
+  };
+  draw();
+}
+function preventivoTesto(p){ const t=pvTotali(p);
+  return `SE.M.I. – Preventivo ${p.num} del ${fmtD(p.at)}\nCliente: ${p.cliente}\n\n`+p.righe.map(r=>`• ${r.qty} × ${r.nome||r.codice} (${r.codice}): ${eur(pvUnit(p,r))} cad.${pvScontoRiga(p,r)?" (−"+pvScontoRiga(p,r)+"%)":""} = ${eur(pvUnit(p,r)*r.qty)}`).join("\n")+
+   `\n\n${t.extra?`Sconto extra ${p.sconto}%: −${eur(t.extra)}\n`:""}Totale: ${eur(t.totale)} IVA inclusa (imponibile ${eur(t.imponibile)} + IVA ${eur(t.iva)})${t.risparmio>0?`\nRisparmi ${eur(t.risparmio)} rispetto al prezzo pieno.`:""}\nValido fino al ${p.validita?p.validita.split("-").reverse().join("/"):"—"}.${p.note?"\n"+p.note:""}\n\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947`; }
+function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",listino:"Listino",sito:"Sito",manuale:""};
+  return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Preventivo ${esc(p.num)}</title><style>
+  @page{size:A4;margin:10mm 12mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#000;background:#e9e9e9;font-size:9.5pt;line-height:1.3}
+  .pg{width:186mm;min-height:270mm;margin:12px auto;background:#fff;display:flex;flex-direction:column}
+  .hd{display:flex;justify-content:space-between;gap:6mm;border-bottom:2.4pt solid #000;padding-bottom:3mm}.brand{display:flex;gap:3mm;align-items:flex-start}
+  .logo{background:#000;color:#ffcd00;font-weight:900;font-size:15pt;letter-spacing:.5pt;padding:1.6mm 2.6mm;border-radius:1.2mm;line-height:1;white-space:nowrap}.logo small{display:block;color:#fff;font-size:6pt;letter-spacing:1.4pt;margin-top:1mm}
+  .az{font-size:7.6pt;line-height:1.35}.az b{font-size:8.6pt}.nr{text-align:right}.nr .k{font-size:7.5pt;font-weight:900;letter-spacing:1pt}.nr .n{font-size:17pt;font-weight:900}
+  .bx{display:flex;gap:4mm;margin:4mm 0}.bx>div{flex:1;border:1pt solid #000;padding:2.5mm 3mm;border-radius:1mm}.bx .k{font-size:7pt;font-weight:900;letter-spacing:.8pt;margin-bottom:1mm}
+  table{width:100%;border-collapse:collapse;margin-top:2mm}th{font-size:7pt;letter-spacing:.6pt;text-align:left;border-bottom:1.2pt solid #000;padding:1.5mm 1.5mm}td{padding:1.8mm 1.5mm;border-bottom:.5pt solid #bbb;vertical-align:top}
+  .r{text-align:right}.mono{font-family:Consolas,monospace;font-size:8pt;color:#333}.tot{margin-top:4mm;margin-left:auto;width:80mm}.tot div{display:flex;justify-content:space-between;padding:1mm 0}.tot .g{border-top:1.6pt solid #000;font-size:12pt;font-weight:900;margin-top:1mm;padding-top:2mm}
+  .ft{margin-top:auto;padding-top:4mm;font-size:7.6pt;color:#333;border-top:.6pt solid #999}.no-print{text-align:center;padding:10px}@media print{body{background:#fff}.pg{margin:0;width:auto;min-height:auto}.no-print{display:none}}</style></head><body>
+  <div class="no-print"><button onclick="print()" style="font-size:16px;padding:10px 24px">Stampa / salva PDF</button></div><div class="pg">
+   <div class="hd"><div class="brand"><div class="logo">SEMI STORE<small>VENDITA</small></div><div class="az"><b>SE.M.I. S.R.L.</b> · Concessionario DEWALT · STANLEY · BLACK+DECKER<br>Viale G. Marconi 225, 80020 Casavatore (NA)<br>Tel. 081 553 6604 · WhatsApp 375 626 6947 · info@semistore.it<br>P.IVA 07149740636 · semistore.it</div></div>
+    <div class="nr"><div class="k">PREVENTIVO</div><div class="n">${esc(p.num)}</div><div>del ${fmtD(p.at)}</div><div>valido fino al <b>${p.validita?esc(p.validita.split("-").reverse().join("/")):"—"}</b></div></div></div>
+   <div class="bx"><div><div class="k">CLIENTE</div><b>${esc(p.cliente)}</b>${p.ind?"<br>"+esc(p.ind):""}${p.piva?"<br>P.IVA / C.F. "+esc(p.piva):""}${p.tel?"<br>Tel. "+esc(p.tel):""}${p.email?"<br>"+esc(p.email):""}</div>
+    <div><div class="k">CONDIZIONI</div>Prezzi IVA 22% inclusa, per merce franco nostro negozio.<br>Disponibilità e tempi di consegna da confermare all'ordine.<br>${p.note?esc(p.note):"Pagamento da concordare."}</div></div>
+   <table><thead><tr><th>Codice</th><th>Articolo</th><th class="r">Q.tà</th><th class="r">Prezzo pieno</th><th class="r">Sconto</th><th class="r">Prezzo netto</th><th class="r">Importo</th></tr></thead><tbody>
+   ${p.righe.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.nome||"")}</td><td class="r">${r.qty}</td><td class="r">${r.base?eur(r.base):"—"}</td><td class="r">${pvScontoRiga(p,r)?"−"+pvScontoRiga(p,r)+"%":""}</td><td class="r"><b>${eur(pvUnit(p,r))}</b></td><td class="r"><b>${eur(pvUnit(p,r)*r.qty)}</b></td></tr>`).join("")}</tbody></table>
+   <div class="tot">${t.risparmio-t.extra>0?`<div><span>Prezzo pieno</span><span>${eur(t.lordo)}</span></div><div><span>Sconti sulle righe</span><span>−${eur(r2(t.lordo-t.netto))}</span></div>`:""}${t.extra?`<div><span>Sconto extra ${p.sconto}%</span><span>−${eur(t.extra)}</span></div>`:""}<div><span>Imponibile</span><span>${eur(t.imponibile)}</span></div><div><span>IVA 22%</span><span>${eur(t.iva)}</span></div><div class="g"><span>TOTALE</span><span>${eur(t.totale)}</span></div></div>
+   <div class="ft">Preventivo non impegnativo, valido fino alla data indicata e salvo esaurimento scorte. Prodotti originali con garanzia ufficiale del produttore; siamo centro assistenza autorizzato DEWALT, STANLEY e BLACK+DECKER. SE.M.I. S.R.L. · Lun–Ven 8:30–13:00 / 14:30–18:00.</div>
+  </div></body></html>`; }
+function stampaPreventivo(p,w){ w=w||window.open("","_blank"); if(!w){ toast("Il telefono ha bloccato la finestra: consenti i popup per semistore.it"); return; } w.document.open(); w.document.write(preventivoHtml(p)); w.document.close(); }
 /* ---------- CONTROLLO DATI (20/11): verifica completa dopo trasferimento e caricamenti ---------- */
 async function openControllo(){
   openModal(`<div class="mh"><h2>Controllo dati</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb" id="ckB"><div class="empty">Controllo in corso…</div></div>
