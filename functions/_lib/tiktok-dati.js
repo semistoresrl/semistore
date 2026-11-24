@@ -165,7 +165,7 @@ export async function riepilogo(env) {
       SUM(tt_stato='errore') errori, SUM(tt_product IS NULL AND qty>0) mancano FROM giacenze`).first().catch(() => null)) || {};
   const err = (await d.prepare("SELECT slug, codice, tt_errore e FROM giacenze WHERE tt_stato IN ('errore','bozza') AND tt_errore IS NOT NULL ORDER BY tt_sync DESC LIMIT 300").all().catch(() => ({ results: [] }))).results;
   const motivi = {};
-  for (const x of err) { const k = String(x.e).replace(/\s+/g, ' ').slice(0, 140); (motivi[k] ||= []).push(x.codice || x.slug); }
+  for (const x of err) { const k = String(x.e).replace(/\s+/g, ' ').slice(0, 400); (motivi[k] ||= []).push(x.codice || x.slug); }
   return {
     invio: { coda: cq.coda || 0, online: cq.online || 0, bozze: cq.bozze || 0, errori: cq.errori || 0, mancano: cq.mancano || 0,
       motivi: Object.entries(motivi).map(([m, c]) => ({ motivo: m, n: c.length, codici: c.slice(0, 12) })).sort((a, b) => b.n - a.n).slice(0, 12) },

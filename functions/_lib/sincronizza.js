@@ -44,7 +44,10 @@ function pesoKg(p) {
 }
 
 function titolo(p) {
-  const t = `${p.marca || ''} ${p.modello || p.codice || ''} ${p.nome || ''}`.replace(/\s+/g, ' ').trim();
+  // 24/11: TikTok rifiuta il titolo con simboli come × e Ø (punte «Ø 12 × 160 mm»): li scrivo in lettere
+  const t = `${p.marca || ''} ${p.modello || p.codice || ''} ${p.nome || ''}`
+    .replace(/\s*×\s*/g, ' x ').replace(/[ØøⲐ⌀]\s*/g, 'diam. ').replace(/[–—]/g, '-')
+    .replace(/[^\p{L}\p{N}\s.,;:()\/'"+&%°#-]/gu, ' ').replace(/\s+/g, ' ').trim();
   return t.slice(0, 255);
 }
 
