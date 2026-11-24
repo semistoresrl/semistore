@@ -51,6 +51,36 @@ function titolo(p) {
   return t.slice(0, 255);
 }
 
+// 24/11: se TikTok non capisce il titolo («the product name does not match any category», es. «Punta SDS-Plus … 12 x 160 mm»)
+// riprovo con il titolo senza misure e poi con un nome generico del tipo di prodotto, in italiano e in inglese.
+const TIPI = [
+  [/punt[ae].*(sds|muratura|calcestruzzo)|sds-?plus|sds-?max/i, ['Punta SDS Plus per trapano a percussione', 'SDS Plus masonry drill bit']],
+  [/punt[ae]/i, ['Punta per trapano', 'Drill bit']],
+  [/inserti|bit\b/i, ['Set inserti avvitatore', 'Screwdriver bit set']],
+  [/smerigliatrice diritta|die-?grinder/i, ['Smerigliatrice diritta', 'Die grinder']],
+  [/smerigliatrice|grinder/i, ['Smerigliatrice angolare', 'Angle grinder']],
+  [/levigatrice|sander/i, ['Levigatrice', 'Sander']],
+  [/avvitatore|trapano|drill|driver/i, ['Trapano avvitatore', 'Cordless drill driver']],
+  [/sega|troncatrice|troncatore|saw/i, ['Sega circolare', 'Circular saw']],
+  [/laser|misuratore|distanziometro/i, ['Misuratore laser di distanza', 'Laser distance meter']],
+  [/cassa|speaker|altoparlante/i, ['Altoparlante Bluetooth', 'Bluetooth speaker']],
+  [/soffiatore|blower/i, ['Soffiatore', 'Leaf blower']],
+  [/disco|dischi/i, ['Disco da taglio', 'Cutting disc']],
+  [/lama|lame/i, ['Lama per sega', 'Saw blade']],
+];
+async function categoriaPer(env, p, tit) {
+  const senzaMisure = tit.replace(/\b(diam\.?\s*)?\d+([.,]\d+)?(\s*x\s*\d+([.,]\d+)?)+\s*(mm|cm|m)?\b/gi, ' ').replace(/\s+/g, ' ').trim();
+  const testo = `${p.nome || ''} ${p.descrizione || ''}`;
+  const tipo = (TIPI.find(([re]) => re.test(testo)) || [null, []])[1];
+  const prove = [...new Set([tit, senzaMisure, ...tipo.map((t) => `${p.marca || ''} ${t}`.trim()), ...tipo])].filter(Boolean);
+  let errore;
+  for (const t of prove) {
+    try { const c = await categoriaConsigliata(env, t); if (c) return c; }
+    catch (e) { errore = e; if (!/does not match any category|12019064/.test(String(e.message))) throw e; }
+  }
+  throw errore || new Error('TikTok non trova una categoria per questo prodotto');
+}
+
 function descrizione(p) {
   const parti = [];
   if (p.sottotitolo) parti.push(`<p><strong>${esc(p.sottotitolo)}</strong></p>`);
@@ -113,7 +143,7 @@ async function crea(env, riga, origin) {
   const immagini = foto(p, origin);
   if (!immagini.length) throw new Error('Prodotto senza foto: TikTok ne richiede almeno una');
   const tit = titolo(p);
-  const categoria = p.tiktokCategoria || await categoriaConsigliata(env, tit);
+  const categoria = p.tiktokCategoria || await categoriaPer(env, p, tit);
   const brand = p.marca ? await marchio(env, categoria, p.marca) : undefined;
   const attr = attributiDa(await attributi(env, categoria).catch(() => []), p);
   const uri = [];
