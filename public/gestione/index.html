@@ -2255,7 +2255,7 @@ function openPreventivo(p0){ S._pvMagg=0;
       <div class="f" style="margin-top:10px"><label class="fl">Valido fino al<input id="pvVal" type="date" value="${esc(p.validita||"")}"></label><label class="fl">Stato<select id="pvSt">${Object.entries(PV_STATI).map(([k,v])=>`<option value="${k}" ${p.stato===k?"selected":""}>${v}</option>`).join("")}</select></label>
       <label class="fl" style="grid-column:1/-1">Note per il cliente<textarea id="pvNote" rows="2">${esc(p.note||"")}</textarea></label></div></div>
     </div>
-    <div class="mf"><button class="btn" data-close>Chiudi</button>${!nuovo?`<button class="btn" id="pvStampa">🖨 Stampa</button><button class="btn" id="pvWa">${ic("chat")}WhatsApp</button><button class="btn" id="pvMail">${ic("send")}Email</button><button class="btn" id="pvDup">⧉ Copia</button><button class="btn ghost adm-only" id="pvDel">Elimina</button>`:""}<span class="sp"></span><button class="btn pri" id="pvSave" ${ro?"disabled":""}>${nuovo?"Crea preventivo":"Salva"}</button></div>`);
+    <div class="mf"><button class="btn" data-close>Chiudi</button>${!nuovo?`<button class="btn edit-only" id="pvDw">${ic("truck")}Ordina a DEWALT</button>${p.ordineId?`<button class="btn pri" id="pvOrdApri">${ic("box")}Ordine ${esc(p.ordineNum||"")}</button>`:`<button class="btn edit-only" id="pvOrd">${ic("check")}Conferma come ordine</button>`}<button class="btn" id="pvStampa">🖨 Stampa</button><button class="btn" id="pvWa">${ic("chat")}WhatsApp</button><button class="btn" id="pvMail">${ic("send")}Email</button><button class="btn" id="pvDup">⧉ Copia</button><button class="btn ghost adm-only" id="pvDel">Elimina</button>`:""}<span class="sp"></span><button class="btn pri" id="pvSave" ${ro?"disabled":""}>${nuovo?"Crea preventivo":"Salva"}</button></div>`);
     const leggi=()=>{ p.cliente=$("#pvCli").value.trim(); p.tel=$("#pvTel").value.trim(); p.email=$("#pvEm").value.trim(); p.piva=$("#pvPiva").value.trim(); p.ind=$("#pvInd").value.trim();
       if(puoSc){ p.scVolantino=Number($("#pvScV").value)||0; p.scListino=Number($("#pvScL").value)||0; p.scSito=Number($("#pvScS").value)||0; p.sconto=Number($("#pvScX").value)||0; }
       p.validita=$("#pvVal").value; p.stato=$("#pvSt").value; p.note=$("#pvNote").value.trim();
@@ -2283,6 +2283,9 @@ function openPreventivo(p0){ S._pvMagg=0;
     const bm=$("#pvMail"); if(bm) bm.onclick=()=>{ leggi(); location.href="mailto:"+encodeURIComponent(p.email||"")+"?subject="+encodeURIComponent("Preventivo "+p.num+" – SE.M.I.")+"&body="+encodeURIComponent(preventivoTesto(p)); };
     const bs=$("#pvStampa"); if(bs) bs.onclick=()=>{ leggi(); stampaPreventivo(p); };
     const bw=$("#pvWa"); if(bw) bw.onclick=()=>{ leggi(); const txt=preventivoTesto(p); const tel=String(p.tel||"").replace(/\D/g,""); const num=tel?(tel.startsWith("39")||tel.length>10?tel:"39"+tel):""; window.open("https://wa.me/"+num+"?text="+encodeURIComponent(txt),"_blank"); };
+    const bdw=$("#pvDw"); if(bdw) bdw.onclick=()=>{ leggi(); pvOrdinaDewalt(p); };
+    const bor=$("#pvOrd"); if(bor) bor.onclick=async()=>{ leggi(); if(!p.cliente){ toast("Scrivi il nome del cliente"); return; } await pvConfermaOrdine(p); };
+    const boa=$("#pvOrdApri"); if(boa) boa.onclick=()=>{ const o=S.ordiniWeb.find(x=>x.id===p.ordineId); if(o) openOrdine(o); else toast("Ordine non trovato"); };
     const bd=$("#pvDup"); if(bd) bd.onclick=()=>{ leggi(); const c={...JSON.parse(JSON.stringify(p)),at:Date.now(),by:S.me||null,stato:"bozza",num:nextPrev()}; delete c.id; const dd=new Date(); dd.setDate(dd.getDate()+15); c.validita=dd.toISOString().slice(0,10); openPreventivo(c); };
     const bx=$("#pvDel"); if(bx) bx.onclick=async()=>{ if(!confirm("Eliminare il preventivo "+p.num+"?")) return; if(await write(()=>S.db.collection("preventivi").doc(p.id).delete(),"Preventivo eliminato")) closeModal(); };
   };
@@ -2312,6 +2315,62 @@ function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",
    <div class="tot">${t.risparmio-t.extra>0?`<div><span>Prezzo pieno (IVA esclusa)</span><span>${eur(t.lordo)}</span></div><div><span>Sconti sulle righe</span><span>−${eur(r2(t.lordo-t.netto))}</span></div>`:""}${t.extra?`<div><span>Sconto extra ${p.sconto}%</span><span>−${eur(t.extra)}</span></div>`:""}<div><span>Imponibile (IVA esclusa)</span><span>${eur(t.imponibile)}</span></div><div><span>IVA 22%</span><span>${eur(t.iva)}</span></div><div class="g"><span>TOTALE</span><span>${eur(t.totale)}</span></div></div>
    <div class="ft">Preventivo non impegnativo, valido fino alla data indicata e salvo esaurimento scorte. Prodotti originali con garanzia ufficiale del produttore; siamo centro assistenza autorizzato DEWALT, STANLEY e BLACK+DECKER. SE.M.I. S.R.L. · Lun–Ven 8:30–13:00 / 14:30–18:00.</div>
   </div></body></html>`; }
+/* ---------- dal preventivo: ordine a DEWALT, conferma come ordine, fattura (24/11/2026) ---------- */
+// righe del preventivo da ordinare a DEWALT: di base solo quello che manca in magazzino
+function pvOrdinaDewalt(p){
+  const rows=(p.righe||[]).map(r=>{ const it=itmV(r.codice), g=Math.max(0,Number(it?.giacenza)||0); return {codice:it?.codice||r.codice,descr:r.nome||r.codice,qty:Number(r.qty)||0,giac:g,manca:Math.max(0,(Number(r.qty)||0)-g),prezzo:prezzoVault(it?.codice||r.codice)||0}; });
+  let tutto=false;
+  const draw=()=>{ const l=rows.map(r=>({...r,ord:tutto?r.qty:r.manca})).filter(r=>r.ord>0);
+    openModal(`<div class="mh"><h2>Ordina a DEWALT · ${esc(p.num||"")}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+    <div class="mb"><div class="seg" id="dwSeg" style="margin-bottom:10px"><button data-t="0" class="${tutto?"":"on"}">Solo quello che manca in magazzino</button><button data-t="1" class="${tutto?"on":""}">Tutte le quantità</button></div>
+     ${l.length?`<div class="tts"><table><thead><tr><th>Codice</th><th>Articolo</th><th class="num">Nel preventivo</th><th class="num">In magazzino</th><th class="num">Da ordinare</th></tr></thead><tbody>${l.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.descr)}</td><td class="num">${r.qty}</td><td class="num">${r.giac}</td><td class="num"><b>${r.ord}</b></td></tr>`).join("")}</tbody></table></div>
+     <p class="sub">Le righe vanno nel <b>foglio d'ordine DEWALT</b> (Ordini DEWALT), segnate con ${esc(p.num||"il preventivo")}. Da lì premi «Copia per il portale DEWALT» e le incolli in Caricamento ordine.</p>`:`<div class="empty">In magazzino c'è già tutto: niente da ordinare.</div>`}</div>
+    <div class="mf"><button class="btn" data-close>Chiudi</button><span class="sp"></span>${l.length?`<button class="btn pri" id="dwOk">${ic("plus")}Metti ${l.length} righe nel foglio DEWALT</button>`:""}</div>`);
+    $("#dwSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ tutto=b.dataset.t==="1"; draw(); });
+    const ok=$("#dwOk"); if(ok) ok.onclick=async()=>{ ok.disabled=true;
+      if(await addToFoglio(l.map(r=>({codice:r.codice,descr:r.descr,qty:r.ord,prezzo:r.prezzo})),p.num||null)){
+        if(p.id) await write(()=>S.db.collection("preventivi").doc(p.id).update({dewaltAt:Date.now(),updatedAt:Date.now()}));
+        closeModal(); location.hash="#vault"; } else ok.disabled=false; };
+  };
+  draw();
+}
+// preventivo accettato → ordine cliente (Ordini online, canale Negozio): prezzi IVA inclusa già scontati, pagamento dal cliente
+async function pvConfermaOrdine(p){
+  const t=pvTotali(p), cli=p.cliId?S.clienti.get(p.cliId):null, pi=cli?.pagamento?pagInfo(cli.pagamento):null, sc=pi?pagScadenze(pi):[];
+  const righe=(p.righe||[]).map(r=>({codice:itmV(r.codice)?.codice||r.codice,descr:r.nome||r.codice,qty:Number(r.qty)||1,prezzo:r2(pvUnitEx(p,r)*1.22)}));
+  const sub=r2(righe.reduce((a,r)=>a+r.qty*r.prezzo,0));
+  const now=Date.now(), num=nextCode(S.ordiniWeb,"W");
+  const o=clean({canale:"banco",stato:"Confermato",consegna:"ritiro",cliente:p.cliente,tel:p.tel||"",email:p.email||"",piva:p.piva||"",ind:p.ind||"",...(p.cliId?{cliId:p.cliId}:{}),
+    righe,spedizione:0,sconto:Math.max(0,r2(sub-t.totale)),at:now,num,rif:"Preventivo "+(p.num||""),preventivoId:p.id||null,preventivoNum:p.num||"",
+    pagato:false,daPagare:true,...(pi?{termini:pi.testo,metodo:pi.metodo||""}:{}),...(sc.length?{scadenza:sc[sc.length-1],...(sc.length>1?{rate:sc}:{})}:{}),
+    note:p.note||"",storico:[{at:now,stato:"Confermato",by:S.me||null,da:"preventivo "+(p.num||"")}],updatedAt:now});
+  let id=null;
+  const ok=await write(async()=>{ const r=await S.db.collection("ordiniWeb").add(o); id=r?.id;
+    if(p.id){ const d=clean({...p,totale:t.totale,stato:"accettato",ordineId:id,ordineNum:num,updatedAt:now}); delete d.id; await S.db.collection("preventivi").doc(p.id).update(d); } },"Ordine "+num+" creato dal preventivo");
+  if(ok){ closeModal(); setTimeout(()=>openOrdine({...o,id}),60); }
+}
+// fattura dell'ordine: finché non c'è Openapi si emette in Danea (righe IVA esclusa da scaricare), poi si segna il numero qui
+function openFatturaOrdine(o){
+  const cli=o.cliId?S.clienti.get(o.cliId):null, t=ordTot(o);
+  const righe=(o.righe||[]).map(r=>({...r,ex:r2((Number(r.prezzo)||0)/1.22)}));
+  const imp=r2(t.tot/1.22), iva=r2(t.tot-imp), F=o.fattura||{};
+  openModal(`<div class="mh"><h2>Fattura · ordine ${esc(o.num||"")}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb">
+   <div class="fs"><span class="lg">Cliente</span><div><b>${esc(o.cliente||"")}</b>${(o.piva||cli?.piva)?" · P.IVA "+esc(o.piva||cli.piva):""}${cli?.cf?" · C.F. "+esc(cli.cf):""}</div>
+    <div class="sub">${[cli?.sdi?"Codice SDI "+esc(cli.sdi):"",cli?.pec?"PEC "+esc(cli.pec):"",o.termini?"Pagamento "+esc(o.termini):""].filter(Boolean).join(" · ")||"Codice SDI e PEC: collega il cliente da Danea per averli qui"}</div></div>
+   <div class="fs"><span class="lg">Righe (prezzi IVA esclusa)</span><div class="tts"><table><thead><tr><th>Codice</th><th>Descrizione</th><th class="num">Q.tà</th><th class="num">Prezzo</th><th class="num">Importo</th></tr></thead><tbody>${righe.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.descr)}</td><td class="num">${r.qty}</td><td class="num">${eur(r.ex)}</td><td class="num">${eur(r2(r.ex*r.qty))}</td></tr>`).join("")}</tbody></table></div>
+    <div class="tot">${t.sc?`<span>Sconto <b>−${eur(r2(t.sc/1.22))}</b></span>`:""}<span>Imponibile <b>${eur(imp)}</b></span><span>IVA 22% <b>${eur(iva)}</b></span><span>Totale <b style="font-size:20px">${eur(t.tot)}</b></span></div></div>
+   <div class="banner">La fattura elettronica per ora si emette <b>in Danea</b>: scarica le righe e copiale nel documento. Quando sarà attivo il collegamento Openapi partirà direttamente da qui.</div>
+   <div class="f" style="margin-top:12px"><label class="fl">Numero fattura<input id="fNum" value="${esc(F.numero||"")}" placeholder="es. 245"></label><label class="fl">Data fattura<input id="fDat" type="date" value="${esc(F.data||new Date().toISOString().slice(0,10))}"></label></div>
+  </div>
+  <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn" id="fCsv">⬇ Righe per Danea (CSV)</button><span class="sp"></span><button class="btn pri edit-only" id="fOk">${ic("check")}Segna come fatturato</button></div>`);
+  $("#fCsv").onclick=()=>{ const rows=[["Cod.","Descrizione","Q.tà","Prezzo netto (IVA esclusa)","IVA %"],...righe.map(r=>[r.codice,r.descr,r.qty,String(r.ex).replace(".",","),"22"])];
+    if(t.sc) rows.push(["","Sconto",1,String(-r2(t.sc/1.22)).replace(".",","),"22"]);
+    saveFile(`fattura-${o.num||"ordine"}.csv`,"﻿"+rows.map(r=>r.map(csvCell).join(";")).join("\r\n")); };
+  $("#fOk").onclick=async()=>{ const numero=$("#fNum").value.trim(); if(!numero){ toast("Scrivi il numero della fattura fatta in Danea"); $("#fNum").focus(); return; }
+    const fattura={numero,data:$("#fDat").value,at:Date.now(),by:S.me||null};
+    if(await write(()=>S.db.collection("ordiniWeb").doc(o.id).update({fattura,updatedAt:Date.now()}),"Fattura "+numero+" segnata sull'ordine")) openOrdine({...o,fattura}); };
+}
 function stampaPreventivo(p,w){ w=w||window.open("","_blank"); if(!w){ toast("Il telefono ha bloccato la finestra: consenti i popup per semistore.it"); return; } w.document.open(); w.document.write(preventivoHtml(p)); w.document.close(); }
 /* ---------- CONTROLLO DATI (20/11): verifica completa dopo trasferimento e caricamenti ---------- */
 async function openControllo(){
@@ -3086,7 +3145,9 @@ function openOrdine(o){
      +((g.stato==="Spedito"||(g.consegna==="spedizione"&&g.tracking))?waBtn(g.tel,ordMsg(g,"spedito"),"Invia tracciamento"):"")
      +(trackUrl(g)?`<a class="btn" href="${esc(trackUrl(g))}" target="_blank" rel="noopener">${ic("truck")}Traccia</a>`:"")
      +(e?`<a class="btn" href="${esc(e)}" target="_blank" rel="noopener">${ic("ext")}${g.canale==="tiktok"?"Apri su TikTok":"Apri su Stripe"}</a>`:"")
-     +(g.tel?`<a class="btn" href="tel:${esc(g.tel)}">${ic("phone")}${esc(g.tel)}</a>`:"");
+     +(id&&g.stato!=="Annullato"?`<button class="btn edit-only" id="oFatt">🧾 ${g.fattura?.numero?"Fattura n. "+esc(g.fattura.numero):"Fattura"}</button>`:"")+(g.preventivoId?`<button class="btn" id="oPrev">${ic("clipboard")}${esc(g.preventivoNum||"Preventivo")}</button>`:"")+(g.tel?`<a class="btn" href="tel:${esc(g.tel)}">${ic("phone")}${esc(g.tel)}</a>`:"");
+    const fb=$("#oFatt"); if(fb) fb.onclick=async()=>{ const s=await salva(); if(s) openFatturaOrdine(s); };
+    const pb=$("#oPrev"); if(pb) pb.onclick=()=>{ const pv=(S.preventivi||[]).find(x=>x.id===g.preventivoId); if(pv) openPreventivo(pv); else toast("Preventivo non trovato"); };
     const sn=$("#oScN"); if(sn) sn.onclick=()=>{ closeModal(); wizScaffale({ordine:{...gather(),id}}); };
     const sv=$("#oScV"); if(sv) sv.onclick=()=>{ const c=sulloScaffale().find(x=>x.ordineId===id); closeModal(); wizScaffale(c.id); };
   };
