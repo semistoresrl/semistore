@@ -817,6 +817,7 @@ async function init(){
   db.collection("preventivi").onSnapshot(s=>{S.preventivi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("resi").onSnapshot(s=>{S.resi=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("x");},err);
   db.collection("clienti").onSnapshot(s=>{ const m=new Map(); s.docs.forEach(d=>{ const it=d.data()?.items||{}; for(const k in it){ const c=it[k]; if(c&&c.nome) m.set(k,{...c,id:k}); } }); S.clienti=m; S._cliVer++; schedule(); },()=>{});
+  db.collection("storico").onSnapshot(s=>{ const m=new Map(); s.docs.forEach(d=>{ const it=d.data()?.items||{}; for(const k in it) m.set(k,it[k]); }); S.storico=m; schedule(); },()=>{});
   db.collection("ean").onSnapshot(s=>{const m={}; s.docs.forEach(d=>m[d.id]=d.data().codice); S.ean=m;},()=>{});
   db.collection("sconti").onSnapshot(s=>{S.sconti=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("z");},err);
   db.doc("config/impostazioni").onSnapshot(d=>{ if(d.exists) S.cfg={...S.cfg,...d.data()}; d.metadata.fromCache?schedule():done("c");},err);
@@ -874,6 +875,9 @@ function totali(t){
    CLIENTI (20/11): archivio clienti (anagrafica Danea + clienti nuovi delle schede),
    compilazione automatica nella scheda, sconto ricambi del cliente
    ===================================================================== */
+// Listino 2 di Danea = listino 1 + 10% (verificato sul database il 24/11/2026): maggiorazione dei ricambi/listino per i clienti con "Listino 2"
+const maggListino=c=>{ const l=String(c?.listino||"").trim(); return /^(listino\s*)?2$/i.test(l)?(Number(S.cfg?.listino2)||10):0; };
+const conMagg=(v,m)=>v&&m?Math.round(Number(v)*(1+m/100)*100)/100:v;
 const scontoNum=s=>{ if(typeof s==="number") return s>0&&s<100?s:0; const p=String(s??"").replace(/%/g,"").replace(/,/g,".").split(/[+\s]+/).map(Number).filter(x=>x>0&&x<100); if(!p.length) return 0; return Math.round((1-p.reduce((a,x)=>a*(1-x/100),1))*10000)/100; };
 const soloCifre=s=>String(s||"").replace(/\D/g,"");
 const telKey=s=>{ let d=soloCifre(s); if(d.startsWith("0039")) d=d.slice(4); else if(/^39[03]\d{8,10}$/.test(d)&&d.length>=11) d=d.slice(2); return d.length>=6?d:""; };
@@ -914,6 +918,23 @@ async function cliDaScheda(d){
   await S.db.doc("clienti/"+cliChunk(id)).merge({items:{[id]:rec}}); return id;
 }
 // import anagrafica clienti da Danea (Excel o CSV esportato da Anagrafiche → Clienti)
+// storico dei rapporti d'intervento di Danea (file storico_riparazioni_danea.json preparato da Claude): un documento per gruppo di clienti
+function openImportStorico(){
+  openModal(`<div class="mh"><h2>Storico riparazioni Danea</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><p style="margin-top:0">Carica il file <b>storico_riparazioni_danea.json</b>. Ogni cliente Danea avrà nella sua scheda le riparazioni fatte (utensile, accessori lasciati, esito, garanzia, ricambi, totale). Ricaricarlo sostituisce lo storico precedente.</p>
+   <label class="btn pri">${ic("up")}Scegli il file<input type="file" id="isF" accept=".json" style="display:none"></label><div id="isRes" style="margin-top:12px"></div></div>
+  <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="isGo" disabled>Carica</button></div>`);
+  let dati=null;
+  $("#isF").onchange=async e=>{ const f=e.target.files[0]; if(!f) return;
+    try{ dati=JSON.parse(await f.text()); if(!dati||!dati.clienti) throw 0; const n=Object.values(dati.clienti).reduce((a,l)=>a+l.length,0);
+      $("#isRes").innerHTML=`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc"><b>${nf(n)} rapporti d'intervento</b> di ${nf(Object.keys(dati.clienti).length)} clienti${dati.al?", dati al "+esc(dati.al):""}.</div>`; $("#isGo").disabled=false; }
+    catch(x){ dati=null; $("#isRes").innerHTML=`<div class="banner err" style="margin:0">File non valido</div>`; } };
+  $("#isGo").onclick=async()=>{ const b=$("#isGo"); b.disabled=true; const per={};
+    for(const k in dati.clienti){ let h=0; for(const ch of k) h=(h*31+ch.charCodeAt(0))>>>0; const g="s"+String(h%64).padStart(2,"0"); (per[g]=per[g]||{})[k]=dati.clienti[k]; }
+    const ks=Object.keys(per); let n=0;
+    const ok=await write(async()=>{ for(const g of ks){ await S.db.doc("storico/"+g).set({items:per[g],al:dati.al||""}); n++; b.textContent=`Carico… ${n}/${ks.length}`; } },"Storico riparazioni caricato");
+    b.textContent="Carica"; if(ok) closeModal(); else b.disabled=false; };
+}
 function openImportClienti(){
   openModal(`<div class="mh"><h2>Importa clienti da Danea</h2><span class="sp"></span><button class="x" data-close>×</button></div>
   <div class="mb"><p style="margin-top:0">In Danea: <b>Anagrafiche → Clienti</b>, seleziona tutti, <b>Esporta → Excel</b>. Poi carica qui il file. I clienti già presenti vengono aggiornati, quelli nuovi aggiunti. Lo sconto ricambi si prende dalla colonna <b>Sconti</b>, la modalità di pagamento dalla colonna <b>Pagamento</b>.</p>
@@ -937,7 +958,7 @@ function leggiClienti(rows){
   let hi=rows.findIndex(r=>r.some(c=>/denominaz|ragione sociale|^nome$|cognome e nome/i.test(String(c).trim()))); if(hi<0) return [];
   const H=rows[hi].map(h=>String(h).trim().toLowerCase()), col=re=>H.findIndex(h=>re.test(h));
   const c={cod:col(/^cod(\.|ice)?( cliente)?$|^cod\. ?anag|^id$/),nome:col(/denominaz|ragione sociale|^nome$|cognome e nome/),ind:col(/^indirizzo/),cap:col(/^cap$/),citta:col(/^citt|^comune|^localit/),prov:col(/^prov/),
-    piva:col(/partita ?iva|^p\.? ?iva/),cf:col(/codice fiscale|^c\.? ?f\.?$/),tel:col(/^tel/),cell:col(/^cell/),email:col(/e-?mail(?! pec)|^mail/),pec:col(/pec/),sconto:col(/^sconti?$|sconto/),listino:col(/^listino/),note:col(/^note/),referente:col(/referente/),pagamento:col(/^pagamento$|modalit.{0,3} ?(di )?pagament|condizion.{0,4} ?(di )?pagament|^tipo pagamento|^cond\. ?pag/)};
+    piva:col(/partita ?iva|^p\.? ?iva/),cf:col(/codice fiscale|^c\.? ?f\.?$/),tel:col(/^tel/),cell:col(/^cell/),email:col(/e-?mail(?! pec)|^mail/),pec:col(/pec/),sconto:col(/^sconti?$|sconto/),listino:col(/^listino/),note:col(/^note/),referente:col(/referente/),sdi:col(/destinatario sdi|codice sdi|^sdi$|cod\.? ?ufficio/),iban:col(/^iban/),banca:col(/^banca/),docEmail:col(/documenti via e-?mail/),esenzione:col(/esenzione/),intento:col(/intento/),porto:col(/^porto$/),vettore:col(/^vettore$/),dest:col(/^destinazion/),fatt2024:col(/fatturato 2024/),fatt2025:col(/fatturato 2025/),fatt2026:col(/fatturato 2026/),ultimoDoc:col(/ultimo documento/),nRip:col(/^riparazioni$/),ultimaRip:col(/ultima riparazione/),topArt:col(/articoli pi/),fax:col(/^fax/),fontePag:col(/fonte pagamento/),pagamento:col(/^pagamento$|modalit.{0,3} ?(di )?pagament|condizion.{0,4} ?(di )?pagament|^tipo pagamento|^cond\. ?pag/)};
   const g=(r,k)=>c[k]>=0?String(r[c[k]]??"").trim():"";
   return rows.slice(hi+1).map(r=>{ const o={}; for(const k in c){ const v=g(r,k); if(v) o[k]=v; } if(o.prov) o.prov=o.prov.toUpperCase().slice(0,2); return o; }).filter(o=>o.nome&&o.nome.length>1);
 }
@@ -1439,7 +1460,8 @@ function vImpostazioni(){
    <button class="btn pri" data-act="controllo">${ic("check")}Fai tutti i controlli</button></div>
   <div class="fs" style="max-width:640px"><span class="lg">Clienti</span>
    <p style="margin:0 0 10px">${nf(S.clienti.size)} clienti in archivio${S.clienti.size?` (${nf([...S.clienti.values()].filter(c=>c.origine==="danea").length)} da Danea, ${nf([...S.clienti.values()].filter(c=>scontoNum(c.sconto)).length)} con sconto ricambi)`:""}. Nella scheda il cliente si compila da solo scrivendo nome, telefono o P.IVA.</p>
-   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button></div>
+   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button><button class="btn" data-act="impSto">${ic("up")}Carica storico riparazioni Danea</button></div>
+   ${S.storico&&S.storico.size?`<p class="sub" style="margin:8px 0 0">Storico riparazioni Danea: ${nf([...S.storico.values()].reduce((a,l)=>a+l.length,0))} rapporti d'intervento di ${nf(S.storico.size)} clienti.</p>`:""}
   </div>
   <div class="fs" style="max-width:640px"><span class="lg">Inventario</span>
    <p style="margin:0 0 10px">${nf(S.mag.size)} articoli in archivio. ${S.cfg.inventarioAt?"Inventario iniziale caricato il "+fmtD(S.cfg.inventarioAt)+".":""} Ultimo aggiornamento da Excel: ${S.cfg.excelAt?fmtDT(S.cfg.excelAt):"mai"}.</p>
@@ -1850,7 +1872,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -2159,7 +2181,8 @@ function prezziDi(it){ if(!it) return {};
   const ll=lisDi(it.codice);
   const list=ll?r2(ll.n*1.22):Number(it.prezzoListino)>0?r2(it.prezzoListino):Number(it.prezzoListinoNetto)>0?r2(it.prezzoListinoNetto*1.22):(!it.prezzoScade&&Number(it.prezzo)>0?r2(it.prezzo):(Number(it.prezzoNetto)>0&&!it.prezzoScade?r2(it.prezzoNetto*1.22):0));
   const sito=sitoDi(it)?r2(sitoDi(it).p/100):(it.prezzoSito!=null?r2(it.prezzoSito):0);
-  return {volantino:promo,listino:list||(!vv&&Number(it.prezzo)>0?r2(it.prezzo):0),sito,scade:promo?(vv?S.vol.scade:it.prezzoScade):""}; }
+  const lst=list||(!vv&&Number(it.prezzo)>0?r2(it.prezzo):0);
+  return {volantino:promo,listino:conMagg(lst,S._pvMagg||0),sito,scade:promo?(vv?S.vol.scade:it.prezzoScade):""}; }
 // articolo per il preventivo: dal magazzino, altrimenti dal volantino o dal catalogo del sito
 function pvArticolo(cod){ let it=itm(cod); if(it) return it;
   const l2=cercaProd(cod,3); it=l2.find(x=>normC(x.codice)===normC(cod))||l2.find(x=>normC(x.codice).startsWith(normC(cod)))||null; if(it) return it;
@@ -2190,9 +2213,9 @@ function bindPreventivi(){ const m=$("#main");
   m.querySelectorAll("[data-pvf]").forEach(b=>b.onclick=()=>{S.pvFilt=b.dataset.pvf;render()});
   m.querySelectorAll("[data-pv]").forEach(r=>r.onclick=()=>openPreventivo(S.preventivi.find(p=>p.id===r.dataset.pv)));
   const q=$("#pvq"); if(q) q.oninput=()=>{ S.pvq=q.value; clearTimeout(q._t); q._t=setTimeout(render,200); }; }
-function openPreventivo(p0){
+function openPreventivo(p0){ S._pvMagg=0;
   const p=p0?JSON.parse(JSON.stringify(p0)):pvNuovo(); const nuovo=!p.id; const puoSc=puoPrezzi();
-  const draw=()=>{ const t=pvTotali(p), ro=!S.canWrite;
+  const draw=()=>{ S._pvMagg=maggListino(p.cliId&&S.clienti.get(p.cliId)); const t=pvTotali(p), ro=!S.canWrite;
     openModal(`<div class="mh"><h2>${nuovo?"Nuovo preventivo":"Preventivo "+esc(p.num)}</h2><span class="sp"></span>${!nuovo?`<span class="badge st-Ricevuto">${PV_STATI[p.stato]||p.stato}</span>`:""}<button class="x" data-close>×</button></div>
     <div class="mb">
      <div class="fs"><h3>Cliente</h3><div class="f">
@@ -2235,7 +2258,7 @@ function openPreventivo(p0){
     $("#modal").querySelectorAll("[data-pvfo]").forEach(b=>b.onclick=()=>{ leggi(); p.fonte=b.dataset.pvfo; p.righe.forEach(r=>{ if(r.fonte!=="manuale"){ const n=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,p.fonte); r.fonte=n.fonte; r.base=n.base; } }); draw(); });
     $("#modal").querySelectorAll("[data-pvrf]").forEach(sl=>sl.onchange=()=>{ leggi(); const r=p.righe[+sl.dataset.pvrf]; const k=sl.value; if(k==="manuale"){ r.fonte="manuale"; } else { const pr=prezziDi(pvArticolo(r.codice)||{codice:r.codice}); r.fonte=k; r.base=pr[k]||0; } draw(); });
     $("#modal").querySelectorAll("[data-pvrx]").forEach(b=>b.onclick=()=>{ leggi(); p.righe.splice(+b.dataset.pvrx,1); draw(); });
-    suggCli($("#pvCli"),$("#pvCliL"),c=>{ leggi(); p.cliente=c.nome; p.tel=c.tel||c.cell||p.tel; p.email=c.email||p.email; p.piva=c.piva||c.cf||p.piva; p.ind=[c.ind,c.cap,c.citta].filter(Boolean).join(" ")||p.ind; p.cliId=c.id||""; draw(); });
+    suggCli($("#pvCli"),$("#pvCliL"),c=>{ leggi(); p.cliente=c.nome; p.tel=c.tel||c.cell||p.tel; p.email=c.email||p.email; p.piva=c.piva||c.cf||p.piva; p.ind=[c.ind,c.cap,c.citta].filter(Boolean).join(" ")||p.ind; p.cliId=c.id||""; S._pvMagg=maggListino(c); if(S._pvMagg) p.righe.forEach(r=>{ if(r.fonte==="listino"){ const x=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,"listino"); if(x.base) r.base=x.base; } }); draw(); if(S._pvMagg) toast(`${c.nome}: Listino 2, prezzi di listino +${S._pvMagg}%`); });
     const aggiungi=(it,q)=>{ const ex=p.righe.find(r=>r.codice===it.codice); if(ex) ex.qty+=q; else p.righe.push(pvRiga(it,q,p.fonte)); };
     suggProd($("#pvP"),$("#pvPL"),it=>{ leggi(); aggiungi(it,1); draw(); setTimeout(()=>$("#pvP")&&$("#pvP").focus(),30); });
     $("#pvBulkOk").onclick=()=>{ leggi(); const mancanti=[]; let n=0;
@@ -2580,12 +2603,12 @@ function openTicket(t, fromReq, draft){
       <td><input type="number" min="0" step="1" data-q="${i}" value="${p.qty}" style="text-align:right"></td><td><input type="number" step="0.01" data-p="${i}" value="${p.prezzo}" style="text-align:right" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></td><td class="num">${eur(p.qty*p.prezzo)}</td><td><button class="btn sm ghost danger" data-rm="${i}">×</button></td></tr>`}).join("")
       : `<tr><td colspan="6" class="empty">Nessun ricambio aggiunto</td></tr>`;
     $("#pRows").querySelectorAll("[data-q]").forEach(x=>x.oninput=()=>{rows[x.dataset.q].qty=Math.max(0,parseInt(x.value)||0);drawTot()});
-    $("#pRows").querySelectorAll("[data-p]").forEach(x=>x.oninput=()=>{rows[x.dataset.p].prezzo=Number(x.value)||0;drawTot()});
+    $("#pRows").querySelectorAll("[data-p]").forEach(x=>x.oninput=()=>{const r=rows[x.dataset.p]; r.prezzo=Number(x.value)||0; delete r.base; drawTot()});
     $("#pRows").querySelectorAll("[data-rm]").forEach(x=>x.onclick=()=>{rows.splice(x.dataset.rm,1);drawRows()});
     $("#pRows").querySelectorAll("[data-des]").forEach(x=>x.oninput=()=>{rows[x.dataset.des].descr=x.value});
     $("#pRows").querySelectorAll("[data-cod]").forEach(x=>{ const fill=()=>{ const i=+x.dataset.cod, c=x.value.trim().toUpperCase(); if(!c||!x.isConnected||x._fatto) return; x._fatto=1; const inf=infoRic(c);
         const ex=rows.findIndex((q,j)=>j!==i&&q.codice===inf.codice); if(ex>=0){ rows[ex].qty+=rows[i].qty||1; rows.splice(i,1); drawRows(); return; }
-        Object.assign(rows[i],{codice:inf.codice,descr:inf.descr||rows[i].descr||"(fuori magazzino)",prezzo:inf.prezzo||rows[i].prezzo||0,costo:inf.costo,nuova:false}); if(!inf.trovato) toast(c+": non lo trovo, scrivi descrizione e prezzo"); drawRows(); };
+        Object.assign(rows[i],{codice:inf.codice,descr:inf.descr||rows[i].descr||"(fuori magazzino)",prezzo:inf.prezzo?conMagg(inf.prezzo,magg):(rows[i].prezzo||0),...(inf.prezzo?{base:inf.prezzo}:{}),costo:inf.costo,nuova:false}); if(!inf.trovato) toast(c+": non lo trovo, scrivi descrizione e prezzo"); drawRows(); };
       x.onchange=fill; x.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); fill(); } }; });
     drawTot();
   };
@@ -2593,20 +2616,21 @@ function openTicket(t, fromReq, draft){
     $("#tTot").innerHTML=`<span>Ricambi <b>${eur(tt.ricL)}</b></span>${tt.scV?`<span>Sconto ${tt.sc}% <b>−${eur(tt.scV)}</b></span>`:""}<span>Manodopera <b>${tt.mo?eur(tt.mo):"da compilare"}</b></span><span>Totale cliente <b>${$("#tTipo").value==="garanzia"?"in garanzia":eur(tt.totale)}</b></span><span style="color:var(--muted)">Costo ricambi ${eur(tt.costo)}</span>`; drawMiss(); };
   ["#tMo","#tSc","#tTipo"].forEach(s=>$(s).addEventListener("input",drawTot));
   // ---- cliente: ricerca in archivio e compilazione automatica ----
-  let cliId=t.cliId||"";
+  let cliId=t.cliId||"", magg=t.maggRic!=null?Number(t.maggRic)||0:maggListino(t.cliId&&S.clienti.get(t.cliId));
+  const ripreza=m=>{ if(m===magg) return; rows.forEach(p=>{ if(Number(p.prezzo)>0){ const b=p.base!=null?Number(p.base):Math.round(Number(p.prezzo)/(1+magg/100)*100)/100; p.base=b; p.prezzo=conMagg(b,m); } }); magg=m; drawRows(); };
   const drawCliInfo=()=>{ const c=cliId&&S.clienti.get(cliId), box=$("#cliInfo"); if(!box) return;
-    box.innerHTML=c?`<span class="badge st-Pronto">${ic("user")}Cliente in archivio${c.origine==="danea"?" (Danea)":""}</span>${scontoNum(c.sconto)?` <span class="badge">sconto ricambi ${scontoNum(c.sconto)}%</span>`:""}${c.listino?` <span class="sub">listino ${esc(c.listino)}</span>`:""} <button class="btn sm ghost" id="cliOff" type="button">scollega</button>`:"";
-    const o=$("#cliOff"); if(o) o.onclick=()=>{ cliId=""; drawCliInfo(); }; };
+    box.innerHTML=c?`<span class="badge st-Pronto">${ic("user")}Cliente in archivio${c.origine==="danea"?" (Danea)":""}</span>${scontoNum(c.sconto)?` <span class="badge">sconto ricambi ${scontoNum(c.sconto)}%</span>`:""}${storicoDi(c).length?` <span class="badge">${storicoDi(c).length} riparazioni in Danea</span>`:""}${c.listino?` <span class="${maggListino(c)?"badge":"sub"}">${maggListino(c)?`Listino 2: ricambi +${maggListino(c)}%`:"listino "+esc(c.listino)}</span>`:""} <button class="btn sm ghost" id="cliOff" type="button">scollega</button>`:"";
+    const o=$("#cliOff"); if(o) o.onclick=()=>{ cliId=""; ripreza(0); drawCliInfo(); }; };
   const scegliCli=c=>{ const set=(id,v)=>{ if(v) $(id).value=v; };
     $("#tCli").value=c.nome||$("#tCli").value; set("#tTel",c.tel||c.cell); set("#tMail",c.email); set("#tPiva",c.piva||c.cf); set("#tInd",c.ind); set("#tCitta",c.citta); set("#tProv",c.prov); set("#tCap",c.cap);
-    if(c.id){ cliId=c.id; const sc=scontoNum(c.sconto); if(sc) $("#tSc").value=sc; drawTot(); }
+    if(c.id){ cliId=c.id; const sc=scontoNum(c.sconto); if(sc) $("#tSc").value=sc; ripreza(maggListino(c)); drawTot(); }
     $("#cliSug").innerHTML=""; drawCliInfo(); };
   const sugCli=e=>{ const v=e.target.value; if(cliId&&e.target.id==="tCli") { const c=S.clienti.get(cliId); if(c&&normNome(c.nome)!==normNome(v)) { cliId=""; drawCliInfo(); } }
     const l=cercaCli(v); $("#cliSug").innerHTML=l.length?`<div class="sub" style="margin:8px 0 4px">Cliente già conosciuto? Tocca per compilare:</div><div class="olist" style="gap:6px">${l.map((c,i)=>`<button type="button" class="pki" data-cs="${i}" style="text-align:left"><span>${cliRiga(c)}</span></button>`).join("")}</div>`:"";
     $("#cliSug").querySelectorAll("[data-cs]").forEach(b=>b.onmousedown=ev=>{ ev.preventDefault(); scegliCli(l[b.dataset.cs]); }); };
   ["#tCli","#tTel","#tPiva","#tMail"].forEach(id=>$(id).addEventListener("input",sugCli));
   drawCliInfo();
-  if(isNew&&!cliId&&t.tel){ const c=cliTrova(t.tel,t.piva); if(c){ cliId=c.id; if(scontoNum(c.sconto)&&!$("#tSc").value) $("#tSc").value=scontoNum(c.sconto); drawCliInfo(); } }
+  if(isNew&&!cliId&&t.tel){ const c=cliTrova(t.tel,t.piva); if(c){ cliId=c.id; if(scontoNum(c.sconto)&&!$("#tSc").value) $("#tSc").value=scontoNum(c.sconto); ripreza(maggListino(c)); drawCliInfo(); } }
   $("#tSc").addEventListener("input",()=>{ const c=cliId&&S.clienti.get(cliId); $("#tScInfo").textContent=c&&scontoNum(c.sconto)&&Number($("#tSc").value)!==scontoNum(c.sconto)?`Da anagrafica: ${scontoNum(c.sconto)}%`:""; });
   // ---- ricambi usati di solito su questo modello ----
   const drawUsual=()=>{ const mod=$("#tMod").value.trim().toUpperCase(), box=$("#tUsual"); if(!box) return; if(!mod){ box.innerHTML=""; return; }
@@ -2668,7 +2692,7 @@ function openTicket(t, fromReq, draft){
   const ps=$("#pSearch"), pl=$("#pList");
   const addPart=(r,free,ep)=>{ if(r&&r.sostDa&&itm(r.sostDa)){ toast(`${r.codice} è sostituito da ${r.sostDa}: uso il nuovo codice`); r=itm(r.sostDa); }
     const inf=infoRic(r?r.codice:free);
-    const ex=rows.find(p=>p.codice===inf.codice); if(ex){ex.qty++;} else rows.push({codice:inf.codice,descr:inf.descr||ep?.descr||"(fuori magazzino)",qty:1,prezzo:inf.prezzo||Number(ep?.prezzo)||0,costo:inf.costo||(r?0:Number(ep?.prezzo)||0)}); ps.value=""; pl.style.display="none"; drawRows(); drawUsual(); };
+    const ex=rows.find(p=>p.codice===inf.codice); if(ex){ex.qty++;} else rows.push({codice:inf.codice,descr:inf.descr||ep?.descr||"(fuori magazzino)",qty:1,base:inf.prezzo||Number(ep?.prezzo)||0,prezzo:conMagg(inf.prezzo||Number(ep?.prezzo)||0,magg),costo:inf.costo||(r?0:Number(ep?.prezzo)||0)}); ps.value=""; pl.style.display="none"; drawRows(); drawUsual(); };
   ps.oninput=()=>{ clearTimeout(ps._t); ps._t=setTimeout(()=>ps._cerca(),100); };
   ps._cerca=()=>{ const q=ps.value.toLowerCase().trim(); if(q.length<2){pl.style.display="none";return}
     const mod=($("#tMod").value||"").toLowerCase().trim();
@@ -2703,7 +2727,7 @@ function openTicket(t, fromReq, draft){
       gar: $("#tTipo").value==="garanzia" ? {...garFromForm(), dataRip:(t.gar?.dataRip)||(["Pronto","Consegnato"].includes(stato)?Date.now():null)} : (t.gar||null), dataAcquisto:$("#tAcq").value, tipo:$("#tTipo").value, accessori:$("#tAcc").value.trim(),
       ddtNum:$("#tDdtN").value.trim(), ddtData:$("#tDdtD").value, cliFin:$("#tCliFin").value.trim(), cliFinTel:$("#tCliFinTel").value.trim(),
       tecnico:$("#tTec").value, difetto:$("#tDif").value.trim(), diagnosi:$("#tDia").value.trim(), categoriaGuasto:$("#tCat").value,
-      ore:0, tariffa:Number(t.tariffa??S.cfg.tariffa)||0, manodopera:$("#tMo").value===""?null:Number($("#tMo").value), manodoperaDescr:$("#tMoD").value.trim(), scontoRic:Number($("#tSc").value)||0, cliId:cliId||null, preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value), note:$("#tNote").value.trim(),
+      ore:0, tariffa:Number(t.tariffa??S.cfg.tariffa)||0, manodopera:$("#tMo").value===""?null:Number($("#tMo").value), manodoperaDescr:$("#tMoD").value.trim(), scontoRic:Number($("#tSc").value)||0, maggRic:magg||0, cliId:cliId||null, preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value), note:$("#tNote").value.trim(),
       ricambi:rows.filter(p=>p.qty>0&&p.codice).map(({nuova,...p})=>p), stato, updatedAt:Date.now()};
     delete data.id;
     if(stato!==t.stato || isNew){ data.storico=[...(t.storico||[]),{stato,at:Date.now(),by:S.me}]; }
@@ -4303,7 +4327,7 @@ function wizRicevo(){
     const data={stato:"Ricevuto",tipo:t.tipo,ricambi:[],ore:0,tariffa:S.cfg.tariffa,createdAt:now,updatedAt:now,origine:"banco",num,
       cliente:t.cliente,tel:t.tel,email:t.email||"",modello:t.modello,accessori:(t.acc||[]).join(", "),
       difetto:[...(t.dif||[]),t.difTxt].filter(Boolean).join(". "),note:t.garDubbio?"Garanzia da verificare (il cliente non sa)":"",
-      ...(t.cli?{cliId:t.cli.id||null,scontoRic:t.cli.id?scontoNum(t.cli.sconto):0,piva:t.cli.piva||t.cli.cf||"",ind:t.cli.ind||"",citta:t.cli.citta||"",prov:t.cli.prov||"",cap:t.cli.cap||""}:{}),
+      ...(t.cli?{cliId:t.cli.id||null,scontoRic:t.cli.id?scontoNum(t.cli.sconto):0,maggRic:t.cli.id?maggListino(t.cli):0,piva:t.cli.piva||t.cli.cf||"",ind:t.cli.ind||"",citta:t.cli.citta||"",prov:t.cli.prov||"",cap:t.cli.cap||""}:{}),
       storico:[{stato:"Ricevuto",at:now,by:S.me||null}]};
     const ok=await write(async()=>{ const ref=S.db.collection("tickets").doc(); await ref.set(data); try{ const cid=await cliDaScheda(data); if(cid&&cid!==data.cliId){ data.cliId=cid; await ref.update({cliId:cid}); } }catch(e){} },"Scheda "+num+" aperta");
     if(!ok) return;
@@ -4337,17 +4361,23 @@ function wizConsegno(){
 /* ---------- MODALITÀ DI PAGAMENTO E PAGAMENTO POSTICIPATO (22/11) ---------- */
 // legge le condizioni di pagamento scritte in Danea (es. "Ri.Ba. 30/60 gg f.m.", "Bonifico 30 gg d.f.", "Rimessa diretta")
 function pagInfo(s){
-  let t=String(s||"").toLowerCase(); if(!t.trim()) return null;
-  t=t.replace(/(\d{1,3})\s*\+\s*(\d{1,3})/g,(m,x,y)=>String(+x+ +y)); // "30+10 gg" = 40 giorni
-  const gg=[...t.matchAll(/(\d{1,3})(?=\s*(?:\/|-|gg|g\b|giorn|d\.?f|f\.?m|$))/g)].map(m=>+m[1]).filter(n=>n>0&&n<=365);
-  const fm=/f\.?\s?m\.?|fine\s*mese/.test(t), riba=/ri\.?\s?ba|ricevuta banc|\brb\b|\br\.\s?b\./.test(t);
-  const metodo=riba?"RiBa":/bonific/.test(t)?"Bonifico":/contrassegn/.test(t)?"Contrassegno":/contant|rimessa/.test(t)?"Contanti":/assegn/.test(t)?"Assegno":/\bpos\b|carta|bancomat/.test(t)?"POS":/sdd|rid\b|addebito/.test(t)?"Addebito SDD":"";
-  return {testo:String(s).trim(),giorni:gg,fm,metodo,differito:gg.length>0||riba};
+  const testo=String(s||"").trim(); let t=testo.toLowerCase(); if(!t) return null;
+  // giorni scritti nel nome (30, 60, 90…; "30+10" = 30 giorni fine mese + 10 giorni). Regola del cliente (24/11/2026): 30/60/90 giorni sono SEMPRE a fine mese.
+  const gg=[], plus=[];
+  for(const m of t.matchAll(/(?<![a-z])(\d{1,3})\s*(?:gg|g\.\s?g\.?|giorni|g\b)?\s*(?:\+\s*(\d{1,2})\s*(?:gg|g\.\s?g\.?|giorni|g\b)?)?/g)){ const n=+m[1]; if(n>=10&&n<=365&&n%10===0&&!/mp\s*$/.test(t.slice(0,m.index))){ gg.push(n); plus.push(m[2]?+m[2]:0); } }
+  const D=S.pag&&S.pag.p?S.pag.p[Object.keys(S.pag.p).find(k=>k.replace(/\s+/g," ").trim().toLowerCase()===t.replace(/\s+/g," "))]:null;
+  let giorni=gg, piu=plus.length?Math.max(...plus):0, quote=null;
+  if(!giorni.length&&D&&D.rate) giorni=D.rate.map(r=>r[0]).filter(n=>n>0);
+  if(D&&D.plus&&!piu) piu=D.plus;
+  if(D&&D.rate&&D.rate.length===giorni.length&&D.rate.every(r=>r[0]>0)) quote=D.rate.map(r=>r[1]);
+  const riba=/ri\.?\s?ba|ricevuta banc|\brb\b|\br\.\s?b\./.test(t)||D?.cat==="Riba";
+  const metodo=riba?"RiBa":/bonific/.test(t)||D?.cat==="Bonifico"?"Bonifico":/contrassegn/.test(t)?"Contrassegno":/assegn/.test(t)?"Assegno":/contant|rimessa/.test(t)?"Contanti":/\bpos\b|carta|bancomat/.test(t)?"POS":/sdd|rid\b|addebito/.test(t)?"Addebito SDD":"";
+  return {testo,giorni,plus:piu,quote,fm:giorni.length>0,metodo,differito:giorni.length>0};
 }
-// scadenze dalla data della vendita (una per rata); fine mese = ultimo giorno del mese di scadenza
+// scadenze dalla data del documento (una per rata): data + giorni → fine di quel mese → + eventuali giorni dopo fine mese ("+10")
 function pagScadenze(info,da=Date.now()){
   if(!info||!info.differito) return [];
-  return (info.giorni.length?info.giorni:[30]).map(g=>{ const d=new Date(da); d.setHours(12,0,0,0); d.setDate(d.getDate()+g); if(info.fm){ d.setMonth(d.getMonth()+1,0); } return d.getTime(); });
+  return (info.giorni.length?info.giorni:[30]).map(g=>{ const d=new Date(da); d.setHours(12,0,0,0); d.setDate(d.getDate()+g); d.setMonth(d.getMonth()+1,0); if(info.plus) d.setDate(d.getDate()+info.plus); return d.getTime(); });
 }
 const fmtG=t=>t?new Date(t).toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit",year:"numeric"}):"—";
 const daIncassare=()=>S.ordiniWeb.filter(o=>!o.pagato&&o.stato!=="Annullato"&&o.canale==="banco");
@@ -4396,6 +4426,27 @@ async function debitoDaConsegna(c,t){ const now=Date.now(), base={pagato:false,d
 function modiPagamento(){ const n=new Map(); for(const c of cliAll()) if(c.pagamento) n.set(c.pagamento,(n.get(c.pagamento)||0)+1);
   return [...new Set([...[...n.entries()].sort((a,b)=>b[1]-a[1]).map(x=>x[0]),"Rimessa diretta","Contanti","POS","Bonifico anticipato","Bonifico 30 gg d.f.","Bonifico 30 gg f.m.","RiBa 30 gg f.m.","RiBa 30/60 gg f.m.","RiBa 60/90 gg f.m."])]; }
 // scheda cliente veloce (dalla ricerca in alto)
+// dati presi da Danea (import Clienti_Danea_SEMI_completo.xlsx, 24/11/2026)
+function daneaBox(c,pi){
+  const r=(k,v)=>v?`<tr><td class="sub" style="white-space:nowrap;vertical-align:top">${k}</td><td>${v}</td></tr>`:"";
+  const sc=pi&&pi.differito?pagScadenze(pi):[];
+  const fatt=[2024,2025,2026].map(y=>c["fatt"+y]?`${y}: <b>${eur(Number(String(c["fatt"+y]).replace(",","."))||0)}</b>`:"").filter(Boolean).join(" · ");
+  const dest=String(c.dest||"").split(" | ").filter(Boolean);
+  const h=[r("Listino",maggListino(c)?`<b>Listino 2</b>: ricambi e listino +${maggListino(c)}% (come in Danea)`:c.listino?esc(c.listino):""),
+    r("Scadenze",sc.length?`una vendita di oggi scade il <b>${sc.map(fmtG).join(" · ")}</b>${pi.quote&&pi.quote.length>1?" (rate "+pi.quote.map(q=>Math.round(q)+"%").join(" / ")+")":""}`:""),
+    r("Codice SDI",c.sdi&&esc(c.sdi)), r("PEC",c.pec&&esc(c.pec)), r("Fax",c.fax&&esc(c.fax)),
+    r("IBAN",isAdmin()||!SUL_SITO?(c.iban&&`<span class="mono">${esc(c.iban)}</span>`):""), r("Banca d'appoggio",c.banca&&esc(c.banca)),
+    r("Documenti",c.docEmail&&"via email"), r("IVA",c.esenzione&&esc(c.esenzione)), r("Dichiarazione d'intento",c.intento&&esc(c.intento)),
+    r("Trasporto",[c.porto&&"porto "+esc(c.porto),c.vettore&&esc(c.vettore)].filter(Boolean).join(" · ")),
+    r("Sedi e destinazioni",dest.map(esc).join("<br>")), r("Referente",c.referente&&esc(c.referente)), r("Note Danea",c.note&&esc(c.note)),
+    r("Fatturato",fatt), r("Ultimo documento",c.ultimoDoc&&esc(c.ultimoDoc)),
+    r("Riparazioni in Danea",c.nRip?`${esc(c.nRip)}${c.ultimaRip?" · ultima il "+esc(c.ultimaRip):""}`:""), r("Compra di solito",c.topArt&&`<span class="mono" style="font-size:12px">${esc(c.topArt)}</span>`)].join("");
+  const st=storicoDi(c);
+  return (h?`<h3 style="font-size:14px;margin:14px 0 6px">Dati da Danea</h3><table><tbody>${h}</tbody></table>`:"")+
+   (st.length?`<h3 style="font-size:14px;margin:14px 0 6px">Riparazioni in Danea (${st.length})</h3><table><tbody>${st.slice(0,15).map(x=>`<tr><td class="mono">${esc(x.n)}</td><td>${fmtG(new Date(x.d).getTime())}</td><td><b>${esc(x.u||"")}</b>${x.acc?` <span class="sub">${esc(x.acc)}</span>`:""}${x.r&&x.r.length?`<div class="sub mono" style="font-size:11px">${x.r.map(q=>esc(q[0])+(q[1]>1?" ×"+q[1]:"")).join(", ")}</div>`:""}</td><td>${esc(x.es||"")}${x.g?`<div class="sub">${esc(x.g)}</div>`:""}</td><td class="num">${x.t?eur(x.t):""}</td></tr>`).join("")}</tbody></table>${st.length>15?`<div class="sub">… e altre ${st.length-15}</div>`:""}`:"");
+}
+// storico riparazioni Danea (collezione "storico", caricato da Impostazioni → Clienti)
+function storicoDi(c){ if(!S.storico||!c) return []; const k=c.id&&String(c.id).startsWith("D")?String(c.id).slice(1):null; return (k&&S.storico.get(k))||[]; }
 function openCliente(c){
   const nn=normNome(c.nome), tk=telKey(c.tel||c.cell);
   const mio=x=>(c.id&&x.cliId===c.id)||(tk&&telKey(x.tel)===tk)||normNome(x.cliente)===nn;
@@ -4411,6 +4462,7 @@ function openCliente(c){
    ${c.id?`<div class="f" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:12px"><label class="fl" style="flex:1">Modalità di pagamento del cliente<input id="clPag" list="clPagL" value="${esc(c.pagamento||"")}" placeholder="es. Rimessa diretta, Bonifico 30 gg d.f., RiBa 30/60 gg f.m."></label>
     <datalist id="clPagL">${modiPagamento().map(m=>`<option value="${esc(m)}">`).join("")}</datalist><button class="btn edit-only" id="clPagS" type="button">${ic("check")}Salva</button></div>`:""}
    <div class="sub" style="margin-bottom:10px">${[c.tel&&`Tel. <a href="tel:${esc(c.tel)}">${esc(c.tel)}</a>`,c.cell&&`Cell. <a href="tel:${esc(c.cell)}">${esc(c.cell)}</a>`,c.email&&esc(c.email),c.piva&&"P.IVA "+esc(c.piva),[c.ind,c.cap,c.citta,c.prov].filter(Boolean).map(esc).join(" ")].filter(Boolean).join(" · ")}</div>
+   ${daneaBox(c,pi)}
    ${deb.length?`<h3 style="font-size:14px;margin:14px 0 6px">Da incassare</h3><table><tbody>${deb.map(o=>`<tr data-o="${esc(o.id)}" style="cursor:pointer"><td class="mono">${esc(o.num)}</td><td>${fmtG(o.at)}</td><td>${esc(ordArt(o))}</td><td>${o.scadenza?`scade ${fmtG(o.scadenza)}`:""}${scaduto(o)?` <b class="low">scaduto</b>`:""}</td><td class="num"><b>${eur(ordTot(o).tot)}</b></td></tr>`).join("")}</tbody></table>`:""}
    ${sch.length?`<h3 style="font-size:14px;margin:14px 0 6px">Schede</h3><table><tbody>${sch.slice(0,8).map(t=>`<tr data-t="${esc(t.id)}" style="cursor:pointer"><td class="mono">${esc(t.num)}</td><td>${esc(t.modello||"")}</td><td>${esc(t.stato)}</td><td>${fmtG(t.createdAt)}</td></tr>`).join("")}</tbody></table>`:""}
    ${ord.length-deb.length?`<h3 style="font-size:14px;margin:14px 0 6px">Ultime vendite</h3><table><tbody>${ord.filter(o=>!deb.includes(o)).slice(0,6).map(o=>`<tr data-o="${esc(o.id)}" style="cursor:pointer"><td class="mono">${esc(o.num)}</td><td>${fmtG(o.at)}</td><td>${esc(ordArt(o))}</td><td class="num">${eur(ordTot(o).tot)}</td></tr>`).join("")}</tbody></table>`:""}
@@ -4561,6 +4613,7 @@ function initShell(){
   fetch("./data/sito.json").then(r=>r.json()).then(d=>{S.sito=d||{}; if(S.view==="cruscotto") render();}).catch(()=>{});
   fetch("./data/volantino.json").then(r=>r.json()).then(d=>{S.vol=d||null;}).catch(()=>{});
   fetch("./data/listino.json").then(r=>r.json()).then(d=>{S.lis=d||null;}).catch(()=>{});
+  fetch("./data/pagamenti.json").then(r=>r.json()).then(d=>{S.pag=d||null;}).catch(()=>{});
   setFacile.__init=1; { const b=$("#tbMode"); b.innerHTML=S.facile?`${ic("grid")}<span>Tutte le funzioni</span>`:`${ic("home")}<span>Modalità facile</span>`; b.onclick=()=>setFacile(!S.facile); }
   const side=$("#side"), shade=$("#shade");
   const open=()=>{side.classList.add("open");shade.classList.add("show")}, close=()=>{side.classList.remove("open");shade.classList.remove("show")};

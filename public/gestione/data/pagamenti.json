@@ -1,0 +1,861 @@
+{
+"fonte": "Danea TPagamenti (24/11/2026). Regola del cliente: 30/60/90… giorni sempre a fine mese; \"+10\" = 10 giorni dopo la fine del mese",
+"p": {
+"Assegno": {
+"cat": "Assegno",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RIBA 40 gg": {
+"cat": "Riba",
+"rate": [
+[
+40,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RIBA 70  G.G. F. M": {
+"cat": "Riba",
+"rate": [
+[
+70,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"Bonifico 30 gg F.M.": {
+"cat": "Bonifico",
+"rate": [
+[
+30,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"Bonifico 60 gg F.M.": {
+"cat": "Bonifico",
+"rate": [
+[
+60,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"Bonifico vista fattura": {
+"cat": "Bonifico",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RIBA 30 gg F.M. no spese inc.": {
+"cat": "Riba",
+"rate": [
+[
+30,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"Contanti": {
+"cat": "Contanti",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"Contrassegno": {
+"cat": "Altro",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"Incasso corrispettivi": {
+"cat": "Contanti",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"Pagato come da relativi documenti sopra indicati": {
+"cat": "PagatoInDocInclusi",
+"rate": [],
+"fmDanea": [],
+"plus": 0
+},
+"RIBA 30 gg F.M.": {
+"cat": "Riba",
+"rate": [
+[
+30,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"RIBA 30-60 gg F.M.": {
+"cat": "Riba",
+"rate": [
+[
+30,
+50.0
+],
+[
+60,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RIBA 30-60-90 gg F.M.": {
+"cat": "Riba",
+"rate": [
+[
+30,
+33.33
+],
+[
+60,
+33.33
+],
+[
+90,
+33.33
+]
+],
+"fmDanea": [
+true,
+true,
+true
+],
+"plus": 0
+},
+"RIBA 60 gg F.M.": {
+"cat": "Riba",
+"rate": [
+[
+60,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"RIBA 90 gg F.M.": {
+"cat": "Riba",
+"rate": [
+[
+90,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"Segue fattura": {
+"cat": "PagamInDocIncludente",
+"rate": [],
+"fmDanea": [],
+"plus": 0
+},
+"PRODOTTO GARANZIA": {
+"cat": "Altro",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RIBA": {
+"cat": "Altro",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 5
+},
+"NON RIPARATO": {
+"cat": "Altro",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RIBA 60-90-120 F.M": {
+"cat": "Riba",
+"rate": [
+[
+60,
+33.33
+],
+[
+90,
+33.33
+],
+[
+120,
+33.33
+]
+],
+"fmDanea": [
+true,
+true,
+true
+],
+"plus": 0
+},
+"RIMESSA DIRETTA": {
+"cat": "Bonifico",
+"rate": [
+[
+30,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"RIBA 30+10 gg": {
+"cat": "Riba",
+"rate": [
+[
+30,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 10
+},
+"RIBA 60+10 GG": {
+"cat": "Riba",
+"rate": [
+[
+60,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 10
+},
+"RIBA 30/60 gg F.M.": {
+"cat": "Riba",
+"rate": [
+[
+30,
+50.0
+],
+[
+60,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RIBA 30-60-90-120": {
+"cat": "Riba",
+"rate": [
+[
+30,
+25.0
+],
+[
+60,
+25.0
+],
+[
+90,
+25.0
+],
+[
+120,
+25.0
+]
+],
+"fmDanea": [
+true,
+true,
+true,
+true
+],
+"plus": 0
+},
+"RIBA 30-60-90-120  F.M.": {
+"cat": "Riba",
+"rate": [
+[
+30,
+25.0
+],
+[
+60,
+25.0
+],
+[
+90,
+25.0
+],
+[
+120,
+25.0
+]
+],
+"fmDanea": [
+true,
+true,
+true,
+true
+],
+"plus": 0
+},
+"Assegno 30 / 60 gg": {
+"cat": "Assegno",
+"rate": [
+[
+30,
+50.0
+],
+[
+60,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"TeamSystem Pay": {
+"cat": "CartaDiCredito",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"MP 15 GIROCONTO SU CONTI DI CONTABILITA' SPECIALE": {
+"cat": "Bonifico",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RIMESSA DIRETTA 60 gg": {
+"cat": "Bonifico",
+"rate": [
+[
+60,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"RIMESSA DIRETTA 90gg": {
+"cat": "Contanti",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RIMESSA DIRETTA 30-60-90-120-150": {
+"cat": "Bonifico",
+"rate": [
+[
+30,
+20.0
+],
+[
+60,
+20.0
+],
+[
+90,
+20.0
+],
+[
+120,
+20.0
+],
+[
+150,
+20.0
+]
+],
+"fmDanea": [
+true,
+true,
+true,
+true,
+true
+],
+"plus": 0
+},
+"RIMESSA DIRETTA 30/60": {
+"cat": "Bonifico",
+"rate": [
+[
+30,
+50.0
+],
+[
+60,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RIMESSA DIRETTA 30/60/90 gg F.M.": {
+"cat": "Contanti",
+"rate": [
+[
+30,
+33.33
+],
+[
+60,
+33.33
+],
+[
+90,
+33.33
+]
+],
+"fmDanea": [
+true,
+true,
+true
+],
+"plus": 0
+},
+"RIBA 60 gg F.M. no spese incluse": {
+"cat": "Riba",
+"rate": [
+[
+60,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"Bonifico 60 + 10 GG": {
+"cat": "Bonifico",
+"rate": [
+[
+60,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"RIBA 60-90 F.M.": {
+"cat": "Riba",
+"rate": [
+[
+60,
+50.0
+],
+[
+90,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RIBA 60gg+10gg/90gg+10gg": {
+"cat": "Riba",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RI.BA 60 - 90 F.M.": {
+"cat": "Riba",
+"rate": [
+[
+60,
+50.0
+],
+[
+90,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RI.BA 60+10 - 90+10": {
+"cat": "Riba",
+"rate": [
+[
+60,
+50.0
+],
+[
+90,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RI.BA 60gg+10gg - 90gg+10gg": {
+"cat": "Riba",
+"rate": [
+[
+60,
+100.0
+],
+[
+90,
+100.0
+]
+],
+"fmDanea": [
+false,
+false
+],
+"plus": 10
+},
+"RI.BA 60+10 - 90+10 (2)": {
+"cat": "Riba",
+"rate": [
+[
+60,
+50.0
+],
+[
+90,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 10
+},
+"RI.BA. 30+10 / 60+10": {
+"cat": "Riba",
+"rate": [
+[
+30,
+50.0
+],
+[
+60,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RIBA 30+10/60+10 (2)": {
+"cat": "Riba",
+"rate": [
+[
+30,
+50.0
+],
+[
+60,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 10
+},
+"RIMESSA DIRETTA 90 GG + 10 GG": {
+"cat": "Bonifico",
+"rate": [
+[
+90,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 10
+},
+"ASSEGNO 60gg": {
+"cat": "Assegno",
+"rate": [
+[
+60,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"RIBA 60-90 F.M. (2)": {
+"cat": "Riba",
+"rate": [
+[
+60,
+50.0
+],
+[
+90,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RIBA 30-60 gg F.M. (2)": {
+"cat": "Riba",
+"rate": [
+[
+30,
+50.0
+],
+[
+60,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+},
+"RI.BA 90+10gg / 120 + 10gg": {
+"cat": "Riba",
+"rate": [
+[
+90,
+50.0
+],
+[
+120,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 10
+},
+"RI.BA 120gg + 10gg": {
+"cat": "Riba",
+"rate": [
+[
+120,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 10
+},
+"DA DEFINIRE": {
+"cat": "Bonifico",
+"rate": [
+[
+0,
+100.0
+]
+],
+"fmDanea": [
+false
+],
+"plus": 0
+},
+"RIMESSA DIRETTA 90gg F.M.": {
+"cat": "Bonifico",
+"rate": [
+[
+90,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"RIMESSA DIRETTA 120 gg F.M.": {
+"cat": "Bonifico",
+"rate": [
+[
+120,
+100.0
+]
+],
+"fmDanea": [
+true
+],
+"plus": 0
+},
+"RIMESSA DIRETTA 60 / 90 gg F.M.": {
+"cat": "Bonifico",
+"rate": [
+[
+60,
+50.0
+],
+[
+90,
+50.0
+]
+],
+"fmDanea": [
+true,
+true
+],
+"plus": 0
+}
+}
+}
