@@ -552,6 +552,7 @@ textarea.winp{min-height:110px;font-size:20px}
 .wbig:disabled{opacity:.5}
 .wyn{display:flex;flex-direction:column;gap:12px;margin-top:14px}
 .wchips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}.wchips button{font:inherit;font-size:18px;font-weight:700;padding:14px 18px;border-radius:16px;border:2px solid var(--line);background:#fff;cursor:pointer}
+#tModL .wchips{gap:6px;margin-top:6px}#tModL .wchips button{font-size:13px;font-weight:600;padding:6px 10px;border-radius:10px}.wchips button small{font-weight:400}
 .wchips.big button{font-size:20px;padding:18px 20px;flex:1 1 45%}
 .wchips button.on{background:#f5b800;border-color:#f5b800}
 .pkl{display:flex;flex-direction:column;gap:10px;margin-top:14px}
@@ -2242,7 +2243,7 @@ function openPreventivo(p0){ S._pvMagg=0;
        <label class="fl">Sconto extra sul totale %<input id="pvScX" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.sconto||""}" ${puoSc?"":"disabled"}></label></div>
       ${puoSc?`<div class="sub">Gli sconti per fonte valgono per tutte le righe di quella fonte; su una riga puoi metterne uno diverso.</div>`:`<div class="sub">Gli sconti li può cambiare solo l'amministratore.</div>`}</div>
      <div class="fs"><h3>Articoli</h3>
-      <input id="pvP" placeholder="Cerca il prodotto: codice o nome" autocomplete="off"><div id="pvPL" class="pkl" style="margin-top:6px"></div>
+      <input id="pvP" placeholder="Codice o nome del prodotto (Invio = aggiungi)" autocomplete="off"><div id="pvPL" class="pkl" style="margin-top:6px"></div>
       <details style="margin:8px 0"><summary class="sub">Incolla un elenco (una riga per articolo: quantità e codice, es. «4 DCD740NT-XJ»)</summary><textarea id="pvBulk" rows="4" style="width:100%;margin-top:6px" placeholder="4 DCD740NT-XJ&#10;2 DT7274-QZ"></textarea><button class="btn sm" id="pvBulkOk" style="margin-top:6px">Aggiungi l'elenco</button><div id="pvBulkEsito" class="sub"></div></details>
       ${p.righe.length?`<div class="sub" style="margin:4px 0">Prezzi IVA esclusa; l'IVA 22% si aggiunge sul totale.</div><div class="tts"><table class="pvt"><thead><tr><th>Articolo</th><th>Prezzo da</th><th class="num">Pieno (no IVA)</th><th class="num">Sc. %</th><th class="num">Netto</th><th class="num">Q.tà</th><th class="num">Totale</th><th></th></tr></thead><tbody>
       ${p.righe.map((r,i)=>`<tr><td class="pva"><b>${esc(r.nome||r.codice)}</b><div class="mono sub">${esc(r.codice)}</div></td><td data-l="Prezzo da"><select data-pvrf="${i}">${["volantino","listino","sito","manuale"].map(k=>`<option value="${k}" ${r.fonte===k?"selected":""} ${k!=="manuale"&&!(prezziDi(pvArticolo(r.codice)||{codice:r.codice})[k])?"disabled":""}>${k==="manuale"?"A mano":k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></td>
@@ -2271,7 +2272,7 @@ function openPreventivo(p0){ S._pvMagg=0;
     $("#modal").querySelectorAll("[data-pvrx]").forEach(b=>b.onclick=()=>{ leggi(); p.righe.splice(+b.dataset.pvrx,1); draw(); });
     suggCli($("#pvCli"),$("#pvCliL"),c=>{ leggi(); p.cliente=c.nome; p.tel=c.tel||c.cell||p.tel; p.email=c.email||p.email; p.piva=c.piva||c.cf||p.piva; p.ind=[c.ind,c.cap,c.citta].filter(Boolean).join(" ")||p.ind; p.cliId=c.id||""; S._pvMagg=maggListino(c); if(S._pvMagg) p.righe.forEach(r=>{ if(r.fonte==="listino"){ const x=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,"listino"); if(x.base) r.base=x.base; } }); draw(); if(S._pvMagg) toast(`${c.nome}: Listino 2, prezzi di listino +${S._pvMagg}%`); });
     const aggiungi=(it,q)=>{ const ex=p.righe.find(r=>r.codice===it.codice); if(ex) ex.qty+=q; else p.righe.push(pvRiga(it,q,p.fonte)); };
-    suggProd($("#pvP"),$("#pvPL"),it=>{ leggi(); aggiungi(it,1); draw(); setTimeout(()=>$("#pvP")&&$("#pvP").focus(),30); });
+    suggProd($("#pvP"),$("#pvPL"),it=>{ leggi(); aggiungi(it,1); draw(); setTimeout(()=>$("#pvP")&&$("#pvP").focus(),30); },{catalogo:true});
     $("#pvBulkOk").onclick=()=>{ leggi(); const mancanti=[]; let n=0;
       $("#pvBulk").value.split(/\n+/).forEach(l=>{ const m=l.trim().match(/^(\d+)\s*[x×]?\s+(.+)$|^(.+?)\s+[x×]?\s*(\d+)$|^(\S+)$/i); if(!m) return; const q=Number(m[1]||m[4]||1), cod=(m[2]||m[3]||m[5]||"").trim(); if(!cod) return;
         const it=pvArticolo(cod); if(it){ aggiungi(it,q); n++; } else mancanti.push(cod); });
@@ -2607,7 +2608,7 @@ function openTicket(t, fromReq, draft){
       <label class="fl">Tel. cliente finale<input id="tCliFinTel" value="${esc(t.cliFinTel)}"></label>
     </div><div id="cliInfo" style="margin-top:8px"></div><div id="cliSug"></div></div>
     <div class="fs"><span class="lg">Utensile</span><div class="f">
-      <label class="fl">Modello *<input id="tMod" placeholder="es. DCD796" value="${esc(t.modello)}"><span class="sub" id="tModD" style="font-weight:400;display:block;margin-top:3px">${esc(descrUtensile(t.modello,t.type))}</span></label>
+      <label class="fl">Modello *<input id="tMod" placeholder="es. DCD796" value="${esc(t.modello)}"><div id="tModL"></div><span class="sub" id="tModD" style="font-weight:400;display:block;margin-top:3px">${esc(descrUtensile(t.modello,t.type))}</span></label>
       <label class="fl">Type (targhetta)<input id="tType" placeholder="es. 2" value="${esc(t.type)}"></label>
       <label class="fl">Matricola / Seriale<input id="tMat" value="${esc(t.matricola)}"></label>
       <label class="fl">Data acquisto<input id="tAcq" type="date" value="${esc(t.dataAcquisto)}"></label>
@@ -2708,7 +2709,7 @@ function openTicket(t, fromReq, draft){
     const top=[...cnt.entries()].filter(([c])=>!rows.some(r=>r.codice===c)).sort((a,b)=>b[1]-a[1]).slice(0,6);
     box.innerHTML=top.length?`<span class="sub">Usati di solito su ${esc(mod)}:</span> ${top.map(([c,n])=>{ const inf=infoRic(c); return `<button type="button" class="chip" data-us="${esc(c)}">＋ <span class="mono">${esc(c)}</span> ${esc((inf.descr||"").slice(0,28))} <b>${n}×</b></button>`; }).join(" ")}`:"";
     box.querySelectorAll("[data-us]").forEach(b=>b.onclick=()=>addPart(itm(b.dataset.us)||null,b.dataset.us)); };
-  $("#tMod").addEventListener("input",()=>{ clearTimeout(drawUsual._t); drawUsual._t=setTimeout(drawUsual,350); });
+  suggModello($("#tMod"),$("#tModL")); $("#tMod").addEventListener("input",()=>{ clearTimeout(drawUsual._t); drawUsual._t=setTimeout(drawUsual,350); });
   $("#pAddRow").onclick=()=>{ rows.push({codice:"",descr:"",qty:1,prezzo:0,costo:0,nuova:true}); drawRows(); const l=$("#pRows").querySelectorAll("[data-cod]"); l[l.length-1]?.focus(); };
   $("#tTipo").addEventListener("change",()=>{$("#tGarBox").style.display=$("#tTipo").value==="garanzia"?"block":"none"});
   // parts missing from stock (beyond what this ticket already took) -> DEWALT sheet
@@ -3085,13 +3086,13 @@ function openOrdine(o){
   o=o?clean(o):{canale:"whatsapp",stato:"Da confermare",consegna:"ritiro",pagato:false,righe:[{codice:"",descr:"",qty:1,prezzo:0}],spedizione:0,sconto:0,at:Date.now(),storico:[]};
   const id=o.id; delete o.id;
   const prevStato=o.stato; let righe=clean(o.righe||[]);
-  if(!S._codesDL){ S._codesDL=allItems().filter(r=>r.tipo==="vendita").map(r=>`<option value="${esc(r.codice)}">${esc((r.titolo||r.descr||"").slice(0,70))}${r.prezzo?" · "+eur(r.prezzo):""}</option>`).join(""); }
+  if(!S._codesDL){ S._codesDL=allItems().filter(r=>r.tipo==="vendita").map(r=>`<option value="${esc(r.codice)}">${esc((r.titolo||r.descr||"").slice(0,70))}${r.prezzo?" · "+eur(r.prezzo):""}</option>`).join("")+catIdx().filter(e=>!itm(e.codice)).map(e=>`<option value="${esc(e.codice)}">${esc(e.descr.slice(0,70))} · non in magazzino</option>`).join(""); }
   openModal(`<div class="mh"><h2>${isNew?"Nuovo ordine":"Ordine "+esc(o.num)}</h2>${canBadge(o.canale)}<span class="sp"></span><button class="x" data-close>×</button></div>
   <div class="mb">
    <div class="stepper big" id="oStep"></div>
    <div class="qa" id="oQA"></div>
    <div class="fs"><span class="lg">Cliente</span><div class="f">
-    <label class="fl">Nome *<input id="oCli" value="${esc(o.cliente)}"></label>
+    <label class="fl">Nome *<input id="oCli" value="${esc(o.cliente)}" placeholder="Nome, telefono o partita IVA"><div id="oCliL" class="pkl" style="margin-top:6px"></div></label>
     <label class="fl">Telefono / WhatsApp<input id="oTel" inputmode="tel" value="${esc(o.tel)}"></label>
     <label class="fl">Email<input id="oMail" value="${esc(o.email)}"></label>
     <label class="fl">Canale<select id="oCan">${Object.entries(CANALI).map(([k,t])=>`<option value="${k}" ${o.canale===k?"selected":""}>${t}</option>`).join("")}</select></label>
@@ -3159,7 +3160,7 @@ function openOrdine(o){
       return `<tr><td><input data-rk="${k}" data-f="codice" list="ordCodes" class="mono" value="${esc(r.codice)}" placeholder="codice"></td><td><input data-rk="${k}" data-f="descr" value="${esc(r.descr)}"></td><td><input data-rk="${k}" data-f="qty" type="number" min="1" class="num" value="${r.qty||1}"></td><td><input data-rk="${k}" data-f="prezzo" type="number" step="0.01" min="0" class="num" value="${r.prezzo||""}" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></td><td class="num">${g==null?`<span class="sub">—</span>`:`<b class="${g>=(r.qty||1)?"":"low"}" style="${g>=(r.qty||1)?"color:var(--ok)":""}">${g} disp.</b>`}</td><td><button class="btn sm ghost edit-only" data-rdel="${k}" aria-label="Togli">${ic("x")}</button></td></tr>`;}).join("")}</tbody></table>`;
     md.querySelectorAll("[data-rk]").forEach(inp=>inp.onchange=()=>{ const r=righe[inp.dataset.rk], f=inp.dataset.f;
       r[f]=f==="qty"?Math.max(1,parseInt(inp.value)||1):f==="prezzo"?Number(inp.value)||0:inp.value.trim();
-      if(f==="codice"){ r.codice=r.codice.toUpperCase(); const it=itmV(r.codice); if(it){ r.codice=it.codice; if(!r.descr) r.descr=(it.titolo||it.descr||"").slice(0,120); if(!r.prezzo&&it.prezzo) r.prezzo=it.prezzo; } }
+      if(f==="codice"){ r.codice=r.codice.toUpperCase(); const it=itmV(r.codice); if(it){ r.codice=it.codice; if(!r.descr) r.descr=(it.titolo||it.descr||"").slice(0,120); if(!r.prezzo&&it.prezzo) r.prezzo=it.prezzo; } else { const a=pvArticolo(r.codice); if(a){ const pr=prezziDi(a); r.codice=a.codice; if(!r.descr) r.descr=(nomeDi(a)||a.descr||"").slice(0,120); if(!r.prezzo) r.prezzo=pr.volantino||pr.listino||pr.sito||0; } } }
       drawRighe(); drawTot(); });
     md.querySelectorAll("[data-rdel]").forEach(b=>b.onclick=()=>{ righe.splice(Number(b.dataset.rdel),1); if(!righe.length) righe.push({codice:"",descr:"",qty:1,prezzo:0}); drawRighe(); drawTot(); });
   };
@@ -3169,6 +3170,8 @@ function openOrdine(o){
   ["oCod","oSc","oSp"].forEach(i=>$("#"+i).oninput=drawTot);
   $("#oCod").onchange=()=>{ const g=gather(), c=scCalc(g.codiceSconto,ordTot(g).sub); if(c&&c.v!=null){ $("#oSc").value=c.v; } drawTot(); };
   ["oTel","oCli","oTrk","oCor","oCan","oRif"].forEach(i=>$("#"+i).addEventListener("change",drawQA));
+  suggCli($("#oCli"),$("#oCliL"),c=>{ const set=(i,v)=>{ if(v&&!$(i).value) $(i).value=v; }; $("#oCli").value=c.nome; set("#oTel",c.tel||c.cell); set("#oMail",c.email); set("#oInd",c.ind); set("#oCitta",c.citta); set("#oProv",c.prov); set("#oCap",c.cap);
+    if(c.id) o.cliId=c.id; if(c.piva||c.cf) o.piva=c.piva||c.cf; const pi=c.pagamento?pagInfo(c.pagamento):null; if(pi){ o.termini=pi.testo; if(pi.metodo&&!$("#oMet").value){ const m=[...$("#oMet").options].find(x=>x.value===pi.metodo); if(m) $("#oMet").value=pi.metodo; } } drawQA(); });
   drawRighe(); drawTot(); drawCons();
   const salva=async(extra={})=>{
     const g={...gather(),...extra};
@@ -3862,12 +3865,12 @@ function wizEsplosi(pre){
   wizOpen("Esplosi e ricambi","f-w");
   const cerca=step(()=>{ const rec=[...new Set(S.tickets.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).map(t=>String(t.modello||"").trim().toUpperCase()).filter(Boolean))].slice(0,8);
     const salvati=[...new Set([...S.esplosi.values()].map(e=>String(e.modello).toUpperCase()))].sort();
-    wz(`<div class="wq">Di quale utensile?</div><input class="winp" id="eM" placeholder="Modello, es. DCD796" autocapitalize="characters" autocomplete="off" autofocus>
+    wz(`<div class="wq">Di quale utensile?</div><input class="winp" id="eM" placeholder="Modello, es. DCD796" autocapitalize="characters" autocomplete="off" autofocus><div id="eML"></div>
       <div class="wsub">Lo trovi sulla targhetta dell'utensile, insieme al Type.</div>
       ${rec.length?`<div class="wq sm">Utensili in laboratorio</div><div class="wchips">${rec.map(m=>`<button data-em="${esc(m)}">${esc(m)}</button>`).join("")}</div>`:""}
       ${salvati.length?`<div class="wq sm">Con distinta salvata (${salvati.length})</div><div class="wchips">${salvati.slice(0,24).map(m=>`<button data-em="${esc(m)}">${esc(m)}</button>`).join("")}</div>`:""}`, wBtn("eGo","Apri","pri","search"));
     const go=m=>{ m=String(m||"").trim().toUpperCase(); if(m.length<3){ toast("Scrivi il modello"); return; } WZ.mod=m; wizStep(modello); };
-    $("#eGo").onclick=()=>go($("#eM").value); $("#eM").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); go($("#eM").value); } };
+    suggModello($("#eM"),$("#eML"),go); $("#eGo").onclick=()=>go($("#eM").value); $("#eM").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); go($("#eM").value); } };
     $("#wzB").querySelectorAll("[data-em]").forEach(b=>b.onclick=()=>go(b.dataset.em)); });
   const modello=step(()=>{ const mod=WZ.mod, ds=distinteDi(mod), e=ds[0];
     wz(`<div class="wcard"><div class="wname">${esc(mod)}</div><div class="wsub">${e?.nome?esc(e.nome)+" · ":""}${ds.length?`Distinta salvata: ${ds.map(d=>"Type "+esc(d.type||"?")).join(", ")}`:"Distinta non ancora salvata nell'app"}</div></div>
@@ -4381,9 +4384,10 @@ function wizRicevo(){
       $("#wSug").querySelectorAll("[data-cl]").forEach(b=>b.onclick=()=>{ const x=c[b.dataset.cl]; $("#w1").value=x.nome; $("#w2").value=x.tel||x.cell||""; t.email=x.email||""; t.cli=x; $("#wSug").innerHTML=""; }); };
     $("#w1").oninput=sug; $("#w2").oninput=sug;
     $("#wN").onclick=()=>{ t.cliente=$("#w1").value.trim(); t.tel=$("#w2").value.trim(); if(t.cli&&normNome(t.cli.nome)!==normNome(t.cliente)) t.cli=null; if(!t.cli&&t.tel) t.cli=cliTrova(t.tel); if(!t.cliente){ toast("Scrivi il nome del cliente"); $("#w1").focus(); return; } wizStep(s2); }; });
-  const s2=step(()=>{ wz(`<div class="wq">Che utensile è?</div><input class="winp" id="w3" value="${esc(t.modello||"")}" placeholder="Modello scritto sulla targhetta (es. DCD796)" autocapitalize="characters" autofocus>
+  const s2=step(()=>{ wz(`<div class="wq">Che utensile è?</div><input class="winp" id="w3" value="${esc(t.modello||"")}" placeholder="Modello scritto sulla targhetta (es. DCD796)" autocapitalize="characters" autofocus><div id="w3L"></div>
     <div class="wsub">Lo trovi sull'etichetta sotto o di lato all'utensile.</div>
     <div class="wq sm">Ha lasciato anche… (facoltativo)</div><div class="wchips" id="wAcc">${["Batteria","2 batterie","Caricabatterie","Valigetta","Punte / dischi"].map(a=>`<button data-ac="${a}" class="${(t.acc||[]).includes(a)?"on":""}">${a}</button>`).join("")}</div>`, wBtn("wN","Avanti","pri","chev"));
+    suggModello($("#w3"),$("#w3L"));
     t.acc=t.acc||[]; $("#wAcc").querySelectorAll("[data-ac]").forEach(b=>b.onclick=()=>{ const a=b.dataset.ac; t.acc=t.acc.includes(a)?t.acc.filter(x=>x!==a):[...t.acc,a]; b.classList.toggle("on"); });
     $("#wN").onclick=()=>{ t.modello=$("#w3").value.trim().toUpperCase(); if(!t.modello){ toast("Scrivi il modello"); return; } wizStep(s3); }; });
   const s3=step(()=>{ const D=["Non si accende","La batteria non carica","Fa rumore strano","Ha poca forza","Si è rotto / è caduto","Scalda o fa fumo","Solo manutenzione"];
@@ -4478,11 +4482,37 @@ function suggCli(inp,box,onPick){ if(!inp||!box) return;
 function cercaProd(q,n=6){ const ql=String(q||"").toLowerCase().trim(), nn=normC(q), words=ql.split(/\s+/).filter(Boolean); if(ql.length<2) return [];
   return allItems().filter(r=>r.tipo==="vendita"&&((nn.length>=2&&normC(r.codice).includes(nn))||words.every(w=>(r.codice+" "+nomeDi(r)+" "+(r.descr||"")).toLowerCase().includes(w))))
     .sort((a,b)=>(normC(b.codice).startsWith(nn))-(normC(a.codice).startsWith(nn))||(Number(b.giacenza)>0)-(Number(a.giacenza)>0)).slice(0,n); }
-function suggProd(inp,box,onPick){ if(!inp||!box) return;
-  const draw=()=>{ const l=cercaProd(inp.value,6);
-    box.innerHTML=l.map((r,i)=>`<button type="button" class="pki" data-pi2="${i}"><span><b>${esc(nomeDi(r))}</b><small class="mono">${esc(r.codice)}</small></span><span class="pkr">${prezzoVendita(r)?`<b>${eur(prezzoVendita(r))}</b>`:""}<small style="display:block">${r.verificare?"da contare":(Number(r.giacenza)||0)+" pz"}</small></span></button>`).join("");
+// catalogo completo (volantino + listino DEWALT 2026 + sito) per trovare anche i codici non in magazzino
+function catIdx(){ if(S._cat&&S._catK===[S.vol,S.lis,S.sito].map(x=>x?1:0).join("")) return S._cat;
+  const m=new Map(), add=(c,d)=>{ if(!c) return; const k=normC(c); const e=m.get(k); if(!e) m.set(k,{codice:c,descr:String(d||"").replace(/\s+/g," ").trim()}); else if(!e.descr&&d) e.descr=String(d).replace(/\s+/g," ").trim(); };
+  for(const v of Object.values(S.vol?.p||{})) add(v.c,v.d); for(const v of Object.values(S.lis?.p||{})) add(v.c,v.d); for(const [k,v] of Object.entries(S.sito||{})) add(m.get(k)?.codice||k,v.n);
+  S._catK=[S.vol,S.lis,S.sito].map(x=>x?1:0).join(""); S._cat=[...m.values()]; return S._cat; }
+function cercaCatalogo(q,n=6,escludi=new Set()){ const ql=String(q||"").toLowerCase().trim(), nn=normC(q), words=ql.split(/\s+/).filter(Boolean); if(ql.length<2) return [];
+  return catIdx().filter(e=>!escludi.has(normC(e.codice))&&!itm(e.codice)&&((nn.length>=2&&normC(e.codice).includes(nn))||words.every(w=>(e.codice+" "+e.descr).toLowerCase().includes(w))))
+    .sort((a,b)=>(normC(b.codice).startsWith(nn))-(normC(a.codice).startsWith(nn))||normC(a.codice).length-normC(b.codice).length).slice(0,n).map(e=>pvArticolo(e.codice)).filter(Boolean); }
+// opt.catalogo: cerca anche fuori magazzino e mostra i prezzi IVA esclusa (preventivi); Invio = prende il primo suggerimento
+function suggProd(inp,box,onPick,opt={}){ if(!inp||!box) return; let l=[];
+  const draw=()=>{ l=cercaProd(inp.value,opt.catalogo?5:6); if(opt.catalogo&&l.length<8) l=l.concat(cercaCatalogo(inp.value,8-l.length,new Set(l.map(r=>normC(r.codice)))));
+    box.innerHTML=l.map((r,i)=>{ const pr=opt.catalogo?prezziDi(r):null, v=pr?(pr.volantino||pr.listino):prezzoVendita(r);
+      return `<button type="button" class="pki" data-pi2="${i}"><span><b>${esc(nomeDi(r)||r.descr||r.codice)}</b><small class="mono">${esc(r.codice)}${pr&&pr.volantino?" · volantino":""}</small></span><span class="pkr">${v?`<b>${eur(opt.catalogo?r2(v/1.22):v)}</b>${opt.catalogo?"<small> + IVA</small>":""}`:""}<small style="display:block">${r.fuoriMagazzino?"non in magazzino":r.verificare?"da contare":(Number(r.giacenza)||0)+" pz"}</small></span></button>`; }).join("");
     box.querySelectorAll("[data-pi2]").forEach(b=>b.onclick=()=>{ box.innerHTML=""; inp.value=""; onPick(l[b.dataset.pi2]); }); };
   inp.setAttribute("autocomplete","off"); inp.addEventListener("input",()=>{ clearTimeout(inp._sp); inp._sp=setTimeout(draw,120); });
+  inp.addEventListener("keydown",e=>{ if(e.key!=="Enter") return; e.preventDefault(); clearTimeout(inp._sp); const v=inp.value.trim(); if(!v) return;
+    if(!box.querySelector("[data-pi2]")) draw(); const ex=(opt.catalogo?pvArticolo(v):itmV(v)); const esatto=l.find(r=>normC(r.codice)===normC(v));
+    const it=esatto||(ex&&normC(ex.codice)===normC(v)?ex:null)||l[0]; if(it){ box.innerHTML=""; inp.value=""; onPick(it); } else toast("Nessun prodotto trovato"); });
+}
+// modelli di utensile già visti (schede, esplosi) + codici del catalogo, per suggerire mentre si scrive
+function modelliNoti(){ if(S._modK===S.tickets.length+"/"+S.esplosi.size&&S._mod) return S._mod; const m=new Map();
+  const add=(x,d)=>{ x=String(x||"").trim().toUpperCase(); if(x.length>=3&&!m.has(x)) m.set(x,d||""); };
+  for(const t of S.tickets) add(t.modello); for(const e of S.esplosi.values()) add(e.modello,e.nome);
+  for(const e of catIdx()) if(/^D[A-Z]{1,3}\d/.test(e.codice)&&!/^DT\d/.test(e.codice)) add(e.codice.replace(/-[A-Z0-9]{2}$/,""),e.descr);
+  S._modK=S.tickets.length+"/"+S.esplosi.size; S._mod=[...m.entries()]; return S._mod; }
+function suggModello(inp,box,onPick){ if(!inp||!box) return;
+  const draw=()=>{ const q=normC(inp.value); if(q.length<2){ box.innerHTML=""; return; }
+    const l=modelliNoti().filter(([k])=>normC(k).startsWith(q)).sort((a,b)=>a[0].length-b[0].length).slice(0,8);
+    box.innerHTML=l.length?`<div class="wchips">${l.map(([k,d],i)=>`<button type="button" data-md="${i}" title="${esc(d)}">${esc(k)}${d?` <small class="sub">${esc(d.slice(0,32))}</small>`:""}</button>`).join("")}</div>`:"";
+    box.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>{ const k=l[b.dataset.md][0]; inp.value=k; box.innerHTML=""; inp.dispatchEvent(new Event("input")); if(onPick) onPick(k); }); };
+  inp.setAttribute("autocomplete","off"); inp.addEventListener("input",e=>{ if(!e.isTrusted) return; clearTimeout(inp._sm); inp._sm=setTimeout(draw,150); });
 }
 // vendita da pagare dopo nata dallo scaffale: aggiorna l'ordine collegato o crea la vendita "da incassare"
 async function debitoDaConsegna(c,t){ const now=Date.now(), base={pagato:false,daPagare:true,scadenza:t.scadenza,...(t.rate?{rate:t.rate}:{}),termini:t.termini,metodo:t.metodo};
