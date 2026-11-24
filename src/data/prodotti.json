@@ -34532,7 +34532,7 @@
 "modello": "DT8472",
 "codice": "DT8472-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 4000,
+"prezzo": 6100,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -34554,7 +34554,7 @@
 "dotazione": "",
 "disponibilita": "conferma",
 "auto": true,
-"prezzoListino": 4971,
+"prezzoListino": 7596,
 "tipo": "abrasivi",
 "punti": [
 "Lame per sega realizzate in acciaio temperato di alta qualità",
@@ -53746,7 +53746,7 @@
 "modello": "DT8483",
 "codice": "DT8483-QZ",
 "categoria": "Lame, dischi e abrasivi",
-"prezzo": 5600,
+"prezzo": 4000,
 "volt": "",
 "immagineOrigine": "",
 "nota": "",
@@ -53767,7 +53767,6 @@
 "dotazione": "",
 "disponibilita": "conferma",
 "auto": true,
-"fontePrezzo": "online",
 "tipo": "abrasivi",
 "punti": [
 "Lame per sega realizzate in acciaio temperato di alta qualità",
@@ -53777,7 +53776,8 @@
 "impieghi": [
 "Levigatura",
 "Preparazione alla verniciatura"
-]
+],
+"prezzoListino": 4972
 },
 {
 "id": 4803,
