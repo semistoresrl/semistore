@@ -638,6 +638,14 @@ textarea.winp{min-height:110px;font-size:20px}
 .ttc-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:13px}.ttc-h b{margin-left:auto}.ttc-h .mono{font-size:12px;overflow-wrap:anywhere}
 .ttc-a{margin:6px 0;font-size:14px;line-height:1.35;overflow-wrap:anywhere}.ttc-f{font-size:13px;overflow-wrap:anywhere}
 .tts{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+@media (max-width:860px){ /* preventivo: righe a scheda, niente scorrimento laterale */
+  .pvt{min-width:0!important;width:100%}.pvt thead{display:none}
+  .pvt tr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 8px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .pvt td{padding:0;border:0;text-align:left!important;min-width:0}
+  .pvt td.pva{grid-column:1/3}.pvt td.pvx{grid-column:3;grid-row:1;justify-self:end}
+  .pvt td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--muted);margin-bottom:2px}
+  .pvt td input.inl,.pvt td select{width:100%!important;max-width:100%;text-align:left}
+}
 @media (max-width:420px){.ttl{grid-template-columns:1fr}}
 </style>
 </head>
@@ -2194,9 +2202,12 @@ function pvRiga(it,qty,fonte){ const pr=prezziDi(it); let f=fonte||"auto";
   return {codice:it.codice,nome:nomeDi(it),qty:Number(qty)||1,fonte:f,base:pr[f]||0,sc:null}; }
 function pvScontoRiga(p,r){ if(r.sc!=null&&r.sc!=="") return Number(r.sc)||0; return r.fonte==="volantino"?(Number(p.scVolantino)||0):r.fonte==="listino"?(Number(p.scListino)||0):r.fonte==="sito"?(Number(p.scSito)||0):0; }
 function pvUnit(p,r){ return r2((Number(r.base)||0)*(1-pvScontoRiga(p,r)/100)); }
-function pvTotali(p){ const righe=(p.righe||[]); const lordo=r2(righe.reduce((a,r)=>a+(Number(r.base)||0)*(Number(r.qty)||0),0));
-  const netto=r2(righe.reduce((a,r)=>a+pvUnit(p,r)*(Number(r.qty)||0),0)); const extra=Number(p.sconto)||0; const tot=r2(netto*(1-extra/100));
-  const imp=r2(tot/1.22); return {lordo,netto,extra:r2(netto-tot),totale:tot,imponibile:imp,iva:r2(tot-imp),pezzi:righe.reduce((a,r)=>a+(Number(r.qty)||0),0),risparmio:r2(lordo-tot)}; }
+// prezzi del preventivo mostrati IVA esclusa (in archivio "base" resta IVA inclusa); IVA 22% a parte sul totale
+const pvBaseEx=r=>r2((Number(r.base)||0)/1.22);
+function pvUnitEx(p,r){ return r2(pvBaseEx(r)*(1-pvScontoRiga(p,r)/100)); }
+function pvTotali(p){ const righe=(p.righe||[]); const lordo=r2(righe.reduce((a,r)=>a+pvBaseEx(r)*(Number(r.qty)||0),0));
+  const netto=r2(righe.reduce((a,r)=>a+pvUnitEx(p,r)*(Number(r.qty)||0),0)); const extra=Number(p.sconto)||0; const imp=r2(netto*(1-extra/100));
+  const iva=r2(imp*0.22); return {lordo,netto,extra:r2(netto-imp),imponibile:imp,iva,totale:r2(imp+iva),pezzi:righe.reduce((a,r)=>a+(Number(r.qty)||0),0),risparmio:r2(lordo-imp)}; }
 function nextPrev(){ const y=new Date().getFullYear(), pre="PR-"+y+"-"; let max=0; (S.preventivi||[]).forEach(t=>{ if(String(t.num||"").startsWith(pre)){ const n=parseInt(String(t.num).slice(pre.length),10); if(n>max) max=n; }}); return pre+String(max+1).padStart(4,"0"); }
 function pvNuovo(){ const d=new Date(); d.setDate(d.getDate()+15); return {num:nextPrev(),at:Date.now(),by:S.me||null,cliente:"",tel:"",email:"",piva:"",ind:"",cliId:"",fonte:"auto",scVolantino:0,scListino:0,scSito:0,sconto:0,righe:[],note:"",validita:d.toISOString().slice(0,10),stato:"bozza"}; }
 function vPreventivi(){
@@ -2233,14 +2244,14 @@ function openPreventivo(p0){ S._pvMagg=0;
      <div class="fs"><h3>Articoli</h3>
       <input id="pvP" placeholder="Cerca il prodotto: codice o nome" autocomplete="off"><div id="pvPL" class="pkl" style="margin-top:6px"></div>
       <details style="margin:8px 0"><summary class="sub">Incolla un elenco (una riga per articolo: quantità e codice, es. «4 DCD740NT-XJ»)</summary><textarea id="pvBulk" rows="4" style="width:100%;margin-top:6px" placeholder="4 DCD740NT-XJ&#10;2 DT7274-QZ"></textarea><button class="btn sm" id="pvBulkOk" style="margin-top:6px">Aggiungi l'elenco</button><div id="pvBulkEsito" class="sub"></div></details>
-      ${p.righe.length?`<div class="tts"><table><thead><tr><th>Articolo</th><th>Prezzo da</th><th class="num">Pieno</th><th class="num">Sc. %</th><th class="num">Netto</th><th class="num">Q.tà</th><th class="num">Totale</th><th></th></tr></thead><tbody>
-      ${p.righe.map((r,i)=>`<tr><td><b>${esc(r.nome||r.codice)}</b><div class="mono sub">${esc(r.codice)}</div></td><td><select data-pvrf="${i}">${["volantino","listino","sito","manuale"].map(k=>`<option value="${k}" ${r.fonte===k?"selected":""} ${k!=="manuale"&&!(prezziDi(pvArticolo(r.codice)||{codice:r.codice})[k])?"disabled":""}>${k==="manuale"?"A mano":k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></td>
-       <td class="num"><input class="inl" type="number" step="0.01" min="0" data-pvrb="${i}" value="${r.base||""}" ${r.fonte==="manuale"&&puoSc?"":"disabled"}></td>
-       <td class="num"><input class="inl" type="number" step="0.5" min="0" max="90" data-pvrs="${i}" value="${r.sc==null?"":r.sc}" placeholder="${pvScontoRiga(p,r)}" ${puoSc?"":"disabled"}></td>
-       <td class="num"><b>${eur(pvUnit(p,r))}</b></td><td class="num"><input class="inl" type="number" step="1" min="1" data-pvrq="${i}" value="${r.qty}" style="width:64px"></td><td class="num"><b>${eur(pvUnit(p,r)*r.qty)}</b></td><td><button class="btn sm ghost" data-pvrx="${i}">✕</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Nessun articolo: cercalo qui sopra o incolla l'elenco.</div>`}
+      ${p.righe.length?`<div class="sub" style="margin:4px 0">Prezzi IVA esclusa; l'IVA 22% si aggiunge sul totale.</div><div class="tts"><table class="pvt"><thead><tr><th>Articolo</th><th>Prezzo da</th><th class="num">Pieno (no IVA)</th><th class="num">Sc. %</th><th class="num">Netto</th><th class="num">Q.tà</th><th class="num">Totale</th><th></th></tr></thead><tbody>
+      ${p.righe.map((r,i)=>`<tr><td class="pva"><b>${esc(r.nome||r.codice)}</b><div class="mono sub">${esc(r.codice)}</div></td><td data-l="Prezzo da"><select data-pvrf="${i}">${["volantino","listino","sito","manuale"].map(k=>`<option value="${k}" ${r.fonte===k?"selected":""} ${k!=="manuale"&&!(prezziDi(pvArticolo(r.codice)||{codice:r.codice})[k])?"disabled":""}>${k==="manuale"?"A mano":k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></td>
+       <td class="num" data-l="Pieno"><input class="inl" type="number" step="0.01" min="0" data-pvrb="${i}" value="${r.base?pvBaseEx(r):""}" ${r.fonte==="manuale"&&puoSc?"":"disabled"}></td>
+       <td class="num" data-l="Sconto %"><input class="inl" type="number" step="0.5" min="0" max="90" data-pvrs="${i}" value="${r.sc==null?"":r.sc}" placeholder="${pvScontoRiga(p,r)}" ${puoSc?"":"disabled"}></td>
+       <td class="num" data-l="Netto"><b>${eur(pvUnitEx(p,r))}</b></td><td class="num" data-l="Q.tà"><input class="inl" type="number" step="1" min="1" data-pvrq="${i}" value="${r.qty}" style="width:64px"></td><td class="num" data-l="Totale"><b>${eur(r2(pvUnitEx(p,r)*r.qty))}</b></td><td class="pvx"><button class="btn sm ghost" data-pvrx="${i}">✕</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Nessun articolo: cercalo qui sopra o incolla l'elenco.</div>`}
       ${p.righe.some(r=>!r.base)?`<div class="banner" style="margin-top:8px"><b>Righe senza prezzo:</b> ${esc(p.righe.filter(r=>!r.base).map(r=>r.codice).join(", "))}. Scegli «A mano» e scrivi il prezzo.</div>`:""}
      </div>
-     <div class="fs"><h3>Totale</h3><div class="kpis"><div class="kpi"><div class="l">Prezzo pieno</div><div class="v">${eur(t.lordo)}</div></div><div class="kpi"><div class="l">Sconti</div><div class="v">−${eur(t.risparmio)}</div></div><div class="kpi"><div class="l">Imponibile</div><div class="v">${eur(t.imponibile)}</div></div><div class="kpi hl"><div class="l">Totale IVA inclusa</div><div class="v">${eur(t.totale)}</div></div></div>
+     <div class="fs"><h3>Totale</h3><div class="kpis"><div class="kpi"><div class="l">Prezzo pieno (no IVA)</div><div class="v">${eur(t.lordo)}</div></div><div class="kpi"><div class="l">Sconti</div><div class="v">−${eur(t.risparmio)}</div></div><div class="kpi"><div class="l">Imponibile (IVA esclusa)</div><div class="v">${eur(t.imponibile)}</div></div><div class="kpi"><div class="l">IVA 22%</div><div class="v">${eur(t.iva)}</div></div><div class="kpi hl"><div class="l">Totale IVA inclusa</div><div class="v">${eur(t.totale)}</div></div></div>
       <div class="f" style="margin-top:10px"><label class="fl">Valido fino al<input id="pvVal" type="date" value="${esc(p.validita||"")}"></label><label class="fl">Stato<select id="pvSt">${Object.entries(PV_STATI).map(([k,v])=>`<option value="${k}" ${p.stato===k?"selected":""}>${v}</option>`).join("")}</select></label>
       <label class="fl" style="grid-column:1/-1">Note per il cliente<textarea id="pvNote" rows="2">${esc(p.note||"")}</textarea></label></div></div>
     </div>
@@ -2250,7 +2261,7 @@ function openPreventivo(p0){ S._pvMagg=0;
       p.validita=$("#pvVal").value; p.stato=$("#pvSt").value; p.note=$("#pvNote").value.trim();
       $("#modal").querySelectorAll("[data-pvrq]").forEach(i=>{ p.righe[+i.dataset.pvrq].qty=Math.max(1,Math.floor(Number(i.value)||1)); });
       $("#modal").querySelectorAll("[data-pvrs]").forEach(i=>{ if(puoSc) p.righe[+i.dataset.pvrs].sc=i.value===""?null:Number(i.value); });
-      $("#modal").querySelectorAll("[data-pvrb]").forEach(i=>{ const r=p.righe[+i.dataset.pvrb]; if(r.fonte==="manuale"&&puoSc) r.base=r2(i.value); }); };
+      $("#modal").querySelectorAll("[data-pvrb]").forEach(i=>{ const r=p.righe[+i.dataset.pvrb]; if(r.fonte==="manuale"&&puoSc) r.base=r2((Number(i.value)||0)*1.22); }); };
     const ridis=()=>{ leggi(); draw(); };
     ["pvScV","pvScL","pvScS","pvScX"].forEach(id=>{ const e=$("#"+id); if(e) e.onchange=ridis; });
     $("#modal").querySelectorAll("[data-pvrq],[data-pvrs],[data-pvrb]").forEach(i=>i.onchange=ridis);
@@ -2278,8 +2289,8 @@ function openPreventivo(p0){ S._pvMagg=0;
   draw();
 }
 function preventivoTesto(p){ const t=pvTotali(p);
-  return `SE.M.I. – Preventivo ${p.num} del ${fmtD(p.at)}\nCliente: ${p.cliente}\n\n`+p.righe.map(r=>`• ${r.qty} × ${r.nome||r.codice} (${r.codice}): ${eur(pvUnit(p,r))} cad.${pvScontoRiga(p,r)?" (−"+pvScontoRiga(p,r)+"%)":""} = ${eur(pvUnit(p,r)*r.qty)}`).join("\n")+
-   `\n\n${t.extra?`Sconto extra ${p.sconto}%: −${eur(t.extra)}\n`:""}Totale: ${eur(t.totale)} IVA inclusa (imponibile ${eur(t.imponibile)} + IVA ${eur(t.iva)})${t.risparmio>0?`\nRisparmi ${eur(t.risparmio)} rispetto al prezzo pieno.`:""}\nValido fino al ${p.validita?p.validita.split("-").reverse().join("/"):"—"}.${p.note?"\n"+p.note:""}\n\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947`; }
+  return `SE.M.I. – Preventivo ${p.num} del ${fmtD(p.at)}\nCliente: ${p.cliente}\n\n`+p.righe.map(r=>`• ${r.qty} × ${r.nome||r.codice} (${r.codice}): ${eur(pvUnitEx(p,r))} cad. + IVA${pvScontoRiga(p,r)?" (−"+pvScontoRiga(p,r)+"%)":""} = ${eur(r2(pvUnitEx(p,r)*r.qty))}`).join("\n")+
+   `\n\n${t.extra?`Sconto extra ${p.sconto}%: −${eur(t.extra)}\n`:""}Imponibile: ${eur(t.imponibile)}\nIVA 22%: ${eur(t.iva)}\nTotale IVA inclusa: ${eur(t.totale)}${t.risparmio>0?`\nRisparmi ${eur(t.risparmio)} + IVA rispetto al prezzo pieno.`:""}\nValido fino al ${p.validita?p.validita.split("-").reverse().join("/"):"—"}.${p.note?"\n"+p.note:""}\n\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947`; }
 function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",listino:"Listino",sito:"Sito",manuale:""};
   return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Preventivo ${esc(p.num)}</title><style>
   @page{size:A4;margin:10mm 12mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#000;background:#e9e9e9;font-size:9.5pt;line-height:1.3}
@@ -2295,10 +2306,10 @@ function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",
    <div class="hd"><div class="brand"><div class="logo">SEMI STORE<small>VENDITA</small></div><div class="az"><b>SE.M.I. S.R.L.</b> · Concessionario DEWALT · STANLEY · BLACK+DECKER<br>Viale G. Marconi 225, 80020 Casavatore (NA)<br>Tel. 081 553 6604 · WhatsApp 375 626 6947 · info@semistore.it<br>P.IVA 07149740636 · semistore.it</div></div>
     <div class="nr"><div class="k">PREVENTIVO</div><div class="n">${esc(p.num)}</div><div>del ${fmtD(p.at)}</div><div>valido fino al <b>${p.validita?esc(p.validita.split("-").reverse().join("/")):"—"}</b></div></div></div>
    <div class="bx"><div><div class="k">CLIENTE</div><b>${esc(p.cliente)}</b>${p.ind?"<br>"+esc(p.ind):""}${p.piva?"<br>P.IVA / C.F. "+esc(p.piva):""}${p.tel?"<br>Tel. "+esc(p.tel):""}${p.email?"<br>"+esc(p.email):""}</div>
-    <div><div class="k">CONDIZIONI</div>Prezzi IVA 22% inclusa, per merce franco nostro negozio.<br>Disponibilità e tempi di consegna da confermare all'ordine.<br>${p.note?esc(p.note):"Pagamento da concordare."}</div></div>
+    <div><div class="k">CONDIZIONI</div>Prezzi IVA esclusa; IVA 22% a parte. Merce franco nostro negozio.<br>Disponibilità e tempi di consegna da confermare all'ordine.<br>${p.note?esc(p.note):"Pagamento da concordare."}</div></div>
    <table><thead><tr><th>Codice</th><th>Articolo</th><th class="r">Q.tà</th><th class="r">Prezzo pieno</th><th class="r">Sconto</th><th class="r">Prezzo netto</th><th class="r">Importo</th></tr></thead><tbody>
-   ${p.righe.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.nome||"")}</td><td class="r">${r.qty}</td><td class="r">${r.base?eur(r.base):"—"}</td><td class="r">${pvScontoRiga(p,r)?"−"+pvScontoRiga(p,r)+"%":""}</td><td class="r"><b>${eur(pvUnit(p,r))}</b></td><td class="r"><b>${eur(pvUnit(p,r)*r.qty)}</b></td></tr>`).join("")}</tbody></table>
-   <div class="tot">${t.risparmio-t.extra>0?`<div><span>Prezzo pieno</span><span>${eur(t.lordo)}</span></div><div><span>Sconti sulle righe</span><span>−${eur(r2(t.lordo-t.netto))}</span></div>`:""}${t.extra?`<div><span>Sconto extra ${p.sconto}%</span><span>−${eur(t.extra)}</span></div>`:""}<div><span>Imponibile</span><span>${eur(t.imponibile)}</span></div><div><span>IVA 22%</span><span>${eur(t.iva)}</span></div><div class="g"><span>TOTALE</span><span>${eur(t.totale)}</span></div></div>
+   ${p.righe.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.nome||"")}</td><td class="r">${r.qty}</td><td class="r">${r.base?eur(pvBaseEx(r)):"—"}</td><td class="r">${pvScontoRiga(p,r)?"−"+pvScontoRiga(p,r)+"%":""}</td><td class="r"><b>${eur(pvUnitEx(p,r))}</b></td><td class="r"><b>${eur(r2(pvUnitEx(p,r)*r.qty))}</b></td></tr>`).join("")}</tbody></table>
+   <div class="tot">${t.risparmio-t.extra>0?`<div><span>Prezzo pieno (IVA esclusa)</span><span>${eur(t.lordo)}</span></div><div><span>Sconti sulle righe</span><span>−${eur(r2(t.lordo-t.netto))}</span></div>`:""}${t.extra?`<div><span>Sconto extra ${p.sconto}%</span><span>−${eur(t.extra)}</span></div>`:""}<div><span>Imponibile (IVA esclusa)</span><span>${eur(t.imponibile)}</span></div><div><span>IVA 22%</span><span>${eur(t.iva)}</span></div><div class="g"><span>TOTALE</span><span>${eur(t.totale)}</span></div></div>
    <div class="ft">Preventivo non impegnativo, valido fino alla data indicata e salvo esaurimento scorte. Prodotti originali con garanzia ufficiale del produttore; siamo centro assistenza autorizzato DEWALT, STANLEY e BLACK+DECKER. SE.M.I. S.R.L. · Lun–Ven 8:30–13:00 / 14:30–18:00.</div>
   </div></body></html>`; }
 function stampaPreventivo(p,w){ w=w||window.open("","_blank"); if(!w){ toast("Il telefono ha bloccato la finestra: consenti i popup per semistore.it"); return; } w.document.open(); w.document.write(preventivoHtml(p)); w.document.close(); }
