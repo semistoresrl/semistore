@@ -656,6 +656,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#garanzie" data-v="garanzie"><svg class="i"><use href="#i-shield"/></svg><span>Garanzie</span><span class="ct" id="ctGar">0</span></a>
 <a href="#resi" data-v="resi"><svg class="i"><use href="#i-return"/></svg><span>Resi</span><span class="ct" id="ctResi">0</span></a>
 <a href="#consegne" data-v="consegne"><svg class="i"><use href="#i-box"/></svg><span>Scaffale consegne</span><span class="ct" id="ctCons">0</span></a>
+<a href="#preventivi" data-v="preventivi"><svg class="i"><use href="#i-euro"/></svg><span>Preventivi</span><span class="ct" id="ctPrev">0</span></a>
 <a href="#" data-esp="1"><svg class="i"><use href="#i-drill"/></svg><span>Esplosi</span></a>
 <details class="more" id="navMore"><summary><svg class="i"><use href="#i-grid"/></svg><span>Tutto il resto</span><svg class="i chev"><use href="#i-chev"/></svg></summary>
 <div class="ng">Banco</div><a href="#richieste" data-v="richieste"><svg class="i"><use href="#i-globe"/></svg><span>Richieste dal sito</span><span class="ct" id="ctWeb">0</span></a>
@@ -664,7 +665,6 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#verifiche" data-v="verifiche"><svg class="i"><use href="#i-clipboard"/></svg><span>Da inventariare</span><span class="ct" id="ctVer">0</span></a>
 <a href="#movimenti" data-v="movimenti"><svg class="i"><use href="#i-swap"/></svg><span>Movimenti</span></a>
 <div class="ng">Vendite</div><a href="#catalogo" data-v="catalogo"><svg class="i"><use href="#i-store"/></svg><span>Catalogo vendita</span><span class="ct" id="ctPub">0</span></a>
-<a href="#preventivi" data-v="preventivi"><svg class="i"><use href="#i-euro"/></svg><span>Preventivi</span><span class="ct" id="ctPrev">0</span></a>
 <a href="#sconti" data-v="sconti"><svg class="i"><use href="#i-tag"/></svg><span>Codici sconto</span></a>
 <a href="#tiktok" data-v="tiktok" class="adm-only"><svg class="i"><use href="#i-store"/></svg><span>TikTok Shop</span><span class="ct" id="ctTT" data-z>0</span></a>
 <a href="#canali" data-v="canali"><svg class="i"><use href="#i-plug"/></svg><span>Canali e integrazioni</span></a>
@@ -4207,6 +4207,7 @@ function vFacile(st){
     ${B("conta","clipboard","f-w","Conto la merce","Scrivo quanti pezzi ci sono")}
     ${puoPrezzi()?B("prezzo","tag","f-w","Cambio un prezzo","Nuovo prezzo di vendita"):""}
     ${B("esplosi","drill","f-w","Esplosi e ricambi","Disegni DEWALT e pezzi")}
+    <a class="fbtn f-w" href="#preventivi">${(()=>{const n=(S.preventivi||[]).filter(p=>["bozza","inviato"].includes(p.stato||"bozza")).length; return n?`<span class="fbg">${n}</span>`:"";})()}${ic("euro")}<b>Preventivi</b><small>Listino o volantino, con sconto</small></a>
     <a class="fbtn f-w" href="#ordini">${ordAp?`<span class="fbg">${ordAp}</span>`:""}${ic("send")}<b>Ordini online</b><small>Sito, TikTok, WhatsApp</small></a>
   </div>
   <button class="fsend fsc" data-wiz="scaffale">${ic("box")}<span><b>Scaffale consegne</b><small>${(()=>{ const l=sulloScaffale(), n=l.filter(c=>c.modo==="consegna").length; return l.length?`${l.length} ${l.length===1?"pacco pronto":"pacchi pronti"}${n?` · ${n} da portare noi`:""}`:"Vuoto: tocca per mettere un pacco"; })()}</small></span>${sulloScaffale().length?`<span class="fbg big">${sulloScaffale().length}</span>`:""}</button>
