@@ -832,7 +832,10 @@ async function write(fn,okMsg){
 }
 async function muovi(codice, delta, causale, rif){
   const r = itm(codice);
-  if(r){ const g=(Number(r.giacenza)||0)+delta; const f={giacenza:g,...(r.tipo==="vendita"?{daInviare:Date.now()}:{})}; await updItem(r.codice,f); }
+  if(r){ const g=(Number(r.giacenza)||0)+delta; const f={giacenza:g,...(r.tipo==="vendita"?{daInviare:Date.now()}:{})};
+    // 24/11: la merce che arriva viene contata pezzo per pezzo, quindi un articolo «da contare» diventa contato
+    if(delta>0&&/^arrivo merce/.test(causale||"")&&r.verificare){ f.verificare=false; f.contatoAt=Date.now(); }
+    await updItem(r.codice,f); }
   await S.db.collection("movimenti").add({at:Date.now(),codice,descr:r?.descr||"",tipo:r?.tipo||"",qty:delta,causale,rif:rif||"",by:S.me||null,costo:Number(r?.costo)||0});
 }
 
@@ -2125,7 +2128,7 @@ function openImportFatture(){
       else f={};
       if(u&&(!cur||!cur.costoData||u.data>=cur.costoData)){ if(!cur||u.costo!==Number(cur.costo)){ f.costo=u.costo; nc++; } f.costoData=u.data; f.costoAt=Date.now(); if(cur?.costoStimato) f.costoStimato=false; if(!cur?.forn&&u.forn) f.forn=u.forn; }
       const ean=u?.ean; if(ean&&!String(cur?.ean||"").includes(ean)) f.ean=cur?.ean?cur.ean+" "+ean:ean;
-      if(k){ f.giacenza=(Number(cur?.giacenza)||0)+k.q; if((cur?.tipo||f.tipo)==="vendita") f.daInviare=Date.now(); nq+=k.q; }
+      if(k){ f.giacenza=(Number(cur?.giacenza)||0)+k.q; if((cur?.tipo||f.tipo)==="vendita") f.daInviare=Date.now(); if(cur?.verificare){ f.verificare=false; f.contatoAt=Date.now(); } nq+=k.q; }
       if(!Object.keys(f).length) continue; const [ch,kk]=dove(c); (by[ch]=by[ch]||{})[kk]=f; }
     const ok=await write(async()=>{
       await writeChunks(by,(a,t)=>{ $("#ffProg i").style.width=(a/t*80)+"%"; b.textContent=`Aggiorno ${a}/${t}…`; });
