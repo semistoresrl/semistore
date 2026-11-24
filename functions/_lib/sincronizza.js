@@ -2,7 +2,7 @@
 // Ogni chiamata lavora un blocco di prodotti (limite di richieste di Cloudflare): l'app interna
 // richiama /api/tiktok/sync finché "restanti" arriva a 0.
 import prodotti from '../../src/data/prodotti.json';
-import { db, getImp } from './db.js';
+import { db, getImp, setImp } from './db.js';
 import { chiama, magazzino, caricaFoto, categoriaConsigliata, marchio, attributi } from './tiktok.js';
 import { prodottoTikTokPer, ttProdottiLetti } from './tiktok-dati.js';
 
@@ -66,18 +66,21 @@ const TIPI = [
   [/cassa|speaker|altoparlante/i, ['Altoparlante Bluetooth', 'Bluetooth speaker']],
   [/soffiatore|blower/i, ['Soffiatore', 'Leaf blower']],
   [/disco|dischi/i, ['Disco da taglio', 'Cutting disc']],
+  [/cartongesso|drywall|rifilatore|fresatrice/i, ['Fresatrice rotativa per cartongesso', 'Rotary cut-out tool']],
   [/lama|lame/i, ['Lama per sega', 'Saw blade']],
 ];
 async function categoriaPer(env, p, tit) {
   const senzaMisure = tit.replace(/\b(diam\.?\s*)?\d+([.,]\d+)?(\s*x\s*\d+([.,]\d+)?)+\s*(mm|cm|m)?\b/gi, ' ').replace(/\s+/g, ' ').trim();
   const testo = `${p.nome || ''} ${p.descrizione || ''}`;
-  const tipo = (TIPI.find(([re]) => re.test(testo)) || [null, []])[1];
+  const iTipo = TIPI.findIndex(([re]) => re.test(testo)), tipo = iTipo >= 0 ? TIPI[iTipo][1] : [];
   const prove = [...new Set([tit, senzaMisure, ...tipo.map((t) => `${p.marca || ''} ${t}`.trim()), ...tipo])].filter(Boolean);
+  const memo = iTipo >= 0 ? 'tt_categoria_tipo_' + iTipo : null; // categoria già trovata per un prodotto dello stesso tipo
   let errore;
   for (const t of prove) {
-    try { const c = await categoriaConsigliata(env, t); if (c) return c; }
+    try { const c = await categoriaConsigliata(env, t); if (c) { if (memo) await setImp(env, memo, c).catch(() => {}); return c; } }
     catch (e) { errore = e; if (!/does not match any category|12019064/.test(String(e.message))) throw e; }
   }
+  if (memo) { const c = await getImp(env, memo).catch(() => null); if (c) return c; }
   throw errore || new Error('TikTok non trova una categoria per questo prodotto');
 }
 

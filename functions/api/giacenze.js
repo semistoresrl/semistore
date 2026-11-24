@@ -53,7 +53,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     if (!slug || !Number.isFinite(qty) || qty < 0) { esito.scartati.push(g.codice || g.slug || '?'); continue; }
     // la scheda inviata dall'app serve solo per gli articoli che non sono nel catalogo del sito: per quelli del sito restano i dati del sito
     const dati = {}; if (!SLUGS.has(slug)) for (const k of CAMPI) if (g[k] !== undefined && g[k] !== '') dati[k] = g[k];
-    const prezzo = Number.isFinite(Number(g.prezzo)) && Number(g.prezzo) > 0 ? Math.round(Number(g.prezzo)) : null;
+    // 24/11: per gli articoli fuori dal catalogo del sito, se non c'è un prezzo sito vale il prezzo al pubblico del negozio (app)
+    const pNeg = !SLUGS.has(slug) && Number(g.prezzoNegozio) > 0 ? Math.round(Number(g.prezzoNegozio)) : null;
+    const prezzo = Number.isFinite(Number(g.prezzo)) && Number(g.prezzo) > 0 ? Math.round(Number(g.prezzo)) : pNeg;
     istr.push(d.prepare(`INSERT INTO giacenze(slug, codice, qty, prezzo, dati, aggiornata, tt_da_sync) VALUES(?,?,?,?,?,?,?)
       ON CONFLICT(slug) DO UPDATE SET qty=excluded.qty, codice=COALESCE(excluded.codice, codice),
         prezzo=COALESCE(excluded.prezzo, prezzo), dati=CASE WHEN excluded.dati='{}' THEN dati ELSE excluded.dati END,
