@@ -794,7 +794,7 @@ async function init(){
   S.user = user;
   try{ S.dl = await claude.use("downloads"); }catch(e){}
   try{ S.assets = await claude.use("assets"); }catch(e){}
-  if(!db){ setConn("err","Archivio non disponibile (accedi a claude.ai)"); clearTimeout(loadTimer); render(); return; }
+  if(!db){ S.dbErr=true; setConn("err","Archivio non disponibile"); clearTimeout(loadTimer); render(); return; }
   S.db = db;
   try{ S.me = await user?.id?.() || null; const cw = await user?.can?.("data.write"); if(cw===false) S.canWrite=false; S.canEdit = !!(await user?.canEdit?.()); }catch(e){}
   document.body.classList.toggle("ro",!S.canWrite);
@@ -1150,7 +1150,7 @@ function render(){
   const m=$("#main");
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
-  const nodb = !S.db ? `<div class="banner err">L'archivio condiviso non è ancora collegato. Apri la pagina da claude.ai con il tuo account per vedere e salvare i dati.</div>`:"";
+  const nodb = S.db ? "" : S.dbErr ? `<div class="banner err">L'archivio condiviso non è raggiungibile. Controlla la connessione e ricarica la pagina.</div>` : `<div class="banner">Sto scaricando l'archivio… un momento.</div>`;
   const fns={preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
