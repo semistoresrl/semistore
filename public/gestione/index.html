@@ -2149,11 +2149,20 @@ const PV_FONTI={auto:"Volantino se c'è, altrimenti listino",volantino:"Volantin
 const PV_STATI={bozza:"Bozza",inviato:"Inviato",accettato:"Accettato",rifiutato:"Rifiutato",scaduto:"Scaduto"};
 const r2=n=>Math.round((Number(n)||0)*100)/100;
 // prezzi al pubblico (IVA inclusa) di un articolo, per fonte
+// volantino DEWALT in corso (data/volantino.json): vale per ogni codice del volantino, anche se non è in magazzino
+const volDi=c=>{ const V=S.vol; if(!V||!V.p||(V.scade&&V.scade<new Date().toISOString().slice(0,10))) return null; return V.p[normC(c)]||null; };
 function prezziDi(it){ if(!it) return {};
-  const promo=it.prezzoScade&&it.prezzoScade>=new Date().toISOString().slice(0,10)&&Number(it.prezzo)>0?r2(it.prezzo):0;
+  const vv=volDi(it.codice);
+  const promo=vv?r2(vv.n*1.22):(it.prezzoScade&&it.prezzoScade>=new Date().toISOString().slice(0,10)&&Number(it.prezzo)>0?r2(it.prezzo):0);
   const list=Number(it.prezzoListino)>0?r2(it.prezzoListino):Number(it.prezzoListinoNetto)>0?r2(it.prezzoListinoNetto*1.22):(!it.prezzoScade&&Number(it.prezzo)>0?r2(it.prezzo):(Number(it.prezzoNetto)>0&&!it.prezzoScade?r2(it.prezzoNetto*1.22):0));
   const sito=sitoDi(it)?r2(sitoDi(it).p/100):(it.prezzoSito!=null?r2(it.prezzoSito):0);
-  return {volantino:promo,listino:list||(Number(it.prezzo)>0?r2(it.prezzo):0),sito,scade:promo?it.prezzoScade:""}; }
+  return {volantino:promo,listino:list||(!vv&&Number(it.prezzo)>0?r2(it.prezzo):0),sito,scade:promo?(vv?S.vol.scade:it.prezzoScade):""}; }
+// articolo per il preventivo: dal magazzino, altrimenti dal volantino o dal catalogo del sito
+function pvArticolo(cod){ let it=itm(cod); if(it) return it;
+  const l2=cercaProd(cod,3); it=l2.find(x=>normC(x.codice)===normC(cod))||l2.find(x=>normC(x.codice).startsWith(normC(cod)))||null; if(it) return it;
+  const vv=volDi(cod), si=S.sito&&S.sito[normC(cod)];
+  if(vv||si) return {codice:vv?vv.c:String(cod).trim().toUpperCase(),descr:si?si.n:(vv&&vv.d?vv.d:""),tipo:"vendita",fuoriMagazzino:true};
+  return null; }
 function pvRiga(it,qty,fonte){ const pr=prezziDi(it); let f=fonte||"auto";
   if(f==="auto") f=pr.volantino?"volantino":"listino"; else if(!pr[f]) f=pr.volantino?"volantino":"listino";
   return {codice:it.codice,nome:nomeDi(it),qty:Number(qty)||1,fonte:f,base:pr[f]||0,sc:null}; }
@@ -2188,7 +2197,7 @@ function openPreventivo(p0){
       <label class="fl">Telefono<input id="pvTel" type="tel" value="${esc(p.tel)}"></label><label class="fl">Email<input id="pvEm" type="email" value="${esc(p.email)}"></label>
       <label class="fl">P.IVA / C.F.<input id="pvPiva" value="${esc(p.piva)}"></label><label class="fl">Indirizzo<input id="pvInd" value="${esc(p.ind)}"></label></div></div>
      <div class="fs"><h3>Prezzi e sconti</h3>
-      <div class="chips" style="margin-bottom:10px">${Object.entries(PV_FONTI).map(([k,v])=>`<button class="chip ${p.fonte===k?"on":""}" data-pvfo="${k}">${v}</button>`).join("")}</div>
+      <div class="chips" style="margin-bottom:10px">${Object.entries(PV_FONTI).map(([k,v])=>`<button class="chip ${p.fonte===k?"on":""}" data-pvfo="${k}">${v}</button>`).join("")}<button class="chip" id="pvRical" title="Rilegge i prezzi di volantino, listino e sito per tutte le righe (non tocca quelle scritte a mano)">↻ Aggiorna i prezzi</button></div>${S.vol&&S.vol.scade>=new Date().toISOString().slice(0,10)?`<div class="sub" style="margin:-4px 0 8px">Volantino in uso: ${esc(S.vol.fonte||"")}, valido fino al ${esc(S.vol.scade.split("-").reverse().join("/"))}. Ogni codice del volantino prende il prezzo del volantino.</div>`:""}
       <div class="f">
        <label class="fl">Sconto sul volantino %<input id="pvScV" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scVolantino||""}" ${puoSc?"":"disabled"}></label>
        <label class="fl">Sconto sul listino %<input id="pvScL" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scListino||""}" ${puoSc?"":"disabled"}></label>
@@ -2199,7 +2208,7 @@ function openPreventivo(p0){
       <input id="pvP" placeholder="Cerca il prodotto: codice o nome" autocomplete="off"><div id="pvPL" class="pkl" style="margin-top:6px"></div>
       <details style="margin:8px 0"><summary class="sub">Incolla un elenco (una riga per articolo: quantità e codice, es. «4 DCD740NT-XJ»)</summary><textarea id="pvBulk" rows="4" style="width:100%;margin-top:6px" placeholder="4 DCD740NT-XJ&#10;2 DT7274-QZ"></textarea><button class="btn sm" id="pvBulkOk" style="margin-top:6px">Aggiungi l'elenco</button><div id="pvBulkEsito" class="sub"></div></details>
       ${p.righe.length?`<div class="tts"><table><thead><tr><th>Articolo</th><th>Prezzo da</th><th class="num">Pieno</th><th class="num">Sc. %</th><th class="num">Netto</th><th class="num">Q.tà</th><th class="num">Totale</th><th></th></tr></thead><tbody>
-      ${p.righe.map((r,i)=>`<tr><td><b>${esc(r.nome||r.codice)}</b><div class="mono sub">${esc(r.codice)}</div></td><td><select data-pvrf="${i}">${["volantino","listino","sito","manuale"].map(k=>`<option value="${k}" ${r.fonte===k?"selected":""} ${k!=="manuale"&&!(prezziDi(itm(r.codice))[k])?"disabled":""}>${k==="manuale"?"A mano":k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></td>
+      ${p.righe.map((r,i)=>`<tr><td><b>${esc(r.nome||r.codice)}</b><div class="mono sub">${esc(r.codice)}</div></td><td><select data-pvrf="${i}">${["volantino","listino","sito","manuale"].map(k=>`<option value="${k}" ${r.fonte===k?"selected":""} ${k!=="manuale"&&!(prezziDi(pvArticolo(r.codice)||{codice:r.codice})[k])?"disabled":""}>${k==="manuale"?"A mano":k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></td>
        <td class="num"><input class="inl" type="number" step="0.01" min="0" data-pvrb="${i}" value="${r.base||""}" ${r.fonte==="manuale"&&puoSc?"":"disabled"}></td>
        <td class="num"><input class="inl" type="number" step="0.5" min="0" max="90" data-pvrs="${i}" value="${r.sc==null?"":r.sc}" placeholder="${pvScontoRiga(p,r)}" ${puoSc?"":"disabled"}></td>
        <td class="num"><b>${eur(pvUnit(p,r))}</b></td><td class="num"><input class="inl" type="number" step="1" min="1" data-pvrq="${i}" value="${r.qty}" style="width:64px"></td><td class="num"><b>${eur(pvUnit(p,r)*r.qty)}</b></td><td><button class="btn sm ghost" data-pvrx="${i}">✕</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Nessun articolo: cercalo qui sopra o incolla l'elenco.</div>`}
@@ -2219,15 +2228,16 @@ function openPreventivo(p0){
     const ridis=()=>{ leggi(); draw(); };
     ["pvScV","pvScL","pvScS","pvScX"].forEach(id=>{ const e=$("#"+id); if(e) e.onchange=ridis; });
     $("#modal").querySelectorAll("[data-pvrq],[data-pvrs],[data-pvrb]").forEach(i=>i.onchange=ridis);
-    $("#modal").querySelectorAll("[data-pvfo]").forEach(b=>b.onclick=()=>{ leggi(); p.fonte=b.dataset.pvfo; p.righe.forEach(r=>{ if(r.fonte!=="manuale"){ const n=pvRiga(itm(r.codice)||{codice:r.codice},r.qty,p.fonte); r.fonte=n.fonte; r.base=n.base; } }); draw(); });
-    $("#modal").querySelectorAll("[data-pvrf]").forEach(sl=>sl.onchange=()=>{ leggi(); const r=p.righe[+sl.dataset.pvrf]; const k=sl.value; if(k==="manuale"){ r.fonte="manuale"; } else { const pr=prezziDi(itm(r.codice)); r.fonte=k; r.base=pr[k]||0; } draw(); });
+    const rc=$("#pvRical"); if(rc) rc.onclick=()=>{ leggi(); let n=0; p.righe.forEach(r=>{ if(r.fonte!=="manuale"){ const x=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,p.fonte); if(x.base!==r.base||x.fonte!==r.fonte) n++; r.fonte=x.fonte; r.base=x.base; if(x.nome&&(!r.nome||r.nome===r.codice)) r.nome=x.nome; if(x.codice) r.codice=x.codice; } }); draw(); toast(n?`${n} righe aggiornate: ricordati di salvare`:"Prezzi già aggiornati"); };
+    $("#modal").querySelectorAll("[data-pvfo]").forEach(b=>b.onclick=()=>{ leggi(); p.fonte=b.dataset.pvfo; p.righe.forEach(r=>{ if(r.fonte!=="manuale"){ const n=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,p.fonte); r.fonte=n.fonte; r.base=n.base; } }); draw(); });
+    $("#modal").querySelectorAll("[data-pvrf]").forEach(sl=>sl.onchange=()=>{ leggi(); const r=p.righe[+sl.dataset.pvrf]; const k=sl.value; if(k==="manuale"){ r.fonte="manuale"; } else { const pr=prezziDi(pvArticolo(r.codice)||{codice:r.codice}); r.fonte=k; r.base=pr[k]||0; } draw(); });
     $("#modal").querySelectorAll("[data-pvrx]").forEach(b=>b.onclick=()=>{ leggi(); p.righe.splice(+b.dataset.pvrx,1); draw(); });
     suggCli($("#pvCli"),$("#pvCliL"),c=>{ leggi(); p.cliente=c.nome; p.tel=c.tel||c.cell||p.tel; p.email=c.email||p.email; p.piva=c.piva||c.cf||p.piva; p.ind=[c.ind,c.cap,c.citta].filter(Boolean).join(" ")||p.ind; p.cliId=c.id||""; draw(); });
     const aggiungi=(it,q)=>{ const ex=p.righe.find(r=>r.codice===it.codice); if(ex) ex.qty+=q; else p.righe.push(pvRiga(it,q,p.fonte)); };
     suggProd($("#pvP"),$("#pvPL"),it=>{ leggi(); aggiungi(it,1); draw(); setTimeout(()=>$("#pvP")&&$("#pvP").focus(),30); });
     $("#pvBulkOk").onclick=()=>{ leggi(); const mancanti=[]; let n=0;
       $("#pvBulk").value.split(/\n+/).forEach(l=>{ const m=l.trim().match(/^(\d+)\s*[x×]?\s+(.+)$|^(.+?)\s+[x×]?\s*(\d+)$|^(\S+)$/i); if(!m) return; const q=Number(m[1]||m[4]||1), cod=(m[2]||m[3]||m[5]||"").trim(); if(!cod) return;
-        let it=itm(cod); if(!it){ const l2=cercaProd(cod,3); it=l2.find(x=>normC(x.codice)===normC(cod))||l2.find(x=>normC(x.codice).startsWith(normC(cod)))||null; } if(it){ aggiungi(it,q); n++; } else mancanti.push(cod); });
+        const it=pvArticolo(cod); if(it){ aggiungi(it,q); n++; } else mancanti.push(cod); });
       if(mancanti.length) toast("Non trovati: "+mancanti.join(", ")); draw(); if(mancanti.length){ const e=$("#pvBulkEsito"); if(e) e.textContent="Non trovati in magazzino: "+mancanti.join(", "); const d=$("#pvBulk"); if(d) d.value=mancanti.join("\n"); } };
     $("#pvSave").onclick=async()=>{ leggi(); if(!p.cliente){ toast("Scrivi il nome del cliente"); $("#pvCli").focus(); return; } if(!p.righe.length){ toast("Aggiungi almeno un articolo"); return; }
       const t=pvTotali(p); const d={...p,totale:t.totale,updatedAt:Date.now()}; delete d.id;
@@ -4546,6 +4556,7 @@ window.addEventListener("hashchange",()=>{window.scrollTo(0,0);render()});
 /* ---------- shell: menu, quick search, new ticket ---------- */
 function initShell(){
   fetch("./data/sito.json").then(r=>r.json()).then(d=>{S.sito=d||{}; if(S.view==="cruscotto") render();}).catch(()=>{});
+  fetch("./data/volantino.json").then(r=>r.json()).then(d=>{S.vol=d||null;}).catch(()=>{});
   setFacile.__init=1; { const b=$("#tbMode"); b.innerHTML=S.facile?`${ic("grid")}<span>Tutte le funzioni</span>`:`${ic("home")}<span>Modalità facile</span>`; b.onclick=()=>setFacile(!S.facile); }
   const side=$("#side"), shade=$("#shade");
   const open=()=>{side.classList.add("open");shade.classList.add("show")}, close=()=>{side.classList.remove("open");shade.classList.remove("show")};
