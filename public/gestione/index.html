@@ -2151,17 +2151,20 @@ const r2=n=>Math.round((Number(n)||0)*100)/100;
 // prezzi al pubblico (IVA inclusa) di un articolo, per fonte
 // volantino DEWALT in corso (data/volantino.json): vale per ogni codice del volantino, anche se non è in magazzino
 const volDi=c=>{ const V=S.vol; if(!V||!V.p||(V.scade&&V.scade<new Date().toISOString().slice(0,10))) return null; return V.p[normC(c)]||null; };
+// listino DEWALT 2026 (data/listino.json, prezzi al pubblico IVA esclusa): vale come prezzo di listino per ogni codice che c'è
+const lisDi=c=>{ const L=S.lis; return L&&L.p?(L.p[normC(c)]||null):null; };
 function prezziDi(it){ if(!it) return {};
   const vv=volDi(it.codice);
   const promo=vv?r2(vv.n*1.22):(it.prezzoScade&&it.prezzoScade>=new Date().toISOString().slice(0,10)&&Number(it.prezzo)>0?r2(it.prezzo):0);
-  const list=Number(it.prezzoListino)>0?r2(it.prezzoListino):Number(it.prezzoListinoNetto)>0?r2(it.prezzoListinoNetto*1.22):(!it.prezzoScade&&Number(it.prezzo)>0?r2(it.prezzo):(Number(it.prezzoNetto)>0&&!it.prezzoScade?r2(it.prezzoNetto*1.22):0));
+  const ll=lisDi(it.codice);
+  const list=ll?r2(ll.n*1.22):Number(it.prezzoListino)>0?r2(it.prezzoListino):Number(it.prezzoListinoNetto)>0?r2(it.prezzoListinoNetto*1.22):(!it.prezzoScade&&Number(it.prezzo)>0?r2(it.prezzo):(Number(it.prezzoNetto)>0&&!it.prezzoScade?r2(it.prezzoNetto*1.22):0));
   const sito=sitoDi(it)?r2(sitoDi(it).p/100):(it.prezzoSito!=null?r2(it.prezzoSito):0);
   return {volantino:promo,listino:list||(!vv&&Number(it.prezzo)>0?r2(it.prezzo):0),sito,scade:promo?(vv?S.vol.scade:it.prezzoScade):""}; }
 // articolo per il preventivo: dal magazzino, altrimenti dal volantino o dal catalogo del sito
 function pvArticolo(cod){ let it=itm(cod); if(it) return it;
   const l2=cercaProd(cod,3); it=l2.find(x=>normC(x.codice)===normC(cod))||l2.find(x=>normC(x.codice).startsWith(normC(cod)))||null; if(it) return it;
-  const vv=volDi(cod), si=S.sito&&S.sito[normC(cod)];
-  if(vv||si) return {codice:vv?vv.c:String(cod).trim().toUpperCase(),descr:si?si.n:(vv&&vv.d?vv.d:""),tipo:"vendita",fuoriMagazzino:true};
+  const vv=volDi(cod), si=S.sito&&S.sito[normC(cod)], ll=lisDi(cod);
+  if(vv||si||ll) return {codice:vv?vv.c:ll?ll.c:String(cod).trim().toUpperCase(),descr:si?si.n:(vv&&vv.d?vv.d:(ll&&ll.d?ll.d:"")),tipo:"vendita",fuoriMagazzino:true};
   return null; }
 function pvRiga(it,qty,fonte){ const pr=prezziDi(it); let f=fonte||"auto";
   if(f==="auto") f=pr.volantino?"volantino":"listino"; else if(!pr[f]) f=pr.volantino?"volantino":"listino";
@@ -2197,7 +2200,7 @@ function openPreventivo(p0){
       <label class="fl">Telefono<input id="pvTel" type="tel" value="${esc(p.tel)}"></label><label class="fl">Email<input id="pvEm" type="email" value="${esc(p.email)}"></label>
       <label class="fl">P.IVA / C.F.<input id="pvPiva" value="${esc(p.piva)}"></label><label class="fl">Indirizzo<input id="pvInd" value="${esc(p.ind)}"></label></div></div>
      <div class="fs"><h3>Prezzi e sconti</h3>
-      <div class="chips" style="margin-bottom:10px">${Object.entries(PV_FONTI).map(([k,v])=>`<button class="chip ${p.fonte===k?"on":""}" data-pvfo="${k}">${v}</button>`).join("")}<button class="chip" id="pvRical" title="Rilegge i prezzi di volantino, listino e sito per tutte le righe (non tocca quelle scritte a mano)">↻ Aggiorna i prezzi</button></div>${S.vol&&S.vol.scade>=new Date().toISOString().slice(0,10)?`<div class="sub" style="margin:-4px 0 8px">Volantino in uso: ${esc(S.vol.fonte||"")}, valido fino al ${esc(S.vol.scade.split("-").reverse().join("/"))}. Ogni codice del volantino prende il prezzo del volantino.</div>`:""}
+      <div class="chips" style="margin-bottom:10px">${Object.entries(PV_FONTI).map(([k,v])=>`<button class="chip ${p.fonte===k?"on":""}" data-pvfo="${k}">${v}</button>`).join("")}<button class="chip" id="pvRical" title="Rilegge i prezzi di volantino, listino e sito per tutte le righe (non tocca quelle scritte a mano)">↻ Aggiorna i prezzi</button></div>${S.vol&&S.vol.scade>=new Date().toISOString().slice(0,10)?`<div class="sub" style="margin:-4px 0 8px">Volantino in uso: ${esc(S.vol.fonte||"")}, valido fino al ${esc(S.vol.scade.split("-").reverse().join("/"))}. Ogni codice del volantino prende il prezzo del volantino.${S.lis?` Listino: ${esc(S.lis.fonte||"")}.`:""}</div>`:""}
       <div class="f">
        <label class="fl">Sconto sul volantino %<input id="pvScV" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scVolantino||""}" ${puoSc?"":"disabled"}></label>
        <label class="fl">Sconto sul listino %<input id="pvScL" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scListino||""}" ${puoSc?"":"disabled"}></label>
@@ -4557,6 +4560,7 @@ window.addEventListener("hashchange",()=>{window.scrollTo(0,0);render()});
 function initShell(){
   fetch("./data/sito.json").then(r=>r.json()).then(d=>{S.sito=d||{}; if(S.view==="cruscotto") render();}).catch(()=>{});
   fetch("./data/volantino.json").then(r=>r.json()).then(d=>{S.vol=d||null;}).catch(()=>{});
+  fetch("./data/listino.json").then(r=>r.json()).then(d=>{S.lis=d||null;}).catch(()=>{});
   setFacile.__init=1; { const b=$("#tbMode"); b.innerHTML=S.facile?`${ic("grid")}<span>Tutte le funzioni</span>`:`${ic("home")}<span>Modalità facile</span>`; b.onclick=()=>setFacile(!S.facile); }
   const side=$("#side"), shade=$("#shade");
   const open=()=>{side.classList.add("open");shade.classList.add("show")}, close=()=>{side.classList.remove("open");shade.classList.remove("show")};
