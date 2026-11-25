@@ -894,7 +894,8 @@ function totali(t){
   const costo=(t.ricambi||[]).reduce((a,p)=>a+(Number(p.qty)||0)*(Number(p.costo)||0),0);
   const sc=Math.min(100,Math.max(0,Number(t.scontoRic)||0)), scV=Math.round(ricL*sc)/100, ric=Math.round((ricL-scV)*100)/100;
   const mo=t.manodopera!=null&&t.manodopera!==""?(Number(t.manodopera)||0):(Number(t.ore)||0)*(Number(t.tariffa??S.cfg.tariffa)||0);
-  return {ricL,sc,scV,ric,costo,mo,totale:Math.round((ric+mo)*100)/100};
+  const totale=Math.round((ric+mo)*100)/100, imponibile=Math.round(totale/1.22*100)/100;
+  return {ricL,sc,scV,ric,costo,mo,totale,imponibile,iva:Math.round((totale-imponibile)*100)/100};
 }
 /* =====================================================================
    CLIENTI (20/11): archivio clienti (anagrafica Danea + clienti nuovi delle schede),
@@ -1125,7 +1126,7 @@ function schedaHtml(t){
      <div style="margin-top:1.5mm;font-size:8.4pt">Fine riparazione: <b>${dFine}</b></div></div>
     <div class="bxx"><div class="lb">Ricambi e manodopera</div>
      <table><thead><tr><th style="width:30mm">Codice</th><th>Descrizione</th><th class="r" style="width:11mm">Q.tà</th><th class="r" style="width:19mm">Prezzo</th><th class="r" style="width:20mm">Importo</th></tr></thead><tbody>
-      ${ric.map(p=>`<tr><td class="mono">${esc(p.codice||"")}</td><td>${esc(p.descr||"")}</td><td class="r">${esc(p.qty??"")}</td><td class="r">${gar?"":eur(Number(p.prezzo)||0)}</td><td class="r">${gar?"":eur((Number(p.qty)||0)*(Number(p.prezzo)||0))}</td></tr>`).join("")}
+      ${ric.map(p=>`<tr><td class="mono">${esc(p.codice==="MANUALE"?"":p.codice||"")}</td><td>${esc(p.descr||"")}</td><td class="r">${esc(p.qty??"")}</td><td class="r">${gar||t.nascondiPrezzi?"":eur(Number(p.prezzo)||0)}</td><td class="r">${gar||t.nascondiPrezzi?"":eur((Number(p.qty)||0)*(Number(p.prezzo)||0))}</td></tr>`).join("")}
       ${"<tr><td></td><td></td><td></td><td></td><td></td></tr>".repeat(vuote)}
       <tr class="mo"><td class="mono">MANOD.</td><td>${esc(t.manodoperaDescr||"Manodopera")}</td><td></td><td></td><td class="r">${gar?"":tt.mo?eur(tt.mo):""}</td></tr>
      </tbody></table>
@@ -1133,6 +1134,8 @@ function schedaHtml(t){
       <span>Ricambi</span><span class="r">${ric.length?eur(tt.ricL):""}</span>
       ${tt.sc?`<span>Sconto ricambi ${String(tt.sc).replace(".",",")}%</span><span class="r">− ${eur(tt.scV)}</span>`:""}
       <span>Manodopera</span><span class="r">${tt.mo?eur(tt.mo):""}</span>
+      <span>Imponibile</span><span class="r">${tt.totale?eur(tt.imponibile):""}</span>
+      <span>IVA 22%</span><span class="r">${tt.totale?eur(tt.iva):""}</span>
       <span><b>Totale IVA inclusa</b></span><b class="r">${tt.totale?eur(tt.totale):"€ ________"}</b></div>`}
     </div>
    </div>
@@ -2305,8 +2308,8 @@ function openImportFatture(){
 /* 25/11: messaggio WhatsApp della scheda, diverso per ogni fase */
 function schedaTesto(t){ const tt=totali(t), n=t.num||"", ut=[t.modello,descrUtensile(t.modello,t.type)].filter(Boolean).join(" – ");
   const chi=t.cliFin?`${t.cliente} (${t.cliFin})`:t.cliente; const firma=`\n\nSE.M.I. S.R.L. – Centro assistenza autorizzato DEWALT · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947\nStato della riparazione: https://semistore.it/assistenza (scheda ${n})`;
-  const righe=(t.ricambi||[]).filter(r=>r.qty>0).map(r=>`• ${r.qty} × ${r.descr||r.codice}${Number(r.prezzo)>0?": "+eur(Number(r.prezzo)*r.qty):""}`).join("\n");
-  const prev=`${righe?`Ricambi:\n${righe}\n`:""}${tt.scV?`Sconto ricambi ${tt.sc}%: −${eur(tt.scV)}\n`:""}${tt.mo?`Manodopera: ${eur(tt.mo)}\n`:""}*Totale: ${eur(tt.totale)} IVA inclusa*`;
+  const righe=(t.ricambi||[]).filter(r=>r.qty>0).map(r=>`• ${r.qty} × ${r.descr||r.codice}${!t.nascondiPrezzi&&Number(r.prezzo)>0?": "+eur(Number(r.prezzo)*r.qty):""}`).join("\n");
+  const prev=`${righe?`Ricambi:\n${righe}\n`:""}${t.nascondiPrezzi&&tt.ric?`Totale ricambi: ${eur(tt.ric)}\n`:tt.scV?`Sconto ricambi ${tt.sc}%: −${eur(tt.scV)}\n`:""}${tt.mo?`Manodopera: ${eur(tt.mo)}\n`:""}Imponibile: ${eur(tt.imponibile)}\nIVA 22%: ${eur(tt.iva)}\n*Totale: ${eur(tt.totale)} IVA inclusa*`;
   const ddt=t.ddtNum?` (vs. DDT n. ${t.ddtNum}${t.ddtData?" del "+t.ddtData.split("-").reverse().join("/"):""})`:"";
   const st=t.stato||"Ricevuto";
   if(st==="Ricevuto") return `Buongiorno ${chi},\nabbiamo ricevuto in assistenza il vostro utensile *${ut}*${ddt}.\nScheda di lavorazione n. *${n}*${t.difetto?`\nDifetto segnalato: ${t.difetto}`:""}.\nVi aggiorniamo appena il tecnico lo ha controllato.`+firma;
@@ -2314,7 +2317,7 @@ function schedaTesto(t){ const tt=totali(t), n=t.num||"", ut=[t.modello,descrUte
   if(st==="Preventivo inviato") return `Buongiorno ${chi},\necco il preventivo per la riparazione del vostro *${ut}* (scheda n. *${n}*)${ddt}.${t.difetto?`\nDifetto: ${t.difetto}`:""}\n\n${prev}\n\nPer procedere basta rispondere a questo messaggio con "OK". Se preferite non riparare, l'utensile resta a disposizione per il ritiro.`+firma;
   if(st==="Attesa ricambi") return `Buongiorno ${chi},\nabbiamo ordinato i ricambi per il vostro *${ut}* (scheda n. *${n}*). Vi avvisiamo appena arrivano e completiamo la riparazione.`+firma;
   if(st==="In riparazione") return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è in riparazione. Vi avvisiamo appena è pronto.`+firma;
-  if(st==="Pronto") return `Buongiorno ${chi},\nil vostro *${ut}* è pronto! Scheda n. *${n}*.\n${tt.totale?`Importo: *${eur(tt.totale)}* IVA inclusa.\n`:""}Potete ritirarlo in negozio Lun–Ven 8:30–13:00 / 14:30–18:00, portando la ricevuta o indicando il numero della scheda.`+firma;
+  if(st==="Pronto") return `Buongiorno ${chi},\nil vostro *${ut}* è pronto! Scheda n. *${n}*.\n${tt.totale?`Importo: *${eur(tt.totale)}* IVA inclusa (imponibile ${eur(tt.imponibile)} + IVA ${eur(tt.iva)}).\n`:""}Potete ritirarlo in negozio Lun–Ven 8:30–13:00 / 14:30–18:00, portando la ricevuta o indicando il numero della scheda.`+firma;
   return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è stato consegnato. ${tt.totale?`Importo: ${eur(tt.totale)} IVA inclusa. `:""}Grazie per averci scelto: per qualsiasi cosa siamo qui.`+firma; }
 function waScheda(t){ const txt=schedaTesto(t); const tel=t.cliFinTel||t.tel; const u=waLink(tel,txt); window.open(u||"https://wa.me/?text="+encodeURIComponent(txt),"_blank"); if(!u) toast("Nessun telefono sulla scheda: scegli il contatto in WhatsApp"); }
 /* ---------- PREVENTIVI (24/11) ---------- */
@@ -2930,7 +2933,7 @@ function openTicket(t, fromReq, draft){
       <table class="parts"><thead><tr><th>Codice</th><th>Descrizione</th><th class="num" style="width:80px">Q.tà</th><th class="num" style="width:110px">Prezzo</th><th class="num" style="width:100px">Importo</th><th style="width:30px"></th></tr></thead><tbody id="pRows"></tbody>
         <tfoot><tr><td colspan="6" style="padding-top:6px"><button class="btn sm ghost edit-only" id="pAddRow" type="button">＋ Riga: scrivi il codice</button> <span class="sub">descrizione e prezzo si compilano da soli</span></td></tr>
         <tr class="morow"><td class="mono">MANOD.</td><td colspan="2"><input id="tMoD" placeholder="Manodopera: scrivi il lavoro fatto" value="${esc(t.manodoperaDescr||"")}"></td><td></td><td><input id="tMo" type="number" step="0.01" min="0" inputmode="decimal" placeholder="€" style="text-align:right" value="${t.manodopera!=null&&t.manodopera!==""?esc(t.manodopera):(Number(t.ore)||0)>0?esc(Math.round((Number(t.ore)||0)*(Number(t.tariffa??S.cfg.tariffa)||0)*100)/100):""}"></td><td></td></tr></tfoot></table>
-      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:10px"><label class="fl" style="max-width:190px">Sconto ricambi cliente (%)<input id="tSc" type="number" step="0.5" min="0" max="100" inputmode="decimal" placeholder="0" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""} value="${Number(t.scontoRic)>0?esc(t.scontoRic):""}"></label><span class="sub" id="tScInfo"></span></div>
+      <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:10px"><label class="fl" style="max-width:190px">Sconto ricambi cliente (%)<input id="tSc" type="number" step="0.5" min="0" max="100" inputmode="decimal" placeholder="0" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""} value="${Number(t.scontoRic)>0?esc(t.scontoRic):""}"></label><span class="sub" id="tScInfo"></span><label class="ck" style="margin-left:auto"><input type="checkbox" id="tNoPrz" ${t.nascondiPrezzi?"checked":""}> Nascondi i prezzi dei singoli ricambi (stampa e WhatsApp)</label></div>
       <div id="tUsual" style="margin-top:8px"></div>
       <div class="tot" id="tTot"></div>
       <div id="tMiss" style="margin-top:10px"></div>
@@ -2971,7 +2974,7 @@ function openTicket(t, fromReq, draft){
     drawTot();
   };
   const drawTot=()=>{ const tt=totali({ricambi:rows,manodopera:$("#tMo").value,scontoRic:$("#tSc").value});
-    $("#tTot").innerHTML=`<span>Ricambi <b>${eur(tt.ricL)}</b></span>${tt.scV?`<span>Sconto ${tt.sc}% <b>−${eur(tt.scV)}</b></span>`:""}<span>Manodopera <b>${tt.mo?eur(tt.mo):"da compilare"}</b></span><span>Totale cliente <b>${$("#tTipo").value==="garanzia"?"in garanzia":eur(tt.totale)}</b></span><span style="color:var(--muted)">Costo ricambi ${eur(tt.costo)}</span>`; drawMiss(); };
+    $("#tTot").innerHTML=`<span>Ricambi <b>${eur(tt.ricL)}</b></span>${tt.scV?`<span>Sconto ${tt.sc}% <b>−${eur(tt.scV)}</b></span>`:""}<span>Manodopera <b>${tt.mo?eur(tt.mo):"da compilare"}</b></span><span>Imponibile <b>${eur(tt.imponibile)}</b> + IVA 22% <b>${eur(tt.iva)}</b></span><span>Totale cliente <b>${$("#tTipo").value==="garanzia"?"in garanzia":eur(tt.totale)}</b></span><span style="color:var(--muted)">Costo ricambi ${eur(tt.costo)}</span>`; drawMiss(); };
   ["#tMo","#tSc","#tTipo"].forEach(s=>$(s).addEventListener("input",drawTot));
   // ---- cliente: ricerca in archivio e compilazione automatica ----
   let cliId=t.cliId||"", magg=t.maggRic!=null?Number(t.maggRic)||0:maggListino(t.cliId&&S.clienti.get(t.cliId));
@@ -3045,7 +3048,7 @@ function openTicket(t, fromReq, draft){
   $("#modal").addEventListener("input",()=>{clearTimeout(drawChk._t); drawChk._t=setTimeout(drawChk,300)}); $("#modal").addEventListener("change",drawChk); setTimeout(drawChk,50);
   $("#gCopy").onclick=()=>copyText(garText({...t,cliente:$("#tCli").value,tel:$("#tTel").value,email:$("#tMail").value,modello:$("#tMod").value,matricola:$("#tMat").value,dataAcquisto:$("#tAcq").value,diagnosi:$("#tDia").value,difetto:$("#tDif").value,ricambi:rows,gar:{...garFromForm(),rif:$("#gRif").value.trim()||t.num}}),"Dati garanzia copiati",$("#gCopyT"));
   // keep unsaved edits when a sub-dialog (esploso) replaces this one
-  const snapshotForm=()=>{ Object.assign(t,{cliente:$("#tCli").value,tel:$("#tTel").value,email:$("#tMail").value,piva:$("#tPiva").value,...addrFromForm(),modello:$("#tMod").value,type:$("#tType").value,matricola:$("#tMat").value,dataAcquisto:$("#tAcq").value,tipo:$("#tTipo").value,accessori:$("#tAcc").value,ddtNum:$("#tDdtN").value,ddtData:$("#tDdtD").value,cliFin:$("#tCliFin").value,cliFinTel:$("#tCliFinTel").value,tecnico:$("#tTec").value,difetto:$("#tDif").value,diagnosi:$("#tDia").value,categoriaGuasto:$("#tCat").value,manodopera:$("#tMo").value===""?null:Number($("#tMo").value),manodoperaDescr:$("#tMoD").value,scontoRic:Number($("#tSc").value)||0,cliId,preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value),note:$("#tNote").value,ricambi:rows,stato,gar:garFromForm(),allegati:att}); };
+  const snapshotForm=()=>{ Object.assign(t,{cliente:$("#tCli").value,tel:$("#tTel").value,email:$("#tMail").value,piva:$("#tPiva").value,...addrFromForm(),modello:$("#tMod").value,type:$("#tType").value,matricola:$("#tMat").value,dataAcquisto:$("#tAcq").value,tipo:$("#tTipo").value,accessori:$("#tAcc").value,ddtNum:$("#tDdtN").value,ddtData:$("#tDdtD").value,cliFin:$("#tCliFin").value,cliFinTel:$("#tCliFinTel").value,tecnico:$("#tTec").value,difetto:$("#tDif").value,diagnosi:$("#tDia").value,categoriaGuasto:$("#tCat").value,manodopera:$("#tMo").value===""?null:Number($("#tMo").value),manodoperaDescr:$("#tMoD").value,scontoRic:Number($("#tSc").value)||0,nascondiPrezzi:!!$("#tNoPrz")?.checked,cliId,preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value),note:$("#tNote").value,ricambi:rows,stato,gar:garFromForm(),allegati:att}); };
   const reopen=()=>{ openTicket(isNew?null:{...t,_orig:origRic}, fromReq, isNew?t:null); };
   const ps=$("#pSearch"), pl=$("#pList");
   const addPart=(r,free,ep)=>{ if(r&&r.sostDa&&itm(r.sostDa)){ toast(`${r.codice} è sostituito da ${r.sostDa}: uso il nuovo codice`); r=itm(r.sostDa); }
@@ -3086,7 +3089,7 @@ function openTicket(t, fromReq, draft){
       gar: $("#tTipo").value==="garanzia" ? {...garFromForm(), dataRip:(t.gar?.dataRip)||(["Pronto","Consegnato"].includes(stato)?Date.now():null)} : (t.gar||null), dataAcquisto:$("#tAcq").value, tipo:$("#tTipo").value, accessori:$("#tAcc").value.trim(),
       ddtNum:$("#tDdtN").value.trim(), ddtData:$("#tDdtD").value, cliFin:$("#tCliFin").value.trim(), cliFinTel:$("#tCliFinTel").value.trim(),
       tecnico:$("#tTec").value, difetto:$("#tDif").value.trim(), diagnosi:$("#tDia").value.trim(), categoriaGuasto:$("#tCat").value,
-      ore:0, tariffa:Number(t.tariffa??S.cfg.tariffa)||0, manodopera:$("#tMo").value===""?null:Number($("#tMo").value), manodoperaDescr:$("#tMoD").value.trim(), scontoRic:Number($("#tSc").value)||0, maggRic:magg||0, cliId:cliId||null, preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value), note:$("#tNote").value.trim(),
+      ore:0, tariffa:Number(t.tariffa??S.cfg.tariffa)||0, manodopera:$("#tMo").value===""?null:Number($("#tMo").value), manodoperaDescr:$("#tMoD").value.trim(), scontoRic:Number($("#tSc").value)||0, nascondiPrezzi:!!$("#tNoPrz")?.checked, maggRic:magg||0, cliId:cliId||null, preventivo:$("#tPrev").value===""?null:Number($("#tPrev").value), note:$("#tNote").value.trim(),
       ricambi:rows.filter(p=>p.qty>0&&p.codice).map(({nuova,...p})=>p), stato, updatedAt:Date.now()};
     delete data.id;
     if(stato!==t.stato || isNew){ data.storico=[...(t.storico||[]),{stato,at:Date.now(),by:S.me}]; }
