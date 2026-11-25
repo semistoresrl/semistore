@@ -28,7 +28,9 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
       <h2 id="preventivo">Richiedi assistenza o preventivo</h2>
       <fieldset class="step" data-step="1">
         <legend>1 · L'utensile</legend>
-        <label class="field">Modello / codice (sull'etichetta)<input name="modello" required placeholder="es. DCD805" /></label>
+        <label class="field" for="modello">Modello / codice (sull'etichetta)</label>
+        <div class="mq"><input id="modello" name="modello" required placeholder="es. DCD805, oppure «trapano», «smerigliatrice 125»…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="msug" /><ul id="msug" class="msug" role="listbox" hidden></ul></div>
+        <p class="nota" id="mscelto" hidden></p>
         <label class="field">Numero di serie (se lo trovi)<input name="seriale" /></label>
         <label class="field">È in garanzia?<select name="garanzia"><option>Non so</option><option>Sì, ho lo scontrino/fattura</option><option>No</option></select></label>
         <label class="field">Che problema ha?<textarea name="problema" required placeholder="es. non si avvia, fa scintille, batteria non carica…"></textarea></label>
@@ -123,6 +125,40 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
     } catch (e: any) { out.textContent = e.message === 'non trovata' ? 'Scheda non trovata: controlla numero e telefono.' : 'Servizio non disponibile, chiamaci.'; }
   }
   s.addEventListener('submit', (e) => { e.preventDefault(); check(); });
+  // suggerimenti sul modello: codice o nome, con foto; si può sempre scrivere un modello non in elenco
+  {
+    const inp = f.elements.namedItem('modello') as HTMLInputElement, box = document.getElementById('msug') as HTMLUListElement, scelto = document.getElementById('mscelto')!;
+    let M: { m: string; n: string; b: string; i: string }[] | null = null, carica: Promise<void> | null = null, l: typeof M = [], sel = -1;
+    const norm = (x: string) => x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const nc = (x: string) => x.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const esc = (x: string) => x.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+    const prendi = () => (carica ||= fetch('/assistenza/modelli.json').then((r) => r.json()).then((j) => { M = j; }).catch(() => { carica = null; }));
+    const chiudi = () => { box.hidden = true; inp.setAttribute('aria-expanded', 'false'); };
+    const mostra = async () => {
+      const q = inp.value.trim(); scelto.hidden = true;
+      if (q.length < 2) { chiudi(); return; }
+      await prendi(); if (!M) return;
+      const c = nc(q), w = norm(q).split(' ').filter(Boolean);
+      l = M.map((x) => { const mm = nc(x.m); let p = mm === c ? 100 : mm.startsWith(c) ? 60 : c.length >= 3 && mm.includes(c) ? 30 : 0;
+        if (!p) { const t = norm(x.n + ' ' + x.m + ' ' + x.b); if (w.every((k) => t.includes(k))) p = 10; }
+        return { x, p }; }).filter((o) => o.p > 0).sort((a, b) => b.p - a.p || a.x.m.length - b.x.m.length).slice(0, 8).map((o) => o.x);
+      sel = -1;
+      if (!l.length) { chiudi(); return; }
+      box.innerHTML = l.map((x, k) => `<li role="option" data-k="${k}">${x.i ? `<img src="${esc(x.i)}" alt="" width="40" height="40" loading="lazy" />` : '<span></span>'}<span><b>${esc(x.m)}</b><small>${esc(x.b)} · ${esc(x.n)}</small></span></li>`).join('');
+      box.hidden = false; inp.setAttribute('aria-expanded', 'true');
+    };
+    const usa = (x: { m: string; n: string; b: string }) => { inp.value = x.m; scelto.textContent = `${x.b} · ${x.n}`; scelto.hidden = false; chiudi(); };
+    inp.addEventListener('focus', () => { prendi(); });
+    inp.addEventListener('input', () => { clearTimeout((inp as any)._t); (inp as any)._t = setTimeout(mostra, 120); });
+    inp.addEventListener('keydown', (e) => {
+      if (box.hidden || !l) return;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(0, Math.min(l.length - 1, sel + (e.key === 'ArrowDown' ? 1 : -1))); box.querySelectorAll('li').forEach((li, k) => li.classList.toggle('on', k === sel)); }
+      else if (e.key === 'Enter' && sel >= 0) { e.preventDefault(); usa(l[sel]); }
+      else if (e.key === 'Escape') chiudi();
+    });
+    box.addEventListener('mousedown', (e) => { const li = (e.target as HTMLElement).closest('li[data-k]') as HTMLElement; if (!li || !l) return; e.preventDefault(); usa(l[+li.dataset.k!]); });
+    inp.addEventListener('blur', () => setTimeout(chiudi, 150));
+  }
   capAutomatico(f); precompila();
   const u = new URL(location.href);
   if (u.searchParams.get('scheda')) { (s.elements.namedItem('scheda') as HTMLInputElement).value = u.searchParams.get('scheda')!; (s.elements.namedItem('tel') as HTMLInputElement).value = u.searchParams.get('tel') || ''; check(); }
@@ -139,6 +175,9 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
   .pacco{display:flex;flex-direction:column;gap:12px;background:#f6f5f2;border-radius:14px;padding:14px}.pacco[hidden]{display:none}
   .riga3{display:grid;grid-template-columns:90px 1fr 70px;gap:10px}.riga2{display:grid;grid-template-columns:110px 1fr;gap:10px}
   .hp{position:absolute;left:-9999px}
+  .mq{position:relative;margin-top:-6px}.mq input{width:100%;min-height:48px;border:1px solid #cfccc2;border-radius:8px;padding:10px 14px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+  .msug{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px #0002;list-style:none;margin:0;padding:6px;max-height:380px;overflow:auto}
+  .msug li{display:grid;grid-template-columns:40px 1fr;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer}.msug li.on,.msug li:hover{background:#fffbea}.msug img{object-fit:contain}.msug li span{display:flex;flex-direction:column;min-width:0}.msug b{font-size:14px}.msug small{color:var(--mut);font-size:12.5px;line-height:1.3}
   .msg{margin:0;font-weight:700}.msg.ok{color:var(--ok)}.msg.ko{color:#b3261e}
   .bar{display:flex;gap:4px;margin-top:4px}.bar span{flex:1;height:8px;border-radius:4px;background:var(--line)}.bar span.on{background:var(--ink)}
   .nota{color:var(--mut);margin:0}

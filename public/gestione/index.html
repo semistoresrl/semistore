@@ -3043,10 +3043,12 @@ function openReq(){
   openModal(`<div class="mh"><h2>Registra richiesta</h2><span class="sp"></span><button class="x" data-close>×</button></div>
   <div class="mb"><div class="fs"><div class="f">
    <label class="fl">Tipo<select id="qT"><option value="assistenza">Assistenza / riparazione</option><option value="preventivo">Preventivo prodotto</option></select></label>
-   <label class="fl">Nome *<input id="qN"></label><label class="fl">Telefono<input id="qTel"></label><label class="fl">Email<input id="qE"></label>
-   <label class="fl">Utensile / prodotto<input id="qM"></label></div>
+   <label class="fl">Nome *<input id="qN" placeholder="Nome, telefono o P.IVA dall'archivio"><div id="qNL" class="pkl" style="margin-top:6px"></div></label><label class="fl">Telefono<input id="qTel"></label><label class="fl">Email<input id="qE"></label>
+   <label class="fl">Utensile / prodotto<input id="qM" placeholder="Modello o nome, es. DCD796 o «smerigliatrice»"><div id="qML" style="margin-top:6px"></div></label></div>
    <label class="fl" style="margin-top:10px">Messaggio<textarea id="qMsg" rows="3"></textarea></label></div></div>
   <div class="mf"><button class="btn" data-close>Annulla</button><button class="btn pri" id="qOk">Salva</button></div>`);
+  suggCli($("#qN"),$("#qNL"),c=>{ $("#qN").value=c.nome; if(!$("#qTel").value) $("#qTel").value=c.tel||c.cell||""; if(!$("#qE").value) $("#qE").value=c.email||""; });
+  suggModello($("#qM"),$("#qML"));
   $("#qOk").onclick=async()=>{ const n=$("#qN").value.trim(); if(!n){toast("Inserisci il nome");return}
     const ok=await write(()=>S.db.collection("richieste").add({at:Date.now(),tipo:$("#qT").value,nome:n,tel:$("#qTel").value.trim(),email:$("#qE").value.trim(),modello:$("#qM").value.trim(),messaggio:$("#qMsg").value.trim(),gestita:false,canale:"manuale"}),"Richiesta registrata");
     if(ok) closeModal(); };
@@ -4669,7 +4671,11 @@ function modelliNoti(){ if(S._modK===S.tickets.length+"/"+S.esplosi.size&&S._mod
   S._modK=S.tickets.length+"/"+S.esplosi.size; S._mod=[...m.entries()]; return S._mod; }
 function suggModello(inp,box,onPick){ if(!inp||!box) return;
   const draw=()=>{ const q=normC(inp.value); if(q.length<2){ box.innerHTML=""; return; }
-    const l=modelliNoti().filter(([k])=>normC(k).startsWith(q)).sort((a,b)=>a[0].length-b[0].length).slice(0,8);
+    let l=modelliNoti().filter(([k])=>normC(k).startsWith(q)).sort((a,b)=>a[0].length-b[0].length).slice(0,8);
+    if(l.length<8){ const w=inp.value.toLowerCase().trim().split(/\s+/).filter(Boolean), visti=new Set(l.map(([k])=>normC(k)));
+      const extra=[...modelliNoti().filter(([k,d])=>!visti.has(normC(k))&&w.every(p=>(k+" "+(d||"")).toLowerCase().includes(p))),
+        ...catIdx().filter(e=>{ const k=normC(e.codice).replace(/(QS|QW|XJ|XE|GB|IT|LX)$/,""); return !visti.has(k)&&(k.startsWith(q)||w.every(p=>(e.codice+" "+e.descr).toLowerCase().includes(p))); }).map(e=>[String(e.codice).replace(/-[A-Z]{2}$/,""),e.descr])];
+      for(const x of extra){ const k=normC(x[0]); if(visti.has(k)) continue; visti.add(k); l.push(x); if(l.length>=8) break; } }
     box.innerHTML=l.length?`<div class="wchips">${l.map(([k,d],i)=>`<button type="button" data-md="${i}" title="${esc(d)}">${esc(k)}${d?` <small class="sub">${esc(d.slice(0,32))}</small>`:""}</button>`).join("")}</div>`:"";
     box.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>{ const k=l[b.dataset.md][0]; inp.value=k; box.innerHTML=""; inp.dispatchEvent(new Event("input")); if(onPick) onPick(k); }); };
   inp.setAttribute("autocomplete","off"); inp.addEventListener("input",e=>{ if(!e.isTrusted) return; clearTimeout(inp._sm); inp._sm=setTimeout(draw,150); });
