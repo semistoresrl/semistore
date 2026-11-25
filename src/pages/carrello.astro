@@ -37,12 +37,12 @@ import { SITO } from '../data/sito.js';
     <div class="upc" id="upc" hidden>
       <h2 class="h2">Ti potrebbe servire</h2>
       <p class="upc-s">Batterie, lame e accessori compatibili con gli utensili nel carrello.</p>
-      <div class="grid-p" id="upl"></div>
+      <div class="upc-l" id="upl"></div>
     </div>
   </section>
 </Base>
 <style>
-  .upc{margin-top:40px}.upc-s{color:var(--mut);margin:-8px 0 16px}.upc-c{display:flex;flex-direction:column;gap:8px}.upc-c .pc{flex:1}.upc-a{width:100%}
+  .upc{margin-top:40px}.upc-s{color:var(--mut);margin:-8px 0 16px}.upc-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}.upc-r{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px 8px 8px}.upc-i{display:grid;place-items:center;width:64px;height:64px}.upc-i img{width:64px;height:64px;object-fit:contain}.upc-i .mono{font-size:10px;color:var(--mut)}.upc-n{color:var(--ink)}.upc-n b{display:block;font-size:14px;line-height:1.3;font-weight:600}.upc-n small{color:var(--mut);font-size:12px}.upc-p{display:flex;flex-direction:column;align-items:flex-end;gap:4px}.upc-a{border:2px solid var(--ink);background:#fff;border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}.upc-a:hover{background:var(--y)}@media(max-width:600px){.upc-l{grid-template-columns:1fr}}
 </style>
 <script define:vars={{ sp: SITO.spedizione, premi: SITO.punti.prodottiPremio || [] }}>
   window.__SP = sp; window.__PREMI = premi;
@@ -50,7 +50,7 @@ import { SITO } from '../data/sito.js';
 <script>
   import { read, setQty, clear, add } from '../scripts/cart.js';
   import { track, itemsCarrello } from '../scripts/track.js';
-  import { indice, card } from '../scripts/card.js';
+  import { indice } from '../scripts/card.js';
   import { calcolaPunti, prossimoBonus } from '../lib/punti.js';
   const PREMI = new Set<string>((window as any).__PREMI || []);
   type Buono = { codice?: string; id?: string; disponibile: number; soloPremi: boolean; fine: string; usa: boolean };
@@ -197,7 +197,9 @@ import { SITO } from '../data/sito.js';
     const nel = new Set(read().map((i) => i.slug)), vis: string[] = [];
     for (const i of read()) for (const s of UP[i.slug] || []) if (!nel.has(s) && M[s] && !vis.includes(s)) vis.push(s);
     box.hidden = !vis.length; if (!vis.length) return;
-    l.innerHTML = vis.slice(0, 8).map((s) => `<div class="upc-c">${card(M[s])}<button type="button" class="btn btn-k upc-a" data-up="${s}">+ Aggiungi al carrello</button></div>`).join('');
+    l.innerHTML = vis.slice(0, 8).map((s) => { const x = M[s]; return `<div class="upc-r"><a href="/prodotti/${s}/" class="upc-i">${x.i ? `<img src="${esc(x.i)}" width="64" height="64" alt="" loading="lazy">` : `<span class="mono">${esc(x.m || '')}</span>`}</a>
+      <a href="/prodotti/${s}/" class="upc-n"><b>${esc(x.n)}</b><small class="mono">${esc(x.m || '')}${x.d ? ' · su conferma' : ' · disponibile'}</small></a>
+      <span class="upc-p"><b>${eur(x.p)}</b><button type="button" class="upc-a" data-up="${s}">+ Aggiungi</button></span></div>`; }).join('');
     l.querySelectorAll<HTMLButtonElement>('[data-up]').forEach((b) => b.onclick = () => { add(b.dataset.up!, 1); track('add_to_cart', { items: [{ id: M[b.dataset.up!].m, nome: M[b.dataset.up!].n, prezzo: M[b.dataset.up!].p / 100, qty: 1 }], value: M[b.dataset.up!].p / 100 }); render(); suggerisci(); });
   }
   addEventListener('cart:change', () => suggerisci());
