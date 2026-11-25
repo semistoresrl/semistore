@@ -681,6 +681,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#resi" data-v="resi"><svg class="i"><use href="#i-return"/></svg><span>Resi</span><span class="ct" id="ctResi">0</span></a>
 <a href="#consegne" data-v="consegne"><svg class="i"><use href="#i-box"/></svg><span>Scaffale consegne</span><span class="ct" id="ctCons">0</span></a>
 <a href="#preventivi" data-v="preventivi"><svg class="i"><use href="#i-euro"/></svg><span>Preventivi</span><span class="ct" id="ctPrev">0</span></a>
+<a href="#clienti" data-v="clienti"><svg class="i"><use href="#i-user"/></svg><span>Clienti</span></a>
 <a href="#noleggi" data-v="noleggi"><svg class="i"><use href="#i-clock"/></svg><span>Noleggi</span><span class="ct" id="ctNol">0</span></a>
 <a href="#" data-esp="1"><svg class="i"><use href="#i-drill"/></svg><span>Esplosi</span></a>
 <details class="more" id="navMore"><summary><svg class="i"><use href="#i-grid"/></svg><span>Tutto il resto</span><svg class="i chev"><use href="#i-chev"/></svg></summary>
@@ -1181,7 +1182,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["prezzi","compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["clienti","prezzi","compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -1208,7 +1209,7 @@ function render(){
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = S.db ? "" : S.dbErr ? `<div class="banner err">L'archivio condiviso non è raggiungibile. Controlla la connessione e ricarica la pagina.</div>` : `<div class="banner">Sto scaricando l'archivio… un momento.</div>`;
-  const fns={prezzi:vPrezzi,compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={clienti:vClienti,prezzi:vPrezzi,compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
   S._vistaPrec=S.view;
@@ -1238,7 +1239,7 @@ function patchTieni(m,html,vivo){
   }
   return true;
 }
-const VICON={"prezzi":"tag","compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={"clienti":"user","prezzi":"tag","compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -2045,7 +2046,7 @@ function bindView(){
   const sel=(id,fn)=>{const e=$("#"+id); if(e) e.onchange=()=>{fn(e.value);render()}};
   sel("fst",v=>S.filt.stato=v); sel("ftp",v=>S.filt.tipo=v); sel("ftc",v=>S.filt.tec=v);
   sel("cCat",v=>{S.cCat=v;S.cPage=1}); sel("cMarca",v=>{S.cMarca=v;S.cPage=1}); sel("cPiatt",v=>{S.cPiatt=v;S.cPage=1});
-  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="prezzi") bindPrezzi(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="compatibili") bindCompatibili(); if(S.view==="noleggi") bindNoleggi();
+  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="prezzi") bindPrezzi(); if(S.view==="clienti") bindClienti(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="compatibili") bindCompatibili(); if(S.view==="noleggi") bindNoleggi();
   const fst=$("#fst"); if(fst) fst.value=S.filt.stato; const ftp=$("#ftp"); if(ftp) ftp.value=S.filt.tipo; const ftc=$("#ftc"); if(ftc) ftc.value=S.filt.tec;
 }
 async function saveCfg(){
@@ -2330,6 +2331,39 @@ function schedaTesto(t){ const tt=totali(t), n=t.num||"", ut=[t.modello,descrUte
   return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è stato consegnato. ${fin.totale?`Importo: ${eur(fin.totale)} IVA inclusa. `:""}Grazie per averci scelto: per qualsiasi cosa siamo qui.`+firma; }
 function waScheda(t){ const txt=schedaTesto(t); const tel=t.cliFinTel||t.tel; const u=waLink(tel,txt); window.open(u||"https://wa.me/?text="+encodeURIComponent(txt),"_blank"); if(!u) toast("Nessun telefono sulla scheda: scegli il contatto in WhatsApp"); }
 
+
+// importi scritti da Danea/Excel: "9,878.33 €", "9.878,33", "1234.5" → numero
+function numImp(v){ if(typeof v==="number") return v; let t=String(v??"").replace(/[^\d,.-]/g,""); if(!t) return 0;
+  const ic=t.lastIndexOf(","), ip=t.lastIndexOf(".");
+  if(ic>=0&&ip>=0){ t=ic>ip?t.replace(/\./g,"").replace(",","."):t.replace(/,/g,""); }
+  else if(ic>=0){ t=(t.length-ic-1===3&&(t.match(/,/g)||[]).length>=1&&t.length-ic-1===3&&!/,\d{1,2}$/.test(t))?t.replace(/,/g,""):t.replace(",","."); }
+  return Number(t)||0; }
+/* ---------- CLIENTI (25/11): anagrafica con storico ---------- */
+function vClienti(){
+  const q=(S.clq||"").trim(), ql=q.toLowerCase(), qn=normC(q), tk=telKey(q);
+  const num=numImp;
+  const tutti=[...(S.clienti?S.clienti.values():[])];
+  let l=tutti;
+  if(q.length>=2) l=tutti.filter(c=>String(c.nome||"").toLowerCase().includes(ql)||(qn.length>=4&&(normC(c.piva).includes(qn)||normC(c.cf).includes(qn)||normC(c.id).includes(qn)))||(tk&&tk.length>=6&&(telKey(c.tel)===tk||telKey(c.cell)===tk||soloCifre(c.tel).includes(tk)||soloCifre(c.cell).includes(tk)))||String(c.citta||"").toLowerCase()===ql||String(c.email||"").toLowerCase().includes(ql));
+  const filt=S.clf||"attivi";
+  const debDi=c=>S.ordiniWeb.filter(o=>!o.pagato&&o.stato!=="Annullato"&&(o.cliId===c.id||normNome(o.cliente)===normNome(c.nome))).reduce((a,o)=>a+ordTot(o).tot,0);
+  if(filt==="attivi"&&q.length<2) l=l.filter(c=>c.fatt2026||c.fatt2025||c.ultimoDoc>="2025");
+  else if(filt==="debito") l=l.filter(c=>debDi(c)>0);
+  else if(filt==="piva") l=l.filter(c=>c.piva);
+  else if(filt==="app") l=l.filter(c=>c.origine!=="danea");
+  const sc=c=>num(c.fatt2026)+num(c.fatt2025)*0.5;
+  l=l.slice().sort((a,b)=>q.length>=2?(String(a.nome).toLowerCase().startsWith(ql)?-1:1)-(String(b.nome).toLowerCase().startsWith(ql)?-1:1)||sc(b)-sc(a):sc(b)-sc(a));
+  const n=l.length; l=l.slice(0,S.clMax||60);
+  return header("Clienti",`${nf(tutti.length)} clienti (anagrafica Danea + nuovi dell'app). Tocca un cliente per contatti, fatturato, riparazioni fatte, ricambi acquistati, schede, preventivi e vendite.`)+`
+  <div class="toolbar"><input id="clq" placeholder="Nome, telefono, partita IVA, città o email" value="${esc(S.clq||"")}" autocomplete="off" style="flex:1;min-width:240px;font-size:17px">
+   <div class="chips">${[["attivi","Attivi 2025–26"],["tutti","Tutti"],["debito","Da incassare"],["piva","Con P.IVA"],["app","Nuovi dall'app"]].map(([k,t])=>`<button class="chip ${filt===k?"on":""}" data-clf="${k}">${t}</button>`).join("")}</div></div>
+  ${l.length?`<div class="tts"><table><thead><tr><th>Cliente</th><th>Contatti</th><th>Pagamento</th><th class="num">Fatt. 2025</th><th class="num">Fatt. 2026</th><th class="num">Riparazioni</th><th>Ultimo doc.</th></tr></thead><tbody>${l.map(c=>{ const d=debDi(c); return `<tr class="click" data-cl="${esc(c.id)}"><td><b>${esc(c.nome)}</b><div class="sub">${esc([c.citta,c.prov].filter(Boolean).join(" "))}${c.piva?" · P.IVA "+esc(c.piva):""}${d?` · <b class="low">da incassare ${eur(d)}</b>`:""}</div></td><td class="sub">${esc(c.tel||c.cell||"")}${c.email?`<div>${esc(c.email)}</div>`:""}</td><td class="sub">${esc(c.pagamento||"")}${scontoNum(c.sconto)?`<div>sconto ${scontoNum(c.sconto)}%</div>`:""}</td><td class="num">${num(c.fatt2025)?eur(num(c.fatt2025)):""}</td><td class="num">${num(c.fatt2026)?eur(num(c.fatt2026)):""}</td><td class="num">${c.nRip||""}${c.ultimaRip?`<div class="sub">${esc(String(c.ultimaRip).split("-").reverse().join("/"))}</div>`:""}</td><td class="sub">${esc(c.ultimoDoc?String(c.ultimoDoc).split("-").reverse().join("/"):"")}</td></tr>`; }).join("")}</tbody></table></div>
+   ${n>l.length?`<div style="margin-top:8px"><button class="btn" id="clMore">Mostra altri (${nf(n-l.length)} rimanenti)</button></div>`:""}`:`<div class="panel"><div class="empty">${q.length>=2?"Nessun cliente trovato.":"Nessun cliente con questo filtro."}</div></div>`}`;
+}
+function bindClienti(){ const i=$("#clq"); if(i){ i.oninput=()=>{ S.clq=i.value; S.clMax=60; clearTimeout(i._t); i._t=setTimeout(()=>{ const p=i.selectionStart; render(); const j=$("#clq"); if(j){ j.focus(); try{ j.setSelectionRange(p,p); }catch(e){} } },250); }; }
+  $("#main").querySelectorAll("[data-clf]").forEach(b=>b.onclick=()=>{ S.clf=b.dataset.clf; S.clMax=60; render(); });
+  const m=$("#clMore"); if(m) m.onclick=()=>{ S.clMax=(S.clMax||60)+100; render(); };
+  $("#main").querySelectorAll("[data-cl]").forEach(r=>r.onclick=()=>{ const c=S.clienti.get(r.dataset.cl); if(c) openCliente(c); }); }
 /* ---------- CERCA PREZZO (25/11): utensili, accessori e ricambi, con tutti i prezzi ---------- */
 function vPrezzi(){
   const q=(S.pzq||"").trim(); let l=[];
@@ -4989,7 +5023,7 @@ function modiPagamento(){ const n=new Map(); for(const c of cliAll()) if(c.pagam
 function daneaBox(c,pi){
   const r=(k,v)=>v?`<tr><td class="sub" style="white-space:nowrap;vertical-align:top">${k}</td><td>${v}</td></tr>`:"";
   const sc=pi&&pi.differito?pagScadenze(pi):[];
-  const fatt=[2024,2025,2026].map(y=>c["fatt"+y]?`${y}: <b>${eur(Number(String(c["fatt"+y]).replace(",","."))||0)}</b>`:"").filter(Boolean).join(" · ");
+  const fatt=[2024,2025,2026].map(y=>c["fatt"+y]?`${y}: <b>${eur(numImp(c["fatt"+y]))}</b>`:"").filter(Boolean).join(" · ");
   const dest=String(c.dest||"").split(" | ").filter(Boolean);
   const h=[r("Listino",maggListino(c)?`<b>Listino 2</b>: ricambi e listino +${maggListino(c)}% (come in Danea)`:c.listino?esc(c.listino):""),
     r("Scadenze",sc.length?`una vendita di oggi scade il <b>${sc.map(fmtG).join(" · ")}</b>${pi.quote&&pi.quote.length>1?" (rate "+pi.quote.map(q=>Math.round(q)+"%").join(" / ")+")":""}`:""),
@@ -5015,7 +5049,7 @@ function openCliente(c){
   const pac=(S.consegne||[]).filter(x=>normNome(x.cliente)===nn||(tk&&telKey(x.tel)===tk)).sort((a,b)=>(b.at||b.createdAt||0)-(a.at||a.createdAt||0));
   const deb=ord.filter(o=>!o.pagato&&o.stato!=="Annullato"), debTot=deb.reduce((a,o)=>a+ordTot(o).tot,0), pi=pagInfo(c.pagamento);
   const st=storicoDi(c).slice().sort((a,b)=>String(b.d).localeCompare(String(a.d)));
-  const num=v=>Number(String(v??"").replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",","."))||0;
+  const num=numImp;
   const fatt={2024:num(c.fatt2024),2025:num(c.fatt2025),2026:num(c.fatt2026)}, fattTot=fatt[2024]+fatt[2025]+fatt[2026];
   const stTot=st.reduce((a,x)=>a+(Number(x.t)||0),0), stAnni={}; st.forEach(x=>{ const y=String(x.d||"").slice(0,4); if(!y) return; (stAnni[y]=stAnni[y]||{n:0,t:0}); stAnni[y].n++; stAnni[y].t+=Number(x.t)||0; });
   const schTot=sch.filter(t=>t.stato==="Consegnato").reduce((a,t)=>a+totali(t).totale,0), ordTotV=ord.filter(o=>o.stato!=="Annullato").reduce((a,o)=>a+ordTot(o).tot,0);
