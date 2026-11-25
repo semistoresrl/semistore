@@ -52342,7 +52342,7 @@
 "id": 4775,
 "slug": "dewalt-avvitatore-universale-18v-xr-brushless-dcf622nt",
 "marca": "DEWALT",
-"nome": "Avvitatore universale 18V XR Brushless – solo corpo in valigetta TSTAK",
+"nome": "Avvitatore per viti autoforanti 18V XR Brushless – solo corpo in valigetta TSTAK",
 "modello": "DCF622NT",
 "codice": "DCF622NT-XJ",
 "categoria": "Trapani e avvitatori",
@@ -52352,14 +52352,14 @@
 "nota": "",
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCF622NT_1_1280.webp",
 "soloLink": true,
-"sottotitolo": "Foratura e avvitatura di precisione",
-"descrizione": "Un trapano avvitatore professionale è l'utensile che si usa di più in cantiere e in officina: fora legno, metallo e plastica e avvita viti di ogni misura con il controllo preciso della frizione.\n\nVersione solo corpo: batterie e caricabatterie non inclusi, ideale se hai già batterie della stessa piattaforma.",
+"sottotitolo": "Avvitatura di viti autoforanti su lamiera",
+"descrizione": "Avvitatore DEWALT 18V XR Brushless progettato per viti autoforanti (TEK): fora e fissa in un solo passaggio lamiere, profili e pannelli sandwich. La frizione si stacca da sola appena la vite arriva in battuta, così la guarnizione non si schiaccia e la testa non si rovina.\n\nVersione solo corpo: batterie e caricabatterie non inclusi, con valigetta TSTAK; compatibile con tutte le batterie DEWALT 18V XR.",
 "caratteristiche": [
 "Marca: DEWALT",
 "Codice articolo: DCF622NT",
-"Tipologia: Foratura e avvitatura di precisione",
 "Tensione: 18 V",
 "Motore: Brushless (senza spazzole)",
+"Attacco: esagonale 1/4\"",
 "Batterie incluse: No (solo corpo)",
 "Caricabatterie: non incluso",
 "Valigetta: TSTAK"
@@ -52370,21 +52370,21 @@
 "fontePrezzo": "online",
 "tipo": "trapano",
 "punti": [
-"Frizione regolabile per avvitare senza spanare la testa delle viti o rovinare il materiale",
-"Due velocità meccaniche: la prima per avvitare con coppia, la seconda per forare veloce",
-"Mandrino autoserrante per cambiare punte e inserti senza chiave",
+"Pensato per viti autoforanti su lamiera e strutture metalliche",
+"Frizione meccanica che si disinnesca quando la vite è serrata: niente teste spanate",
+"Attacco esagonale 1/4\" per inserti e bussole magnetiche",
+"Motore brushless: più autonomia e meno manutenzione",
 "Luce LED per illuminare il punto di lavoro",
-"Motore brushless: più autonomia, più potenza e meno manutenzione rispetto ai motori a spazzole",
-"Versione solo corpo: ideale se hai già batterie e caricabatterie della stessa piattaforma",
+"Versione solo corpo: ideale se hai già batterie DEWALT 18V XR",
 "Valigetta TSTAK componibile con gli altri contenitori del sistema"
 ],
 "impieghi": [
-"Montaggio mobili e serramenti",
-"Impiantistica elettrica e idraulica",
-"Carpenteria leggera",
-"Fori in legno e metallo"
+"Coperture e lattonerie",
+"Strutture e capannoni metallici",
+"Pannelli sandwich",
+"Carpenteria metallica leggera"
 ],
-"consiglio": "Per lavori continui scegli batterie da almeno 4,0–5,0 Ah; per lavori in quota o sopra la testa le compatte da 1,7–2,0 Ah alleggeriscono molto l'utensile."
+"consiglio": "Per lavori continui in copertura scegli batterie da almeno 4,0–5,0 Ah."
 },
 {
 "id": 4776,
@@ -114314,5 +114314,470 @@
 ],
 "impieghi": [],
 "immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DWST08061-1_1_1280.webp"
+},
+{
+"id": 6678,
+"slug": "dewalt-avvitatore-per-viti-autoforanti-18v-xr-brushless-solo-corpo-dcf622n",
+"marca": "DEWALT",
+"nome": "Avvitatore per viti autoforanti 18V XR Brushless – solo corpo",
+"modello": "DCF622N",
+"codice": "DCF622N-XJ",
+"categoria": "Trapani e avvitatori",
+"prezzo": 14900,
+"volt": "18",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DCF622N_1_1280.webp",
+"soloLink": true,
+"sottotitolo": "Avvitatura di viti autoforanti su lamiera",
+"descrizione": "Avvitatore DEWALT 18V XR Brushless progettato per viti autoforanti (TEK): fora e fissa in un solo passaggio lamiere, profili e pannelli sandwich. La frizione si stacca da sola appena la vite arriva in battuta, così la guarnizione non si schiaccia e la testa non si rovina.\n\nVersione solo corpo: batterie e caricabatterie non inclusi, compatibile con tutte le batterie DEWALT 18V XR.",
+"caratteristiche": [
+"Marca: DEWALT",
+"Codice articolo: DCF622N-XJ",
+"Tensione: 18 V",
+"Motore: Brushless (senza spazzole)",
+"Attacco: esagonale 1/4\"",
+"Batterie incluse: No (solo corpo)",
+"Caricabatterie: non incluso",
+"EAN: 5035048654811"
+],
+"dotazione": "Utensile solo corpo (batterie, caricabatterie e valigetta non inclusi)",
+"disponibilita": "conferma",
+"auto": true,
+"tipo": "trapano",
+"punti": [
+"Pensato per viti autoforanti su lamiera e strutture metalliche",
+"Frizione meccanica che si disinnesca quando la vite è serrata: niente teste spanate",
+"Attacco esagonale 1/4\" per inserti e bussole magnetiche",
+"Motore brushless: più autonomia e meno manutenzione",
+"Luce LED per illuminare il punto di lavoro",
+"Versione solo corpo: ideale se hai già batterie DEWALT 18V XR"
+],
+"impieghi": [
+"Coperture e lattonerie",
+"Strutture e capannoni metallici",
+"Pannelli sandwich",
+"Carpenteria metallica leggera"
+]
+},
+{
+"id": 6679,
+"slug": "dewalt-inserti-pozidriv-pz2-x-50-mm-confezione-5-pezzi-dt7226",
+"marca": "DEWALT",
+"nome": "Inserti Pozidriv PZ2 × 50 mm, confezione 5 pezzi",
+"modello": "DT7226",
+"codice": "DT7226-QZ",
+"categoria": "Punte e inserti",
+"prezzo": 2108,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT7226_1_1280.webp",
+"soloLink": true,
+"sottotitolo": "Inserti e accessori per avvitatura",
+"descrizione": "Inserti DEWALT Pozidriv PZ2 lunghi 50 mm, attacco esagonale 1/4\", in confezione da 5 pezzi. La lunghezza di 50 mm permette di raggiungere viti in punti incassati e di usarli anche senza portainserti.",
+"caratteristiche": [
+"Marca: DEWALT",
+"Codice articolo: DT7226-QZ",
+"Impronta: Pozidriv PZ2",
+"Lunghezza: 50 mm",
+"Attacco: esagonale 1/4\"",
+"Pezzi per confezione: 5",
+"EAN: 5035048013090"
+],
+"dotazione": "5 pezzi",
+"disponibilita": "conferma",
+"auto": true,
+"prezzoListino": 2635,
+"tipo": "inserti",
+"punti": [
+"Acciaio di qualità per lunga durata",
+"Profilo preciso per una presa sicura sulla vite"
+],
+"impieghi": [
+"Montaggio",
+"Carpenteria",
+"Cartongesso"
+]
+},
+{
+"id": 6680,
+"slug": "dewalt-inserti-torsion-pozidriv-pz1-x-25-mm-confezione-5-pezzi-dt7211",
+"marca": "DEWALT",
+"nome": "Inserti Torsion Pozidriv PZ1 × 25 mm, confezione 5 pezzi",
+"modello": "DT7211",
+"codice": "DT7211-QZ",
+"categoria": "Punte e inserti",
+"prezzo": 654,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT7211_1_1280.webp",
+"soloLink": true,
+"sottotitolo": "Inserti e accessori per avvitatura",
+"descrizione": "Inserti DEWALT Torsion Pozidriv PZ1 da 25 mm in confezione da 5 pezzi. La zona torsionale assorbe i picchi di coppia degli avvitatori e allunga la vita dell'inserto.",
+"caratteristiche": [
+"Marca: DEWALT",
+"Codice articolo: DT7211-QZ",
+"Impronta: Pozidriv PZ1",
+"Lunghezza: 25 mm",
+"Attacco: esagonale 1/4\"",
+"Tecnologia: Torsion",
+"Pezzi per confezione: 5",
+"EAN: 5035048012505"
+],
+"dotazione": "5 pezzi",
+"disponibilita": "conferma",
+"auto": true,
+"prezzoListino": 817,
+"tipo": "inserti",
+"punti": [
+"Acciaio trattato termicamente per ridurre rotture e usura",
+"Punta lavorata di precisione per una presa piena nella vite"
+],
+"impieghi": [
+"Montaggio",
+"Carpenteria",
+"Cartongesso"
+]
+},
+{
+"id": 6681,
+"slug": "dewalt-lama-extreme-per-sega-circolare-190-mm-40-denti-per-decking-dt4394",
+"marca": "DEWALT",
+"nome": "Lama Extreme per sega circolare 190 mm, 40 denti, per decking",
+"modello": "DT4394",
+"codice": "DT4394-QZ",
+"categoria": "Lame, dischi e abrasivi",
+"prezzo": 7320,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT4394_1_1280.webp",
+"soloLink": true,
+"sottotitolo": "Taglio di pedane e listoni per decking",
+"descrizione": "Lama DEWALT Extreme da 190 mm con 40 denti in metallo duro, studiata per il taglio di listoni da decking in legno e materiali compositi, con un taglio pulito e una lunga durata.",
+"caratteristiche": [
+"Marca: DEWALT",
+"Codice articolo: DT4394-QZ",
+"Diametro: 190 mm",
+"Numero di denti: 40",
+"Serie: Extreme",
+"Impiego: decking in legno e composito",
+"EAN: 5035048543146"
+],
+"dotazione": "",
+"disponibilita": "conferma",
+"auto": true,
+"prezzoListino": 9150,
+"tipo": "lama-circolare",
+"punti": [
+"Denti in metallo duro per una lunga durata",
+"Taglio pulito su legno e materiali compositi"
+],
+"impieghi": [
+"Pavimentazioni esterne e decking",
+"Carpenteria"
+],
+"consiglio": "Più denti = taglio più fine ma più lento; meno denti = taglio più veloce, ideale per sgrossare."
+},
+{
+"id": 6682,
+"slug": "dewalt-set-28-pezzi-inserti-flextorq-con-guida-magnetica-edizione-mclaren-f1-team-dt70902t",
+"marca": "DEWALT",
+"nome": "Set 28 pezzi inserti FLEXTORQ con guida magnetica – edizione McLaren F1 Team",
+"modello": "DT70902T",
+"codice": "DT70902T-QZ",
+"categoria": "Punte e inserti",
+"prezzo": 4685,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://assets.dewalt.it/EMEA/PRODUCT/IMAGES/HIRES/WHITEBG/DT70902T_1_1280.webp",
+"soloLink": true,
+"sottotitolo": "Set di inserti per avvitatori a impulsi",
+"descrizione": "Set DEWALT x McLaren F1 Team con inserti FLEXTORQ Impact Ready e portainserti magnetico con guida, nella valigetta ToughCase+ trasparente, componibile con gli altri set e con il sistema TSTAK.",
+"caratteristiche": [
+"Marca: DEWALT",
+"Codice articolo: DT70902T-QZ",
+"Pezzi: 28",
+"Inserti: FLEXTORQ Impact Ready da 25 e 57 mm (PH, PZ, Torx)",
+"Portainserti: magnetico con guida",
+"Custodia: ToughCase+ componibile, compatibile TSTAK",
+"EAN: 5054905327088"
+],
+"dotazione": "28 pezzi in valigetta ToughCase+",
+"disponibilita": "conferma",
+"auto": true,
+"prezzoListino": 5856,
+"tipo": "set",
+"punti": [
+"Inserti resistenti agli urti degli avvitatori a impulsi",
+"Coperchio trasparente per trovare subito l'inserto",
+"Valigetta che si aggancia alle altre ToughCase e al TSTAK"
+],
+"impieghi": [
+"Montaggio",
+"Carpenteria",
+"Impiantistica"
+]
+},
+{
+"id": 6683,
+"slug": "usag-serie-di-5-giraviti-per-viti-con-intaglio-e-impronta-a-croce-usag-324-sh5-u03240645",
+"marca": "USAG",
+"nome": "Serie di 5 giraviti per viti con intaglio e impronta a croce USAG 324 SH5",
+"modello": "U03240645",
+"codice": "U03240645",
+"categoria": "Utensili manuali",
+"prezzo": 2790,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://usag.it/usag_images/cache/324_SH5_F01.jpg",
+"soloLink": true,
+"sottotitolo": "Serie di giraviti",
+"descrizione": "Serie di 5 giraviti USAG 324 per viti a intaglio e con impronta a croce, con impugnatura ergonomica.\n\nUSAG è il marchio italiano di utensili manuali professionali del gruppo Stanley Black & Decker, scelto da meccanici, manutentori e officine per qualità e durata.",
+"caratteristiche": [
+"Marca: USAG",
+"Codice articolo: U03240645",
+"Pezzi: 5",
+"Impronte: intaglio e croce",
+"EAN: 8001150039690"
+],
+"dotazione": "5 giraviti",
+"disponibilita": "conferma",
+"auto": true,
+"tipo": "manuale",
+"punti": [
+"Lame in acciaio di qualità",
+"Impugnatura ergonomica per una presa sicura"
+],
+"impieghi": [
+"Officina",
+"Manutenzione",
+"Impiantistica"
+]
+},
+{
+"id": 6684,
+"slug": "usag-tronchese-a-grande-effetto-con-fulcro-decentrato-200-mm-usag-189-ag-u01890200",
+"marca": "USAG",
+"nome": "Tronchese a grande effetto con fulcro decentrato 200 mm USAG 189 AG",
+"modello": "U01890200",
+"codice": "U01890200",
+"categoria": "Utensili manuali",
+"prezzo": 4490,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://usag.it/usag_images/cache/189_G_F01.jpg",
+"soloLink": true,
+"sottotitolo": "Tronchese a grande effetto",
+"descrizione": "Tronchese USAG 189 da 200 mm con fulcro decentrato: l'effetto leva maggiore riduce molto lo sforzo necessario per tagliare fili e cavi.\n\nUSAG è il marchio italiano di utensili manuali professionali del gruppo Stanley Black & Decker, scelto da meccanici, manutentori e officine per qualità e durata.",
+"caratteristiche": [
+"Marca: USAG",
+"Codice articolo: U01890200",
+"Lunghezza: 200 mm",
+"Taglio filo duro (2100 N/mm²): fino a 3,0 mm",
+"Norma: ISO 5746",
+"EAN: 8001150052491"
+],
+"dotazione": "",
+"disponibilita": "conferma",
+"auto": true,
+"tipo": "manuale",
+"punti": [
+"Fulcro decentrato: meno sforzo nel taglio",
+"Presa sicura sul filo durante il taglio"
+],
+"impieghi": [
+"Officina",
+"Impiantistica elettrica",
+"Manutenzione"
+]
+},
+{
+"id": 6685,
+"slug": "usag-serie-di-8-chiavi-usag-280-stx-s8-u02800195",
+"marca": "USAG",
+"nome": "Serie di 8 chiavi USAG 280 STX/S8",
+"modello": "U02800195",
+"codice": "U02800195",
+"categoria": "Utensili manuali",
+"prezzo": 3387,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://usag.it/usag_images/cache/280_STX-S8_F01.jpg",
+"soloLink": true,
+"sottotitolo": "Serie di chiavi",
+"descrizione": "Serie di 8 chiavi USAG 280 STX/S8 per avere sempre le misure più usate a portata di mano.\n\nUSAG è il marchio italiano di utensili manuali professionali del gruppo Stanley Black & Decker, scelto da meccanici, manutentori e officine per qualità e durata.",
+"caratteristiche": [
+"Marca: USAG",
+"Codice articolo: U02800195",
+"Pezzi: 8",
+"EAN: 8010239091115"
+],
+"dotazione": "8 chiavi",
+"disponibilita": "conferma",
+"auto": true,
+"prezzoListino": 4233,
+"tipo": "manuale",
+"punti": [
+"Acciaio di qualità per uso professionale",
+"Le misure più usate in un'unica serie"
+],
+"impieghi": [
+"Officina",
+"Manutenzione"
+]
+},
+{
+"id": 6686,
+"slug": "usag-giravite-elettrico-in-astuccio-con-15-inserti-usag-324-xp-b16-u03240801",
+"marca": "USAG",
+"nome": "Giravite elettrico in astuccio con inserti (16 pezzi) USAG 324 XP/B16",
+"modello": "U03240801",
+"codice": "U03240801",
+"categoria": "Utensili manuali",
+"prezzo": 12500,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://usag.it/usag_images/cache/324_XP-B16_F01.jpg",
+"soloLink": true,
+"sottotitolo": "Giravite elettrico a batteria",
+"descrizione": "Giravite elettrico USAG 324 XP a batteria con ricarica USB-C, in astuccio di nylon con inserti: veloce come un avvitatore, sensibile come un giravite manuale per i serraggi delicati.\n\nUSAG è il marchio italiano di utensili manuali professionali del gruppo Stanley Black & Decker, scelto da meccanici, manutentori e officine per qualità e durata.",
+"caratteristiche": [
+"Marca: USAG",
+"Codice articolo: U03240801",
+"Pezzi: 16 (giravite e inserti)",
+"Ricarica: USB-C",
+"Astuccio: nylon ad alta resistenza con gancio per cintura",
+"EAN: 8010239924437"
+],
+"dotazione": "Giravite elettrico, inserti, astuccio in nylon, cavo USB-C",
+"disponibilita": "conferma",
+"auto": true,
+"tipo": "manuale",
+"punti": [
+"Compatto per lavorare in spazi stretti",
+"Astuccio con elastici portainserti e tasca per il cavo"
+],
+"impieghi": [
+"Impiantistica elettrica",
+"Quadri elettrici",
+"Manutenzione"
+]
+},
+{
+"id": 6687,
+"slug": "usag-sguainacavi-ergonomico-4-28-mm-usag-163-u01630001",
+"marca": "USAG",
+"nome": "Sguainacavi ergonomico 4-28 mm USAG 163",
+"modello": "U01630001",
+"codice": "U01630001",
+"categoria": "Utensili manuali",
+"prezzo": 3416,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://usag.it/usag_images/cache/163_F01.jpg",
+"soloLink": true,
+"sottotitolo": "Sguainacavi",
+"descrizione": "Sguainacavi USAG 163 per cavi tondi da 4 a 28 mm, con impugnatura ergonomica per spelare la guaina in modo rapido e preciso.\n\nUSAG è il marchio italiano di utensili manuali professionali del gruppo Stanley Black & Decker, scelto da meccanici, manutentori e officine per qualità e durata.",
+"caratteristiche": [
+"Marca: USAG",
+"Codice articolo: U01630001",
+"Cavi: da 4 a 28 mm",
+"EAN: 8010239284425"
+],
+"dotazione": "",
+"disponibilita": "conferma",
+"auto": true,
+"prezzoListino": 4270,
+"tipo": "manuale",
+"punti": [
+"Spellatura rapida e precisa della guaina",
+"Impugnatura ergonomica"
+],
+"impieghi": [
+"Impiantistica elettrica",
+"Cablaggi"
+]
+},
+{
+"id": 6688,
+"slug": "usag-forbice-per-elettricisti-con-lame-in-acciaio-inox-usag-207-d-u02070008",
+"marca": "USAG",
+"nome": "Forbice per elettricisti con lame in acciaio inox USAG 207 D",
+"modello": "U02070008",
+"codice": "U02070008",
+"categoria": "Utensili manuali",
+"prezzo": 2290,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://usag.it/usag_images/cache/207_D_F01.jpg",
+"soloLink": true,
+"sottotitolo": "Forbice per elettricisti",
+"descrizione": "Forbice USAG 207 D per elettricisti, lunga 150 mm, con lame in acciaio inox microdentate per tagliare cavi e fili senza scivolare.\n\nUSAG è il marchio italiano di utensili manuali professionali del gruppo Stanley Black & Decker, scelto da meccanici, manutentori e officine per qualità e durata.",
+"caratteristiche": [
+"Marca: USAG",
+"Codice articolo: U02070008",
+"Lunghezza: 150 mm",
+"Lame: acciaio inox microdentato",
+"EAN: 8001150035289"
+],
+"dotazione": "",
+"disponibilita": "conferma",
+"auto": true,
+"tipo": "manuale",
+"punti": [
+"Lame microdentate antiscivolo",
+"Acciaio inox resistente alla corrosione"
+],
+"impieghi": [
+"Impiantistica elettrica",
+"Cablaggi"
+]
+},
+{
+"id": 6689,
+"slug": "usag-assortimento-3-pinze-isolate-1000-v-usag-085-ex-se3-u00850121",
+"marca": "USAG",
+"nome": "Assortimento 3 pinze e tronchesi isolati 1000 V USAG 085 EX/SE3",
+"modello": "U00850121",
+"codice": "U00850121",
+"categoria": "Utensili manuali",
+"prezzo": 12900,
+"volt": "",
+"immagineOrigine": "",
+"nota": "",
+"immagineDewalt": "https://usag.it/usag_images/cache/085_EX-SE3_F01.jpg",
+"soloLink": true,
+"sottotitolo": "Assortimento pinze isolate 1000 V",
+"descrizione": "Assortimento USAG di 3 utensili isolati 1000 V (pinze e tronchese, EN 60900) per lavorare in sicurezza sugli impianti elettrici.\n\nUSAG è il marchio italiano di utensili manuali professionali del gruppo Stanley Black & Decker, scelto da meccanici, manutentori e officine per qualità e durata.",
+"caratteristiche": [
+"Marca: USAG",
+"Codice articolo: U00850121",
+"Pezzi: 3",
+"Isolamento: 1000 V (EN 60900)",
+"EAN: 8001150033612"
+],
+"dotazione": "3 utensili isolati 1000 V",
+"disponibilita": "conferma",
+"auto": true,
+"tipo": "manuale",
+"punti": [
+"Isolamento 1000 V certificato",
+"Impugnature bimateriale"
+],
+"impieghi": [
+"Impiantistica elettrica",
+"Quadri elettrici",
+"Manutenzione"
+]
 }
 ]
