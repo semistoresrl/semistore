@@ -2302,6 +2302,21 @@ function openImportFatture(){
 }
 
 
+/* 25/11: messaggio WhatsApp della scheda, diverso per ogni fase */
+function schedaTesto(t){ const tt=totali(t), n=t.num||"", ut=[t.modello,descrUtensile(t.modello,t.type)].filter(Boolean).join(" – ");
+  const chi=t.cliFin?`${t.cliente} (${t.cliFin})`:t.cliente; const firma=`\n\nSE.M.I. S.R.L. – Centro assistenza autorizzato DEWALT · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947\nStato della riparazione: https://semistore.it/assistenza (scheda ${n})`;
+  const righe=(t.ricambi||[]).filter(r=>r.qty>0).map(r=>`• ${r.qty} × ${r.descr||r.codice}${Number(r.prezzo)>0?": "+eur(Number(r.prezzo)*r.qty):""}`).join("\n");
+  const prev=`${righe?`Ricambi:\n${righe}\n`:""}${tt.scV?`Sconto ricambi ${tt.sc}%: −${eur(tt.scV)}\n`:""}${tt.mo?`Manodopera: ${eur(tt.mo)}\n`:""}*Totale: ${eur(tt.totale)} IVA inclusa*`;
+  const ddt=t.ddtNum?` (vs. DDT n. ${t.ddtNum}${t.ddtData?" del "+t.ddtData.split("-").reverse().join("/"):""})`:"";
+  const st=t.stato||"Ricevuto";
+  if(st==="Ricevuto") return `Buongiorno ${chi},\nabbiamo ricevuto in assistenza il vostro utensile *${ut}*${ddt}.\nScheda di lavorazione n. *${n}*${t.difetto?`\nDifetto segnalato: ${t.difetto}`:""}.\nVi aggiorniamo appena il tecnico lo ha controllato.`+firma;
+  if(st==="In diagnosi") return `Buongiorno ${chi},\nil tecnico sta controllando il vostro *${ut}* (scheda n. *${n}*)${ddt}. A breve vi mandiamo il preventivo.`+firma;
+  if(st==="Preventivo inviato") return `Buongiorno ${chi},\necco il preventivo per la riparazione del vostro *${ut}* (scheda n. *${n}*)${ddt}.${t.difetto?`\nDifetto: ${t.difetto}`:""}\n\n${prev}\n\nPer procedere basta rispondere a questo messaggio con "OK". Se preferite non riparare, l'utensile resta a disposizione per il ritiro.`+firma;
+  if(st==="Attesa ricambi") return `Buongiorno ${chi},\nabbiamo ordinato i ricambi per il vostro *${ut}* (scheda n. *${n}*). Vi avvisiamo appena arrivano e completiamo la riparazione.`+firma;
+  if(st==="In riparazione") return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è in riparazione. Vi avvisiamo appena è pronto.`+firma;
+  if(st==="Pronto") return `Buongiorno ${chi},\nil vostro *${ut}* è pronto! Scheda n. *${n}*.\n${tt.totale?`Importo: *${eur(tt.totale)}* IVA inclusa.\n`:""}Potete ritirarlo in negozio Lun–Ven 8:30–13:00 / 14:30–18:00, portando la ricevuta o indicando il numero della scheda.`+firma;
+  return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è stato consegnato. ${tt.totale?`Importo: ${eur(tt.totale)} IVA inclusa. `:""}Grazie per averci scelto: per qualsiasi cosa siamo qui.`+firma; }
+function waScheda(t){ const txt=schedaTesto(t); const tel=t.cliFinTel||t.tel; const u=waLink(tel,txt); window.open(u||"https://wa.me/?text="+encodeURIComponent(txt),"_blank"); if(!u) toast("Nessun telefono sulla scheda: scegli il contatto in WhatsApp"); }
 /* ---------- PREVENTIVI (24/11) ---------- */
 const PV_FONTI={auto:"Volantino se c'è, altrimenti listino",volantino:"Volantino (promo)",listino:"Listino",sito:"Prezzo del sito"};
 const PV_STATI={bozza:"Bozza",inviato:"Inviato",accettato:"Accettato",rifiutato:"Rifiutato",scaduto:"Scaduto"};
@@ -2931,7 +2946,7 @@ function openTicket(t, fromReq, draft){
   <div class="mf">
     ${!isNew?`<button class="btn danger edit-only" id="tDel" style="margin-right:auto">Elimina</button>`:""}
     <button class="btn" data-close>Chiudi</button>
-    ${!isNew?`<button class="btn" id="tBol" type="button">${ic("tag")}Stampa bollino</button><button class="btn" id="tSch" type="button">${ic("clipboard")}Stampa scheda</button>`:""}
+    ${!isNew?`<button class="btn" id="tBol" type="button">${ic("tag")}Stampa bollino</button><button class="btn" id="tSch" type="button">${ic("clipboard")}Stampa scheda</button><button class="btn" id="tWa" type="button">${ic("chat")}WhatsApp</button>`:""}
     ${isNew?`<button class="btn edit-only" id="tSaveBol" type="button">${ic("tag")}Apri e stampa bollino</button>`:""}
     <button class="btn pri edit-only" id="tSave">${isNew?"Apri scheda":"Salva"}</button>
   </div>`);
@@ -3057,6 +3072,7 @@ function openTicket(t, fromReq, draft){
   drawRows(); drawEsp(); drawUsual();
   const bol=$("#tBol"); if(bol) bol.onclick=()=>{ snapshotForm(); stampaBollino({...t,stato}); };
   const sch=$("#tSch"); if(sch) sch.onclick=()=>{ snapshotForm(); stampaScheda({...t,stato}); };
+  const twa=$("#tWa"); if(twa) twa.onclick=()=>{ snapshotForm(); waScheda({...t,stato}); };
 
   const del=$("#tDel"); if(del){ let armed=false; del.onclick=async()=>{ if(!armed){armed=true;del.textContent="Confermi? I ricambi tornano a magazzino";return}
     const ok=await write(async()=>{ for(const p of origRic){ if(itm(p.codice)&&p.qty) await muovi(p.codice,+p.qty,"reso da scheda eliminata",t.num); } await S.db.doc("tickets/"+t.id).delete(); },"Scheda eliminata"); if(ok) closeModal(); }; }
