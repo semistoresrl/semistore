@@ -8,6 +8,7 @@ import { SITO, euro } from '../../data/sito.js';
 import { productLd } from '../../data/seo.js';
 import { urlCategoria } from '../../data/catalogo';
 import noleggio from '../../data/noleggio.json';
+import { upsell } from '../../data/upsell';
 export async function getStaticPaths() {
   return prodotti.map((prod) => ({ params: { slug: prod.slug }, props: { p: prod } }));
 }
@@ -24,10 +25,11 @@ const ld = [productLd(p, img), { '@context': 'https://schema.org', '@type': 'Bre
 const conferma = p.disponibilita === 'conferma';
 // anche a noleggio (listino noleggio DEWALT): canone mensile IVA esclusa
 const nol = (noleggio as any[]).find((x) => x.s === p.slug);
-// Utensile "solo corpo" DEWALT: suggerisci batterie e caricabatterie compatibili
-const soloCorpo = p.marca === 'DEWALT' && /solo corpo/i.test(p.nome + ' ' + (p.sottotitolo || ''));
-const comp: Record<string, string[]> = { '18V': ['DCB1104P3', 'DCB184', 'DCB115'], '54V': ['DCB118T2', 'DCB547', 'DCB118'], '12V': ['DCB126', 'DCB124', 'DCB112'] };
-const batterie = soloCorpo && comp[p.volt] ? comp[p.volt].map((m) => prodotti.find((x) => x.modello === m)).filter(Boolean) : [];
+// Upselling: batterie per i solo corpo, proposta «completa l'acquisto», accessori compatibili (o macchine compatibili per gli accessori)
+const up = upsell(p.slug);
+const batterie = up && up.tipo === 'macchina' && up.soloCorpo ? up.batterie.slice(0, 4) : [];
+const proposta = up && up.tipo === 'macchina' ? up.proposta.filter((x: any) => !batterie.some((b: any) => b.slug === x.slug)) : [];
+const famBreve = (f: string) => f.replace(/ \(mandrino\)$/, '');
 const LINGUE: Record<string, string> = { en: 'inglese', fr: 'francese', de: 'tedesco', es: 'spagnolo', pt: 'portoghese', nl: 'olandese', pl: 'polacco', cs: 'ceco', sk: 'slovacco', hu: 'ungherese', ro: 'rumeno', bg: 'bulgaro', el: 'greco', ru: 'russo', uk: 'ucraino', tr: 'turco', sv: 'svedese', th: 'thailandese', vi: 'vietnamita', id: 'indonesiano', ko: 'coreano' };
 const vTit = p.video ? (p.video.it || p.video.t) : '';
 const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] || 'lingua straniera') : '';
@@ -56,14 +58,33 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
         {batterie.length > 0 && (
           <div class="bat">
             <b>È un solo corpo: ti servono batterie e caricabatterie?</b>
-            <span>Se non le hai già, ecco quelle compatibili:</span>
+            <span>Se non le hai già, ecco quelle compatibili {up && up.tipo === 'macchina' && up.al ? `(${up.al === '54V' ? '54V FLEXVOLT' : up.al})` : ''}:</span>
             {batterie.map((x: any) => (
-              <a href={`/prodotti/${x.slug}/`} class="bat-r">
-                {fotoDi(x.slug, 400) && <img src={fotoDi(x.slug, 400)} alt="" width="56" height="56" loading="lazy" />}
-                <span><b>{x.nome}</b><small>{x.modello}</small></span><b>{euro(x.prezzo)}</b>
-              </a>
+              <div class="bat-r">
+                {fotoDi(x.slug, 400) ? <img src={fotoDi(x.slug, 400)} alt="" width="56" height="56" loading="lazy" /> : <span></span>}
+                <a href={`/prodotti/${x.slug}/`}><b>{x.nome}</b><small>{x.modello}{x.disponibilita === 'conferma' ? ' · su conferma' : ' · disponibile'}</small></a>
+                <span class="up-p"><b>{euro(x.prezzo)}</b><button type="button" class="up-add" data-add={x.slug} aria-label={`Aggiungi ${x.nome} al carrello`}>+ Aggiungi</button></span>
+              </div>
             ))}
           </div>
+        )}
+        {proposta.length > 0 && (
+          <div class="bund" id="bund">
+            <b>Completa l'acquisto</b>
+            <span class="bund-s">Gli accessori compatibili più scelti con questo utensile:</span>
+            <label class="bund-r bund-me"><input type="checkbox" checked disabled /><span><b>Questo articolo</b><small>{p.modello}</small></span><b>{euro(p.prezzo)}</b></label>
+            {proposta.map((x: any) => (
+              <label class="bund-r">
+                <input type="checkbox" checked data-b={x.slug} data-pr={x.prezzo} />
+                <span><a href={`/prodotti/${x.slug}/`}>{x.nome}</a><small>{x.modello}{x.disponibilita === 'conferma' ? ' · su conferma' : ''}</small></span>
+                <b>{euro(x.prezzo)}</b>
+              </label>
+            ))}
+            <button type="button" class="btn btn-k" id="bundGo" data-base={p.prezzo}>Aggiungi tutto al carrello · <span id="bundTot">{euro(p.prezzo + proposta.reduce((t: number, x: any) => t + x.prezzo, 0))}</span></button>
+          </div>
+        )}
+        {up && up.tipo !== 'macchina' && up.macchine.length > 0 && (
+          <a class="fit" href="#compatibili"><span><b>{up.tipo === 'batteria' ? 'Alimenta' : 'Va bene su'} {up.totale} {up.totale === 1 ? 'utensile' : 'utensili'}</b><small>{up.macchine.slice(0, 3).map((x: any) => x.modello).join(', ')}{up.totale > 3 ? '…' : ''}</small></span><span class="nol-v">Vedi quali →</span></a>
         )}
         <div class="sbar" id="sbar" aria-hidden="true">
           <span class="sbar-t"><b>{euro(p.prezzo)}</b><small>{p.modello || p.marca}</small></span>
@@ -100,6 +121,32 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
         {p.consiglio && <div class="pd-d pd-tip"><h2 class="h2">Il consiglio del nostro tecnico</h2><p>{p.consiglio}</p></div>}
       </section>
     )}
+    {up && up.tipo === 'macchina' && up.gruppi.length > 0 && (
+      <section class="sec" id="compatibili">
+        <div class="sec-h"><h2 class="h2">Accessori compatibili</h2></div>
+        <p class="up-int">Lame, dischi, punte e accessori che vanno su questo utensile{up.al && up.al !== '230V' ? ` (piattaforma ${up.al})` : ''}. Hai dubbi? <a class="ul" href={`https://wa.me/${SITO.whatsapp}?text=${encodeURIComponent(`Ciao Semi, quali accessori mi consigliate per ${p.modello}?`)}`} target="_blank" rel="noopener">Chiedici su WhatsApp</a>.</p>
+        <div class="up-tabs" role="tablist">{up.gruppi.map((g: any, i: number) => <button type="button" role="tab" class={i === 0 ? 'on' : ''} data-tab={i}>{famBreve(g.famiglia)} <small>{g.totale}</small></button>)}</div>
+        {up.gruppi.map((g: any, i: number) => (
+          <div class="up-g" data-pan={i} hidden={i !== 0}>
+            {g.prodotti.map((x: any) => (
+              <div class="up-r">
+                <a href={`/prodotti/${x.slug}/`} class="up-i">{fotoDi(x.slug, 400) ? <img src={fotoDi(x.slug, 400)} alt="" width="64" height="64" loading="lazy" /> : <span class="mono">{x.modello}</span>}</a>
+                <a href={`/prodotti/${x.slug}/`} class="up-n"><b>{x.nome}</b><small class="mono">{x.modello}{x.disponibilita === 'conferma' ? ' · su conferma' : ' · disponibile'}</small></a>
+                <span class="up-p"><b>{euro(x.prezzo)}</b><button type="button" class="up-add" data-add={x.slug} aria-label={`Aggiungi ${x.nome} al carrello`}>+ Aggiungi</button></span>
+              </div>
+            ))}
+            {g.totale > g.prodotti.length && <p class="up-more">Altri {g.totale - g.prodotti.length} compatibili: <a class="ul" href={`https://wa.me/${SITO.whatsapp}?text=${encodeURIComponent(`Ciao Semi, cerco ${famBreve(g.famiglia).toLowerCase()} per ${p.modello}`)}`} target="_blank" rel="noopener">chiedici quello giusto su WhatsApp</a>.</p>}
+          </div>
+        ))}
+      </section>
+    )}
+    {up && up.tipo !== 'macchina' && up.macchine.length > 0 && (
+      <section class="sec" id="compatibili">
+        <div class="sec-h"><h2 class="h2">{up.tipo === 'batteria' ? 'Utensili compatibili' : 'Va bene su questi utensili'}</h2></div>
+        <p class="up-int">{up.totale} {up.totale === 1 ? 'utensile compatibile' : 'utensili compatibili'} nel nostro catalogo{up.totale > up.macchine.length ? `, ecco i primi ${up.macchine.length}` : ''}.</p>
+        <div class="grid-p">{up.macchine.map((x: any) => <ProductCard p={x} />)}</div>
+      </section>
+    )}
     {simili.length > 0 && <section class="sec"><div class="sec-h"><h2 class="h2">Simili</h2></div><div class="grid-p">{simili.map((s) => <ProductCard p={s} />)}</div></section>}
   </div>
 </Base>
@@ -130,6 +177,21 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
     const q = Math.max(1, Math.min(20, Number((document.getElementById('qty') as HTMLInputElement).value) || 1));
     add(b.dataset.slug!, q); track('add_to_cart', art(q)); (document.getElementById('ok') as HTMLElement).hidden = false;
   });
+  // upselling: pulsanti «+ Aggiungi», pacchetto «Completa l'acquisto», schede degli accessori
+  const fatto = (btn: HTMLElement) => { btn.textContent = 'Aggiunto ✓'; btn.classList.add('ok'); (document.getElementById('ok') as HTMLElement).hidden = false; };
+  document.querySelectorAll<HTMLButtonElement>('[data-add]').forEach((x) => x.addEventListener('click', () => { add(x.dataset.add!, 1); track('add_to_cart', { items: [{ id: x.dataset.add }], value: 0 }); fatto(x); }));
+  const bg = document.getElementById('bundGo');
+  if (bg) {
+    const box = document.getElementById('bund')!, tot = document.getElementById('bundTot')!;
+    const eur = (c: number) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(c / 100);
+    const sel = () => [...box.querySelectorAll<HTMLInputElement>('[data-b]')].filter((i) => i.checked);
+    box.addEventListener('change', () => { tot.textContent = eur(Number(bg.dataset.base) + sel().reduce((t, i) => t + Number(i.dataset.pr), 0)); });
+    bg.addEventListener('click', () => { add(b.dataset.slug!, 1); track('add_to_cart', art(1)); sel().forEach((i) => add(i.dataset.b!, 1)); bg.textContent = 'Aggiunti ✓ · vai al carrello'; bg.onclick = () => (location.href = '/carrello/'); (document.getElementById('ok') as HTMLElement).hidden = false; });
+  }
+  document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach((t) => t.addEventListener('click', () => {
+    document.querySelectorAll('[data-tab]').forEach((x) => x.classList.toggle('on', x === t));
+    document.querySelectorAll<HTMLElement>('[data-pan]').forEach((p) => (p.hidden = p.dataset.pan !== t.dataset.tab));
+  }));
   // barra "Aggiungi al carrello" fissa in basso su telefono, quando il pulsante principale non si vede più
   const sbar = document.getElementById('sbar')!;
   document.getElementById('add2')!.addEventListener('click', () => { add(b.dataset.slug!, 1); track('add_to_cart', art(1)); const t = document.getElementById('add2')!; t.textContent = 'Aggiunto ✓'; setTimeout(() => (location.href = '/carrello/'), 400); });
@@ -138,8 +200,21 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
 </script>
 <style>
   .nol{display:flex;justify-content:space-between;align-items:center;gap:12px;border:2px solid var(--ink);border-radius:12px;padding:12px 14px;color:var(--ink)}.nol span{display:flex;flex-direction:column;gap:2px}.nol small{color:var(--mut);font-size:13.5px}.nol-v{font-weight:900;white-space:nowrap}.nol:hover{background:#fffbea;color:var(--ink)}
+  .bat-r a{color:var(--ink)}.up-p{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  .up-add{border:2px solid var(--ink);background:#fff;border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}.up-add:hover{background:var(--y)}.up-add.ok{background:#e7f6ec;border-color:#1a8f3a;color:#1a6b2f}
+  .bund{display:flex;flex-direction:column;gap:6px;border:2px solid var(--ink);border-radius:12px;padding:14px;font-size:14px}.bund-s{color:var(--mut);font-size:13.5px}
+  .bund-r{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line);cursor:pointer}.bund-r input{width:18px;height:18px;accent-color:#111}
+  .bund-r a{color:var(--ink);font-weight:600;font-size:13.5px;line-height:1.25}.bund-r small{display:block;color:var(--mut);font-size:12px}.bund-me span b{font-size:13.5px}
+  .fit{display:flex;justify-content:space-between;align-items:center;gap:12px;border:2px solid var(--ink);border-radius:12px;padding:12px 14px;color:var(--ink)}.fit span{display:flex;flex-direction:column;gap:2px}.fit small{color:var(--mut);font-size:13.5px}.fit:hover{background:#fffbea;color:var(--ink)}
+  .up-int{color:var(--mut);margin:-6px 0 14px}.up-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;scrollbar-width:thin}
+  .up-tabs button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;font-weight:700;white-space:nowrap;cursor:pointer}.up-tabs button small{color:var(--mut);font-weight:600}.up-tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.up-tabs button.on small{color:#ddd}
+  .up-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}.up-g[hidden]{display:none}
+  .up-r{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px 8px 8px}
+  .up-i{display:grid;place-items:center;width:64px;height:64px}.up-i img{width:64px;height:64px;object-fit:contain}.up-i .mono{font-size:10px;color:var(--mut)}
+  .up-n{color:var(--ink)}.up-n b{display:block;font-size:14px;line-height:1.3;font-weight:600}.up-n small{color:var(--mut);font-size:12px}.up-more{grid-column:1/-1;color:var(--mut);font-size:14px;margin:4px 0 0}
+  @media(max-width:600px){.up-g{grid-template-columns:1fr}}
   .bat{display:flex;flex-direction:column;gap:8px;background:#fff8dc;border:1px solid #f5b80066;border-radius:12px;padding:14px;font-size:14px}
-  .bat-r{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;background:#fff;border-radius:10px;padding:6px 10px 6px 6px;border:1px solid var(--line)}.bat-r:hover{border-color:var(--y);color:var(--ink)}
+  .bat-r{display:grid;grid-template-columns:56px 1fr auto;color:var(--ink);gap:10px;align-items:center;background:#fff;border-radius:10px;padding:6px 10px 6px 6px;border:1px solid var(--line)}.bat-r:hover{border-color:var(--y);color:var(--ink)}
   .bat-r img{width:56px;height:56px;object-fit:contain}.bat-r small{display:block;color:var(--mut);font-size:12px}.bat-r span b{font-size:13.5px;line-height:1.25;display:block}
   .sbar{display:none}
   @media (max-width:760px){.sbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:25;gap:12px;align-items:center;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);box-shadow:0 -10px 30px #0002;transform:translateY(110%);transition:transform .25s}.sbar.on{transform:none}.sbar .btn{flex:1;min-height:48px}.sbar-t{display:flex;flex-direction:column;line-height:1.1}.sbar-t b{font-size:20px}.sbar-t small{color:var(--mut);font-size:12px}}

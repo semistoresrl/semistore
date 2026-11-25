@@ -34,15 +34,23 @@ import { SITO } from '../data/sito.js';
         <small style="color:var(--mut)">Pagamento gestito da Stripe: carte, Apple Pay, Google Pay. I dati della carta non passano dal nostro sito.</small>
       </aside>
     </div>
+    <div class="upc" id="upc" hidden>
+      <h2 class="h2">Ti potrebbe servire</h2>
+      <p class="upc-s">Batterie, lame e accessori compatibili con gli utensili nel carrello.</p>
+      <div class="grid-p" id="upl"></div>
+    </div>
   </section>
 </Base>
+<style>
+  .upc{margin-top:40px}.upc-s{color:var(--mut);margin:-8px 0 16px}.upc-c{display:flex;flex-direction:column;gap:8px}.upc-c .pc{flex:1}.upc-a{width:100%}
+</style>
 <script define:vars={{ sp: SITO.spedizione, premi: SITO.punti.prodottiPremio || [] }}>
   window.__SP = sp; window.__PREMI = premi;
 </script>
 <script>
-  import { read, setQty, clear } from '../scripts/cart.js';
+  import { read, setQty, clear, add } from '../scripts/cart.js';
   import { track, itemsCarrello } from '../scripts/track.js';
-  import { indice } from '../scripts/card.js';
+  import { indice, card } from '../scripts/card.js';
   import { calcolaPunti, prossimoBonus } from '../lib/punti.js';
   const PREMI = new Set<string>((window as any).__PREMI || []);
   type Buono = { codice?: string; id?: string; disponibile: number; soloPremi: boolean; fine: string; usa: boolean };
@@ -181,6 +189,18 @@ import { SITO } from '../data/sito.js';
   } catch {}
   if (new URL(location.href).searchParams.get('svuota')) clear();
   el('righe').innerHTML = '<p style="padding:20px;margin:0">Caricamento…</p>';
+  // upselling: compatibili con gli utensili nel carrello (public/compat-sito.json)
+  let UP: Record<string, string[]> | null = null;
+  fetch('/compat-sito.json').then((r) => r.json()).then((j) => { UP = j; suggerisci(); }).catch(() => {});
+  function suggerisci() {
+    const box = el('upc'), l = el('upl'); if (!UP || !Object.keys(M).length) return;
+    const nel = new Set(read().map((i) => i.slug)), vis: string[] = [];
+    for (const i of read()) for (const s of UP[i.slug] || []) if (!nel.has(s) && M[s] && !vis.includes(s)) vis.push(s);
+    box.hidden = !vis.length; if (!vis.length) return;
+    l.innerHTML = vis.slice(0, 8).map((s) => `<div class="upc-c">${card(M[s])}<button type="button" class="btn btn-k upc-a" data-up="${s}">+ Aggiungi al carrello</button></div>`).join('');
+    l.querySelectorAll<HTMLButtonElement>('[data-up]').forEach((b) => b.onclick = () => { add(b.dataset.up!, 1); track('add_to_cart', { items: [{ id: M[b.dataset.up!].m, nome: M[b.dataset.up!].n, prezzo: M[b.dataset.up!].p / 100, qty: 1 }], value: M[b.dataset.up!].p / 100 }); render(); suggerisci(); });
+  }
+  addEventListener('cart:change', () => suggerisci());
   indice().then((l: any[]) => { M = Object.fromEntries(l.map((x) => [x.s, x])); render(); }).catch(() => { el('righe').innerHTML = '<p style="padding:20px;margin:0">Non riusciamo a caricare il carrello: ricarica la pagina.</p>'; });
 </script>
 <style is:global>.cg-n{font-size:12.5px;color:var(--mut);margin:8px 0 0;line-height:1.45}
