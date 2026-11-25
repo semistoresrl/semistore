@@ -666,6 +666,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#resi" data-v="resi"><svg class="i"><use href="#i-return"/></svg><span>Resi</span><span class="ct" id="ctResi">0</span></a>
 <a href="#consegne" data-v="consegne"><svg class="i"><use href="#i-box"/></svg><span>Scaffale consegne</span><span class="ct" id="ctCons">0</span></a>
 <a href="#preventivi" data-v="preventivi"><svg class="i"><use href="#i-euro"/></svg><span>Preventivi</span><span class="ct" id="ctPrev">0</span></a>
+<a href="#noleggi" data-v="noleggi"><svg class="i"><use href="#i-clock"/></svg><span>Noleggi</span><span class="ct" id="ctNol">0</span></a>
 <a href="#" data-esp="1"><svg class="i"><use href="#i-drill"/></svg><span>Esplosi</span></a>
 <details class="more" id="navMore"><summary><svg class="i"><use href="#i-grid"/></svg><span>Tutto il resto</span><svg class="i chev"><use href="#i-chev"/></svg></summary>
 <div class="ng">Banco</div><a href="#richieste" data-v="richieste"><svg class="i"><use href="#i-globe"/></svg><span>Richieste dal sito</span><span class="ct" id="ctWeb">0</span></a>
@@ -755,7 +756,7 @@ function garFileLines(t){
   const D=(t.ricambi||[]).filter(p=>p.qty>0).map(p=>["D",ascii(p.codice).toUpperCase(),String(parseInt(p.qty)||1)]);
   return [H,...D].map(r=>r.join("\t"));
 }
-const S = { tickets:[], clienti:new Map(), _cliVer:0, mag:new Map(), magChunks:new Set(), movimenti:[], richieste:[], ordini:[], sito:{}, ean:{}, facile:(()=>{try{return localStorage.getItem("semi-facile")!=="0"}catch(e){return true}})(), ordiniWeb:[], consegne:[], preventivi:[], pvFilt:"aperti", resi:[], sconti:[], oFilt:"aperti", oCan:"", oq:"", rFilt:"aperti", esplosi:new Map(), ricDW:new Map(), rq:"", assets:null,
+const S = { tickets:[], clienti:new Map(), _cliVer:0, mag:new Map(), magChunks:new Set(), movimenti:[], richieste:[], ordini:[], sito:{}, ean:{}, facile:(()=>{try{return localStorage.getItem("semi-facile")!=="0"}catch(e){return true}})(), ordiniWeb:[], consegne:[], preventivi:[], noleggi:[], nlFilt:"gestire", pvFilt:"aperti", resi:[], sconti:[], oFilt:"aperti", oCan:"", oq:"", rFilt:"aperti", esplosi:new Map(), ricDW:new Map(), rq:"", assets:null,
   cfg:{tecnici:["Tecnico 1","Tecnico 2"], tariffa:35, prefisso:"AS", soglia:250},
   loaded:{t:false,r:false,m:false,q:false,c:false,o:false,e:false,d:false,w:false,x:false,z:false}, db:null, user:null, canWrite:true, canEdit:false, me:null, dl:null, gFilt:"aperte",
   view:"cruscotto", filt:{q:"",stato:"aperti",tipo:"",tec:""}, layout:"board",
@@ -823,6 +824,7 @@ async function init(){
   db.collection("ricambiDW").onSnapshot(s=>{const m=new Map(); s.docs.forEach(d=>{const x=d.data(); if(x&&x.codice) m.set(String(x.codice).toUpperCase(),{id:d.id,...x})}); S.ricDW=m; s.metadata.fromCache?schedule():done("d");},err);
   db.collection("ordiniWeb").onSnapshot(s=>{S.ordiniWeb=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("w");},err);
   db.collection("consegne").onSnapshot(s=>{S.consegne=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
+  db.collection("noleggi").onSnapshot(s=>{S.noleggi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("preventivi").onSnapshot(s=>{S.preventivi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("resi").onSnapshot(s=>{S.resi=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("x");},err);
   db.collection("clienti").onSnapshot(s=>{ const m=new Map(); s.docs.forEach(d=>{ const it=d.data()?.items||{}; for(const k in it){ const c=it[k]; if(c&&c.nome) m.set(k,{...c,id:k}); } }); S.clienti=m; S._cliVer++; schedule(); },()=>{});
@@ -1156,7 +1158,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -1174,6 +1176,7 @@ function render(){
   $("#ctOrd").textContent=S.ordiniWeb.filter(o=>ORD_APERTI.includes(o.stato)).length; $("#ctOrd").classList.toggle("hot",oCf>0);
   $("#ctResi").textContent=S.resi.filter(r=>r.stato!=="Chiuso").length;
   { const e=$("#ctCons"); if(e){ const n=sulloScaffale().length; e.textContent=n; } }
+  { const e=$("#ctNol"); if(e){ const l=S.noleggi||[]; e.textContent=l.filter(n=>["nuova","contattato","offerta","pratica","approvata","firmato"].includes(n.stato||"nuova")).length; e.classList.toggle("hot",l.some(n=>(n.stato||"nuova")==="nuova")); } }
   { const e=$("#ctPrev"); if(e){ e.textContent=(S.preventivi||[]).filter(p=>!["accettato","rifiutato","scaduto"].includes(p.stato)).length; } }
   document.querySelectorAll("#nav .ct").forEach(c=>c.toggleAttribute("data-z",/^0( €)?$/.test(c.textContent.trim())));
   const nm=$("#navMore"); if(nm&&nm.querySelector('a[data-v="'+S.view+'"]')) nm.open=true;
@@ -1181,7 +1184,7 @@ function render(){
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = S.db ? "" : S.dbErr ? `<div class="banner err">L'archivio condiviso non è raggiungibile. Controlla la connessione e ricarica la pagina.</div>` : `<div class="banner">Sto scaricando l'archivio… un momento.</div>`;
-  const fns={preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
   S._vistaPrec=S.view;
@@ -1211,7 +1214,7 @@ function patchTieni(m,html,vivo){
   }
   return true;
 }
-const VICON={"preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={"noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -1881,7 +1884,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -1910,7 +1913,7 @@ function bindView(){
   const sel=(id,fn)=>{const e=$("#"+id); if(e) e.onchange=()=>{fn(e.value);render()}};
   sel("fst",v=>S.filt.stato=v); sel("ftp",v=>S.filt.tipo=v); sel("ftc",v=>S.filt.tec=v);
   sel("cCat",v=>{S.cCat=v;S.cPage=1}); sel("cMarca",v=>{S.cMarca=v;S.cPage=1}); sel("cPiatt",v=>{S.cPiatt=v;S.cPage=1});
-  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi();
+  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="noleggi") bindNoleggi();
   const fst=$("#fst"); if(fst) fst.value=S.filt.stato; const ftp=$("#ftp"); if(ftp) ftp.value=S.filt.tipo; const ftc=$("#ftc"); if(ftc) ftc.value=S.filt.tec;
 }
 async function saveCfg(){
@@ -2373,6 +2376,151 @@ function openFatturaOrdine(o){
     if(await write(()=>S.db.collection("ordiniWeb").doc(o.id).update({fattura,updatedAt:Date.now()}),"Fattura "+numero+" segnata sull'ordine")) openOrdine({...o,fattura}); };
 }
 function stampaPreventivo(p,w){ w=w||window.open("","_blank"); if(!w){ toast("Il telefono ha bloccato la finestra: consenti i popup per semistore.it"); return; } w.document.open(); w.document.write(preventivoHtml(p)); w.document.close(); }
+/* ---------- Noleggi (listino noleggio DEWALT: richieste dal sito e pratiche fatte in negozio) ---------- */
+const NL_STATI={nuova:"Nuova richiesta",contattato:"Cliente contattato",offerta:"Offerta inviata",pratica:"Pratica aperta",approvata:"Pratica approvata",firmato:"Contratto firmato",attivo:"Consegnato · attivo",chiuso:"Concluso",rifiutato:"Rifiutato / annullato"};
+const NL_CLS={nuova:"st-Ricevuto",contattato:"st-In_diagnosi",offerta:"st-Preventivo_inviato",pratica:"st-In_riparazione",approvata:"st-In_riparazione",firmato:"st-Pronto",attivo:"st-Pronto",chiuso:"st-Consegnato",rifiutato:"st-Annullato"};
+const NL_FILTRI=[["gestire","Da gestire",["nuova","contattato","offerta"]],["pratica","In pratica",["pratica","approvata","firmato"]],["attivi","Attivi",["attivo"]],["chiusi","Chiusi",["chiuso","rifiutato"]],["tutti","Tutti",null]];
+const NL_DOCS=[["visura","Visura camerale"],["docLegale","Documento d'identità del legale rappresentante"],["cfLegale","Codice fiscale del legale rappresentante"],["iban","IBAN per l'addebito dei canoni"],["bilancio","Ultimo bilancio o dichiarazione (se richiesto)"]];
+function nlListino(){ if(S.nolL) return Promise.resolve(S.nolL); if(S._nolP) return S._nolP;
+  S._nolP=fetch("/noleggio/listino.json",{cache:"no-cache"}).then(r=>r.json()).then(l=>{ S.nolL=l; S.nolM=new Map(l.map(x=>[x.c,x])); return l; }).catch(()=>{ S._nolP=null; return []; }); return S._nolP; }
+const nlArt=c=>S.nolM&&S.nolM.get(c);
+function nlCerca(q,n=8,escludi=new Set()){ const w=String(q||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").split(/\s+/).filter(Boolean); if(!w.length||!S.nolL) return [];
+  const nn=normC(q); return S.nolL.filter(x=>!escludi.has(x.c)).map(x=>{ const t=(x.c+" "+x.n+" "+x.d+" "+x.cat+" "+x.al).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); if(!w.every(p=>t.includes(p))) return null;
+    return {x,p:(normC(x.c)===nn||normC(x.m)===nn?100:normC(x.m).startsWith(nn)?50:0)+(x.n.toLowerCase().includes(w[0])?10:0)-x.k/1000}; }).filter(Boolean).sort((a,b)=>b.p-a.p).slice(0,n).map(o=>o.x); }
+const nlCanone=r=>r2((Number(r.kc!=null&&r.kc!==""?r.kc:r.k)||0)*(Number(r.qty)||0));
+function nlTotali(n){ const imp=r2((n.righe||[]).reduce((s,r)=>s+nlCanone(r),0)), iva=r2(imp*0.22), dur=Number(n.uso?.durata)||36; return {imp,iva,tot:r2(imp+iva),dur,valore:r2(imp*dur),pezzi:(n.righe||[]).reduce((s,r)=>s+(Number(r.qty)||0),0)}; }
+function nlScadenza(n){ const d=n.uso?.dataConsegna||n.uso?.dataFirma; if(!d) return ""; const x=new Date(d+"T12:00:00"); x.setMonth(x.getMonth()+(Number(n.uso?.durata)||36)); return x.toISOString().slice(0,10); }
+const nlData=d=>d?String(d).split("-").reverse().join("/"):"—";
+function nextNol(){ const pre="NL-"+new Date().getFullYear()+"-"; let max=0; (S.noleggi||[]).forEach(t=>{ if(String(t.num||"").startsWith(pre)) max=Math.max(max,parseInt(String(t.num).slice(pre.length),10)||0); }); return pre+String(max+1).padStart(4,"0"); }
+function nlNuovo(){ return {num:nextNol(),at:Date.now(),by:S.me||null,canale:"banco",stato:"nuova",azienda:{},referente:{},uso:{durata:36,consegna:"ritiro",luogo:"sede"},righe:[],docs:{},storia:[]}; }
+function nlConsigli(n){ const out=[], visti=new Set((n.righe||[]).map(r=>r.c)); const haBatt=n.uso?.batterie==="si";
+  for(const r of n.righe||[]){ const x=nlArt(r.c); if(!x||!x.sg) continue;
+    for(const [motivo,cod] of x.sg){ if(haBatt&&/^Batteri/.test(motivo)) continue;
+      if(/^Batteri/.test(motivo)&&(n.righe||[]).some(y=>{ const z=nlArt(y.c); return z&&z.cat==="Batterie e caricabatterie"&&(z.al===x.al||(x.al==="18V"&&/18V/.test(z.al))); })) continue;
+      const l=cod.filter(c=>!visti.has(c)).map(nlArt).filter(Boolean).slice(0,3); if(!l.length) continue; l.forEach(y=>visti.add(y.c)); out.push({per:x.m,motivo,l}); if(out.length>=4) return out; } }
+  return out; }
+function vNoleggi(){ if(!S.nolL) nlListino().then(()=>{ if(S.view==="noleggi") render(); });
+  const f=NL_FILTRI.find(x=>x[0]===(S.nlFilt||"gestire"))||NL_FILTRI[0];
+  let l=(S.noleggi||[]).slice().sort((a,b)=>(b.at||0)-(a.at||0));
+  const cnt=k=>{ const ff=NL_FILTRI.find(x=>x[0]===k); return ff[2]?l.filter(n=>ff[2].includes(n.stato||"nuova")).length:l.length; };
+  if(f[2]) l=l.filter(n=>f[2].includes(n.stato||"nuova"));
+  if(S.nlq){ const q=S.nlq.toLowerCase(); l=l.filter(n=>[n.num,n.azienda?.ragione,n.azienda?.piva,n.referente?.nome,n.referente?.tel,n.pratica,...(n.righe||[]).map(r=>r.c+" "+r.n+" "+(r.matr||""))].join(" ").toLowerCase().includes(q)); }
+  const oggi=new Date().toISOString().slice(0,10), fra60=new Date(Date.now()+60*864e5).toISOString().slice(0,10);
+  const inScad=(S.noleggi||[]).filter(n=>n.stato==="attivo"&&nlScadenza(n)&&nlScadenza(n)<=fra60);
+  return header("Noleggi","Listino noleggio DEWALT: richieste dal sito e pratiche fatte in negozio",`<a class="btn" href="/noleggio/" target="_blank" rel="noopener">${ic("ext")}Pagina del sito</a><button class="btn pri edit-only" data-act="nuovoNol">${ic("plus")}Nuovo noleggio</button>`)+
+  (inScad.length?`<div class="banner"><b>${inScad.length} ${inScad.length===1?"contratto scade":"contratti scadono"} entro 60 giorni:</b> ${inScad.map(n=>esc(n.num+" "+(n.azienda?.ragione||"")+" ("+nlData(nlScadenza(n))+")")).join(", ")}. Buon momento per proporre il rinnovo.</div>`:"")+`
+  <div class="toolbar"><div class="chips">${NL_FILTRI.map(([k,t])=>`<button class="chip ${(S.nlFilt||"gestire")===k?"on":""}" data-nlf="${k}">${t} <small>${cnt(k)}</small></button>`).join("")}</div><input id="nlq" placeholder="Cerca numero, azienda, P.IVA, codice o matricola" value="${esc(S.nlq||"")}"></div>
+  ${l.length?`<div class="tts"><table><thead><tr><th>Numero</th><th>Azienda</th><th>Articoli</th><th class="num">Canone al mese</th><th>Durata</th><th>Stato</th></tr></thead><tbody>${l.map(n=>{ const t=nlTotali(n), sc=nlScadenza(n); return `<tr class="click" data-nl="${esc(n.id)}"><td class="mono">${esc(n.num||"—")}<div class="sub">${fmtD(n.at)} · ${n.canale==="sito"?`<span class="tg web">SITO</span>`:"negozio"}</div></td>
+    <td><b>${esc(n.azienda?.ragione||"—")}</b><div class="sub">${esc([n.referente?.nome,n.referente?.tel].filter(Boolean).join(" · "))}</div></td>
+    <td>${nf((n.righe||[]).length)} righe · ${nf(t.pezzi)} pz<div class="sub">${esc((n.righe||[]).slice(0,3).map(r=>r.c).join(", "))}${(n.righe||[]).length>3?"…":""}</div></td>
+    <td class="num"><b>${eur(t.imp)}</b><div class="sub">+ IVA</div></td><td>${t.dur} mesi${sc?`<div class="sub ${sc<oggi?"err":""}">fino al ${nlData(sc)}</div>`:""}</td>
+    <td><span class="badge ${NL_CLS[n.stato||"nuova"]||""}">${esc(NL_STATI[n.stato||"nuova"]||n.stato)}</span>${n.pratica?`<div class="sub">Pratica ${esc(n.pratica)}</div>`:""}</td></tr>`; }).join("")}</tbody></table></div>`
+  :`<div class="panel"><div class="empty">Nessun noleggio${f[2]?" con questo filtro":""}. Le richieste dal sito arrivano qui da sole; per un cliente al banco premi «Nuovo noleggio».</div></div>`}`;
+}
+function bindNoleggi(){ const m=$("#main");
+  m.querySelectorAll("[data-nlf]").forEach(b=>b.onclick=()=>{ S.nlFilt=b.dataset.nlf; render(); });
+  m.querySelectorAll("[data-nl]").forEach(r=>r.onclick=()=>openNoleggio(S.noleggi.find(n=>n.id===r.dataset.nl)));
+  const q=$("#nlq"); if(q) q.oninput=()=>{ S.nlq=q.value; clearTimeout(q._t); q._t=setTimeout(render,200); }; }
+async function openNoleggio(n0){ await nlListino();
+  const n=n0?JSON.parse(JSON.stringify(n0)):nlNuovo(); const nuovo=!n.id; const puoSc=puoPrezzi();
+  n.azienda=n.azienda||{}; n.referente=n.referente||{}; n.uso=n.uso||{durata:36}; n.righe=n.righe||[]; n.docs=n.docs||{}; n.storia=n.storia||[];
+  const statoIniz=n.stato||"nuova";
+  const inp=(id,v,extra="")=>`<input id="${id}" value="${esc(v??"")}" ${extra}>`;
+  const draw=()=>{ const t=nlTotali(n), a=n.azienda, r=n.referente, u=n.uso, ro=!S.canWrite, cons=nlConsigli(n), sc=nlScadenza(n);
+    openModal(`<div class="mh"><h2>${nuovo?"Nuovo noleggio":"Noleggio "+esc(n.num)}</h2><span class="sp"></span>${n.canale==="sito"?`<span class="tg web">DAL SITO</span>`:""}<button class="x" data-close>×</button></div>
+    <div class="mb">
+     <div class="fs"><h3>Stato</h3><div class="f"><label class="fl">Stato<select id="nlSt">${Object.entries(NL_STATI).map(([k,v])=>`<option value="${k}" ${n.stato===k?"selected":""}>${v}</option>`).join("")}</select></label>
+      <label class="fl">Nota sul cambio di stato<input id="nlStN" placeholder="es. offerta mandata su WhatsApp"></label><label class="fl">N. pratica società di noleggio<input id="nlPr" value="${esc(n.pratica||"")}"></label></div>
+      ${n.storia.length?`<div class="sub" style="margin-top:8px">${n.storia.slice().reverse().slice(0,6).map(s=>`${fmtDT(s.at)} · <b>${esc(NL_STATI[s.stato]||s.stato)}</b>${s.chi?" · "+esc(s.chi):""}${s.nota?" · "+esc(s.nota):""}`).join("<br>")}</div>`:""}</div>
+     <div class="fs"><h3>Azienda</h3><div class="f">
+      <label class="fl" style="grid-column:1/-1">Ragione sociale *<input id="nlRag" value="${esc(a.ragione||"")}" placeholder="Nome, telefono o partita IVA dall'archivio clienti"><div id="nlRagL" class="pkl" style="margin-top:6px"></div></label>
+      <label class="fl">Partita IVA<span style="display:flex;gap:6px">${inp("nlPiva",a.piva,'inputmode="numeric" style="flex:1"')}<button type="button" class="btn sm" id="nlVies" title="Controlla la partita IVA e prende ragione sociale e sede dal VIES">Controlla</button></span></label>
+      <label class="fl">Codice fiscale${inp("nlCf",a.cf)}</label>
+      <label class="fl">Forma giuridica<select id="nlForma"><option value="">—</option>${["Ditta individuale","Libero professionista","S.n.c.","S.a.s.","S.r.l.","S.r.l.s.","S.p.a.","Cooperativa","Consorzio","Altro"].map(x=>`<option ${a.forma===x?"selected":""}>${x}</option>`).join("")}</select></label>
+      <label class="fl">Settore / attività${inp("nlAtt",a.attivita)}</label><label class="fl">Inizio attività (anno)${inp("nlIni",a.inizio,'inputmode="numeric" maxlength="4"')}</label><label class="fl">Dipendenti${inp("nlDip",a.dipendenti)}</label>
+      <label class="fl" style="grid-column:1/-1">Sede legale${inp("nlInd",a.ind)}</label><label class="fl">CAP${inp("nlCap",a.cap,'inputmode="numeric" maxlength="5"')}</label><label class="fl">Città${inp("nlCit",a.citta)}</label><label class="fl">Prov.${inp("nlPrv",a.prov,'maxlength="2"')}</label>
+      <label class="fl">PEC${inp("nlPec",a.pec)}</label><label class="fl">Codice SDI${inp("nlSdi",a.sdi,'maxlength="7"')}</label><label class="fl">Legale rappresentante${inp("nlLeg",a.legale)}</label></div><div id="nlViesE" class="sub"></div></div>
+     <div class="fs"><h3>Referente</h3><div class="f"><label class="fl">Nome e cognome${inp("nlRN",r.nome)}</label><label class="fl">Ruolo${inp("nlRR",r.ruolo)}</label><label class="fl">Telefono${inp("nlRT",r.tel,'type="tel"')}</label><label class="fl">Email${inp("nlRE",r.email,'type="email"')}</label></div></div>
+     <div class="fs"><h3>Articoli a noleggio</h3>
+      ${S.nolL?`<input id="nlP" placeholder="Codice o nome dal listino noleggio (Invio = aggiungi il primo)" autocomplete="off"><div id="nlPL" class="pkl" style="margin-top:6px"></div>`:`<div class="banner">Listino noleggio non caricato: controlla la connessione e riapri.</div>`}
+      ${n.righe.length?`<div class="sub" style="margin:6px 0">Canoni mensili IVA esclusa${puoSc?"; «Canone concordato» cambia il canone di quella riga (vuoto = listino)":""}.</div><div class="tts"><table class="pvt"><thead><tr><th>Articolo</th><th class="num">Listino/mese</th><th class="num">Concordato</th><th class="num">Q.tà</th><th class="num">Totale/mese</th><th>Matricole</th><th></th></tr></thead><tbody>
+      ${n.righe.map((x,i)=>{ const z=nlArt(x.c); return `<tr><td class="pva"><b>${esc(x.n||x.c)}</b><div class="mono sub">${esc(x.c)}${z&&z.sc?" · solo corpo":""}${z&&z.al?" · "+esc(z.al):""}</div></td><td class="num" data-l="Listino">${eur(x.k)}</td>
+       <td class="num" data-l="Concordato"><input class="inl" type="number" step="0.01" min="0" data-nlk="${i}" value="${x.kc??""}" placeholder="${x.k}" ${puoSc?"":"disabled"}></td><td class="num" data-l="Q.tà"><input class="inl" type="number" min="1" step="1" data-nlq="${i}" value="${x.qty}" style="width:64px"></td>
+       <td class="num" data-l="Totale"><b>${eur(nlCanone(x))}</b></td><td data-l="Matricole"><input class="inl" data-nlm="${i}" value="${esc(x.matr||"")}" placeholder="alla consegna" style="width:150px"></td><td class="pvx"><button class="btn sm ghost" data-nlx="${i}">✕</button></td></tr>`; }).join("")}</tbody></table></div>`:`<div class="empty">Nessun articolo: cercalo qui sopra.</div>`}
+      ${cons.length?`<div style="margin-top:10px"><b>Da proporre al cliente</b>${cons.map(g=>`<div class="sub" style="margin:6px 0 4px">Per ${esc(g.per)}: ${esc(g.motivo)}</div><div class="chips">${g.l.map(x=>`<button class="chip" data-nladd="${esc(x.c)}" title="${esc(x.n)}">+ ${esc(x.m)} · ${eur(x.k)}/mese</button>`).join("")}</div>`).join("")}</div>`:""}
+     </div>
+     <div class="fs"><h3>Condizioni</h3><div class="f">
+      <label class="fl">Durata<select id="nlDur">${[24,36,48,60].map(d=>`<option value="${d}" ${Number(u.durata||36)===d?"selected":""}>${d} mesi${d===36?" (listino)":""}</option>`).join("")}</select></label>
+      <label class="fl">Inizio desiderato<input id="nlDI" type="date" value="${esc(u.dataInizio||"")}"></label><label class="fl">Firma contratto<input id="nlDF" type="date" value="${esc(u.dataFirma||"")}"></label><label class="fl">Consegna<input id="nlDC" type="date" value="${esc(u.dataConsegna||"")}"></label>
+      <label class="fl">Ritiro / consegna<select id="nlCons"><option value="ritiro" ${u.consegna!=="consegna"?"selected":""}>Ritira in negozio</option><option value="consegna" ${u.consegna==="consegna"?"selected":""}>Consegniamo noi</option></select></label>
+      <label class="fl">Batterie DEWALT<select id="nlBat"><option value="">Non so</option><option value="si" ${u.batterie==="si"?"selected":""}>Le ha già</option><option value="no" ${u.batterie==="no"?"selected":""}>Non le ha</option></select></label>
+      <label class="fl" style="grid-column:1/-1">Dove li usa${inp("nlLuogo",u.luogo==="altro"?(u.ind||"cantiere"):(u.ind||""),'placeholder="vuoto = nella sede"')}</label>
+      <label class="fl" style="grid-column:1/-1">Per che lavori<textarea id="nlUt" rows="2">${esc(u.utilizzo||"")}</textarea></label>
+      <label class="fl" style="grid-column:1/-1">Note del cliente<textarea id="nlNo" rows="2">${esc(u.note||"")}</textarea></label>
+      <label class="fl" style="grid-column:1/-1">Note interne (non vanno al cliente)<textarea id="nlNi" rows="2">${esc(n.noteInterne||"")}</textarea></label></div>
+      ${sc?`<div class="sub" style="margin-top:6px">Scadenza contratto: <b>${nlData(sc)}</b></div>`:""}</div>
+     <div class="fs"><h3>Documenti per la pratica</h3><div class="sub" style="margin-bottom:6px">Spunta quello che hai già raccolto. I moduli della società di noleggio li prepariamo appena definiamo come è fatto il vostro pannello.</div>
+      <div class="chips">${NL_DOCS.map(([k,t])=>`<label class="chip ${n.docs[k]?"on":""}"><input type="checkbox" data-nld="${k}" ${n.docs[k]?"checked":""}> ${t}</label>`).join("")}</div></div>
+     <div class="fs"><h3>Totale</h3><div class="kpis"><div class="kpi"><div class="l">Canone mensile (IVA esclusa)</div><div class="v">${eur(t.imp)}</div></div><div class="kpi"><div class="l">IVA 22%</div><div class="v">${eur(t.iva)}</div></div><div class="kpi hl"><div class="l">Canone mensile IVA inclusa</div><div class="v">${eur(t.tot)}</div></div><div class="kpi"><div class="l">Canoni su ${t.dur} mesi (IVA esclusa)</div><div class="v">${eur(t.valore)}</div></div></div></div>
+    </div>
+    <div class="mf"><button class="btn" data-close>Chiudi</button>${!nuovo?`<button class="btn" id="nlStampa">🖨 Offerta</button><button class="btn" id="nlWa">${ic("chat")}WhatsApp</button><button class="btn" id="nlMail">${ic("send")}Email</button><button class="btn" id="nlDup">⧉ Copia</button><button class="btn ghost adm-only" id="nlDel">Elimina</button>`:""}<span class="sp"></span><button class="btn pri" id="nlSave" ${ro?"disabled":""}>${nuovo?"Crea noleggio":"Salva"}</button></div>`);
+    const v=id=>($("#"+id)?.value||"").trim();
+    const leggi=()=>{ Object.assign(n.azienda,{ragione:v("nlRag"),piva:v("nlPiva").replace(/\D/g,""),cf:v("nlCf").toUpperCase(),forma:v("nlForma"),attivita:v("nlAtt"),inizio:v("nlIni"),dipendenti:v("nlDip"),ind:v("nlInd"),cap:v("nlCap"),citta:v("nlCit"),prov:v("nlPrv").toUpperCase(),pec:v("nlPec"),sdi:v("nlSdi").toUpperCase(),legale:v("nlLeg")});
+      Object.assign(n.referente,{nome:v("nlRN"),ruolo:v("nlRR"),tel:v("nlRT"),email:v("nlRE")});
+      const luogo=v("nlLuogo"); Object.assign(n.uso,{durata:Number(v("nlDur"))||36,dataInizio:v("nlDI"),dataFirma:v("nlDF"),dataConsegna:v("nlDC"),consegna:v("nlCons"),batterie:v("nlBat"),luogo:luogo?"altro":"sede",ind:luogo,utilizzo:v("nlUt"),note:v("nlNo")});
+      n.noteInterne=v("nlNi"); n.pratica=v("nlPr"); n.stato=v("nlSt")||n.stato;
+      $("#modal").querySelectorAll("[data-nlq]").forEach(i=>{ n.righe[+i.dataset.nlq].qty=Math.max(1,Math.floor(Number(i.value)||1)); });
+      $("#modal").querySelectorAll("[data-nlk]").forEach(i=>{ if(puoSc) n.righe[+i.dataset.nlk].kc=i.value===""?null:r2(Number(i.value)); });
+      $("#modal").querySelectorAll("[data-nlm]").forEach(i=>{ n.righe[+i.dataset.nlm].matr=i.value.trim(); });
+      $("#modal").querySelectorAll("[data-nld]").forEach(i=>{ n.docs[i.dataset.nld]=i.checked; }); };
+    const ridis=()=>{ leggi(); draw(); };
+    $("#modal").querySelectorAll("[data-nlq],[data-nlk],#nlBat,#nlDur,#nlDF,#nlDC").forEach(i=>i.onchange=ridis);
+    $("#modal").querySelectorAll("[data-nld]").forEach(i=>i.onchange=()=>{ i.closest("label").classList.toggle("on",i.checked); });
+    $("#modal").querySelectorAll("[data-nlx]").forEach(b=>b.onclick=()=>{ leggi(); n.righe.splice(+b.dataset.nlx,1); draw(); });
+    const aggiungi=c=>{ const x=nlArt(c); if(!x) return; const e=n.righe.find(r=>r.c===c); if(e) e.qty++; else n.righe.push({c:x.c,n:x.n,k:x.k,qty:1}); };
+    $("#modal").querySelectorAll("[data-nladd]").forEach(b=>b.onclick=()=>{ leggi(); aggiungi(b.dataset.nladd); draw(); });
+    const pi=$("#nlP"), pl=$("#nlPL");
+    if(pi&&pl){ const dis=()=>{ const l=nlCerca(pi.value,8); pl.innerHTML=l.map((x,i)=>`<button type="button" class="pki" data-nli="${i}"><span><b>${esc(x.n)}</b><small>${esc(x.c)}${x.sc?" · solo corpo":""}${x.al?" · "+esc(x.al):""} · ${esc(x.cat)}</small></span><span class="pkr"><b>${eur(x.k)}</b><small style="display:block">al mese + IVA</small></span></button>`).join(""); pl._l=l;
+        pl.querySelectorAll("[data-nli]").forEach(b=>b.onclick=()=>{ leggi(); aggiungi(l[+b.dataset.nli].c); draw(); setTimeout(()=>$("#nlP")&&$("#nlP").focus(),30); }); };
+      pi.oninput=()=>{ clearTimeout(pi._t); pi._t=setTimeout(dis,120); };
+      pi.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); const l=nlCerca(pi.value,1); if(l[0]){ leggi(); aggiungi(l[0].c); draw(); setTimeout(()=>$("#nlP")&&$("#nlP").focus(),30); } } }; }
+    suggCli($("#nlRag"),$("#nlRagL"),c=>{ leggi(); Object.assign(n.azienda,{ragione:c.nome,piva:(c.piva||"").replace(/\D/g,"")||n.azienda.piva,cf:c.cf||n.azienda.cf,ind:c.ind||n.azienda.ind,cap:c.cap||n.azienda.cap,citta:c.citta||n.azienda.citta,prov:c.prov||n.azienda.prov,pec:c.pec||n.azienda.pec,sdi:c.sdi||n.azienda.sdi});
+      if(!n.referente.tel) n.referente.tel=c.tel||c.cell||""; if(!n.referente.email) n.referente.email=c.email||""; n.cliId=c.id||""; draw(); });
+    $("#nlVies").onclick=async()=>{ leggi(); const p=n.azienda.piva; const e=$("#nlViesE"); if(p.length!==11){ e.textContent="Scrivi le 11 cifre della partita IVA"; return; } e.textContent="Controllo…";
+      try{ const j=await (await fetch("/api/piva?n="+p)).json(); if(!j.valida){ e.textContent="Partita IVA non valida"; return; }
+        if(j.trovata){ const az=n.azienda; az.ragione=az.ragione||j.ragioneSociale||""; az.ind=az.ind||j.indirizzo||""; az.cap=az.cap||j.cap||""; az.citta=az.citta||j.citta||""; az.prov=az.prov||j.provincia||""; draw(); toast((j.attiva===false?"Attenzione: P.IVA non attiva · ":"P.IVA attiva · ")+(j.ragioneSociale||"")); }
+        else e.textContent="Partita IVA corretta, dati non trovati sul VIES"; }catch(x){ e.textContent="Servizio non raggiungibile"; } };
+    $("#nlSave").onclick=async()=>{ leggi(); if(!n.azienda.ragione){ toast("Scrivi la ragione sociale"); $("#nlRag").focus(); return; } if(!n.righe.length){ toast("Aggiungi almeno un articolo"); return; }
+      if(nuovo||n.stato!==statoIniz||v("nlStN")) n.storia.push({at:Date.now(),stato:n.stato,chi:S.me||"",nota:v("nlStN")||(nuovo?"Creato in negozio":"")});
+      const t=nlTotali(n); const d=clean({...n,canone:t.imp,updatedAt:Date.now()}); delete d.id;
+      const ok=await write(async()=>{ if(nuovo){ d.num=nextNol(); const res=await S.db.collection("noleggi").add(d); n.id=res?.id; n.num=d.num; } else await S.db.collection("noleggi").doc(n.id).update(d); },nuovo?"Noleggio "+d.num+" creato":"Noleggio salvato");
+      if(ok){ closeModal(); if(nuovo&&n.id) setTimeout(()=>openNoleggio({...n,...d,id:n.id}),50); } };
+    const bs=$("#nlStampa"); if(bs) bs.onclick=()=>{ leggi(); const w=window.open("","_blank"); if(!w){ toast("Consenti i popup per semistore.it"); return; } w.document.open(); w.document.write(noleggioHtml(n)); w.document.close(); };
+    const bw=$("#nlWa"); if(bw) bw.onclick=()=>{ leggi(); const tel=String(n.referente.tel||"").replace(/\D/g,""); const num=tel?(tel.startsWith("39")||tel.length>10?tel:"39"+tel):""; window.open("https://wa.me/"+num+"?text="+encodeURIComponent(noleggioTesto(n)),"_blank"); };
+    const bm=$("#nlMail"); if(bm) bm.onclick=()=>{ leggi(); location.href="mailto:"+encodeURIComponent(n.referente.email||"")+"?subject="+encodeURIComponent("Offerta di noleggio "+n.num+" – SE.M.I.")+"&body="+encodeURIComponent(noleggioTesto(n)); };
+    const bd=$("#nlDup"); if(bd) bd.onclick=()=>{ leggi(); const c={...JSON.parse(JSON.stringify(n)),at:Date.now(),by:S.me||null,canale:"banco",stato:"nuova",num:nextNol(),storia:[],docs:{},pratica:""}; delete c.id; c.righe.forEach(r=>delete r.matr); c.uso={...c.uso,dataFirma:"",dataConsegna:""}; openNoleggio(c); };
+    const bx=$("#nlDel"); if(bx) bx.onclick=async()=>{ if(!confirm("Eliminare il noleggio "+n.num+"?")) return; if(await write(()=>S.db.collection("noleggi").doc(n.id).delete(),"Noleggio eliminato")) closeModal(); };
+  };
+  draw();
+}
+function noleggioTesto(n){ const t=nlTotali(n);
+  return `SE.M.I. – Offerta di noleggio ${n.num}\nCliente: ${n.azienda?.ragione||""}\n\n`+(n.righe||[]).map(r=>`• ${r.qty} × ${r.n} (${r.c}): ${eur(r.kc!=null&&r.kc!==""?r.kc:r.k)} al mese${r.qty>1?" = "+eur(nlCanone(r)):""}`).join("\n")+
+   `\n\nCanone mensile: ${eur(t.imp)} + IVA (${eur(t.tot)} IVA inclusa)\nDurata: ${t.dur} mesi, piano di manutenzione 3 anni incluso.\nOfferta soggetta all'approvazione della società di noleggio.\n\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947`; }
+function noleggioHtml(n){ const t=nlTotali(n), a=n.azienda||{}, r=n.referente||{};
+  return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Offerta di noleggio ${esc(n.num)}</title><style>
+  @page{size:A4;margin:12mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#000;font-size:10pt;line-height:1.35;padding:6mm}
+  .t{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2pt solid #000;padding-bottom:4mm;margin-bottom:5mm}h1{font-size:16pt}.m{font-size:9pt;color:#333}
+  .c{display:grid;grid-template-columns:1fr 1fr;gap:6mm;margin-bottom:5mm}.c div{border:.6pt solid #999;padding:3mm;border-radius:2mm}.c b{display:block;font-size:8pt;text-transform:uppercase;letter-spacing:.5pt;color:#555;margin-bottom:1mm}
+  table{width:100%;border-collapse:collapse}th{font-size:8pt;text-align:left;border-bottom:1.2pt solid #000;padding:1.5mm}td{padding:1.8mm 1.5mm;border-bottom:.5pt solid #bbb;vertical-align:top}.n{text-align:right;white-space:nowrap}.mono{font-family:monospace;font-size:8.5pt;color:#444}
+  .tot{margin-top:4mm;margin-left:auto;width:85mm}.tot div{display:flex;justify-content:space-between;padding:1mm 0}.tot .h{font-weight:700;font-size:12pt;border-top:1.2pt solid #000;padding-top:2mm}.note{margin-top:6mm;font-size:8.5pt;color:#333}.firma{margin-top:12mm;display:flex;justify-content:space-between}.firma span{border-top:.6pt solid #000;width:70mm;padding-top:1mm;font-size:8pt;text-align:center}
+  @media screen{body{max-width:210mm;margin:0 auto;background:#fff}}</style></head><body>
+  <div class="t"><div><h1>Offerta di noleggio ${esc(n.num)}</h1><div class="m">del ${fmtD(Date.now())} · valida 30 giorni</div></div><div class="m" style="text-align:right"><b>SE.M.I. S.R.L.</b><br>Viale G. Marconi 225 · 80020 Casavatore (NA)<br>P.IVA 07149740636 · Tel. 081 553 6604<br>info@semistore.it</div></div>
+  <div class="c"><div><b>Cliente</b>${esc(a.ragione||"")}<br>${a.piva?"P.IVA "+esc(a.piva)+"<br>":""}${esc([a.ind,a.cap,a.citta,a.prov&&"("+a.prov+")"].filter(Boolean).join(" "))}</div><div><b>Referente</b>${esc(r.nome||"")}${r.ruolo?" · "+esc(r.ruolo):""}<br>${esc(r.tel||"")}<br>${esc(r.email||"")}</div></div>
+  <table><thead><tr><th>Q.tà</th><th>Articolo</th><th class="n">Canone al mese</th><th class="n">Totale al mese</th></tr></thead><tbody>${(n.righe||[]).map(x=>`<tr><td>${x.qty}</td><td>${esc(x.n)}<div class="mono">${esc(x.c)}</div></td><td class="n">${eur(x.kc!=null&&x.kc!==""?x.kc:x.k)}</td><td class="n">${eur(nlCanone(x))}</td></tr>`).join("")}</tbody></table>
+  <div class="tot"><div><span>Canone mensile</span><span>${eur(t.imp)}</span></div><div><span>IVA 22%</span><span>${eur(t.iva)}</span></div><div class="h"><span>Canone mensile IVA inclusa</span><span>${eur(t.tot)}</span></div><div><span>Durata</span><span>${t.dur} mesi</span></div></div>
+  <p class="note">Canoni mensili IVA esclusa da listino noleggio DEWALT 2026, comprensivi del piano di manutenzione di 3 anni presso il nostro centro assistenza autorizzato DEWALT. Il contratto di noleggio è stipulato con la società di noleggio ed è soggetto alla sua approvazione.${n.uso?.note?"<br>Note: "+esc(n.uso.note):""}</p>
+  <div class="firma"><span>SE.M.I. S.R.L.</span><span>Per accettazione (timbro e firma)</span></div>
+  <script>setTimeout(()=>print(),300)<\/script></body></html>`; }
 /* ---------- CONTROLLO DATI (20/11): verifica completa dopo trasferimento e caricamenti ---------- */
 async function openControllo(){
   openModal(`<div class="mh"><h2>Controllo dati</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb" id="ckB"><div class="empty">Controllo in corso…</div></div>
@@ -4320,6 +4468,7 @@ function vFacile(st){
     ${puoPrezzi()?B("prezzo","tag","f-w","Cambio un prezzo","Nuovo prezzo di vendita"):""}
     ${B("esplosi","drill","f-w","Esplosi e ricambi","Disegni DEWALT e pezzi")}
     <a class="fbtn f-w" href="#preventivi">${(()=>{const n=(S.preventivi||[]).filter(p=>["bozza","inviato"].includes(p.stato||"bozza")).length; return n?`<span class="fbg">${n}</span>`:"";})()}${ic("euro")}<b>Preventivi</b><small>Listino o volantino, con sconto</small></a>
+    <a class="fbtn f-w" href="#noleggi">${(()=>{const n=(S.noleggi||[]).filter(x=>["nuova","contattato","offerta"].includes(x.stato||"nuova")).length; return n?`<span class="fbg">${n}</span>`:"";})()}${ic("clock")}<b>Noleggi</b><small>Richieste dal sito e pratiche</small></a>
     <a class="fbtn f-w" href="#ordini">${ordAp?`<span class="fbg">${ordAp}</span>`:""}${ic("send")}<b>Ordini online</b><small>Sito, TikTok, WhatsApp</small></a>
   </div>
   <button class="fsend fsc" data-wiz="scaffale">${ic("box")}<span><b>Scaffale consegne</b><small>${(()=>{ const l=sulloScaffale(), n=l.filter(c=>c.modo==="consegna").length; return l.length?`${l.length} ${l.length===1?"pacco pronto":"pacchi pronti"}${n?` · ${n} da portare noi`:""}`:"Vuoto: tocca per mettere un pacco"; })()}</small></span>${sulloScaffale().length?`<span class="fbg big">${sulloScaffale().length}</span>`:""}</button>

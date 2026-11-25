@@ -1,0 +1,396 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITO } from '../data/sito.js';
+import listino from '../data/noleggio.json';
+const L = listino as any[];
+const n = L.length;
+const minimo = Math.min(...L.filter((x) => !/^(DCB|DE0|DE7|DWH|DCMAS[A-Z]{2})/.test(x.m)).map((x) => x.k));
+const eur = (v: number) => v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+const BISOGNI = [
+  ['forare', 'Forare e avvitare', 'trapani, avvitatori, tassellatori'],
+  ['demolire', 'Demolire e carotare', 'martelli SDS-Max, demolitori, carotatori'],
+  ['tagliare', 'Tagliare', 'seghe, troncatrici, banchi'],
+  ['smerigliare', 'Smerigliare e levigare', 'smerigliatrici, levigatrici, lucidatrici'],
+  ['cartongesso', 'Cartongesso', 'avvitatori, levigatrici, refilatori'],
+  ['laser', 'Laser e misure', 'tracciatori, laser rotanti, misuratori'],
+  ['cantiere', 'Calcestruzzo e cantiere', 'vibratori, piastre, miscelatori'],
+  ['chiodare', 'Chiodare e graffare', 'chiodatrici, groppinatrici'],
+  ['legno', 'Legno e falegnameria', 'fresatrici, pialle, seghe'],
+  ['aspirare', 'Aspirazione e pulizia', 'aspiratori classe L e M'],
+  ['giardino', 'Giardino e verde', 'tagliasiepi, decespugliatori, rasaerba'],
+  ['batterie', 'Batterie e kit', 'batterie, caricabatterie, kit'],
+];
+const FAQ = [
+  ['Chi può noleggiare?', 'Aziende, artigiani e professionisti con partita IVA. Il noleggio è un contratto tra aziende e la pratica è soggetta all\'approvazione della società di noleggio.'],
+  ['Cosa comprende il canone?', 'L\'utensile e il piano di manutenzione di 3 anni, come indicato nel listino noleggio DEWALT. Gli interventi li facciamo noi, nel nostro centro assistenza autorizzato DEWALT di Casavatore.'],
+  ['I prezzi sono IVA inclusa?', 'No: i canoni del listino sono mensili e IVA esclusa. Nel riepilogo vedi anche l\'IVA e il totale.'],
+  ['Posso scegliere una durata diversa?', 'Il listino è pensato per il piano di 3 anni. Se ti serve un\'altra durata indicala nella richiesta: calcoliamo noi il canone e te lo scriviamo nell\'offerta.'],
+  ['Quali documenti servono?', 'Dopo la tua conferma ti chiediamo i documenti per la pratica, di solito la visura camerale, il documento d\'identità e il codice fiscale del legale rappresentante e l\'IBAN per l\'addebito dei canoni. Ti diciamo noi esattamente cosa serve.'],
+  ['Quanto ci vuole?', 'Ti richiamiamo entro un giorno lavorativo. Dopo l\'approvazione della pratica e la firma del contratto ritiri gli utensili in negozio o li consegniamo noi.'],
+  ['Posso noleggiare più utensili insieme?', 'Sì, anche un\'intera dotazione di cantiere: aggiungi tutto quello che ti serve, il riepilogo somma i canoni e la pratica è unica.'],
+];
+const ld = [
+  { '@context': 'https://schema.org', '@type': 'Service', name: 'Noleggio elettroutensili DEWALT per aziende', serviceType: 'Noleggio operativo di elettroutensili', provider: { '@id': SITO.url + '/#negozio' }, areaServed: ['Napoli', 'Campania', 'Lazio', 'Molise'], url: SITO.url + '/noleggio/' },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+];
+---
+<Base title="Noleggio elettroutensili DEWALT per aziende: canone mensile con manutenzione 3 anni" description={`Noleggia ${n} utensili DEWALT con un canone mensile fisso e il piano di manutenzione di 3 anni incluso. Scegli gli utensili, vedi subito il canone e invia la richiesta: ti richiamiamo entro un giorno lavorativo.`} jsonld={ld}>
+  <section class="nl-hero"><div class="wrap">
+    <span class="kicker" style="color:var(--y)">{SITO.concessionario} · Noleggio operativo</span>
+    <h1>Noleggio DEWALT per aziende</h1>
+    <p>Gli utensili DEWALT che ti servono, con un canone mensile fisso e la manutenzione per 3 anni compresa. Scegli, guarda subito il canone, invia la richiesta.</p>
+    <ul class="nl-pro">
+      <li><b>{n} articoli</b><span>dal listino noleggio DEWALT 2026</span></li>
+      <li><b>Da {eur(minimo)} al mese</b><span>canone IVA esclusa</span></li>
+      <li><b>Manutenzione 3 anni</b><span>nel nostro centro assistenza autorizzato</span></li>
+      <li><b>Nessun capitale immobilizzato</b><span>paghi solo il canone</span></li>
+    </ul>
+    <a class="btn btn-y" href="#scegli">Scegli gli utensili</a>
+  </div></section>
+
+  <section class="wrap nl-come">
+    {[['1', 'Scegli', 'Cerca per codice o per lavoro da fare: ti suggeriamo batterie e accessori che servono davvero.'], ['2', 'Invia la richiesta', 'Con i dati della tua azienda. Non è un impegno: è la base per l\'offerta.'], ['3', 'Offerta e pratica', 'Confermiamo articoli e canone e prepariamo noi la pratica con la società di noleggio.'], ['4', 'Firma e ritira', 'Dopo l\'approvazione firmi il contratto e ritiri gli utensili, o li consegniamo noi.']].map(([k, t, d]) => <div class="card nl-st"><span>{k}</span><b>{t}</b><p>{d}</p></div>)}
+  </section>
+
+  <div class="wrap nl-g" id="scegli">
+    <div class="nl-sx">
+      <div class="card nl-box">
+        <h2>1 · Cosa devi fare?</h2>
+        <div class="nl-bis" id="bis">
+          {BISOGNI.map(([k, t, d]) => <button type="button" class="nl-b" data-b={k}><b>{t}</b><small>{d}</small></button>)}
+        </div>
+        <div class="nl-cerca">
+          <label class="field" for="q">Oppure cerca per codice o nome</label>
+          <div class="nl-qw"><input id="q" type="search" placeholder="es. DCH273, tassellatore, laser rotante, troncatrice…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="sug" /><ul id="sug" class="nl-sug" role="listbox" hidden></ul></div>
+        </div>
+        <div class="nl-fil">
+          <div class="nl-chips" id="al" aria-label="Alimentazione">
+            {[['', 'Tutte'], ['18V', '18V XR'], ['54V FLEXVOLT', '54V FLEXVOLT'], ['12V', '12V'], ['Elettrico 230 V', 'A filo 230 V'], ['POWERSHIFT', 'POWERSHIFT']].map(([k, t]) => <button type="button" class:list={['nl-chip', { on: !k }]} data-al={k}>{t}</button>)}
+          </div>
+          <div class="nl-fr">
+            <select id="tipo" aria-label="Batterie"><option value="">Con o senza batterie</option><option value="kit">Pronti all'uso (con batterie)</option><option value="sc">Solo corpo macchina</option></select>
+            <select id="ord" aria-label="Ordina"><option value="rel">Più adatti</option><option value="k">Canone: dal più basso</option><option value="-k">Canone: dal più alto</option><option value="n">Nome</option></select>
+          </div>
+        </div>
+        <p class="nl-cnt" id="cnt" aria-live="polite"></p>
+        <div class="nl-res" id="res"></div>
+        <button type="button" class="btn btn-k nl-piu" id="piu" hidden>Mostra altri</button>
+      </div>
+    </div>
+
+    <aside class="nl-dx">
+      <div class="card nl-box nl-rie" id="rie">
+        <h2>Il tuo noleggio</h2>
+        <div id="righe"></div>
+        <div id="cons"></div>
+        <div class="nl-tot" id="tot" hidden>
+          <div><span>Canone mensile</span><b id="tImp"></b></div>
+          <div><span>IVA 22%</span><span id="tIva"></span></div>
+          <div class="hl"><span>Canone mensile IVA inclusa</span><b id="tTot"></b></div>
+          <p class="nota">Canoni da listino noleggio DEWALT 2026, piano di manutenzione 3 anni incluso. L'offerta definitiva te la mandiamo noi; la pratica è soggetta all'approvazione della società di noleggio.</p>
+          <a class="btn btn-y" href="#dati" style="width:100%">Continua con i dati dell'azienda</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="wrap">
+    <form id="f" class="card nl-box nl-form" novalidate>
+      <h2 id="dati">2 · I dati della tua azienda</h2>
+      <fieldset class="nl-fs">
+        <legend>Azienda</legend>
+        <div class="nl-r2">
+          <label class="field">Partita IVA *<input name="piva" inputmode="numeric" maxlength="13" required placeholder="11 cifre" autocomplete="off" /><small class="nl-pv" id="pv" aria-live="polite"></small></label>
+          <label class="field">Ragione sociale *<input name="ragione" required autocomplete="organization" /></label>
+        </div>
+        <div class="nl-r3">
+          <label class="field">Forma giuridica<select name="forma"><option value="">—</option>{['Ditta individuale', 'Libero professionista', 'S.n.c.', 'S.a.s.', 'S.r.l.', 'S.r.l.s.', 'S.p.a.', 'Cooperativa', 'Consorzio', 'Altro'].map((x) => <option>{x}</option>)}</select></label>
+          <label class="field">Codice fiscale azienda<input name="cf" maxlength="16" style="text-transform:uppercase" /></label>
+          <label class="field">Anno di inizio attività<input name="inizio" inputmode="numeric" maxlength="4" placeholder="es. 2012" /></label>
+        </div>
+        <div class="nl-r2">
+          <label class="field">Settore / attività<input name="attivita" placeholder="es. impresa edile, impianti elettrici, carpenteria" /></label>
+          <label class="field">Dipendenti<select name="dipendenti"><option value="">—</option>{['Solo il titolare', '2–5', '6–15', '16–50', 'Oltre 50'].map((x) => <option>{x}</option>)}</select></label>
+        </div>
+        <label class="field">Sede legale: indirizzo e numero civico<input name="ind" autocomplete="street-address" /></label>
+        <div class="nl-r3c">
+          <label class="field">CAP<input name="cap" inputmode="numeric" maxlength="5" autocomplete="postal-code" /></label>
+          <label class="field">Città<input name="citta" autocomplete="address-level2" /></label>
+          <label class="field">Prov.<input name="prov" maxlength="2" autocomplete="address-level1" style="text-transform:uppercase" /></label>
+        </div>
+        <div class="nl-r3">
+          <label class="field">PEC<input name="pec" type="email" /></label>
+          <label class="field">Codice SDI<input name="sdi" maxlength="7" style="text-transform:uppercase" /></label>
+          <label class="field">Legale rappresentante<input name="legale" placeholder="Nome e cognome" /></label>
+        </div>
+      </fieldset>
+      <fieldset class="nl-fs">
+        <legend>Chi ti segue</legend>
+        <div class="nl-r2">
+          <label class="field">Nome e cognome *<input name="refNome" required autocomplete="name" data-pf="nome" /></label>
+          <label class="field">Ruolo in azienda<input name="refRuolo" placeholder="es. titolare, responsabile acquisti" /></label>
+        </div>
+        <div class="nl-r2">
+          <label class="field">Telefono *<input name="refTel" type="tel" required inputmode="tel" autocomplete="tel" data-pf="telefono" /></label>
+          <label class="field">Email *<input name="refEmail" type="email" required autocomplete="email" data-pf="email" /></label>
+        </div>
+      </fieldset>
+      <fieldset class="nl-fs">
+        <legend>Il noleggio</legend>
+        <div class="nl-r3">
+          <label class="field">Durata<select name="durata"><option value="36" selected>36 mesi (come listino)</option><option value="24">24 mesi</option><option value="48">48 mesi</option><option value="60">60 mesi</option></select></label>
+          <label class="field">Da quando ti servono?<input name="dataInizio" type="date" /></label>
+          <label class="field">Hai già batterie DEWALT?<select name="batterie" id="bat"><option value="">—</option><option value="si">Sì, le ho già</option><option value="no">No</option></select></label>
+        </div>
+        <div class="nl-r2">
+          <label class="radio opt"><input type="radio" name="consegna" value="ritiro" checked /><span><b>Ritiro in negozio</b><small>{SITO.indirizzo}, {SITO.citta}</small></span></label>
+          <label class="radio opt"><input type="radio" name="consegna" value="consegna" /><span><b>Consegna</b><small>In sede o in cantiere: ti diciamo noi costi e tempi.</small></span></label>
+        </div>
+        <div class="nl-r2">
+          <label class="radio opt"><input type="radio" name="luogo" value="sede" checked /><span><b>Li usiamo nella sede</b><small>o nei nostri cantieri abituali</small></span></label>
+          <label class="radio opt"><input type="radio" name="luogo" value="altro" /><span><b>In un cantiere specifico</b><small>indica l'indirizzo qui sotto</small></span></label>
+        </div>
+        <label class="field" id="luogoInd" hidden>Indirizzo del cantiere<input name="usoInd" /></label>
+        <label class="field">Per che lavori ti servono?<textarea name="utilizzo" placeholder="es. ristrutturazioni, posa cartongesso, impianti: ci aiuta a consigliarti gli utensili giusti"></textarea></label>
+        <label class="field">Note<textarea name="note" placeholder="Domande, varianti, utensili che non trovi nel listino…"></textarea></label>
+      </fieldset>
+      <label class="radio chk"><input type="checkbox" name="privacy" required /> <span>Ho letto l'<a class="ul" href="/privacy/">informativa privacy</a>: i dati servono a preparare l'offerta e, se confermo, la pratica con la società di noleggio.</span></label>
+      <input type="text" name="sito_web" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
+      <div class="nl-inv">
+        <div id="rieMini" class="nota"></div>
+        <button class="btn btn-y" id="inv">Invia la richiesta di noleggio</button>
+      </div>
+      <p id="msg" role="status" class="msg" hidden></p>
+    </form>
+  </div>
+
+  <section class="wrap sec prose nl-faq">
+    <h2>Domande frequenti sul noleggio</h2>
+    {FAQ.map(([q, a]) => <details><summary>{q}</summary><p>{a}</p></details>)}
+    <p>Preferisci parlarne? Chiamaci al <a class="ul" href={`tel:${SITO.telefonoLink}`}>{SITO.telefono}</a> o scrivi a <a class="ul" href={`mailto:${SITO.email}`}>{SITO.email}</a>.</p>
+  </section>
+</Base>
+
+<script>
+  import { precompila, ricorda } from '../scripts/precompila.js';
+  type It = { c: string; m: string; n: string; d: string; k: number; cat: string; al: string; sc?: number; s?: string; img?: string; sg?: [string, string[]][] };
+  const $ = (s: string) => document.querySelector(s) as HTMLElement;
+  const eur = (v: number) => v.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+  const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  const CHIAVE = 'semi-noleggio-v1';
+  let L: It[] = [], PER: Map<string, It> = new Map();
+  let carrello: { c: string; qty: number }[] = [];
+  try { carrello = JSON.parse(localStorage.getItem(CHIAVE) || '[]'); } catch {}
+  const salva = () => { try { localStorage.setItem(CHIAVE, JSON.stringify(carrello)); } catch {} };
+  let bis = '', al = '', tipo = '', ord = 'rel', q = '', mostra = 24, ultimo = '';
+
+  // bisogni → filtro sugli articoli
+  const BIS: Record<string, (x: It) => boolean> = {
+    forare: (x) => x.cat === 'Trapani e avvitatori' || (x.cat === 'Tassellatori e demolitori' && /tassellator/i.test(x.d)),
+    demolire: (x) => x.cat === 'Tassellatori e demolitori' || /carotator/i.test(x.d),
+    tagliare: (x) => x.cat === 'Seghe e troncatrici',
+    smerigliare: (x) => x.cat === 'Smerigliatrici e levigatrici',
+    cartongesso: (x) => /cartongesso/i.test(x.d + ' ' + x.n),
+    laser: (x) => x.cat === 'Laser e misura',
+    cantiere: (x) => x.cat === 'Calcestruzzo e cantiere',
+    chiodare: (x) => x.cat === 'Chiodatrici e graffatrici',
+    legno: (x) => x.cat === 'Fresatrici e pialle' || /(sega circolare|affondamento|banco|troncatrice radiale|pialla|levigatrice orbitale)/i.test(x.d),
+    aspirare: (x) => x.cat === 'Aspirazione',
+    giardino: (x) => x.cat === 'Giardino e verde',
+    batterie: (x) => x.cat === 'Batterie e caricabatterie' || x.cat === 'Kit combinati',
+  };
+  const punti = (x: It, parole: string[]) => {
+    if (!parole.length) return 1;
+    const cod = x.c.toLowerCase(), mod = x.m.toLowerCase(), testo = norm(x.n + ' ' + x.d + ' ' + x.cat + ' ' + x.al);
+    let p = 0;
+    for (const w of parole) {
+      if (cod === w || mod === w) p += 100;
+      else if (mod.startsWith(w) || cod.startsWith(w)) p += 40;
+      else if (norm(x.n).split(' ').some((t) => t.startsWith(w))) p += 12;
+      else if (testo.includes(w)) p += 5;
+      else return 0;
+    }
+    return p - x.k / 1000;
+  };
+  function filtra() {
+    const parole = norm(q).split(' ').filter(Boolean);
+    let l = L.map((x) => ({ x, p: punti(x, parole) })).filter((o) => o.p > 0).map((o) => o);
+    if (bis) l = l.filter((o) => BIS[bis](o.x));
+    if (al) l = l.filter((o) => o.x.al === al || (al === '18V' && o.x.al.includes('18V') && !o.x.al.includes('54V')));
+    if (tipo === 'sc') l = l.filter((o) => o.x.sc); else if (tipo === 'kit') l = l.filter((o) => !o.x.sc && !['Batterie e caricabatterie'].includes(o.x.cat) && /kit|batteri|x xr|\d x /i.test(o.x.n + ' ' + o.x.d));
+    if (ord === 'k') l.sort((a, b) => a.x.k - b.x.k); else if (ord === '-k') l.sort((a, b) => b.x.k - a.x.k); else if (ord === 'n') l.sort((a, b) => a.x.n.localeCompare(b.x.n)); else if (parole.length) l.sort((a, b) => b.p - a.p);
+    return l.map((o) => o.x);
+  }
+  const nel = (c: string) => carrello.find((r) => r.c === c);
+  const card = (x: It, piccola = false) => `<div class="nl-it${piccola ? ' sm' : ''}${nel(x.c) ? ' in' : ''}">
+    <span class="nl-im">${x.img ? `<img src="${esc(x.img)}" alt="" loading="lazy" width="120" height="120" />` : `<span class="mono">${esc(x.m)}</span>`}</span>
+    <span class="nl-tx"><b>${esc(x.n)}</b><span class="mono">${esc(x.c)}</span><span class="nl-tg">${x.al ? `<i>${esc(x.al)}</i>` : ''}${x.sc ? '<i class="w">Solo corpo</i>' : ''}${x.s && !piccola ? `<a href="/prodotti/${esc(x.s)}/" target="_blank" rel="noopener">scheda</a>` : ''}</span></span>
+    <span class="nl-pr"><b>${eur(x.k)}</b><small>al mese + IVA</small><button type="button" class="nl-add" data-add="${esc(x.c)}">${nel(x.c) ? '✓ Aggiunto' : '+ Aggiungi'}</button></span></div>`;
+  function risultati() {
+    const l = filtra();
+    $('#cnt').textContent = (bis || al || tipo || q) ? `${l.length} articoli` : `${l.length} articoli nel listino noleggio: scegli cosa devi fare o cerca un codice`;
+    $('#res').innerHTML = l.slice(0, mostra).map((x) => card(x)).join('') || '<p class="nota">Nessun articolo con questi filtri. Prova a togliere un filtro o scrivici nelle note cosa ti serve.</p>';
+    ($('#piu') as HTMLButtonElement).hidden = l.length <= mostra;
+  }
+  // suggerimenti mentre scrivi
+  const sug = $('#sug') as HTMLUListElement, inp = $('#q') as HTMLInputElement; let sel = -1, sugL: It[] = [];
+  function suggerisci() {
+    const parole = norm(inp.value).split(' ').filter(Boolean);
+    if (!parole.length) { sug.hidden = true; inp.setAttribute('aria-expanded', 'false'); return; }
+    sugL = L.map((x) => ({ x, p: punti(x, parole) })).filter((o) => o.p > 0).sort((a, b) => b.p - a.p).slice(0, 8).map((o) => o.x);
+    sel = -1;
+    sug.innerHTML = sugL.map((x, i) => `<li role="option" data-i="${i}">${x.img ? `<img src="${esc(x.img)}" alt="" width="40" height="40" loading="lazy" />` : '<span></span>'}<span><b>${esc(x.n)}</b><small class="mono">${esc(x.c)}${x.sc ? ' · solo corpo' : ''}</small></span><em>${eur(x.k)}/mese</em></li>`).join('') || '<li class="vuoto">Nessun articolo: prova con un altro nome o codice</li>';
+    sug.hidden = false; inp.setAttribute('aria-expanded', 'true');
+  }
+  inp.addEventListener('input', () => { suggerisci(); clearTimeout((inp as any)._t); (inp as any)._t = setTimeout(() => { q = inp.value; mostra = 24; risultati(); }, 250); });
+  inp.addEventListener('keydown', (e) => {
+    if (sug.hidden) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(0, Math.min(sugL.length - 1, sel + (e.key === 'ArrowDown' ? 1 : -1))); sug.querySelectorAll('li').forEach((li, i) => li.classList.toggle('on', i === sel)); }
+    else if (e.key === 'Enter') { e.preventDefault(); const x = sugL[sel >= 0 ? sel : 0]; if (x) { aggiungi(x.c); inp.value = ''; q = ''; sug.hidden = true; risultati(); } }
+    else if (e.key === 'Escape') sug.hidden = true;
+  });
+  sug.addEventListener('mousedown', (e) => { const li = (e.target as HTMLElement).closest('li[data-i]') as HTMLElement; if (!li) return; e.preventDefault(); aggiungi(sugL[+li.dataset.i!].c); inp.value = ''; q = ''; sug.hidden = true; risultati(); });
+  inp.addEventListener('blur', () => setTimeout(() => (sug.hidden = true), 150));
+
+  function aggiungi(c: string, qty = 1) {
+    const r = nel(c); if (r) r.qty = Math.min(99, r.qty + qty); else carrello.push({ c, qty });
+    ultimo = c; salva(); riepilogo(); risultati();
+  }
+  function riepilogo() {
+    carrello = carrello.filter((r) => PER.has(r.c));
+    const righe = carrello.map((r) => ({ ...r, x: PER.get(r.c)! }));
+    $('#righe').innerHTML = righe.length ? righe.map((r) => `<div class="nl-rg"><span class="nl-rn"><b>${esc(r.x.n)}</b><small class="mono">${esc(r.c)} · ${eur(r.x.k)}/mese</small></span>
+      <span class="nl-q"><button type="button" data-qm="${esc(r.c)}" aria-label="Uno in meno">−</button><span>${r.qty}</span><button type="button" data-qp="${esc(r.c)}" aria-label="Uno in più">+</button></span><b class="nl-rt">${eur(r.x.k * r.qty)}</b></div>`).join('')
+      : '<p class="nota">Nessun utensile scelto. Cerca un codice o scegli cosa devi fare.</p>';
+    // consigliati: per l'ultimo aggiunto, poi per gli altri; niente batterie se il cliente le ha già
+    const haBatt = (($('#bat') as HTMLSelectElement)?.value || '') === 'si';
+    const visti = new Set(carrello.map((r) => r.c)); const gruppi: string[] = [];
+    const ord2 = [...righe].sort((a, b) => Number(b.c === ultimo) - Number(a.c === ultimo));
+    for (const r of ord2) for (const [motivo, codici] of r.x.sg || []) {
+      if (haBatt && /^Batteri/.test(motivo)) continue;
+      if (/^Batteri/.test(motivo) && righe.some((y) => y.x.cat === 'Batterie e caricabatterie' && (y.x.al === r.x.al || (r.x.al === '18V' && /18V/.test(y.x.al))))) continue;
+      const l = codici.filter((c) => !visti.has(c)).map((c) => PER.get(c)!).filter(Boolean).slice(0, 3);
+      if (!l.length) continue;
+      l.forEach((x) => visti.add(x.c));
+      gruppi.push(`<div class="nl-cg"><p><b>Per ${esc(r.x.m)}:</b> ${esc(motivo)}</p>${l.map((x) => card(x, true)).join('')}</div>`);
+      if (gruppi.length >= 3) break;
+    }
+    $('#cons').innerHTML = gruppi.length ? `<h3>Ti consigliamo anche</h3>${gruppi.join('')}` : '';
+    const imp = righe.reduce((s, r) => s + r.x.k * r.qty, 0), iva = Math.round(imp * 22) / 100;
+    ($('#tot') as HTMLElement).hidden = !righe.length;
+    $('#tImp').textContent = eur(imp) + ' + IVA'; $('#tIva').textContent = eur(iva); $('#tTot').textContent = eur(imp + iva);
+    $('#rieMini').innerHTML = righe.length ? `<b>${righe.reduce((s, r) => s + r.qty, 0)} articoli</b> · canone ${eur(imp)} al mese + IVA` : '<b>Prima scegli almeno un utensile qui sopra.</b>';
+  }
+  document.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const a = t.closest('[data-add]') as HTMLElement; if (a) { const c = a.dataset.add!; if (nel(c)) { carrello = carrello.filter((r) => r.c !== c); salva(); riepilogo(); risultati(); } else aggiungi(c); return; }
+    const p = t.closest('[data-qp]') as HTMLElement; if (p) { aggiungi(p.dataset.qp!); return; }
+    const m = t.closest('[data-qm]') as HTMLElement; if (m) { const r = nel(m.dataset.qm!); if (r) { r.qty--; if (r.qty < 1) carrello = carrello.filter((x) => x !== r); } salva(); riepilogo(); risultati(); return; }
+    const b = t.closest('[data-b]') as HTMLElement; if (b) { bis = bis === b.dataset.b ? '' : b.dataset.b!; document.querySelectorAll('[data-b]').forEach((x) => x.classList.toggle('on', (x as HTMLElement).dataset.b === bis)); mostra = 24; risultati(); $('#cnt').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
+    const c2 = t.closest('[data-al]') as HTMLElement; if (c2) { al = c2.dataset.al!; document.querySelectorAll('[data-al]').forEach((x) => x.classList.toggle('on', (x as HTMLElement).dataset.al === al)); mostra = 24; risultati(); }
+  });
+  ($('#tipo') as HTMLSelectElement).onchange = (e) => { tipo = (e.target as HTMLSelectElement).value; mostra = 24; risultati(); };
+  ($('#ord') as HTMLSelectElement).onchange = (e) => { ord = (e.target as HTMLSelectElement).value; risultati(); };
+  ($('#piu') as HTMLButtonElement).onclick = () => { mostra += 24; risultati(); };
+  ($('#bat') as HTMLSelectElement).onchange = riepilogo;
+
+  // modulo
+  const f = $('#f') as HTMLFormElement, msg = $('#msg');
+  const campo = (n: string) => f.elements.namedItem(n) as HTMLInputElement;
+  f.querySelectorAll('input[name=luogo]').forEach((r) => r.addEventListener('change', () => { ($('#luogoInd') as HTMLElement).hidden = (f.elements.namedItem('luogo') as RadioNodeList).value !== 'altro'; }));
+  // partita IVA: controllo e dati dal VIES
+  let pvT: any;
+  campo('piva').addEventListener('input', () => {
+    clearTimeout(pvT); const v = campo('piva').value.replace(/\D/g, ''); const out = $('#pv'); out.textContent = '';
+    if (v.length !== 11) return;
+    pvT = setTimeout(async () => {
+      out.textContent = 'Controllo la partita IVA…';
+      try {
+        const j = await (await fetch('/api/piva?n=' + v)).json();
+        if (!j.valida) { out.textContent = 'Partita IVA non valida: controlla le cifre.'; return; }
+        if (j.trovata) {
+          const metti = (n: string, val: string) => { if (val && !campo(n).value) campo(n).value = val; };
+          metti('ragione', j.ragioneSociale); metti('ind', j.indirizzo); metti('cap', j.cap); metti('citta', j.citta); metti('prov', j.provincia);
+          out.textContent = (j.attiva === false ? 'Attenzione: risulta non attiva. ' : '✓ ') + (j.ragioneSociale || 'Partita IVA trovata');
+        } else out.textContent = '✓ Partita IVA corretta';
+      } catch { out.textContent = ''; }
+    }, 300);
+  });
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!carrello.length) { msg.hidden = false; msg.className = 'msg ko'; msg.textContent = 'Scegli almeno un utensile da noleggiare.'; $('#scegli').scrollIntoView({ behavior: 'smooth' }); return; }
+    if (!f.checkValidity()) { f.reportValidity(); return; }
+    const b = $('#inv') as HTMLButtonElement; b.disabled = true; b.textContent = 'Invio…';
+    const v = (n: string) => (campo(n)?.value || '').trim();
+    const body = {
+      righe: carrello, privacy: (campo('privacy') as HTMLInputElement).checked, sito_web: v('sito_web'),
+      azienda: { ragione: v('ragione'), piva: v('piva'), cf: v('cf'), forma: v('forma'), attivita: v('attivita'), inizio: v('inizio'), dipendenti: v('dipendenti'), pec: v('pec'), sdi: v('sdi'), ind: v('ind'), cap: v('cap'), citta: v('citta'), prov: v('prov'), legale: v('legale') },
+      referente: { nome: v('refNome'), ruolo: v('refRuolo'), tel: v('refTel'), email: v('refEmail') },
+      uso: { durata: v('durata'), dataInizio: v('dataInizio'), batterie: v('batterie'), consegna: (f.elements.namedItem('consegna') as RadioNodeList).value, luogo: (f.elements.namedItem('luogo') as RadioNodeList).value, ind: v('usoInd'), utilizzo: v('utilizzo'), note: v('note') },
+    };
+    try {
+      ricorda(f);
+      const r = await fetch('/api/noleggio', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+      const j = await r.json(); if (!r.ok) throw new Error(j.error || 'errore');
+      carrello = []; salva(); riepilogo(); risultati();
+      f.innerHTML = `<h2>Richiesta inviata ✓</h2><p style="font-size:18px">Numero <b class="mono">${esc(j.num)}</b> · canone indicativo <b>${eur(j.canone)}</b> al mese + IVA.</p><p>Ti abbiamo mandato un'email di riepilogo. Ti richiamiamo entro un giorno lavorativo per confermare gli articoli e preparare l'offerta.</p><p class="nota">Hai bisogno di altro? Chiamaci al 081 553 6604.</p>`;
+      f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err: any) { msg.hidden = false; msg.className = 'msg ko'; msg.textContent = err.message && err.message !== 'errore' ? 'Non inviata: ' + err.message + '.' : 'Invio non riuscito. Riprova o chiamaci.'; b.disabled = false; b.textContent = 'Invia la richiesta di noleggio'; }
+  });
+
+  (async () => {
+    try { L = await (await fetch('/noleggio/listino.json')).json(); } catch { $('#cnt').textContent = 'Listino non disponibile, ricarica la pagina.'; return; }
+    PER = new Map(L.map((x) => [x.c, x]));
+    const u = new URL(location.href);
+    const add = (u.searchParams.get('add') || '').toUpperCase();
+    if (add) { const x = PER.get(add) || L.find((y) => y.m === add || y.m === add.split('-')[0]); if (x && !nel(x.c)) { carrello.push({ c: x.c, qty: 1 }); ultimo = x.c; salva(); } }
+    const qq = u.searchParams.get('q'); if (qq) { inp.value = qq; q = qq; }
+    risultati(); riepilogo();
+    if (add) $('#rie').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  })();
+  precompila();
+</script>
+
+<style is:global>
+  .nl-hero{background:var(--ink);color:#fff;padding:48px 0 40px}.nl-hero h1{font-size:clamp(34px,5vw,56px);text-transform:uppercase;margin:12px 0}.nl-hero p{color:#c9cbcf;margin:0 0 20px;font-size:18px;max-width:760px}
+  .nl-pro{list-style:none;padding:0;margin:0 0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.nl-pro li{border:1px solid var(--line-d);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}.nl-pro b{color:var(--y);font-size:18px}.nl-pro span{color:#c9cbcf;font-size:14px}
+  .nl-come{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;padding-top:24px}.nl-st{padding:16px;display:flex;flex-direction:column;gap:4px}.nl-st span{width:30px;height:30px;border-radius:50%;background:var(--y);display:grid;place-items:center;font-weight:900}.nl-st p{margin:0;color:var(--mut);font-size:14px}
+  .nl-g{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(min(320px,100%),1fr);gap:20px;padding-top:24px;align-items:start}
+  @media (max-width:960px){.nl-g{grid-template-columns:1fr}}
+  .nl-dx{position:sticky;top:90px}@media (max-width:960px){.nl-dx{position:static}}
+  .nl-box{padding:clamp(16px,4vw,24px);display:flex;flex-direction:column;gap:14px}.nl-box h2{font-size:24px;margin:0}.nl-box h3{font-size:16px;margin:8px 0 0}
+  .nl-bis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+  .nl-b{border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:2px;color:var(--ink)}.nl-b small{color:var(--mut);font-size:12.5px;line-height:1.3}.nl-b:hover{border-color:#bdb9ad}.nl-b.on{border-color:var(--ink);background:#fffbea}
+  .nl-qw{position:relative}.nl-qw input{width:100%;min-height:52px;border:2px solid var(--ink);border-radius:10px;padding:10px 14px;font:inherit;font-size:16px}
+  .nl-sug{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px #0002;list-style:none;margin:0;padding:6px;max-height:420px;overflow:auto}
+  .nl-sug li{display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;padding:8px;border-radius:8px;cursor:pointer}.nl-sug li.on,.nl-sug li:hover{background:#fffbea}.nl-sug li img{object-fit:contain}.nl-sug li span{display:flex;flex-direction:column;min-width:0}.nl-sug li b{font-size:14px;line-height:1.25}.nl-sug small{color:var(--mut);font-size:12px}.nl-sug em{font-style:normal;font-weight:800;white-space:nowrap;font-size:14px}.nl-sug .vuoto{display:block;color:var(--mut);cursor:default}
+  .nl-fil{display:flex;flex-direction:column;gap:10px}.nl-chips{display:flex;flex-wrap:wrap;gap:6px}.nl-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;color:var(--ink)}.nl-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .nl-fr{display:flex;gap:8px;flex-wrap:wrap}.nl-fr select{min-height:44px;border:1px solid #cfccc2;border-radius:8px;padding:6px 10px;font:inherit;background:#fff;flex:1;min-width:180px}
+  .nl-cnt{margin:0;color:var(--mut);font-size:14px}
+  .nl-res{display:flex;flex-direction:column;gap:8px}
+  .nl-it{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fff}.nl-it.in{border-color:var(--ok);background:#f3faf5}
+  .nl-it.sm{grid-template-columns:52px minmax(0,1fr) auto;padding:6px;gap:8px}
+  .nl-im{width:84px;height:84px;display:grid;place-items:center;background:#fff;border-radius:8px;overflow:hidden}.nl-it.sm .nl-im{width:52px;height:52px}.nl-im img{width:100%;height:100%;object-fit:contain}.nl-im .mono{font-size:11px;color:var(--mut);text-align:center}
+  .nl-tx{display:flex;flex-direction:column;gap:3px;min-width:0}.nl-tx b{font-size:15px;line-height:1.25}.nl-it.sm .nl-tx b{font-size:13.5px}.nl-tx .mono{font-size:12px;color:var(--mut)}
+  .nl-tg{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.nl-tg i{font-style:normal;font-size:11.5px;font-weight:800;background:#f1efe8;border-radius:6px;padding:2px 7px}.nl-tg i.w{background:#fff1c7}.nl-tg a{font-size:12.5px;font-weight:700;color:var(--mut);text-decoration:underline}
+  .nl-pr{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}.nl-pr b{font-size:17px;white-space:nowrap}.nl-it.sm .nl-pr b{font-size:14px}.nl-pr small{color:var(--mut);font-size:12px;white-space:nowrap}
+  .nl-add{margin-top:4px;border:0;background:var(--y);color:var(--ink);font:inherit;font-weight:800;font-size:13.5px;border-radius:8px;padding:8px 12px;cursor:pointer;white-space:nowrap}.nl-it.in .nl-add{background:var(--ok);color:#fff}
+  @media (max-width:520px){.nl-it{grid-template-columns:64px minmax(0,1fr)}.nl-im{width:64px;height:64px}.nl-pr{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}.nl-pr small{margin-right:auto;margin-left:8px}}
+  .nl-piu{align-self:center}
+  .nl-rg{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0}.nl-rn{display:flex;flex-direction:column;min-width:0}.nl-rn b{font-size:14px;line-height:1.25}.nl-rn small{color:var(--mut);font-size:12px}.nl-rt{font-size:14px;white-space:nowrap}
+  .nl-q{display:flex;align-items:center;gap:6px}.nl-q button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:18px;font-weight:800;cursor:pointer}.nl-q span{min-width:20px;text-align:center;font-weight:800}
+  .nl-cg{display:flex;flex-direction:column;gap:6px;background:#fffbea;border-radius:12px;padding:10px}.nl-cg p{margin:0;font-size:13.5px}
+  #cons{display:flex;flex-direction:column;gap:8px}
+  .nl-tot{display:flex;flex-direction:column;gap:6px;border-top:2px solid var(--ink);padding-top:10px}.nl-tot>div{display:flex;justify-content:space-between;gap:10px}.nl-tot .hl{font-size:18px}.nl-tot .hl b{color:var(--ink)}
+  .nota{color:var(--mut);margin:0;font-size:13.5px}
+  .nl-form{margin-top:24px}.nl-fs{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}.nl-fs legend{font-weight:900;font-size:16px;margin-bottom:8px;color:var(--y-d)}
+  .nl-r2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.nl-r3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.nl-r3c{display:grid;grid-template-columns:110px 1fr 80px;gap:12px}
+  @media (max-width:700px){.nl-r2,.nl-r3{grid-template-columns:1fr}}
+  .nl-pv{font-weight:400;color:var(--mut);min-height:1em}
+  .radio{display:flex;gap:10px;align-items:center;min-height:40px}.chk{font-size:14px;align-items:flex-start}.chk input{margin-top:3px}
+  .opt{align-items:flex-start;border:2px solid var(--line);border-radius:14px;padding:12px;cursor:pointer}.opt:has(input:checked){border-color:var(--ink);background:#fffbea}.opt input{margin-top:4px}.opt span{display:flex;flex-direction:column;gap:2px}.opt small{color:var(--mut);font-size:14px;line-height:1.4}
+  .nl-inv{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .hp{position:absolute;left:-9999px}.msg{margin:0;font-weight:700}.msg.ok{color:var(--ok)}.msg.ko{color:#b3261e}
+  .nl-faq details{border-bottom:1px solid var(--line);padding:12px 0}.nl-faq summary{font-weight:700;cursor:pointer}.nl-faq details p{margin:8px 0 0}
+</style>
