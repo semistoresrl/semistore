@@ -886,7 +886,7 @@ function stats(){
   const items=allItems();
   const low=items.filter(isLow);
   const ver=items.filter(r=>r.verificare);
-  const pub=items.filter(r=>r.tipo==="vendita"&&r.pubblica);
+  const pub=items.filter(r=>r.tipo==="vendita"&&sitoDi(r));
   return {aperti,pronti,attesa,chiusiM,entratiM,tm,valRicM,gar,fatt,vecchi,low,ver,pub,items};
 }
 const netto=x=>Math.round((Number(x)||0)/1.22*100)/100;
@@ -1270,7 +1270,7 @@ function vStats(st){
   </div>
   <div class="kpis">
     <a class="kpi" href="#magazzino" style="text-decoration:none;color:inherit"><div class="l">Ricambi a magazzino</div><div class="v">${nf(ric.filter(r=>r.giacenza>0).length)}</div><div class="s">su ${nf(ric.length)} codici ricambio</div></a>
-    <a class="kpi" href="#catalogo" style="text-decoration:none;color:inherit"><div class="l">Prodotti disponibili</div><div class="v">${nf(ven.filter(r=>r.giacenza>0).length)}</div><div class="s">${nf(st.pub.length)} pubblicati sul sito su ${nf(ven.length)}</div></a>
+    <a class="kpi" href="#catalogo" style="text-decoration:none;color:inherit"><div class="l">Prodotti disponibili</div><div class="v">${nf(ven.filter(r=>r.giacenza>0).length)}</div><div class="s">${nf(st.pub.length)} con pagina sul sito su ${nf(ven.length)}</div></a>
     <a class="kpi" href="#verifiche" style="text-decoration:none;color:inherit"><div class="l">Da inventariare</div><div class="v ${st.ver.length?"low":""}">${nf(st.ver.length)}</div><div class="s">giacenza negativa nel gestionale</div></a>
   </div>
   <h2 class="sec">${ic("box")} Magazzino e statistiche</h2>
@@ -1420,8 +1420,8 @@ function vCatalogo(st){
   if(S.cMarca) l=l.filter(r=>r.marca===S.cMarca);
   if(S.cPiatt) l=l.filter(r=>(r.piatt||"")===S.cPiatt);
   if(S.cStato==="disp") l=l.filter(r=>r.giacenza>0);
-  if(S.cStato==="pub") l=l.filter(r=>r.pubblica);
-  if(S.cStato==="nopr") l=l.filter(r=>r.pubblica&&!r.prezzo);
+  if(S.cStato==="pub") l=l.filter(r=>sitoDi(r));
+  if(S.cStato==="nopr") l=l.filter(r=>!sitoDi(r));
   if(S.cStato==="foto") l=l.filter(r=>r.foto||r.fotoUrl);
   if(S.cStato==="nofoto") l=l.filter(r=>!r.foto&&!r.fotoUrl);
   if(S.cStato==="nodescr") l=l.filter(r=>!r.descrOk);
@@ -1431,10 +1431,10 @@ function vCatalogo(st){
   const marche=[...new Set(all.map(r=>r.marca).filter(Boolean))].sort();
   const piatt=[...new Set(all.map(r=>r.piatt).filter(Boolean))].sort();
   const cnt={}; all.forEach(r=>cnt[r.cat]=(cnt[r.cat]||0)+1);
-  return header("Catalogo vendita","Prodotti per il negozio e per il sito: scegli cosa pubblicare e a che prezzo",
+  return header("Catalogo vendita","Prodotti del negozio: prezzo, foto e collegamento alla pagina del sito",
     `<button class="btn edit-only" data-act="photos">▣ Collega foto, schede e prezzi</button><button class="btn" data-act="export" ${S.dl?"":"disabled title=\"Download non disponibile in questa vista\""}>⇩ Esporta per e-commerce</button>`)+emptyInv()+
   `<div class="kpis"><div class="kpi"><div class="l">Prodotti</div><div class="v">${nf(tot)}</div><div class="s">${nf(all.filter(r=>r.giacenza>0).length)} disponibili</div></div>
-   <div class="kpi hl"><div class="l">Pubblicati sul sito</div><div class="v">${nf(st.pub.length)}</div><div class="s">${nf(st.pub.filter(r=>!r.prezzo).length)} ancora senza prezzo</div></div>
+   <div class="kpi hl"><div class="l">Sul sito</div><div class="v">${nf(all.filter(r=>sitoDi(r)).length)}</div><div class="s">${nf(all.filter(r=>!sitoDi(r)).length)} senza pagina sul sito</div></div>
    <div class="kpi"><div class="l">Con foto</div><div class="v">${nf(all.filter(r=>r.foto||r.fotoUrl).length)}</div><div class="s">${nf(all.filter(r=>r.fotoSimile).length)} da verificare</div></div><div class="kpi"><div class="l">Marche</div><div class="v">${marche.length}</div><div class="s">${esc(marche.slice(0,3).join(", "))}…</div></div></div>
   <div class="toolbar">
    <input type="search" id="cq" placeholder="Cerca codice o nome prodotto…" value="${esc(S.cq)}">
@@ -1442,12 +1442,11 @@ function vCatalogo(st){
    <select id="cMarca"><option value="">Tutte le marche</option>${marche.map(c=>`<option ${S.cMarca===c?"selected":""}>${esc(c)}</option>`).join("")}</select>
    <select id="cPiatt"><option value="">Tutte le alimentazioni</option>${piatt.map(c=>`<option ${S.cPiatt===c?"selected":""}>${esc(c)}</option>`).join("")}</select>
   </div>
-  <div class="toolbar"><div class="chips">${[["tutti","Tutti"],["disp","Disponibili"],["pub","Pubblicati"],["nopr","Pubblicati senza prezzo"],["foto","Con foto"],["nofoto","Senza foto"],["nodescr","Scheda da completare"]].map(([k,t])=>`<button class="chip ${S.cStato===k?"on":""}" data-cs="${k}">${t}</button>`).join("")}</div>
-   <span class="sp" style="flex:1"></span><span class="sub">${nf(l.length)} risultati</span>
-   <button class="btn sm edit-only" data-act="pubAll" ${l.length?"":"disabled"}>Pubblica i ${nf(l.length)} filtrati</button><button class="btn sm ghost edit-only" data-act="unpubAll" ${l.length?"":"disabled"}>Togli dal sito</button></div>
+  <div class="toolbar"><div class="chips">${[["tutti","Tutti"],["disp","Disponibili"],["pub","Sul sito"],["nopr","Senza pagina sul sito"],["foto","Con foto"],["nofoto","Senza foto"],["nodescr","Scheda da completare"]].map(([k,t])=>`<button class="chip ${S.cStato===k?"on":""}" data-cs="${k}">${t}</button>`).join("")}</div>
+   <span class="sp" style="flex:1"></span><span class="sub">${nf(l.length)} risultati</span></div>
   ${l.length?`<table><thead><tr><th style="width:34px">Sito</th><th style="width:54px">Foto</th><th>Codice</th><th>Prodotto</th><th>Categoria</th><th>Marca</th><th class="num">Giacenza</th><th class="num">Prezzo €</th><th></th></tr></thead><tbody>
-  ${l.slice((pg-1)*PAGE,pg*PAGE).map(r=>`<tr><td><input type="checkbox" data-pub="${esc(r.codice)}" ${r.pubblica?"checked":""} ${S.canWrite?"":"disabled"} aria-label="Pubblica sul sito"></td><td>${r.foto?`<img src="/_blob/${esc(r.foto)}" alt="" style="width:40px;height:40px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:6px">`:r.fotoUrl?`<a href="${esc(r.fotoUrl)}" target="_blank" rel="noopener" class="badge ${r.fotoSimile?"st-Preventivo_inviato":"st-Pronto"}" title="${r.fotoSimile?"Foto dello stesso modello ("+esc(r.fotoSimile)+"): verifica":"Foto ufficiale DEWALT"}">${r.fotoSimile?"simile":"vedi"}</a>`:`<span class="sub">—</span>`}</td><td class="mono">${esc(r.codice)}${r.sostDa?`<div><span class="tag-s">→ ${esc(r.sostDa)}</span></div>`:""}</td><td>${esc(r.titolo?r.titolo.replace(/^\S+\s+\S+\s+–\s+/,""):r.descr)}${r.verificare?` <span class="tag-v" title="Giacenza nel gestionale: ${esc(r.giacGest)}">DA CONTARE</span>`:""}${r.descrizione&&!r.descrOk?` <span class="tag-s" title="Descrizione del gestionale incompleta: controlla la scheda">SCHEDA DA COMPLETARE</span>`:""}</td><td class="sub">${esc(r.cat||"")}${r.piatt?"<br>"+esc(r.piatt):""}</td><td class="sub">${esc(r.marca||"")}</td><td class="num">${nf(r.giacenza)}</td>
-  <td class="num"><input class="inl" type="number" step="0.01" min="0" data-prz="${esc(r.codice)}" value="${r.prezzo||""}" placeholder="—" ${S.canWrite&&puoPrezzi()?"":"disabled"}>${r.prezzoNetto?`<div class="sub" title="${esc(r.prezzoFonte||"")}">${r.prezzoScade&&r.prezzoListinoNetto&&r.prezzoListinoNetto!==r.prezzoNetto?`promo ${eur(r.prezzoNetto)} + IVA fino al ${r.prezzoScade.split("-").reverse().join("/")} · <s>listino ${eur(r.prezzoListinoNetto)}</s>`:`listino ${eur(r.prezzoNetto)} + IVA`}</div>`:""}</td><td class="num edit-only"><button class="btn sm ghost" data-edric="${esc(r.codice)}">Modifica</button></td></tr>`).join("")}</tbody></table>${pager(l.length,pg,"c")}`
+  ${l.slice((pg-1)*PAGE,pg*PAGE).map(r=>`<tr><td>${sitoDi(r)?.s?`<a href="/prodotti/${esc(sitoDi(r).s)}/" target="_blank" rel="noopener" title="Apri la pagina sul sito">↗</a>`:`<span class="sub" title="Nessuna pagina sul sito">—</span>`}</td><td>${r.foto?`<img src="/_blob/${esc(r.foto)}" alt="" style="width:40px;height:40px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:6px">`:r.fotoUrl?`<a href="${esc(r.fotoUrl)}" target="_blank" rel="noopener" class="badge ${r.fotoSimile?"st-Preventivo_inviato":"st-Pronto"}" title="${r.fotoSimile?"Foto dello stesso modello ("+esc(r.fotoSimile)+"): verifica":"Foto ufficiale DEWALT"}">${r.fotoSimile?"simile":"vedi"}</a>`:`<span class="sub">—</span>`}</td><td class="mono">${esc(r.codice)}${r.sostDa?`<div><span class="tag-s">→ ${esc(r.sostDa)}</span></div>`:""}</td><td>${esc(r.titolo?r.titolo.replace(/^\S+\s+\S+\s+–\s+/,""):r.descr)}${r.verificare?` <span class="tag-v" title="Giacenza nel gestionale: ${esc(r.giacGest)}">DA CONTARE</span>`:""}${r.descrizione&&!r.descrOk?` <span class="tag-s" title="Descrizione del gestionale incompleta: controlla la scheda">SCHEDA DA COMPLETARE</span>`:""}</td><td class="sub">${esc(r.cat||"")}${r.piatt?"<br>"+esc(r.piatt):""}</td><td class="sub">${esc(r.marca||"")}</td><td class="num">${nf(r.giacenza)}</td>
+  <td class="num"><input class="inl" type="number" step="0.01" min="0" data-prz="${esc(r.codice)}" value="${r.prezzo||""}" placeholder="${sitoDi(r)?.p?String(sitoDi(r).p/100).replace(".",","):"—"}" title="${sitoDi(r)?.p&&!r.prezzo?"Vuoto: si usa il prezzo del sito":""}" ${S.canWrite&&puoPrezzi()?"":"disabled"}>${r.prezzoNetto?`<div class="sub" title="${esc(r.prezzoFonte||"")}">${r.prezzoScade&&r.prezzoListinoNetto&&r.prezzoListinoNetto!==r.prezzoNetto?`promo ${eur(r.prezzoNetto)} + IVA fino al ${r.prezzoScade.split("-").reverse().join("/")} · <s>listino ${eur(r.prezzoListinoNetto)}</s>`:`listino ${eur(r.prezzoNetto)} + IVA`}</div>`:""}</td><td class="num edit-only"><button class="btn sm ghost" data-edric="${esc(r.codice)}">Modifica</button></td></tr>`).join("")}</tbody></table>${pager(l.length,pg,"c")}`
   :`<div class="panel"><div class="empty">${tot?"Nessun prodotto con questi filtri":"Catalogo vuoto"}</div></div>`}`;
 }
 function vVerifiche(st){
@@ -2693,8 +2692,8 @@ async function openControllo(){
   const eanMap=new Map(); I.forEach(r=>String(r.ean||"").split(/[ ,;]+/).filter(Boolean).forEach(e=>{ (eanMap.get(e)||eanMap.set(e,[]).get(e)).push(r.codice); })); Object.entries(S.ean||{}).forEach(([e,c])=>{ const l=eanMap.get(e)||eanMap.set(e,[]).get(e); if(!l.includes(c)) l.push(c); });
   const eanDup=[...eanMap.entries()].filter(([,l])=>l.length>1); const conEan=I.filter(r=>r.ean).length;
   add(eanDup.length?"warn":"ok","Codici a barre",`${nf(conEan)} articoli con EAN${eanDup.length?` · ${nf(eanDup.length)} codici a barre su più articoli`:""}`,eanDup.map(([e,l])=>[l.join(" / "),"",`EAN ${e}`]));
-  const pubNo=ven.filter(r=>r.pubblica&&!(Number(r.prezzo)||Number(r.prezzoSito))); add(pubNo.length?"bad":"ok","Prodotti pubblicati sul sito senza prezzo",pubNo.length?`${nf(pubNo.length)}`:"nessuno",pubNo.map(r=>[r.codice,r.descr,""]));
-  const pubFoto=ven.filter(r=>r.pubblica&&!r.foto&&!r.fotoUrl); add(pubFoto.length?"warn":"ok","Prodotti pubblicati senza foto",pubFoto.length?`${nf(pubFoto.length)}`:"nessuno",pubFoto.map(r=>[r.codice,r.descr,""]));
+  const pubNo=ven.filter(r=>sitoDi(r)&&!(Number(r.prezzo)||Number(r.prezzoSito)||sitoDi(r)?.p)); add(pubNo.length?"bad":"ok","Prodotti con pagina sul sito ma senza prezzo",pubNo.length?`${nf(pubNo.length)}`:"nessuno",pubNo.map(r=>[r.codice,r.descr,""]));
+  const pubFoto=ven.filter(r=>r.giacenza>0&&!sitoDi(r)); add(pubFoto.length?"warn":"ok","Disponibili in negozio senza pagina sul sito",pubFoto.length?`${nf(pubFoto.length)}`:"nessuno",pubFoto.map(r=>[r.codice,r.descr,""]));
   const dav=I.filter(r=>r.daInviare); add(dav.length?"warn":"ok","Cambi non ancora inviati a sito e negozi",dav.length?`${nf(dav.length)}: premi “Aggiorna sito e negozi”`:"tutto inviato");
   // blocchi archivio
   let maxCh=0, maxId=""; for(const ch of S.magChunks||[]){ const items={}; I.forEach(r=>{ if(chunkOf(r.codice)===ch) items[keyOf(r.codice)]=r; }); const l=JSON.stringify(items).length; if(l>maxCh){ maxCh=l; maxId=ch; } }
