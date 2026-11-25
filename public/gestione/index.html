@@ -671,6 +671,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <div class="ng">In primo piano</div><a href="#cruscotto" data-v="cruscotto"><svg class="i"><use href="#i-home"/></svg><span>Home</span></a>
 <a href="#posta" data-v="posta" class="adm-only"><svg class="i"><use href="#i-send"/></svg><span>Posta</span><span class="ct" id="ctPosta">0</span></a>
 <a href="#lavorazioni" data-v="lavorazioni"><svg class="i"><use href="#i-wrench"/></svg><span>Lavorazioni</span><span class="ct" id="ctOpen">0</span></a>
+<a href="#prezzi" data-v="prezzi"><svg class="i"><use href="#i-tag"/></svg><span>Cerca prezzo</span></a>
 <a href="#ricambi" data-v="ricambi"><svg class="i"><use href="#i-search"/></svg><span>Cerca ricambio</span></a>
 <a href="#compatibili" data-v="compatibili"><svg class="i"><use href="#i-plug"/></svg><span>Compatibilità accessori</span></a>
 <a href="#ordini" data-v="ordini"><svg class="i"><use href="#i-cart"/></svg><span>Ordini online</span><span class="ct" id="ctOrd">0</span></a>
@@ -1180,7 +1181,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["prezzi","compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -1207,7 +1208,7 @@ function render(){
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = S.db ? "" : S.dbErr ? `<div class="banner err">L'archivio condiviso non è raggiungibile. Controlla la connessione e ricarica la pagina.</div>` : `<div class="banner">Sto scaricando l'archivio… un momento.</div>`;
-  const fns={compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={prezzi:vPrezzi,compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
   S._vistaPrec=S.view;
@@ -1237,7 +1238,7 @@ function patchTieni(m,html,vivo){
   }
   return true;
 }
-const VICON={"compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={"prezzi":"tag","compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -2044,7 +2045,7 @@ function bindView(){
   const sel=(id,fn)=>{const e=$("#"+id); if(e) e.onchange=()=>{fn(e.value);render()}};
   sel("fst",v=>S.filt.stato=v); sel("ftp",v=>S.filt.tipo=v); sel("ftc",v=>S.filt.tec=v);
   sel("cCat",v=>{S.cCat=v;S.cPage=1}); sel("cMarca",v=>{S.cMarca=v;S.cPage=1}); sel("cPiatt",v=>{S.cPiatt=v;S.cPage=1});
-  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="compatibili") bindCompatibili(); if(S.view==="noleggi") bindNoleggi();
+  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="prezzi") bindPrezzi(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="compatibili") bindCompatibili(); if(S.view==="noleggi") bindNoleggi();
   const fst=$("#fst"); if(fst) fst.value=S.filt.stato; const ftp=$("#ftp"); if(ftp) ftp.value=S.filt.tipo; const ftc=$("#ftc"); if(ftc) ftc.value=S.filt.tec;
 }
 async function saveCfg(){
@@ -2328,6 +2329,29 @@ function schedaTesto(t){ const tt=totali(t), n=t.num||"", ut=[t.modello,descrUte
   if(st==="Pronto") return `Buongiorno ${chi},\nil vostro *${ut}* è pronto! Scheda n. *${n}*.\n${fin.totale?`Importo: *${eur(fin.totale)}* IVA inclusa (imponibile ${eur(fin.imponibile)} + IVA ${eur(fin.iva)}).\n`:""}Potete ritirarlo in negozio Lun–Ven 8:30–13:00 / 14:30–18:00, portando la ricevuta o indicando il numero della scheda.`+firma;
   return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è stato consegnato. ${fin.totale?`Importo: ${eur(fin.totale)} IVA inclusa. `:""}Grazie per averci scelto: per qualsiasi cosa siamo qui.`+firma; }
 function waScheda(t){ const txt=schedaTesto(t); const tel=t.cliFinTel||t.tel; const u=waLink(tel,txt); window.open(u||"https://wa.me/?text="+encodeURIComponent(txt),"_blank"); if(!u) toast("Nessun telefono sulla scheda: scegli il contatto in WhatsApp"); }
+
+/* ---------- CERCA PREZZO (25/11): utensili, accessori e ricambi, con tutti i prezzi ---------- */
+function vPrezzi(){
+  const q=(S.pzq||"").trim(); let l=[];
+  if(q.length>=2){ l=cercaProd(q,30); const esc_=new Set(l.map(r=>normC(r.codice))); l=l.concat(cercaCatalogo(q,Math.max(0,30-l.length),esc_)); }
+  const riga=r=>{ S._pvMagg=0; const pr=prezziDi(r), s=sitoDi(r), g=Number(r.giacenza)||0, fuori=!!r.fuoriMagazzino, neg=prezzoVendita(r)||0;
+    const scade=pr.scade?` <small class="sub">fino al ${String(pr.scade).split("-").reverse().join("/")}</small>`:"";
+    return `<tr class="click" data-pz="${esc(r.codice)}"><td><b>${esc(nomeDi(r))}</b><div class="sub mono">${esc(r.codice)}${r.marca?" · "+esc(r.marca):""}${r.ubic?` · <b class="pkubi">${esc(r.ubic)}</b>`:""}</div></td>
+     <td>${fuori?`<span class="sub">non in magazzino</span>`:r.tipo==="ricambio"?`<span class="badge st-Ricevuto">ricambio</span>`:`<span class="badge st-Preventivo_inviato">vendita</span>`}</td>
+     <td class="num">${fuori?"—":r.verificare?`<span class="sub">da contare</span>`:`<b class="${g>0?"":"low"}">${g}</b>`}</td>
+     <td class="num">${neg?`<b>${eur(neg)}</b>`:"—"}</td>
+     <td class="num">${pr.listino?eur(pr.listino):"—"}</td>
+     <td class="num">${pr.volantino?`<b style="color:#b45309">${eur(pr.volantino)}</b>${scade}`:"—"}</td>
+     <td class="num">${pr.sito?`${eur(pr.sito)}${s?` <a class="sub" href="${SITO_URL}/prodotti/${esc(s.s)}/" target="_blank" rel="noopener">↗</a>`:""}`:"—"}</td>
+     ${isAdmin()?`<td class="num sub">${Number(r.costo)>0?eur(r.costo):"—"}</td>`:""}</tr>`; };
+  return header("Cerca prezzo","Utensili, accessori e ricambi: prezzo in negozio, listino, volantino in corso e prezzo del sito (tutti IVA inclusa)")+`
+  <div class="toolbar"><input id="pzq" placeholder="Codice, nome o modello: es. DCD796, smerigliatrice 125, DT7276" value="${esc(S.pzq||"")}" autocomplete="off" autocapitalize="characters" style="flex:1;min-width:240px;font-size:17px"></div>
+  ${q.length<2?`<div class="panel"><div class="empty">Scrivi almeno due lettere o il codice. Trovi anche gli articoli DEWALT del listino e del volantino che non sono in magazzino.</div></div>`:
+   l.length?`<div class="tts"><table><thead><tr><th>Articolo</th><th>Tipo</th><th class="num">In negozio</th><th class="num">Prezzo negozio</th><th class="num">Listino</th><th class="num">Volantino</th><th class="num">Sito</th>${isAdmin()?`<th class="num">Costo</th>`:""}</tr></thead><tbody>${l.map(riga).join("")}</tbody></table></div><div class="sub" style="margin-top:6px">Tocca una riga per aprire l'articolo (vendita, conteggio, accessori compatibili).</div>`:
+   `<div class="panel"><div class="empty">Niente per «${esc(q)}». Per un ricambio DEWALT prova in <a href="#ricambi">Cerca ricambio</a>.</div></div>`}`;
+}
+function bindPrezzi(){ const i=$("#pzq"); if(i){ i.oninput=()=>{ S.pzq=i.value; clearTimeout(i._t); i._t=setTimeout(()=>{ const p=i.selectionStart; render(); const j=$("#pzq"); if(j){ j.focus(); try{ j.setSelectionRange(p,p); }catch(e){} } },250); }; if(!matchMedia("(pointer:coarse)").matches) i.focus(); }
+  $("#main").querySelectorAll("[data-pz]").forEach(r=>r.onclick=()=>{ const it=itm(r.dataset.pz)||pvArticolo(r.dataset.pz); if(it) wizCerca(it); }); }
 /* ---------- PREVENTIVI (24/11) ---------- */
 const PV_FONTI={auto:"Volantino se c'è, altrimenti listino",volantino:"Volantino (promo)",listino:"Listino",sito:"Prezzo del sito"};
 const PV_STATI={bozza:"Bozza",inviato:"Inviato",accettato:"Accettato",rifiutato:"Rifiutato",scaduto:"Scaduto"};
@@ -4733,7 +4757,7 @@ function vFacile(st){
     ${B("consegno","check","f-g","Consegno un utensile","Il cliente viene a ritirare",pronti)}
     ${B("vendo","cart","f-b","Vendo al banco","Scala dal magazzino")}
     ${B("arrivo","truck","f-p","È arrivata merce","Carica i pezzi in magazzino")}
-    ${B("cerca","search","f-w","Cerco un prezzo","Prezzo e quanti ne ho")}
+    ${B("cerca","search","f-w","Cerco un prezzo","Utensili, accessori, ricambi")}
     ${B("conta","clipboard","f-w","Conto la merce","Scrivo quanti pezzi ci sono")}
     ${puoPrezzi()?B("prezzo","tag","f-w","Cambio un prezzo","Nuovo prezzo di vendita"):""}
     ${B("esplosi","drill","f-w","Esplosi e ricambi","Disegni DEWALT e pezzi")}
@@ -4794,10 +4818,12 @@ async function creaDaCatalogo(cod){ const a=pvArticolo(cod); if(!a) return null;
   const it=clean({codice:a.codice,descr:(nomeDi(a)||a.descr||a.codice).slice(0,160),tipo:"vendita",marca:"DEWALT",giacenza:0,scortaMin:0,prezzo,...(listino?{prezzoListino:listino}:{}),...(ll?.e?{ean:ll.e}:{}),forn:"Stanley Black & Decker",creatoDa:"listino",creatoAt:Date.now()});
   const ok=await write(()=>updItem(a.codice,it),a.codice+" aggiunto al magazzino");
   return ok?itm(a.codice):null; }
+function prezziBox(it){ S._pvMagg=0; const pr=prezziDi(it); if(!pr.listino&&!pr.volantino&&!pr.sito) return "";
+  return `<div class="wsub" style="margin-top:8px;display:grid;grid-template-columns:1fr auto;gap:2px 12px">${pr.listino?`<span>Listino</span><b>${eur(pr.listino)}</b>`:""}${pr.volantino?`<span>Volantino${pr.scade?` fino al ${String(pr.scade).split("-").reverse().join("/")}`:""}</span><b style="color:#b45309">${eur(pr.volantino)}</b>`:""}${pr.sito?`<span>Sul sito</span><b>${eur(pr.sito)}</b>`:""}</div>`; }
 function itemCard(it){ const s=sitoDi(it);
   return `<div class="wcard"><div class="wname">${esc(nomeDi(it))}</div><div class="mono wsub">${esc(it.codice)}${it.marca?" · "+esc(it.marca):""}</div>
   <div class="wrow"><div><small>Prezzo</small><div class="wprice">${prezzoVendita(it)?eur(prezzoVendita(it)):"—"}</div></div><div><small>In negozio</small><div class="wstock ${(Number(it.giacenza)||0)>0?"":"zero"}">${it.verificare?"?":(Number(it.giacenza)||0)}</div></div></div>
-  ${it.verificare?`<div class="wwarn">Quantità non ancora contata</div>`:""}${ubiBox(it)}${s?`<a class="wlink" href="${SITO_URL}/prodotti/${esc(s.s)}/" target="_blank" rel="noopener">${ic("ext")}Vedi sul sito</a>`:""}</div>`; }
+  ${it.verificare?`<div class="wwarn">Quantità non ancora contata</div>`:""}${prezziBox(it)}${ubiBox(it)}${s?`<a class="wlink" href="${SITO_URL}/prodotti/${esc(s.s)}/" target="_blank" rel="noopener">${ic("ext")}Vedi sul sito</a>`:""}</div>`; }
 const segnaInvio=(it,f={})=>updItem(it.codice,{...f,...(it.tipo==="vendita"?{daInviare:Date.now()}:{})});
 
 /* ---------- 1. Ricevo un utensile ---------- */
