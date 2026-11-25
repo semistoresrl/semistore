@@ -2304,14 +2304,14 @@ function preventivoTesto(p){ const t=pvTotali(p);
 function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",listino:"Listino",sito:"Sito",manuale:""};
   return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Preventivo ${esc(p.num)}</title><style>
   @page{size:A4;margin:10mm 12mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#000;background:#e9e9e9;font-size:9.5pt;line-height:1.3}
-  .pg{width:186mm;min-height:270mm;margin:12px auto;background:#fff;display:flex;flex-direction:column}
+  .pg{width:186mm;margin:12px auto;background:#fff;display:block;padding-bottom:2mm}
   .hd{display:flex;justify-content:space-between;gap:6mm;border-bottom:2.4pt solid #000;padding-bottom:3mm}.brand{display:flex;gap:3mm;align-items:flex-start}
   .logo{background:#000;color:#ffcd00;font-weight:900;font-size:15pt;letter-spacing:.5pt;padding:1.6mm 2.6mm;border-radius:1.2mm;line-height:1;white-space:nowrap}.logo small{display:block;color:#fff;font-size:6pt;letter-spacing:1.4pt;margin-top:1mm}
   .az{font-size:7.6pt;line-height:1.35}.az b{font-size:8.6pt}.nr{text-align:right}.nr .k{font-size:7.5pt;font-weight:900;letter-spacing:1pt}.nr .n{font-size:17pt;font-weight:900}
   .bx{display:flex;gap:4mm;margin:4mm 0}.bx>div{flex:1;border:1pt solid #000;padding:2.5mm 3mm;border-radius:1mm}.bx .k{font-size:7pt;font-weight:900;letter-spacing:.8pt;margin-bottom:1mm}
   table{width:100%;border-collapse:collapse;margin-top:2mm}th{font-size:7pt;letter-spacing:.6pt;text-align:left;border-bottom:1.2pt solid #000;padding:1.5mm 1.5mm}td{padding:1.8mm 1.5mm;border-bottom:.5pt solid #bbb;vertical-align:top}
   .r{text-align:right}.mono{font-family:Consolas,monospace;font-size:8pt;color:#333}.tot{margin-top:4mm;margin-left:auto;width:80mm}.tot div{display:flex;justify-content:space-between;padding:1mm 0}.tot .g{border-top:1.6pt solid #000;font-size:12pt;font-weight:900;margin-top:1mm;padding-top:2mm}
-  .ft{margin-top:auto;padding-top:4mm;font-size:7.6pt;color:#333;border-top:.6pt solid #999}.no-print{text-align:center;padding:10px}@media print{body{background:#fff}.pg{margin:0;width:auto;min-height:auto}.no-print{display:none}}</style></head><body>
+  .ft{margin-top:6mm;padding-top:3mm;font-size:7.6pt;color:#333;border-top:.6pt solid #999;break-inside:avoid}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}.tot{break-inside:avoid;page-break-inside:avoid}.no-print{text-align:center;padding:10px}@media print{body{background:#fff}.pg{margin:0;width:auto}.no-print{display:none}}</style></head><body>
   <div class="no-print"><button onclick="print()" style="font-size:16px;padding:10px 24px">Stampa / salva PDF</button></div><div class="pg">
    <div class="hd"><div class="brand"><div class="logo">SEMI STORE<small>VENDITA</small></div><div class="az"><b>SE.M.I. S.R.L.</b> · Concessionario DEWALT · STANLEY · BLACK+DECKER<br>Viale G. Marconi 225, 80020 Casavatore (NA)<br>Tel. 081 553 6604 · WhatsApp 375 626 6947 · info@semistore.it<br>P.IVA 07149740636 · semistore.it</div></div>
     <div class="nr"><div class="k">PREVENTIVO</div><div class="n">${esc(p.num)}</div><div>del ${fmtD(p.at)}</div><div>valido fino al <b>${p.validita?esc(p.validita.split("-").reverse().join("/")):"—"}</b></div></div></div>
