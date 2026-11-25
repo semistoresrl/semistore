@@ -1487,7 +1487,8 @@ function vImpostazioni(){
 /* ---------- DEWALT: helpers ---------- */
 const soglia = () => Number(S.cfg.soglia)||250;
 const totRighe = r => (r||[]).reduce((a,x)=>a+(Number(x.qty)||0)*(Number(x.prezzo)||0),0);
-const foglioAperto = () => S.ordini.find(o=>o.stato==="aperto");
+const tipoOrd = o => o?.tipo==="attrezzature"?"attrezzature":"ricambi";
+const foglioAperto = (tipo="ricambi") => S.ordini.find(o=>o.stato==="aperto"&&tipoOrd(o)===tipo);
 const isCode = s => /^[A-Z0-9][A-Z0-9.\/-]{3,}$/i.test(s) && /\d/.test(s);
 function num(s){ s=String(s??"").replace(/[^\d.,-]/g,""); if(!s) return 0; if(s.includes(",")&&s.includes(".")) s=s.replace(/\./g,"").replace(",","."); else if(s.includes(",")) s=s.replace(",","."); return Number(s)||0; }
 const toks = txt => String(txt||"").replace(/\t/g,"\n").split(/\r?\n/).map(s=>s.replace(/\s+/g," ").trim()).filter(Boolean);
@@ -1520,14 +1521,14 @@ async function saveFile(name,content){
   try{ await S.dl.save({filename:name,data:content}); }catch(e){ if(e?.code!=="declined") toast("Download non riuscito ("+(e?.code||"")+")"); }
 }
 // add rows [{codice,descr,qty,prezzo}] to the open sheet, linking a ticket number
-async function addToFoglio(lines,schedaNum){
+async function addToFoglio(lines,schedaNum,tipo="ricambi"){
   if(!lines.length) return false;
-  let f=foglioAperto(); const righe=f?JSON.parse(JSON.stringify(f.righe||[])):[];
+  let f=foglioAperto(tipo); const righe=f?JSON.parse(JSON.stringify(f.righe||[])):[];
   for(const l of lines){ const ex=righe.find(r=>r.codice.toUpperCase()===l.codice.toUpperCase());
     if(ex){ ex.qty=(Number(ex.qty)||0)+(Number(l.qty)||0); if(schedaNum&&!(ex.schede||[]).includes(schedaNum)) ex.schede=[...(ex.schede||[]),schedaNum]; if(!ex.prezzo&&l.prezzo) ex.prezzo=l.prezzo; }
     else righe.push({codice:l.codice,descr:l.descr||"",qty:Number(l.qty)||1,prezzo:Number(l.prezzo)||0,schede:schedaNum?[schedaNum]:[]}); }
-  return write(async()=>{ if(f) await S.db.doc("ordini/"+f.id).update({righe,updatedAt:Date.now()}); else await S.db.collection("ordini").add({stato:"aperto",righe,createdAt:Date.now(),updatedAt:Date.now()}); },
-    `${lines.length} ricambi nel foglio DEWALT`);
+  return write(async()=>{ if(f) await S.db.doc("ordini/"+f.id).update({righe,updatedAt:Date.now()}); else await S.db.collection("ordini").add({stato:"aperto",tipo,righe,createdAt:Date.now(),updatedAt:Date.now()}); },
+    tipo==="attrezzature"?`${lines.length} articoli nell'ordine attrezzature per il commerciale`:`${lines.length} ricambi nel foglio DEWALT`);
 }
 const prezzoVault = c => { const r=itm(c); if(r&&r.costo) return Number(r.costo); for(const e of S.esplosi.values()){ const p=(e.parti||[]).find(x=>x.codice===c); if(p&&p.prezzo) return p.prezzo; } return 0; };
 const fastEntry = righe => righe.filter(r=>r.qty>0).map(r=>`${r.codice},${r.qty}`).join("\r\n");
@@ -1593,11 +1594,12 @@ function vVault(){
     <p class="sub" style="margin:8px 0 0">Sul portale DEWALT: <b>Mio carrello → Caricamento ordine</b>, incolla e premi <b>Aggiungi al carrello</b>. In “Vs. Rif. Ordine” scrivi <span class="mono">${esc(f?.rif||rifFoglio())}</span>.</p>`
     :`<div class="empty">Foglio vuoto. I ricambi mancanti si aggiungono dalle schede (pulsante “Aggiungi mancanti al foglio”), dal sotto scorta o cercandoli qui sopra.</div>`}
   </div>
+  ${vOrdAttr()}
   <div class="grid2">
    <div class="panel"><h3>Inviati, in attesa di arrivo <span class="sp"></span><span class="sub">${inviati.length}</span></h3>
-    ${inviati.length?`<table><tbody>${inviati.map(o=>`<tr><td><b class="mono">${o.ordineVault?`<a href="${vtOrdine(o.ordineVault)}" target="_blank" rel="noopener" style="color:inherit">${esc(o.ordineVault)} ↗</a>`:"senza n°"}</b><div class="sub">${fmtD(o.inviatoAt)} · ${(o.righe||[]).length} righe · ${esc(o.rif||"")}</div></td><td class="num">${eur(o.totale??totRighe(o.righe))}</td><td class="num edit-only" style="white-space:nowrap"><button class="btn sm pri" data-v-arr="${esc(o.id)}">Registra arrivo</button> <button class="btn sm ghost danger" data-v-del="${esc(o.id)}" title="Elimina ordine">🗑</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessun ordine in viaggio</div>`}</div>
+    ${inviati.length?`<table><tbody>${inviati.map(o=>`<tr><td><b class="mono">${o.ordineVault&&tipoOrd(o)!=="attrezzature"?`<a href="${vtOrdine(o.ordineVault)}" target="_blank" rel="noopener" style="color:inherit">${esc(o.ordineVault)} ↗</a>`:o.ordineVault?esc(o.ordineVault):"senza n°"}</b><div class="sub">${tipoOrd(o)==="attrezzature"?`<span class="tg web">COMMERCIALE</span> `:""}${fmtD(o.inviatoAt)} · ${(o.righe||[]).length} righe · ${esc(o.rif||"")}</div></td><td class="num">${eur(o.totale??totRighe(o.righe))}</td><td class="num edit-only" style="white-space:nowrap"><button class="btn sm pri" data-v-arr="${esc(o.id)}">Registra arrivo</button> <button class="btn sm ghost danger" data-v-del="${esc(o.id)}" title="Elimina ordine">🗑</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessun ordine in viaggio</div>`}</div>
    <div class="panel"><h3>Arrivati e caricati <span class="sp"></span><span class="sub">ultimi 30</span></h3>
-    ${arrivati.length?`<table><tbody>${arrivati.map(o=>`<tr><td><b class="mono">${o.ordineVault?`<a href="${vtOrdine(o.ordineVault)}" target="_blank" rel="noopener" style="color:inherit">${esc(o.ordineVault)} ↗</a>`:"—"}</b><div class="sub">arrivato ${fmtD(o.arrivatoAt)} · ${(o.righe||[]).length} righe</div></td><td class="num">${eur(o.totale??totRighe(o.righe))}</td><td class="num edit-only"><button class="btn sm ghost danger" data-v-del="${esc(o.id)}" title="Elimina ordine">🗑</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Ancora nessun arrivo registrato</div>`}</div>
+    ${arrivati.length?`<table><tbody>${arrivati.map(o=>`<tr><td><b class="mono">${o.ordineVault?`<a href="${vtOrdine(o.ordineVault)}" target="_blank" rel="noopener" style="color:inherit">${esc(o.ordineVault)} ↗</a>`:"—"}</b><div class="sub">${tipoOrd(o)==="attrezzature"?`<span class="tg web">COMMERCIALE</span> `:""}arrivato ${fmtD(o.arrivatoAt)} · ${(o.righe||[]).length} righe</div></td><td class="num">${eur(o.totale??totRighe(o.righe))}</td><td class="num edit-only"><button class="btn sm ghost danger" data-v-del="${esc(o.id)}" title="Elimina ordine">🗑</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Ancora nessun arrivo registrato</div>`}</div>
   </div>`;
 }
 function bindVault(){
@@ -1608,11 +1610,12 @@ function bindVault(){
   m.querySelectorAll("[data-vrm]").forEach(x=>x.onclick=()=>{const r=JSON.parse(JSON.stringify(f.righe)); r.splice(x.dataset.vrm,1); saveRighe(r)});
   m.querySelectorAll("[data-v-arr]").forEach(b=>b.onclick=()=>openArrivo(S.ordini.find(o=>o.id===b.dataset.vArr)));
   const elimina=async o=>{ if(!o) return; const n=(o.righe||[]).length, tot=eur(o.totale??totRighe(o.righe));
-    const msg=o.stato==="aperto"?`Eliminare il foglio ricambi aperto (${n} righe, ${tot})?\nLe righe vengono tolte; si riaprirà un foglio vuoto.`
+    const msg=o.stato==="aperto"&&tipoOrd(o)==="attrezzature"?`Eliminare l'ordine attrezzature aperto (${n} righe, ${tot})?`:o.stato==="aperto"?`Eliminare il foglio ricambi aperto (${n} righe, ${tot})?\nLe righe vengono tolte; si riaprirà un foglio vuoto.`
       :`Eliminare l'ordine DEWALT ${o.ordineVault||"senza numero"} (${n} righe, ${tot})?`+(o.stato==="arrivato"?"\nLe giacenze già caricate in magazzino NON cambiano.":"\nTogli solo l'ordine dall'app: sul portale DEWALT va annullato a parte.");
     if(!confirm(msg)) return;
     await write(()=>S.db.doc("ordini/"+o.id).delete(),o.stato==="aperto"?"Foglio eliminato":"Ordine eliminato"); };
   m.querySelectorAll("[data-v-del]").forEach(b=>b.onclick=()=>elimina(S.ordini.find(o=>o.id===b.dataset.vDel)));
+  bindOrdAttr(elimina);
   const acts={
     import:()=>openImportVault(),
     low:()=>{ const l=allItems().filter(r=>r.tipo==="ricambio"&&isLow(r)).map(r=>({codice:r.codice,descr:r.descr,qty:Math.max(1,(Number(r.scortaMin)||0)*2-(Number(r.giacenza)||0)),prezzo:Number(r.costo)||0})); addToFoglio(l,null); },
@@ -1636,6 +1639,87 @@ function bindVault(){
   ps.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); const x=pl.querySelector("[data-c],[data-free]"); if(x) x.onmousedown(e); } };
   ps.onblur=()=>setTimeout(()=>pl.style.display="none",150);
 }
+
+/* ---------- Ordine attrezzature per il commerciale DEWALT (25/11/2026) ----------
+   Il portale DEWALT serve solo per i ricambi: le attrezzature (utensili, accessori, TSTAK…) si ordinano al commerciale.
+   L'ordine si prepara qui e si manda come file Excel (o stampa/PDF, email, WhatsApp). */
+function lisArt(cod){ const k=normC(cod), b=normC(String(cod).replace(/-[A-Z]{2}$/,"")); return S.lis?.p?.[k]||S.lis?.p?.[b]||null; }
+// costo atteso se non c'è un costo a magazzino: listino 2026 × sconto medio reale SBD (fatture 2025-26)
+function costoAtteso(cod){ const it=itm(cod); if(it&&Number(it.costo)>0) return Number(it.costo); const l=lisArt(cod); if(!l||!l.n) return 0;
+  const c=String(cod).toUpperCase(), f=c.startsWith("DT")?0.446:c.startsWith("DCB")?0.51:/^(DE|DWST|DWE7|DWV|DPN|DPS)/.test(c)?0.569:0.387; return r2(l.n*f); }
+const commCfg=()=>S.cfg?.commerciale||{};
+function vOrdAttr(){ const f=foglioAperto("attrezzature"), righe=f?.righe||[], tot=totRighe(righe), pezzi=righe.reduce((a,r)=>a+(Number(r.qty)||0),0), c=commCfg();
+  return `<div class="panel" id="ordAttr" style="margin-bottom:14px"><h3>Ordine attrezzature per il commerciale <span class="sp"></span>${righe.length?`<span class="sub" style="font-weight:500">${righe.length} righe · ${nf(pezzi)} pz · costo previsto&nbsp;</span><span style="font-size:20px;font-weight:800">${eur(tot)}</span>`:""}</h3>
+   <p class="sub" style="margin:0 0 10px">Utensili, accessori e TSTAK non passano dal portale DEWALT: li ordini al tuo commerciale${c.nome?` (<b>${esc(c.nome)}</b>)`:""} con il file Excel pronto. Le righe arrivano dai preventivi («Ordina al commerciale DEWALT») o le aggiungi qui.</p>
+   <div class="toolbar edit-only"><div class="ac" style="flex:1;min-width:260px"><input id="oaSearch" placeholder="Aggiungi articolo: codice o nome (listino DEWALT, volantino, magazzino)…" autocomplete="off"><div class="acl" id="oaList"></div></div></div>
+   ${righe.length?`<div class="tts"><table class="parts"><thead><tr><th>Codice</th><th>Descrizione</th><th>Per</th><th class="num" style="width:80px">Q.tà</th><th class="num">Listino 2026</th><th class="num" style="width:110px">Costo previsto €</th><th class="num">Importo</th><th style="width:30px"></th></tr></thead><tbody>
+   ${righe.map((r,i)=>{ const l=lisArt(r.codice); return `<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.descr)}</td><td class="mono sub">${esc((r.schede||[]).join(", "))||"scorta"}</td>
+     <td><input type="number" min="0" step="1" data-oaq="${i}" value="${r.qty}" style="text-align:right" ${S.canWrite?"":"disabled"}></td><td class="num sub">${l&&l.n?eur(l.n):"—"}</td>
+     <td><input type="number" min="0" step="0.01" data-oap="${i}" value="${r.prezzo||""}" placeholder="—" style="text-align:right" ${S.canWrite&&puoPrezzi()?"":"disabled"}></td><td class="num">${eur(r.qty*(r.prezzo||0))}</td><td class="edit-only"><button class="btn sm ghost danger" data-oarm="${i}">×</button></td></tr>`; }).join("")}</tbody></table></div>
+   <div class="toolbar" style="margin-top:12px"><button class="btn pri" data-oa="xlsx">⇩ Excel per il commerciale</button><button class="btn" data-oa="pdf">🖨 Stampa / PDF</button><button class="btn" data-oa="mail">${ic("send")}Email</button><button class="btn" data-oa="wa">${ic("chat")}WhatsApp</button>
+     <span style="flex:1"></span><button class="btn danger edit-only" data-oa="del">🗑 Elimina</button><button class="btn dark edit-only" data-oa="sent">✓ Inviato al commerciale</button></div>
+   <p class="sub" style="margin:8px 0 0">Nel file ci sono codice, EAN, descrizione, quantità e prezzo di listino 2026. Il costo previsto resta nell'app (si può aggiungere al file se lo vuoi).</p>`
+   :`<div class="empty">Nessun articolo. Dal preventivo premi «Ordina al commerciale DEWALT», oppure cerca qui sopra.</div>`}</div>`; }
+function ordAttrRighe(f,conCosto){ return (f.righe||[]).filter(r=>Number(r.qty)>0).map(r=>{ const l=lisArt(r.codice)||{}; return {codice:r.codice,ean:l.e||itm(r.codice)?.ean||"",descr:l.d||r.descr||"",qty:Number(r.qty)||0,listino:Number(l.n)||0,costo:conCosto?Number(r.prezzo)||0:null,rif:(r.schede||[]).join(" ")}; }); }
+function ordAttrTesto(f){ const c=commCfg(), rr=ordAttrRighe(f,false);
+  return `Buongiorno${c.nome?" "+nome1(c.nome):""},\nordine attrezzature SE.M.I. S.R.L. – rif. ${f.rif||rifFoglio()}\n\n`+rr.map(r=>`${r.qty} × ${r.codice} – ${r.descr}`).join("\n")+`\n\nTotale ${rr.length} righe, ${rr.reduce((a,r)=>a+r.qty,0)} pezzi.\nMi confermi disponibilità, prezzi e tempi di consegna?\n\nGrazie\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604`; }
+async function ordAttrXlsx(f,conCosto){ if(typeof XLSX==="undefined"){ toast("Excel non disponibile: riprova tra poco"); return; }
+  const c=commCfg(), rr=ordAttrRighe(f,conCosto), oggi=new Date().toLocaleDateString("it-IT"), rif=f.rif||rifFoglio();
+  const testa=[["ORDINE ATTREZZATURE DEWALT"],["Cliente","SE.M.I. S.R.L."],["P.IVA","07149740636"],...(c.codCliente?[["Codice cliente DEWALT",c.codCliente]]:[]),["Indirizzo di consegna","Viale G. Marconi 225, 80020 Casavatore (NA)"],["Data",oggi],["Riferimento ordine",rif],["Contatto","Tel. 081 553 6604 · info@semistore.it"],...(f.note?[["Note",f.note]]:[]),[]];
+  const intest=["Codice","EAN","Descrizione","Quantità","Prezzo listino 2026 (IVA escl.)",...(conCosto?["Prezzo netto atteso"]:[]),"Riferimento"];
+  const righe=rr.map(r=>[r.codice,r.ean?String(r.ean):"",r.descr,r.qty,r.listino||"",...(conCosto?[r.costo||""]:[]),r.rif]);
+  const tot=["","","TOTALE",rr.reduce((a,r)=>a+r.qty,0),r2(rr.reduce((a,r)=>a+r.qty*r.listino,0)),...(conCosto?[r2(rr.reduce((a,r)=>a+r.qty*(r.costo||0),0))]:[]),""];
+  const ws=XLSX.utils.aoa_to_sheet([...testa,intest,...righe,[],tot]);
+  ws["!cols"]=[{wch:18},{wch:15},{wch:60},{wch:10},{wch:16},...(conCosto?[{wch:16}]:[]),{wch:18}];
+  const h=testa.length; ws["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:h,c:0},e:{r:h+righe.length,c:intest.length-1}})};
+  for(let i=0;i<righe.length;i++){ const cell=ws[XLSX.utils.encode_cell({r:h+1+i,c:1})]; if(cell){ cell.t="s"; } }
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Ordine");
+  const out=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+  const nome=`Ordine-DEWALT-SEMI-${rif.replace(/[^\w-]+/g,"-")}.xlsx`.replace(/-+/g,"-");
+  if(S.dl) await S.dl.save({filename:nome,data:new Blob([out],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})});
+  else { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([out])); a.download=nome; a.click(); }
+  return nome; }
+function ordAttrHtml(f){ const c=commCfg(), rr=ordAttrRighe(f,false), rif=f.rif||rifFoglio();
+  return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Ordine attrezzature ${esc(rif)}</title><style>@page{size:A4;margin:12mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;font-size:9.5pt;padding:6mm}
+  .t{display:flex;justify-content:space-between;border-bottom:2pt solid #000;padding-bottom:3mm;margin-bottom:4mm}h1{font-size:15pt}.m{font-size:8.5pt;color:#333}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid}th{font-size:7.5pt;text-align:left;border-bottom:1.2pt solid #000;padding:1.5mm}td{padding:1.6mm 1.5mm;border-bottom:.5pt solid #bbb;vertical-align:top}.n{text-align:right;white-space:nowrap}.mono{font-family:monospace}
+  .tot{margin-top:4mm;text-align:right;font-weight:700}.no-print{text-align:center;padding:8px}@media print{.no-print{display:none}}</style></head><body><div class="no-print"><button onclick="print()" style="font-size:15px;padding:8px 20px">Stampa / salva PDF</button></div>
+  <div class="t"><div><h1>Ordine attrezzature DEWALT</h1><div class="m">Rif. ${esc(rif)} · ${new Date().toLocaleDateString("it-IT")}${c.nome?" · alla c.a. di "+esc(c.nome):""}</div></div><div class="m" style="text-align:right"><b>SE.M.I. S.R.L.</b><br>P.IVA 07149740636${c.codCliente?"<br>Cod. cliente DEWALT "+esc(c.codCliente):""}<br>Viale G. Marconi 225, 80020 Casavatore (NA)<br>Tel. 081 553 6604 · info@semistore.it</div></div>
+  <table><thead><tr><th>Codice</th><th>EAN</th><th>Descrizione</th><th class="n">Q.tà</th><th class="n">Listino 2026</th></tr></thead><tbody>${rr.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td class="mono">${esc(r.ean)}</td><td>${esc(r.descr)}</td><td class="n">${r.qty}</td><td class="n">${r.listino?eur(r.listino):"—"}</td></tr>`).join("")}</tbody></table>
+  <div class="tot">${rr.length} righe · ${rr.reduce((a,r)=>a+r.qty,0)} pezzi · listino totale ${eur(r2(rr.reduce((a,r)=>a+r.qty*r.listino,0)))} (IVA esclusa)</div>${f.note?`<p style="margin-top:4mm">Note: ${esc(f.note)}</p>`:""}</body></html>`; }
+function openCommerciale(f,dopo){ const c=commCfg();
+  openModal(`<div class="mh"><h2>Commerciale DEWALT</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><div class="fs"><div class="f"><label class="fl">Nome<input id="cmN" value="${esc(c.nome||"")}"></label><label class="fl">Email<input id="cmE" type="email" value="${esc(c.email||"")}"></label><label class="fl">Cellulare / WhatsApp<input id="cmT" type="tel" value="${esc(c.tel||"")}"></label><label class="fl">Vostro codice cliente DEWALT<input id="cmC" value="${esc(c.codCliente||"")}"></label>
+   <label class="fl">Riferimento di questo ordine<input id="cmR" value="${esc(f.rif||rifFoglio())}"></label><label class="fl" style="grid-column:1/-1">Note per il commerciale<textarea id="cmNo" rows="2" placeholder="es. consegna entro il…, merce per cliente X">${esc(f.note||"")}</textarea></label></div>
+   <label class="chip" style="margin-top:10px"><input type="checkbox" id="cmCosto"> Metti nel file anche il prezzo netto atteso</label></div></div>
+  <div class="mf"><button class="btn" data-close>Annulla</button><span class="sp"></span><button class="btn pri" id="cmOk">Continua</button></div>`);
+  $("#cmOk").onclick=async()=>{ const nc={nome:$("#cmN").value.trim(),email:$("#cmE").value.trim(),tel:$("#cmT").value.trim(),codCliente:$("#cmC").value.trim()};
+    const rif=$("#cmR").value.trim(), note=$("#cmNo").value.trim(), costo=$("#cmCosto").checked;
+    await write(async()=>{ await S.db.doc("config/impostazioni").set({...S.cfg,commerciale:nc}); await S.db.doc("ordini/"+f.id).update({rif,note,updatedAt:Date.now()}); });
+    S.cfg={...S.cfg,commerciale:nc}; closeModal(); dopo({...f,rif,note},costo); }; }
+function bindOrdAttr(elimina){ const m=$("#main"), f=foglioAperto("attrezzature");
+  const save=async righe=>{ if(f) await write(()=>S.db.doc("ordini/"+f.id).update({righe,updatedAt:Date.now()})); };
+  m.querySelectorAll("[data-oaq]").forEach(x=>x.onchange=()=>{ const r=JSON.parse(JSON.stringify(f.righe)); r[x.dataset.oaq].qty=Math.max(0,parseInt(x.value)||0); save(r); });
+  m.querySelectorAll("[data-oap]").forEach(x=>x.onchange=()=>{ const r=JSON.parse(JSON.stringify(f.righe)); r[x.dataset.oap].prezzo=num(x.value); save(r); });
+  m.querySelectorAll("[data-oarm]").forEach(x=>x.onclick=()=>{ const r=JSON.parse(JSON.stringify(f.righe)); r.splice(x.dataset.oarm,1); save(r); });
+  const A={ xlsx:()=>openCommerciale(f,async(g,costo)=>{ const n=await ordAttrXlsx(g,costo); if(n) toast("Scaricato "+n+": allegalo all'email per il commerciale"); }),
+    pdf:()=>{ const w=window.open("","_blank"); if(!w){ toast("Consenti i popup per semistore.it"); return; } w.document.open(); w.document.write(ordAttrHtml(f)); w.document.close(); },
+    mail:()=>openCommerciale(f,async(g,costo)=>{ await ordAttrXlsx(g,costo); const c=commCfg(); location.href="mailto:"+encodeURIComponent(c.email||"")+"?subject="+encodeURIComponent("Ordine attrezzature SE.M.I. – "+(g.rif||""))+"&body="+encodeURIComponent(ordAttrTesto(g)+"\n\n(In allegato il file Excel con l'ordine.)"); toast("File scaricato: allegalo all'email"); }),
+    wa:()=>openCommerciale(f,g=>{ const c=commCfg(); const u=waLink(c.tel,ordAttrTesto(g)); window.open(u||"https://wa.me/?text="+encodeURIComponent(ordAttrTesto(g)),"_blank"); }),
+    del:()=>elimina(f),
+    sent:()=>{ openModal(`<div class="mh"><h2>Ordine inviato al commerciale</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+      <div class="mb"><div class="fs"><div class="f"><label class="fl">N° conferma d'ordine DEWALT (se ce l'hai)<input id="saN" placeholder="anche dopo"></label><label class="fl">Riferimento<input id="saR" value="${esc(f.rif||rifFoglio())}"></label></div>
+       <p class="sub" style="margin:10px 0 0">${f.righe.length} righe · costo previsto ${eur(totRighe(f.righe))}. L'ordine passa negli «Inviati»: all'arrivo premi «Registra arrivo» e la merce va a magazzino come articoli in vendita.</p></div></div>
+      <div class="mf"><button class="btn" data-close>Annulla</button><button class="btn pri" id="saOk">Conferma</button></div>`);
+      $("#saOk").onclick=async()=>{ if(await write(()=>S.db.doc("ordini/"+f.id).update({stato:"inviato",ordineVault:$("#saN").value.trim(),rif:$("#saR").value.trim(),inviatoAt:Date.now(),totale:totRighe(f.righe),commerciale:commCfg().nome||""}),"Ordine segnato come inviato al commerciale")) closeModal(); }; } };
+  m.querySelectorAll("[data-oa]").forEach(b=>b.onclick=()=>A[b.dataset.oa]());
+  const ps=$("#oaSearch"), pl=$("#oaList"); if(!ps) return;
+  const add=it=>{ ps.value=""; pl.style.display="none"; addToFoglio([{codice:it.codice,descr:it.nome||it.descr||it.codice,qty:1,prezzo:costoAtteso(it.codice)}],null,"attrezzature"); };
+  ps.oninput=()=>{ clearTimeout(ps._t); ps._t=setTimeout(()=>{ const q=ps.value.trim(); if(q.length<2){ pl.style.display="none"; return; }
+    const l=[...cercaProd(q,6).map(r=>({codice:r.codice,nome:nomeDi(r)})),...cercaCatalogo(q,8).map(it=>({codice:it.codice,nome:it.descr||it.nome||""}))].slice(0,10); ps._l=l;
+    pl.innerHTML=l.map((it,i)=>{ const li=lisArt(it.codice); return `<div data-oi="${i}"><span><span class="mono">${esc(it.codice)}</span> ${esc(it.nome)}</span><span class="sub">${li&&li.n?"listino "+eur(li.n):""}</span></div>`; }).join("")||`<div class="sub">Nessun articolo trovato</div>`;
+    pl.style.display="block"; pl.querySelectorAll("[data-oi]").forEach(d=>d.onmousedown=e=>{ e.preventDefault(); add(l[+d.dataset.oi]); }); },120); };
+  ps.onkeydown=e=>{ if(e.key==="Enter"&&ps._l&&ps._l[0]){ e.preventDefault(); add(ps._l[0]); } };
+  ps.onblur=()=>setTimeout(()=>pl.style.display="none",150); }
 function openInviato(f){
   openModal(`<div class="mh"><h2>Ordine inviato sul portale DEWALT</h2><span class="sp"></span><button class="x" data-close>×</button></div>
   <div class="mb"><div class="fs"><p style="margin-top:0">Dopo “Registra ordine”, DEWALT mostra il numero (es. <span class="mono">1536662774</span>). Scrivilo qui: lo trovi anche nell'email di conferma.</p><div class="f">
@@ -1659,7 +1743,7 @@ function openArrivo(o,pre){
     const btn=$("#aOk"); btn.disabled=true; const numero=pre?.numero||o?.ordineVault||"";
     const ok=await write(async()=>{
       for(const r of righe){ const q=r.arr??r.qty; if(!q) continue;
-        if(!itm(r.codice)) await updItem(r.codice,{codice:r.codice,descr:r.descr||r.codice,tipo:"ricambio",giacenza:0,scortaMin:0,costo:Number(r.prezzo)||0,forn:"Stanley Black & Decker"});
+        if(!itm(r.codice)) await updItem(r.codice,{codice:r.codice,descr:r.descr||r.codice,tipo:tipoOrd(o)==="attrezzature"?"vendita":"ricambio",giacenza:0,scortaMin:0,costo:Number(r.prezzo)||0,forn:"Stanley Black & Decker"});
         else if(r.prezzo) await updItem(r.codice,{costo:Number(r.prezzo)});
         await muovi(r.codice,q,"carico DEWALT",numero?"ord. "+numero:"DEWALT"); }
       const data={stato:"arrivato",arrivatoAt:Date.now(),righe:righe.map(r=>({codice:r.codice,descr:r.descr,qty:r.arr??r.qty,prezzo:r.prezzo||0,schede:r.schede||[]})),ordineVault:numero,totale:pre?.totale??totRighe(righe)};
@@ -2335,16 +2419,16 @@ function pvOrdinaDewalt(p){
   const rows=(p.righe||[]).map(r=>{ const it=itmV(r.codice), g=Math.max(0,Number(it?.giacenza)||0); return {codice:it?.codice||r.codice,descr:r.nome||r.codice,qty:Number(r.qty)||0,giac:g,manca:Math.max(0,(Number(r.qty)||0)-g),prezzo:prezzoVault(it?.codice||r.codice)||0}; });
   let tutto=false;
   const draw=()=>{ const l=rows.map(r=>({...r,ord:tutto?r.qty:r.manca})).filter(r=>r.ord>0);
-    openModal(`<div class="mh"><h2>Ordina a DEWALT · ${esc(p.num||"")}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+    openModal(`<div class="mh"><h2>Ordina al commerciale DEWALT · ${esc(p.num||"")}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
     <div class="mb"><div class="seg" id="dwSeg" style="margin-bottom:10px"><button data-t="0" class="${tutto?"":"on"}">Solo quello che manca in magazzino</button><button data-t="1" class="${tutto?"on":""}">Tutte le quantità</button></div>
      ${l.length?`<div class="tts"><table><thead><tr><th>Codice</th><th>Articolo</th><th class="num">Nel preventivo</th><th class="num">In magazzino</th><th class="num">Da ordinare</th></tr></thead><tbody>${l.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.descr)}</td><td class="num">${r.qty}</td><td class="num">${r.giac}</td><td class="num"><b>${r.ord}</b></td></tr>`).join("")}</tbody></table></div>
-     <p class="sub">Le righe vanno nel <b>foglio d'ordine DEWALT</b> (Ordini DEWALT), segnate con ${esc(p.num||"il preventivo")}. Da lì premi «Copia per il portale DEWALT» e le incolli in Caricamento ordine.</p>`:`<div class="empty">In magazzino c'è già tutto: niente da ordinare.</div>`}</div>
-    <div class="mf"><button class="btn" data-close>Chiudi</button><span class="sp"></span>${l.length?`<button class="btn pri" id="dwOk">${ic("plus")}Metti ${l.length} righe nel foglio DEWALT</button>`:""}</div>`);
+     <p class="sub">Le righe vanno nell'<b>ordine attrezzature per il commerciale</b> (Ordini DEWALT), segnate con ${esc(p.num||"il preventivo")}. Da lì scarichi il file Excel pronto da mandargli.</p>`:`<div class="empty">In magazzino c'è già tutto: niente da ordinare.</div>`}</div>
+    <div class="mf"><button class="btn" data-close>Chiudi</button><span class="sp"></span>${l.length?`<button class="btn pri" id="dwOk">${ic("plus")}Metti ${l.length} righe nell'ordine per il commerciale</button>`:""}</div>`);
     $("#dwSeg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ tutto=b.dataset.t==="1"; draw(); });
     const ok=$("#dwOk"); if(ok) ok.onclick=async()=>{ ok.disabled=true;
-      if(await addToFoglio(l.map(r=>({codice:r.codice,descr:r.descr,qty:r.ord,prezzo:r.prezzo})),p.num||null)){
+      if(await addToFoglio(l.map(r=>({codice:r.codice,descr:r.descr,qty:r.ord,prezzo:r.prezzo||costoAtteso(r.codice)})),p.num||null,"attrezzature")){
         if(p.id) await write(()=>S.db.collection("preventivi").doc(p.id).update({dewaltAt:Date.now(),updatedAt:Date.now()}));
-        closeModal(); location.hash="#vault"; } else ok.disabled=false; };
+        closeModal(); location.hash="#vault"; setTimeout(()=>{ const e=$("#ordAttr"); if(e) e.scrollIntoView({behavior:"smooth"}); },400); } else ok.disabled=false; };
   };
   draw();
 }
