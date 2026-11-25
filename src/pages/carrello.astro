@@ -41,7 +41,7 @@ import { SITO } from '../data/sito.js';
     </div>
   </section>
 </Base>
-<style>
+<style is:global>
   .upc{margin-top:40px}.upc-s{color:var(--mut);margin:-8px 0 16px}.upc-l{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}.upc-r{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px 8px 8px}.upc-i{display:grid;place-items:center;width:64px;height:64px}.upc-i img{width:64px;height:64px;object-fit:contain}.upc-i .mono{font-size:10px;color:var(--mut)}.upc-n{color:var(--ink)}.upc-n b{display:block;font-size:14px;line-height:1.3;font-weight:600}.upc-n small{color:var(--mut);font-size:12px}.upc-p{display:flex;flex-direction:column;align-items:flex-end;gap:4px}.upc-a{border:2px solid var(--ink);background:#fff;border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}.upc-a:hover{background:var(--y)}@media(max-width:600px){.upc-l{grid-template-columns:1fr}}
 </style>
 <script define:vars={{ sp: SITO.spedizione, premi: SITO.punti.prodottiPremio || [] }}>
