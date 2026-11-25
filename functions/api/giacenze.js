@@ -56,6 +56,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     // 24/11: per gli articoli fuori dal catalogo del sito, se non c'è un prezzo sito vale il prezzo al pubblico del negozio (app)
     const pNeg = !SLUGS.has(slug) && Number(g.prezzoNegozio) > 0 ? Math.round(Number(g.prezzoNegozio)) : null;
     const prezzo = Number.isFinite(Number(g.prezzo)) && Number(g.prezzo) > 0 ? Math.round(Number(g.prezzo)) : pNeg;
+    // 25/11: se il codice ora è nel catalogo del sito, la vecchia riga "fuori catalogo" con lo stesso codice va a zero (niente doppioni su TikTok)
+    if (SLUGS.has(slug) && g.codice) istr.push(d.prepare('UPDATE giacenze SET qty=0, tt_da_sync=1 WHERE codice=? AND slug<>? AND qty>0').bind(String(g.codice), slug));
     istr.push(d.prepare(`INSERT INTO giacenze(slug, codice, qty, prezzo, dati, aggiornata, tt_da_sync) VALUES(?,?,?,?,?,?,?)
       ON CONFLICT(slug) DO UPDATE SET qty=excluded.qty, codice=COALESCE(excluded.codice, codice),
         prezzo=COALESCE(excluded.prezzo, prezzo), dati=CASE WHEN excluded.dati='{}' THEN dati ELSE excluded.dati END,

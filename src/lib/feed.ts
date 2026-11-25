@@ -24,13 +24,17 @@ export const pubblicabili = () => (prodotti as any[]).filter((p) => p.prezzo > 0
 
 /**
  * Selezione per il catalogo WhatsApp (l'app WhatsApp Business ne mostra al massimo 500):
- * fuori punte, lame e dischi (tanti articoli piccoli, si chiedono in chat), prima i prodotti in sconto, poi i più cari.
+ * prima tutto quello che c'è in negozio (giacenza > 0, qualsiasi categoria), poi gli altri senza punte, lame e dischi
+ * (tanti articoli piccoli, si chiedono in chat): prima quelli in sconto, poi i più cari.
  */
-export const selezioneWhatsApp = (max = 500) =>
-  pubblicabili()
-    .filter((p) => !['Punte e inserti', 'Lame, dischi e abrasivi'].includes(p.categoria))
-    .sort((a, b) => Number(!!(b.prezzoListino > b.prezzo)) - Number(!!(a.prezzoListino > a.prezzo)) || b.prezzo - a.prezzo)
-    .slice(0, max);
+export const selezioneWhatsApp = (max = 500) => {
+  const tutti = pubblicabili();
+  const inNegozio = (p: any) => p.disponibilita !== 'conferma';
+  const ord = (a: any, b: any) => Number(!!(b.prezzoListino > b.prezzo)) - Number(!!(a.prezzoListino > a.prezzo)) || b.prezzo - a.prezzo;
+  const primi = tutti.filter(inNegozio).sort(ord);
+  const altri = tutti.filter((p) => !inNegozio(p) && !['Punte e inserti', 'Lame, dischi e abrasivi'].includes(p.categoria)).sort(ord);
+  return [...primi, ...altri].slice(0, max);
+};
 
 export function feed(lista: any[], canale: Canale) {
   const items = lista.map((p) => {
