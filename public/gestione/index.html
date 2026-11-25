@@ -1588,16 +1588,16 @@ function vVault(){
       <button class="btn pri" data-v-act="copy">⧉ Copia per il portale DEWALT</button>
       <a class="btn" href="${VT_CARRELLO}" target="_blank" rel="noopener">Apri carrello ↗</a>
       <button class="btn" data-v-act="danea" ${S.dl?"":"disabled"}>⇩ File per Danea</button>
-      <span style="flex:1"></span><button class="btn dark edit-only" data-v-act="sent">✓ Segna come inviato</button></div>
+      <span style="flex:1"></span><button class="btn danger edit-only" data-v-act="del">🗑 Elimina foglio</button><button class="btn dark edit-only" data-v-act="sent">✓ Segna come inviato</button></div>
     <div id="vCopyBox"></div>
     <p class="sub" style="margin:8px 0 0">Sul portale DEWALT: <b>Mio carrello → Caricamento ordine</b>, incolla e premi <b>Aggiungi al carrello</b>. In “Vs. Rif. Ordine” scrivi <span class="mono">${esc(f?.rif||rifFoglio())}</span>.</p>`
     :`<div class="empty">Foglio vuoto. I ricambi mancanti si aggiungono dalle schede (pulsante “Aggiungi mancanti al foglio”), dal sotto scorta o cercandoli qui sopra.</div>`}
   </div>
   <div class="grid2">
    <div class="panel"><h3>Inviati, in attesa di arrivo <span class="sp"></span><span class="sub">${inviati.length}</span></h3>
-    ${inviati.length?`<table><tbody>${inviati.map(o=>`<tr><td><b class="mono">${o.ordineVault?`<a href="${vtOrdine(o.ordineVault)}" target="_blank" rel="noopener" style="color:inherit">${esc(o.ordineVault)} ↗</a>`:"senza n°"}</b><div class="sub">${fmtD(o.inviatoAt)} · ${(o.righe||[]).length} righe · ${esc(o.rif||"")}</div></td><td class="num">${eur(o.totale??totRighe(o.righe))}</td><td class="num edit-only"><button class="btn sm pri" data-v-arr="${esc(o.id)}">Registra arrivo</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessun ordine in viaggio</div>`}</div>
+    ${inviati.length?`<table><tbody>${inviati.map(o=>`<tr><td><b class="mono">${o.ordineVault?`<a href="${vtOrdine(o.ordineVault)}" target="_blank" rel="noopener" style="color:inherit">${esc(o.ordineVault)} ↗</a>`:"senza n°"}</b><div class="sub">${fmtD(o.inviatoAt)} · ${(o.righe||[]).length} righe · ${esc(o.rif||"")}</div></td><td class="num">${eur(o.totale??totRighe(o.righe))}</td><td class="num edit-only" style="white-space:nowrap"><button class="btn sm pri" data-v-arr="${esc(o.id)}">Registra arrivo</button> <button class="btn sm ghost danger" data-v-del="${esc(o.id)}" title="Elimina ordine">🗑</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessun ordine in viaggio</div>`}</div>
    <div class="panel"><h3>Arrivati e caricati <span class="sp"></span><span class="sub">ultimi 30</span></h3>
-    ${arrivati.length?`<table><tbody>${arrivati.map(o=>`<tr><td><b class="mono">${o.ordineVault?`<a href="${vtOrdine(o.ordineVault)}" target="_blank" rel="noopener" style="color:inherit">${esc(o.ordineVault)} ↗</a>`:"—"}</b><div class="sub">arrivato ${fmtD(o.arrivatoAt)} · ${(o.righe||[]).length} righe</div></td><td class="num">${eur(o.totale??totRighe(o.righe))}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">Ancora nessun arrivo registrato</div>`}</div>
+    ${arrivati.length?`<table><tbody>${arrivati.map(o=>`<tr><td><b class="mono">${o.ordineVault?`<a href="${vtOrdine(o.ordineVault)}" target="_blank" rel="noopener" style="color:inherit">${esc(o.ordineVault)} ↗</a>`:"—"}</b><div class="sub">arrivato ${fmtD(o.arrivatoAt)} · ${(o.righe||[]).length} righe</div></td><td class="num">${eur(o.totale??totRighe(o.righe))}</td><td class="num edit-only"><button class="btn sm ghost danger" data-v-del="${esc(o.id)}" title="Elimina ordine">🗑</button></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Ancora nessun arrivo registrato</div>`}</div>
   </div>`;
 }
 function bindVault(){
@@ -1607,13 +1607,20 @@ function bindVault(){
   m.querySelectorAll("[data-vp]").forEach(x=>x.onchange=()=>{const r=JSON.parse(JSON.stringify(f.righe)); r[x.dataset.vp].prezzo=num(x.value); saveRighe(r)});
   m.querySelectorAll("[data-vrm]").forEach(x=>x.onclick=()=>{const r=JSON.parse(JSON.stringify(f.righe)); r.splice(x.dataset.vrm,1); saveRighe(r)});
   m.querySelectorAll("[data-v-arr]").forEach(b=>b.onclick=()=>openArrivo(S.ordini.find(o=>o.id===b.dataset.vArr)));
+  const elimina=async o=>{ if(!o) return; const n=(o.righe||[]).length, tot=eur(o.totale??totRighe(o.righe));
+    const msg=o.stato==="aperto"?`Eliminare il foglio ricambi aperto (${n} righe, ${tot})?\nLe righe vengono tolte; si riaprirà un foglio vuoto.`
+      :`Eliminare l'ordine DEWALT ${o.ordineVault||"senza numero"} (${n} righe, ${tot})?`+(o.stato==="arrivato"?"\nLe giacenze già caricate in magazzino NON cambiano.":"\nTogli solo l'ordine dall'app: sul portale DEWALT va annullato a parte.");
+    if(!confirm(msg)) return;
+    await write(()=>S.db.doc("ordini/"+o.id).delete(),o.stato==="aperto"?"Foglio eliminato":"Ordine eliminato"); };
+  m.querySelectorAll("[data-v-del]").forEach(b=>b.onclick=()=>elimina(S.ordini.find(o=>o.id===b.dataset.vDel)));
   const acts={
     import:()=>openImportVault(),
     low:()=>{ const l=allItems().filter(r=>r.tipo==="ricambio"&&isLow(r)).map(r=>({codice:r.codice,descr:r.descr,qty:Math.max(1,(Number(r.scortaMin)||0)*2-(Number(r.giacenza)||0)),prezzo:Number(r.costo)||0})); addToFoglio(l,null); },
     copy:()=>copyText(fastEntry(f.righe),"Righe copiate: incollale in Caricamento ordine",$("#vCopyBox")),
     danea:()=>{ const rows=[["Cod.","Prodotto","Q.tà","Prezzo unit.","Schede"],...f.righe.map(r=>[r.codice,r.descr,r.qty,String(r.prezzo||"").replace(".",","),(r.schede||[]).join(" ")])];
       saveFile(`foglio-ricambi-${new Date().toISOString().slice(0,10)}.csv`,"﻿"+rows.map(r=>r.map(csvCell).join(";")).join("\r\n")); },
-    sent:()=>openInviato(f)
+    sent:()=>openInviato(f),
+    del:()=>elimina(f)
   };
   m.querySelectorAll("[data-v-act]").forEach(b=>b.onclick=()=>acts[b.dataset.vAct]());
   const ps=$("#vSearch"), pl=$("#vList"); if(!ps) return;
