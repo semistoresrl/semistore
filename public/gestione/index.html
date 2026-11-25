@@ -1125,22 +1125,23 @@ function schedaHtml(t){
      ${ck(gar,"In garanzia")}${ck(gar&&t.gar?.stato&&t.gar.stato!=="Da inserire","Attesa garanzia")}
      ${ck(!gar&&stIdx>=5,"Garanzia 3 mesi sulla riparazione")}${ck(false,"Spedire al cliente")}
      ${ck(false,"Recupero spese trasporto")}${ck(false,"Non riparato")}
-     <div style="margin-top:2mm;font-size:8.4pt">Preventivo: <b>${t.preventivo!=null&&t.preventivo!==""?eur(t.preventivo):"€ ________"}</b></div>
+     <div style="margin-top:2mm;font-size:8.4pt">Preventivo: <b>${Number(t.preventivo)>0?eur(t.preventivo)+" + IVA":"€ ________"}</b></div>
      <div style="margin-top:1.5mm;font-size:8.4pt">Sconto ricambi: <b>${tt.sc?String(tt.sc).replace(".",",")+"%":"—"}</b></div>
      <div style="margin-top:1.5mm;font-size:8.4pt">Fine riparazione: <b>${dFine}</b></div></div>
     <div class="bxx"><div class="lb">Ricambi e manodopera</div>
      <table><thead><tr><th style="width:30mm">Codice</th><th>Descrizione</th><th class="r" style="width:11mm">Q.tà</th><th class="r" style="width:17mm">Prezzo</th><th class="r" style="width:18mm">Imponibile</th><th class="r" style="width:16mm">IVA 22%</th><th class="r" style="width:18mm">Totale</th></tr></thead><tbody>
-      ${ric.map(p=>`<tr><td class="mono">${esc(p.codice==="MANUALE"?"":p.codice||"")}</td><td>${esc(p.descr||"")}</td><td class="r">${esc(p.qty??"")}</td>${(()=>{ if(gar||t.nascondiPrezzi) return "<td></td><td></td><td></td><td></td>"; const l=(Number(p.qty)||0)*(Number(p.prezzo)||0); return `<td class="r">${eur(netto(p.prezzo))}</td><td class="r">${eur(netto(l))}</td><td class="r">${eur(ivaDi(l))}</td><td class="r">${eur(l)}</td>`; })()}</tr>`).join("")}
+      ${ric.map(p=>`<tr><td class="mono">${esc(p.codice==="MANUALE"?"":p.codice||"")}</td><td>${esc(p.descr||"")}</td><td class="r">${esc(p.qty??"")}</td>${(()=>{ if(gar||t.nascondiPrezzi||Number(t.preventivo)>0) return "<td></td><td></td><td></td><td></td>"; const l=(Number(p.qty)||0)*(Number(p.prezzo)||0); return `<td class="r">${eur(netto(p.prezzo))}</td><td class="r">${eur(netto(l))}</td><td class="r">${eur(ivaDi(l))}</td><td class="r">${eur(l)}</td>`; })()}</tr>`).join("")}
       ${"<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>".repeat(vuote)}
-      <tr class="mo"><td class="mono">MANOD.</td><td>${esc(t.manodoperaDescr||"Manodopera")}</td><td></td><td></td>${gar||!tt.mo?"<td></td><td></td><td></td>":`<td class="r">${eur(tt.moN)}</td><td class="r">${eur(ivaDi(tt.mo))}</td><td class="r">${eur(tt.mo)}</td>`}</tr>
+      <tr class="mo"><td class="mono">MANOD.</td><td>${esc(t.manodoperaDescr||"Manodopera")}</td><td></td><td></td>${gar||!tt.mo||t.nascondiPrezzi||Number(t.preventivo)>0?"<td></td><td></td><td></td>":`<td class="r">${eur(tt.moN)}</td><td class="r">${eur(ivaDi(tt.mo))}</td><td class="r">${eur(tt.mo)}</td>`}</tr>
      </tbody></table>
      ${gar?`<div class="tot"><span>Intervento in garanzia</span><b class="r">€ 0,00</b></div>`:`<div class="tot">
-      <span>Ricambi (IVA esclusa)</span><span class="r">${ric.length?eur(tt.ricLN):""}</span>
+${(()=>{ const pf=Number(t.preventivo)>0?{imponibile:r2(t.preventivo),iva:r2(t.preventivo*0.22),totale:r2(t.preventivo*1.22)}:null, fin=pf||tt, sint=!!pf||t.nascondiPrezzi; return `
+      ${sint?"":`<span>Ricambi (IVA esclusa)</span><span class="r">${ric.length?eur(tt.ricLN):""}</span>
       ${tt.sc?`<span>Sconto ricambi ${String(tt.sc).replace(".",",")}%</span><span class="r">− ${eur(tt.scVN)}</span>`:""}
-      <span>Manodopera (IVA esclusa)</span><span class="r">${tt.mo?eur(tt.moN):""}</span>
-      <span>Imponibile</span><span class="r">${tt.totale?eur(tt.imponibile):""}</span>
-      <span>IVA 22%</span><span class="r">${tt.totale?eur(tt.iva):""}</span>
-      <span><b>Totale IVA inclusa</b></span><b class="r">${tt.totale?eur(tt.totale):"€ ________"}</b></div>`}
+      <span>Manodopera (IVA esclusa)</span><span class="r">${tt.mo?eur(tt.moN):""}</span>`}
+      <span>Imponibile</span><span class="r">${fin.totale?eur(fin.imponibile):""}</span>
+      <span>IVA 22%</span><span class="r">${fin.totale?eur(fin.iva):""}</span>
+      <span><b>Totale IVA inclusa</b></span><b class="r">${fin.totale?eur(fin.totale):"€ ________"}</b>`; })()}</div>`}
     </div>
    </div>
    <div class="fi"><div>Firma tecnico</div><div>Data consegna</div><div>Firma cliente per ritiro</div></div>
@@ -2312,8 +2313,12 @@ function openImportFatture(){
 /* 25/11: messaggio WhatsApp della scheda, diverso per ogni fase */
 function schedaTesto(t){ const tt=totali(t), n=t.num||"", ut=[t.modello,descrUtensile(t.modello,t.type)].filter(Boolean).join(" – ");
   const chi=t.cliFin?`${t.cliente} (${t.cliFin})`:t.cliente; const firma=`\n\nSE.M.I. S.R.L. – Centro assistenza autorizzato DEWALT · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947\nStato della riparazione: https://semistore.it/assistenza (scheda ${n})`;
-  const righe=(t.ricambi||[]).filter(r=>r.qty>0).map(r=>`• ${r.qty} × ${r.descr||r.codice}${!t.nascondiPrezzi&&Number(r.prezzo)>0?": "+eur(netto(Number(r.prezzo)*r.qty))+" + IVA "+eur(ivaDi(Number(r.prezzo)*r.qty)):""}`).join("\n");
-  const prev=`${righe?`Ricambi (prezzi IVA esclusa):\n${righe}\n`:""}${t.nascondiPrezzi&&tt.ric?`Totale ricambi: ${eur(tt.ricN)}\n`:tt.scV?`Sconto ricambi ${tt.sc}%: −${eur(tt.scVN)}\n`:""}${tt.mo?`Manodopera: ${eur(tt.moN)} + IVA ${eur(ivaDi(tt.mo))}\n`:""}Imponibile: ${eur(tt.imponibile)}\nIVA 22%: ${eur(tt.iva)}\n*Totale: ${eur(tt.totale)} IVA inclusa*`;
+  const righe=(t.ricambi||[]).filter(r=>r.qty>0).map(r=>`• ${r.qty} × ${r.descr||r.codice}${!t.nascondiPrezzi&&!(Number(t.preventivo)>0)&&Number(r.prezzo)>0?": "+eur(netto(Number(r.prezzo)*r.qty))+" + IVA "+eur(ivaDi(Number(r.prezzo)*r.qty)):""}`).join("\n");
+  // prezzo finale scritto a mano ("Preventivo comunicato", IVA esclusa): vale quello, senza dettaglio
+  const pf=Number(t.preventivo)>0?{imponibile:r2(t.preventivo),iva:r2(t.preventivo*0.22),totale:r2(t.preventivo*1.22)}:null;
+  const fin=pf||tt;
+  const prev=pf||t.nascondiPrezzi?`${righe?`Ricambi:\n${righe}\n`:""}Imponibile: ${eur(fin.imponibile)}\nIVA 22%: ${eur(fin.iva)}\n*Totale: ${eur(fin.totale)} IVA inclusa*`
+    :`${righe?`Ricambi (prezzi IVA esclusa):\n${righe}\n`:""}${tt.scV?`Sconto ricambi ${tt.sc}%: −${eur(tt.scVN)}\n`:""}${tt.mo?`Manodopera: ${eur(tt.moN)} + IVA ${eur(ivaDi(tt.mo))}\n`:""}Imponibile: ${eur(tt.imponibile)}\nIVA 22%: ${eur(tt.iva)}\n*Totale: ${eur(tt.totale)} IVA inclusa*`;
   const ddt=t.ddtNum?` (vs. DDT n. ${t.ddtNum}${t.ddtData?" del "+t.ddtData.split("-").reverse().join("/"):""})`:"";
   const st=t.stato||"Ricevuto";
   if(st==="Ricevuto") return `Buongiorno ${chi},\nabbiamo ricevuto in assistenza il vostro utensile *${ut}*${ddt}.\nScheda di lavorazione n. *${n}*${t.difetto?`\nDifetto segnalato: ${t.difetto}`:""}.\nVi aggiorniamo appena il tecnico lo ha controllato.`+firma;
@@ -2321,8 +2326,8 @@ function schedaTesto(t){ const tt=totali(t), n=t.num||"", ut=[t.modello,descrUte
   if(st==="Preventivo inviato") return `Buongiorno ${chi},\necco il preventivo per la riparazione del vostro *${ut}* (scheda n. *${n}*)${ddt}.${t.difetto?`\nDifetto: ${t.difetto}`:""}\n\n${prev}\n\nPer procedere basta rispondere a questo messaggio con "OK". Se preferite non riparare, l'utensile resta a disposizione per il ritiro.`+firma;
   if(st==="Attesa ricambi") return `Buongiorno ${chi},\nabbiamo ordinato i ricambi per il vostro *${ut}* (scheda n. *${n}*). Vi avvisiamo appena arrivano e completiamo la riparazione.`+firma;
   if(st==="In riparazione") return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è in riparazione. Vi avvisiamo appena è pronto.`+firma;
-  if(st==="Pronto") return `Buongiorno ${chi},\nil vostro *${ut}* è pronto! Scheda n. *${n}*.\n${tt.totale?`Importo: *${eur(tt.totale)}* IVA inclusa (imponibile ${eur(tt.imponibile)} + IVA ${eur(tt.iva)}).\n`:""}Potete ritirarlo in negozio Lun–Ven 8:30–13:00 / 14:30–18:00, portando la ricevuta o indicando il numero della scheda.`+firma;
-  return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è stato consegnato. ${tt.totale?`Importo: ${eur(tt.totale)} IVA inclusa. `:""}Grazie per averci scelto: per qualsiasi cosa siamo qui.`+firma; }
+  if(st==="Pronto") return `Buongiorno ${chi},\nil vostro *${ut}* è pronto! Scheda n. *${n}*.\n${fin.totale?`Importo: *${eur(fin.totale)}* IVA inclusa (imponibile ${eur(fin.imponibile)} + IVA ${eur(fin.iva)}).\n`:""}Potete ritirarlo in negozio Lun–Ven 8:30–13:00 / 14:30–18:00, portando la ricevuta o indicando il numero della scheda.`+firma;
+  return `Buongiorno ${chi},\nil vostro *${ut}* (scheda n. *${n}*) è stato consegnato. ${fin.totale?`Importo: ${eur(fin.totale)} IVA inclusa. `:""}Grazie per averci scelto: per qualsiasi cosa siamo qui.`+firma; }
 function waScheda(t){ const txt=schedaTesto(t); const tel=t.cliFinTel||t.tel; const u=waLink(tel,txt); window.open(u||"https://wa.me/?text="+encodeURIComponent(txt),"_blank"); if(!u) toast("Nessun telefono sulla scheda: scegli il contatto in WhatsApp"); }
 /* ---------- PREVENTIVI (24/11) ---------- */
 const PV_FONTI={auto:"Volantino se c'è, altrimenti listino",volantino:"Volantino (promo)",listino:"Listino",sito:"Prezzo del sito"};
@@ -2930,7 +2935,7 @@ function openTicket(t, fromReq, draft){
       <label class="fl">Diagnosi del tecnico<textarea id="tDia" rows="3">${esc(t.diagnosi)}</textarea></label>
     </div><div class="f" style="margin-top:10px">
       <label class="fl">Categoria guasto<select id="tCat">${["","Motore / indotto","Spazzole","Interruttore / elettronica","Batteria","Caricatore","Mandrino / trasmissione","Ingranaggi / percussione","Cavo / alimentazione","Carcassa / rottura","Manutenzione ordinaria","Nessun difetto riscontrato","Altro"].map(x=>`<option ${x===t.categoriaGuasto?"selected":""}>${x}</option>`).join("")}</select></label>
-      <label class="fl">Preventivo comunicato (€)<input id="tPrev" type="number" step="0.01" value="${esc(t.preventivo??"")}"></label>
+      <label class="fl">Prezzo finale a mano (€ + IVA)<input id="tPrev" placeholder="se lo scrivi, vale questo" type="number" step="0.01" value="${esc(t.preventivo??"")}"></label>
     </div></div>
     <div class="fs"><span class="lg">Ricambi utilizzati — scaricati dal magazzino al salvataggio</span>
       <div class="ac" style="margin-bottom:8px"><input id="pSearch" placeholder="Cerca ricambio per codice, descrizione o modello e premi invio…" autocomplete="off"><div class="acl" id="pList"></div></div>
