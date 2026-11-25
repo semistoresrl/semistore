@@ -34,7 +34,15 @@
         #login button.ln{background:none;color:#2563c9;font-size:16px;padding:12px;font-weight:700}
         #login .er{background:#fde4e1;color:#8a2a18;border-radius:12px;padding:12px;font-weight:700;margin-bottom:12px;display:none}#login .er.on{display:block}
         #login .ok{background:#dcf5e6;color:#0d5a2e;border-radius:12px;padding:12px;font-weight:700;margin-bottom:12px}
-      </style><div class="bx"><div class="lg"><svg viewBox="0 0 48 48" width="52" height="52"><polygon points="24,2 43,13 43,35 24,46 5,35 5,13" fill="#f5b800"/><polygon points="24,9 37,16.5 37,31.5 24,39 11,31.5 11,16.5" fill="#15171a"/><text x="24" y="31" text-anchor="middle" font-family="Archivo,sans-serif" font-weight="800" font-size="20" fill="#f5b800">S</text></svg><div><b>SEMI GESTIONE</b><small>Assistenza, magazzino e vendite</small></div></div><div id="lgB"></div></div>`;
+      .cxh{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:12px}.cxh>div:first-child{flex:1;min-width:260px}.cxh .acts{display:flex;gap:8px;flex-wrap:wrap}
+.cxp{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.cxp .tag{background:#fff4cc;border:1px solid #f5b800;color:#5a4300;border-radius:999px;padding:2px 10px;font-size:12.5px}
+.cxg{border-top:1px solid var(--line);padding:6px 0}.cxg summary{cursor:pointer;padding:6px 0;list-style-position:inside}
+.cxr{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:7px 4px;border-bottom:1px dashed var(--line)}.cxr:last-child{border-bottom:0}
+.cxr .cxn b{display:block;font-weight:600}.cxr small{color:var(--muted)}.cxr .cxs{text-align:right;white-space:nowrap}.cxr .cxs small{display:block}.cxr .cxa{display:flex;gap:4px}
+.cxr.in .cxn b::before{content:"● ";color:#1a8f3a}.chk{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:13px}
+.cxwarn{background:#fff4cc;border-radius:10px;padding:8px 10px;margin-bottom:8px;font-size:13px}
+@media(max-width:640px){.cxr{grid-template-columns:1fr auto}.cxr .cxa{grid-column:1/-1;justify-content:flex-end}}
+</style><div class="bx"><div class="lg"><svg viewBox="0 0 48 48" width="52" height="52"><polygon points="24,2 43,13 43,35 24,46 5,35 5,13" fill="#f5b800"/><polygon points="24,9 37,16.5 37,31.5 24,39 11,31.5 11,16.5" fill="#15171a"/><text x="24" y="31" text-anchor="middle" font-family="Archivo,sans-serif" font-weight="800" font-size="20" fill="#f5b800">S</text></svg><div><b>SEMI GESTIONE</b><small>Assistenza, magazzino e vendite</small></div></div><div id="lgB"></div></div>`;
       document.body.appendChild(d);
       const B=d.querySelector("#lgB");
       const err=(t)=>{ const e=B.querySelector(".er"); if(e){ e.textContent=t; e.classList.toggle("on",!!t); } };
@@ -663,6 +671,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#posta" data-v="posta" class="adm-only"><svg class="i"><use href="#i-send"/></svg><span>Posta</span><span class="ct" id="ctPosta">0</span></a>
 <a href="#lavorazioni" data-v="lavorazioni"><svg class="i"><use href="#i-wrench"/></svg><span>Lavorazioni</span><span class="ct" id="ctOpen">0</span></a>
 <a href="#ricambi" data-v="ricambi"><svg class="i"><use href="#i-search"/></svg><span>Cerca ricambio</span></a>
+<a href="#compatibili" data-v="compatibili"><svg class="i"><use href="#i-plug"/></svg><span>Compatibilità accessori</span></a>
 <a href="#ordini" data-v="ordini"><svg class="i"><use href="#i-cart"/></svg><span>Ordini online</span><span class="ct" id="ctOrd">0</span></a>
 <a href="#vault" data-v="vault"><svg class="i"><use href="#i-truck"/></svg><span>Ordine ricambi DEWALT</span><span class="ct" id="ctVault">0</span></a>
 <a href="#attrezzatura" data-v="attrezzatura"><svg class="i"><use href="#i-cart"/></svg><span>Ordine attrezzatura fornitore</span><span class="ct" id="ctAttr">0</span></a>
@@ -1162,7 +1171,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -1189,7 +1198,7 @@ function render(){
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = S.db ? "" : S.dbErr ? `<div class="banner err">L'archivio condiviso non è raggiungibile. Controlla la connessione e ricarica la pagina.</div>` : `<div class="banner">Sto scaricando l'archivio… un momento.</div>`;
-  const fns={attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
   S._vistaPrec=S.view;
@@ -1219,7 +1228,7 @@ function patchTieni(m,html,vivo){
   }
   return true;
 }
-const VICON={"attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={"compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -2027,7 +2036,7 @@ function bindView(){
   const sel=(id,fn)=>{const e=$("#"+id); if(e) e.onchange=()=>{fn(e.value);render()}};
   sel("fst",v=>S.filt.stato=v); sel("ftp",v=>S.filt.tipo=v); sel("ftc",v=>S.filt.tec=v);
   sel("cCat",v=>{S.cCat=v;S.cPage=1}); sel("cMarca",v=>{S.cMarca=v;S.cPage=1}); sel("cPiatt",v=>{S.cPiatt=v;S.cPage=1});
-  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="noleggi") bindNoleggi();
+  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="compatibili") bindCompatibili(); if(S.view==="noleggi") bindNoleggi();
   const fst=$("#fst"); if(fst) fst.value=S.filt.stato; const ftp=$("#ftp"); if(ftp) ftp.value=S.filt.tipo; const ftc=$("#ftc"); if(ftc) ftc.value=S.filt.tec;
 }
 async function saveCfg(){
@@ -4156,6 +4165,122 @@ function wizEsplosi(pre){
 }
 
 /* =====================================================================
+   COMPATIBILITÀ: macchina ↔ batterie, caricabatterie, lame, dischi, punte, inserti e accessori.
+   Dati: data/compat.json (attacchi letti da schede e listino DEWALT 2026 + tabelle «•» del listino).
+   Correzioni a mano: S.cfg.compat {add:{acc:[macchine]}, no:{acc:[macchine]}} (chiavi normC).
+   ===================================================================== */
+const CPX_PRESA={sdsplus:"SDS-Plus",sdsmax:"SDS-Max",hex28:"esagonale 28 mm",mandrino:"mandrino (punte gambo tondo)",muro:"percussione (punte muro)",hex14:"esagono 1/4\"",quadro12:"quadro 1/2\"",quadro38:"quadro 3/8\"",quadro14:"quadro 1/4\"",quadro34:"quadro 3/4\"",cartongesso:"cartongesso",
+  seghetto:"lame seghetto (attacco T)",sciabola:"lame sega universale",alligator:"lame Alligator",multitool:"accessori multifunzione",pialletto82:"lame pialletto 82 mm",lucidatrice:"tamponi lucidatrice",pinza6:"pinza 6 mm",
+  chiodicemento:"chiodi per cemento",chiodiD:"chiodi testa a D in stecca",chiodibobina:"chiodi in bobina",m14fruste:"fruste M14",catena:"barra e catena",filo:"filo / testina",dcmas:"attacchi multifunzione giardino",laser:"supporti e accessori laser",carotatore:"corone carotatrice",fresamagnete:"frese per trapano a base magnetica",dwv9:"sacchetti e filtri DWV",carta14:"carta 1/4 di foglio",carta13:"carta 1/3 di foglio",carta12:"carta 1/2 foglio",carta225:"dischi 225 mm per levigatrice muro"};
+const cpxPresa=p=>CPX_PRESA[p]||(p.startsWith("circ")?"lama circolare Ø "+p.slice(4).replace("/?"," mm").replace("/"," / foro ")+(p.endsWith("/?")?"":" mm"):p.startsWith("disco")?"dischi Ø "+p.slice(5)+" mm":p.startsWith("carta")?"dischi abrasivi Ø "+p.slice(5)+" mm":p.startsWith("fresa")?"frese gambo "+p.slice(5)+" mm":p.startsWith("gauge")?p.slice(5)+" gauge":p.startsWith("nastrosega")?"nastro sega "+p.slice(10)+" mm":p.startsWith("nastro")?"nastri abrasivi "+p.slice(6).replace("x"," × ")+" mm":p);
+const CPX={d:null,load:null,ix:null};
+function cpxLoad(){ if(CPX.d) return Promise.resolve(CPX.d); if(!CPX.load) CPX.load=fetch("./data/compat.json").then(r=>r.json()).then(d=>{ const p={}; for(const [k,v] of Object.entries(d.p||{})) p[normC(k)]={...v,m:k}; CPX.d={v:d.v,p}; CPX.ix=null; return CPX.d; }).catch(e=>{ CPX.load=null; throw e; }); return CPX.load; }
+const cpxCfg=()=>{ const c=S.cfg?.compat||{}; return {add:c.add||{},no:c.no||{}}; };
+const cpxGet=c=>{ if(!CPX.d) return null; const P=CPX.d.p, k=normC(c); if(P[k]) return P[k]; const b=normC(String(c).replace(/-(QW|XJ|QZ|QS|GB)$/i,"")); return P[b]||null; };
+// indici: attacco → accessori, prefisso modello → accessori, piattaforma → batterie
+function cpxIdx(){ if(CPX.ix) return CPX.ix; const P=CPX.d.p, pr=new Map(), ref=[], bat=[], mac=[];
+  for(const [k,a] of Object.entries(P)){ if(a.r==="a"){ (a.p||[]).forEach(x=>{ const kk=x.startsWith("circ")?"circ"+x.slice(4).split("/")[0]:x; if(!pr.has(kk)) pr.set(kk,[]); pr.get(kk).push(k); }); if(a.k&&a.k.length) ref.push(k); } else if(a.r==="b") bat.push(k); else mac.push(k); }
+  return CPX.ix={pr,ref,bat,mac}; }
+function cpxFit(a,mk,m){ // perché l'accessorio a va sulla macchina m (chiave mk): testo, oppure null
+  const no=cpxCfg().no[normC(a.m)]||[]; if(no.includes(mk)) return null;
+  if((cpxCfg().add[normC(a.m)]||[]).includes(mk)) return "collegato a mano";
+  const r=(a.k||[]).find(x=>mk.startsWith(normC(x))); if(r) return "indicato nel listino DEWALT per "+r;
+  const pm=new Set(m.p||[]), pa=a.p||[]; if(pa.includes("muro")&&!pm.has("muro")) return null;
+  for(const x of pa){ if(pm.has(x)) return cpxPresa(x);
+    if(x.startsWith("circ")){ const D=x.slice(4).split("/")[0]; const y=[...pm].find(y=>y.startsWith("circ"+D+"/")&&(y.endsWith("/?")||x.endsWith("/?"))); if(y) return cpxPresa(x)+" (verifica il foro)"; } }
+  return null; }
+const cpxAl=m=>m.al==="2x18V"?"18V":m.al;
+function cpxBatterie(mk,m){ const al=cpxAl(m); if(!al||!/^DC/.test(m.m)) return []; const P=CPX.d.p;
+  return cpxIdx().bat.map(k=>P[k]).filter(b=>(b.v||[]).includes(al)).map(b=>({k:normC(b.m),a:b,why:b.ch?"caricabatterie per "+al:(al==="18V"&&(b.v||[]).includes("54V")?"FLEXVOLT: funziona anche sugli utensili 18V":"batteria "+al)})); }
+function cpxAccessori(mk,m){ const P=CPX.d.p, ix=cpxIdx(), cand=new Set();
+  for(const x of (m.p||[])){ const kk=x.startsWith("circ")?"circ"+x.slice(4).split("/")[0]:x; (ix.pr.get(kk)||[]).forEach(k=>cand.add(k)); }
+  ix.ref.forEach(k=>cand.add(k)); for(const [a,l] of Object.entries(cpxCfg().add)) if(l.includes(mk)) cand.add(a);
+  const out=[]; for(const k of cand){ const a=P[k]; if(!a) continue; const why=cpxFit(a,mk,m); if(why) out.push({k,a,why}); } return out; }
+function cpxMacchine(ak,a){ const P=CPX.d.p, out=[];
+  if(a.r==="b"){ for(const k of cpxIdx().mac){ const m=P[k]; if(/^DC/.test(m.m)&&(a.v||[]).includes(cpxAl(m))) out.push({k,a:m,why:"piattaforma "+m.al}); } return out; }
+  for(const k of cpxIdx().mac){ const m=P[k], why=cpxFit(a,k,m); if(why) out.push({k,a:m,why}); } return out; }
+const cpxFam=a=>a.f||(a.r==="b"?(a.ch?"Caricabatterie":"Batterie"):a.c)||"Altri accessori";
+const cpxMod=c=>{ const m=String(c||"").toUpperCase().match(/^[A-Z]+\d+/); return m?m[0]:String(c||"").toUpperCase(); };
+function cpxRiga(x,opt={}){ const it=itmV(x.a.m), g=it?Number(it.giacenza)||0:null, pr=it?prezzoVendita(it):0, s=sitoDi(it||{codice:x.a.m})||S.sito?.[normC(x.a.m)];
+  return `<div class="cxr${g>0?" in":""}"><span class="cxn"><b>${esc(s?.n||x.a.n)}</b><small><span class="mono">${esc(x.a.m)}</span> · ${esc(x.why)}${x.a.sc?" · solo corpo":""}</small></span>
+   <span class="cxs">${it?`<b class="${g>0?"ok":"zero"}">${g} pz</b>${it.ubic?`<small class="pkubi">${esc(it.ubic)}</small>`:""}`:`<small class="sub">non a magazzino</small>`}${pr?`<small>${eur(pr)}</small>`:""}</span>
+   <span class="cxa"><button class="btn sm" data-cxo="${esc(x.a.m)}" title="Apri la compatibilità di questo articolo">${ic("swap")}</button>${s?.s?`<a class="btn sm" href="/prodotti/${esc(s.s)}/" target="_blank" rel="noopener" title="Pagina sul sito">${ic("ext")}</a>`:""}${opt.del?`<button class="btn sm edit-only" data-cxx="${esc(x.k)}" title="Non compatibile: togli il collegamento">×</button>`:""}</span></div>`; }
+function cpxGruppi(l,opt){ const ord=x=>((itmV(x.a.m)?.giacenza||0)>0?0:itmV(x.a.m)?1:2);
+  const G=new Map(); l.forEach(x=>{ const f=cpxFam(x.a); if(!G.has(f)) G.set(f,[]); G.get(f).push(x); });
+  return [...G.entries()].sort((a,b)=>b[1].length-a[1].length).map(([f,v])=>{ v.sort((a,b)=>ord(a)-ord(b)||String(a.a.n).localeCompare(String(b.a.n),"it",{numeric:true}));
+    const disp=v.filter(x=>(itmV(x.a.m)?.giacenza||0)>0).length;
+    return `<details class="cxg" ${v.length<=12||opt.open?"open":""}><summary><b>${esc(f)}</b> <span class="sub">${v.length} articoli${disp?` · <b class="ok">${disp} disponibili</b>`:""}</span></summary>${v.map(x=>cpxRiga(x,opt)).join("")}</details>`; }).join(""); }
+function vCompatibili(){
+  if(!CPX.d){ cpxLoad().then(()=>{ if(S.view==="compatibili") render(); }).catch(()=>{ const e=$("#cxBody"); if(e) e.innerHTML=`<div class="empty">Impossibile caricare i dati di compatibilità. Ricarica la pagina.</div>`; });
+    return header("Compatibilità accessori","Da una macchina trovi batterie, lame, dischi, punte e accessori; da un accessorio le macchine su cui va.")+`<div class="panel" id="cxBody"><div class="sub">Carico i dati…</div></div>`; }
+  const P=CPX.d.p, q=S.cq||"", sel=q?cpxGet(q):null, ix=cpxIdx();
+  const nA=Object.values(P).filter(a=>a.r==="a").length, nM=ix.mac.length;
+  let body="";
+  if(sel){ const k=normC(sel.m), it=itmV(sel.m), s=S.sito?.[k];
+    const testa=`<div class="cxh"><div><div class="sub">${sel.r==="m"?"Macchina":sel.r==="b"?(sel.ch?"Caricabatterie":"Batteria"):"Accessorio"}${sel.c?" · "+esc(sel.c):""}</div><h2 style="margin:2px 0">${esc(s?.n||sel.n)}</h2>
+      <div class="mono sub">${esc(sel.m)}${sel.al?" · "+esc(sel.al):""}${sel.sc?" · solo corpo":""}${it?` · <b class="${(it.giacenza||0)>0?"ok":"zero"}">${Number(it.giacenza)||0} pz</b>${it.ubic?" · "+esc(it.ubic):""}`:" · non a magazzino"}</div>
+      ${(sel.p||[]).length?`<div class="cxp">${sel.p.map(p=>`<span class="tag">${esc(cpxPresa(p))}</span>`).join("")}</div>`:""}</div>
+      <div class="acts">${s?.s?`<a class="btn" href="/prodotti/${esc(s.s)}/" target="_blank" rel="noopener">${ic("ext")}Sul sito</a>`:""}${sel.r==="m"?`<button class="btn" id="cxEsp">${ic("search")}Esploso e ricambi</button>`:""}<button class="btn edit-only" id="cxAdd">${ic("plus")}Collega ${sel.r==="m"?"un accessorio":"una macchina"}</button></div></div>`;
+    if(sel.r==="m"){ const bat=cpxBatterie(k,sel), acc=cpxAccessori(k,sel), ds=[...new Set(distinteDi(cpxMod(sel.m)).concat(distinteDi(sel.m)))];
+      const nB=bat.filter(x=>!x.a.ch), nC=bat.filter(x=>x.a.ch);
+      body=testa+`<div class="grid2" style="margin-top:12px">
+        <div class="panel"><h3>Per farla funzionare <span class="sp"></span><span class="sub">${sel.al?esc(sel.al):"—"}</span></h3>
+          ${sel.al==="230V"?`<div class="sub">Funziona a rete 230 V: nessuna batteria.</div>`:!bat.length?`<div class="sub">${/^DC/.test(sel.m)?"Piattaforma non indicata nella scheda: controlla la targhetta.":"Batterie di altra marca: non compatibili con DEWALT XR."}</div>`
+           :`${sel.sc?`<div class="cxwarn">Solo corpo: servono batteria e caricabatterie.</div>`:""}${cpxGruppi(nB.concat(nC),{})}`}
+          ${sel.kit?.length?`<div class="sub" style="margin-top:8px">Nel kit: ${sel.kit.map(c=>`<a href="#" data-cxo="${esc(c)}">${esc(c)}</a>`).join(", ")}</div>`:""}</div>
+        <div class="panel"><h3>Ricambi <span class="sp"></span><span class="sub">${ds.length?ds.length+" distinte":"nessuna distinta"}</span></h3>
+          ${ds.length?ds.map(d=>`<div class="sub">${esc(d.modello)} Type ${esc(d.type||"?")} · ${(d.parti||[]).length} ricambi</div>`).join(""):`<div class="sub">Nessuna distinta salvata: apri l'esploso ufficiale DEWALT.</div>`}</div></div>
+        <div class="panel"><h3>Accessori compatibili <span class="sp"></span><span class="sub">${acc.length}</span></h3>
+          <div class="f" style="margin-bottom:8px"><input id="cxF" placeholder="Filtra: es. 6 mm, legno, inox, 125…" autocomplete="off"><label class="chk"><input type="checkbox" id="cxD" ${S.cxDisp?"checked":""}> solo disponibili</label></div>
+          <div id="cxL">${acc.length?cpxGruppi(acc,{del:1}):`<div class="sub">Nessun accessorio collegato${(sel.p||[]).length?"":": per questa macchina non servono lame, punte o dischi"}. Usa «Collega un accessorio» se ne conosci uno.</div>`}</div></div>`; }
+    else { const mac=cpxMacchine(k,sel);
+      body=testa+`<div class="panel" style="margin-top:12px"><h3>${sel.r==="b"?"Utensili che alimenta":"Va bene su"} <span class="sp"></span><span class="sub">${mac.length} macchine</span></h3>
+        <div class="f" style="margin-bottom:8px"><input id="cxF" placeholder="Filtra le macchine: es. 18V, DCS, sega…" autocomplete="off"><label class="chk"><input type="checkbox" id="cxD" ${S.cxDisp?"checked":""}> solo disponibili</label></div>
+        <div id="cxL">${mac.length?cpxGruppi(mac.map(x=>({...x,a:{...x.a,f:x.a.c||"Altre macchine"}})),{del:sel.r==="a"}):`<div class="sub">${(sel.p||[]).length||sel.k?.length?"Nessuna macchina in catalogo con questo attacco.":"Accessorio universale o senza attacco specifico (contenitori, ancoranti, minuteria): non dipende dalla macchina."} Usa «Collega una macchina» se serve.</div>`}</div></div>`; }
+  } else {
+    const senza=Object.values(P).filter(a=>a.r==="a"&&!(a.p||[]).length&&!(a.k||[]).length&&!cpxCfg().add[normC(a.m)]&&itmV(a.m)&&!/Contenitori|Utensili manuali/.test(a.c||"")).slice(0,40);
+    body=`<div class="kpis"><div class="kpi"><div class="l">Macchine</div><div class="v">${nf(nM)}</div><div class="s">utensili e kit</div></div><div class="kpi"><div class="l">Accessori</div><div class="v">${nf(nA)}</div><div class="s">lame, dischi, punte, inserti…</div></div>
+      <div class="kpi"><div class="l">Batterie e caricatori</div><div class="v">${nf(ix.bat.length)}</div><div class="s">12V · 18V · 54V · POWERSHIFT</div></div><div class="kpi"><div class="l">Collegati a mano</div><div class="v">${nf(Object.values(cpxCfg().add).flat().length)}</div><div class="s">${nf(Object.values(cpxCfg().no).flat().length)} esclusi</div></div></div>
+      <div class="panel"><h3>Come funziona</h3><div class="sub">Scrivi un codice o un nome. Per una <b>macchina</b> vedi batterie e caricabatterie giusti, ricambi e tutti gli accessori raggruppati (lame Ø/foro, dischi Ø, SDS-Plus/Max, inserti 1/4", bussole 1/2", lame seghetto e sciabola, chiodi per calibro…). Per un <b>accessorio</b> vedi le macchine su cui va. Gli abbinamenti vengono dalle schede e dal listino DEWALT 2026 (tabelle di compatibilità comprese); se uno è sbagliato toglilo con ×, se manca aggiungilo con «Collega».</div></div>
+      ${senza.length?`<div class="panel"><h3>A magazzino senza abbinamento <span class="sp"></span><span class="sub">primi ${senza.length}</span></h3><div class="sub" style="margin-bottom:6px">Accessori che hai in negozio e che il sistema non sa ancora collegare: aprili e collega le macchine giuste.</div>${senza.map(a=>cpxRiga({k:normC(a.m),a,why:a.c||"accessorio"})).join("")}</div>`:""}`; }
+  return header("Compatibilità accessori","Da una macchina trovi batterie, lame, dischi, punte e accessori; da un accessorio le macchine su cui va.")+`
+   <div class="panel"><div class="f"><input id="cxQ" placeholder="Codice o nome: es. DCD796, DCS570, DT1953, lama 184, disco 125…" value="${esc(sel?sel.m:q)}" autocomplete="off" autocapitalize="characters" style="flex:1"><button class="btn pri" id="cxGo">${ic("search")}Cerca</button>${sel?`<button class="btn" id="cxX">Nuova ricerca</button>`:""}</div><div id="cxS" class="pkl"></div></div>${body}`; }
+function cpxCerca(q,n=12){ const P=CPX.d.p, nn=normC(q), w=String(q).toLowerCase().split(/\s+/).filter(Boolean); if(String(q).trim().length<2) return [];
+  return Object.values(P).filter(a=>(nn.length>=3&&normC(a.m).includes(nn))||w.every(x=>(a.m+" "+a.n+" "+(S.sito?.[normC(a.m)]?.n||"")).toLowerCase().includes(x)))
+    .sort((a,b)=>(normC(b.m).startsWith(nn))-(normC(a.m).startsWith(nn))||(b.r==="m")-(a.r==="m")||(!!itmV(b.m))-(!!itmV(a.m))||a.m.length-b.m.length).slice(0,n); }
+function cpxPick(inp,box,onPick){ let l=[]; const draw=()=>{ l=cpxCerca(inp.value);
+    box.innerHTML=l.map((a,i)=>{ const it=itmV(a.m); return `<button type="button" class="pki" data-cx="${i}"><span><b>${esc(S.sito?.[normC(a.m)]?.n||a.n)}</b><small class="mono">${esc(a.m)} · ${a.r==="m"?"macchina":a.r==="b"?"batteria/caricatore":esc(cpxFam(a))}</small></span><span class="pkr"><small>${it?(Number(it.giacenza)||0)+" pz":""}</small></span></button>`; }).join("");
+    box.querySelectorAll("[data-cx]").forEach(b=>b.onclick=()=>{ box.innerHTML=""; onPick(l[b.dataset.cx]); }); };
+  inp.addEventListener("input",()=>{ clearTimeout(inp._cx); inp._cx=setTimeout(draw,120); });
+  inp.addEventListener("keydown",e=>{ if(e.key!=="Enter") return; e.preventDefault(); clearTimeout(inp._cx); const x=cpxGet(inp.value.trim()); if(x){ box.innerHTML=""; onPick(x); return; } draw(); if(l[0]){ box.innerHTML=""; onPick(l[0]); } else toast("Nessun articolo trovato"); }); }
+async function cpxSalva(fn,msg){ const c=cpxCfg(), nc={add:{...c.add},no:{...c.no}}; fn(nc);
+  for(const t of ["add","no"]) for(const k of Object.keys(nc[t])) if(!nc[t][k].length) delete nc[t][k];
+  if(await write(()=>S.db.doc("config/impostazioni").set({...S.cfg,compat:nc}),msg)){ S.cfg={...S.cfg,compat:nc}; render(); } }
+function bindCompatibili(){ const m=$("#main"); if(!CPX.d) return;
+  const apri=c=>{ S.cq=c; render(); window.scrollTo(0,0); };
+  const q=$("#cxQ"); if(q){ cpxPick(q,$("#cxS"),a=>apri(a.m)); $("#cxGo").onclick=()=>{ const x=cpxGet(q.value.trim())||cpxCerca(q.value)[0]; x?apri(x.m):toast("Nessun articolo trovato"); }; if(!S.cq) q.focus(); }
+  const x=$("#cxX"); if(x) x.onclick=()=>apri("");
+  m.querySelectorAll("[data-cxo]").forEach(b=>b.onclick=e=>{ e.preventDefault(); const t=cpxGet(b.dataset.cxo)||cpxCerca(b.dataset.cxo,1)[0]; t?apri(t.m):toast("Non trovato nei dati di compatibilità"); });
+  const sel=S.cq?cpxGet(S.cq):null; if(!sel) return; const sk=normC(sel.m);
+  const e=$("#cxEsp"); if(e) e.onclick=()=>wizEsplosi(cpxMod(sel.m));
+  const F=$("#cxF"), D=$("#cxD"), L=$("#cxL");
+  const filtra=()=>{ const w=(F.value||"").toLowerCase().split(/\s+/).filter(Boolean); S.cxDisp=D.checked;
+    L.querySelectorAll(".cxr").forEach(r=>{ const t=r.textContent.toLowerCase(); r.style.display=(!w.length||w.every(x=>t.includes(x)))&&(!D.checked||r.classList.contains("in"))?"":"none"; });
+    L.querySelectorAll(".cxg").forEach(g=>{ const vis=[...g.querySelectorAll(".cxr")].some(r=>r.style.display!=="none"); g.style.display=vis?"":"none"; if(w.length||D.checked) g.open=vis; }); };
+  if(F){ F.oninput=filtra; D.onchange=filtra; if(S.cxDisp) filtra(); }
+  m.querySelectorAll("[data-cxx]").forEach(b=>b.onclick=()=>{ const o=CPX.d.p[b.dataset.cxx]; if(!o) return;
+    const [acc,mac]=sel.r==="m"?[normC(o.m),sk]:[sk,normC(o.m)];
+    if(!confirm(`Togliere il collegamento tra ${CPX.d.p[acc]?.m||acc} e ${CPX.d.p[mac]?.m||mac}?`)) return;
+    cpxSalva(nc=>{ nc.add[acc]=(nc.add[acc]||[]).filter(x=>x!==mac); nc.no[acc]=[...new Set([...(nc.no[acc]||[]),mac])]; },"Collegamento tolto"); });
+  const ad=$("#cxAdd"); if(ad) ad.onclick=()=>{ openModal(`<div class="mh"><h2>Collega ${sel.r==="m"?"un accessorio a "+esc(sel.m):esc(sel.m)+" a una macchina"}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+      <div class="mb"><div class="fs"><label class="fl">${sel.r==="m"?"Accessorio, lama, batteria…":"Macchina"}<input id="cxA" placeholder="Codice o nome" autocomplete="off" autocapitalize="characters"></label><div id="cxAL" class="pkl"></div>
+      <p class="sub">Il collegamento vale per tutti gli utenti e resta anche quando aggiorniamo i dati dal listino.</p></div></div>`);
+    cpxPick($("#cxA"),$("#cxAL"),o=>{ const ok=sel.r==="m"?o.r!=="m":o.r==="m"; if(!ok){ toast(sel.r==="m"?"Scegli un accessorio, non una macchina":"Scegli una macchina"); return; }
+      const [acc,mac]=sel.r==="m"?[normC(o.m),sk]:[sk,normC(o.m)]; closeModal();
+      cpxSalva(nc=>{ nc.add[acc]=[...new Set([...(nc.add[acc]||[]),mac])]; nc.no[acc]=(nc.no[acc]||[]).filter(x=>x!==mac); },`${CPX.d.p[acc]?.m||acc} collegato a ${CPX.d.p[mac]?.m||mac}`); }); setTimeout(()=>$("#cxA")?.focus(),50); };
+}
+
+/* =====================================================================
    POSTA (solo amministratore, solo sul sito): caselle @semistore.it del server Plesk.
    Le email restano sul server: tutto quello che si fa qui si vede anche in webmail.semistore.it.
    ===================================================================== */
@@ -4945,7 +5070,8 @@ function wizPrezzo(pre){
 function wizCerca(pre){
   wizOpen("Cerco un prezzo","f-w");
   const scegli=step(()=>pickItem("Cosa cerchi?",{onPick:it=>{ WZ.it=it; wizStep(scheda); }}));
-  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
+  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button><button class="wbig sec" id="aX">${ic("plug")}Accessori e compatibilità</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
+    $("#aX").onclick=()=>{ wizClose(); S.cq=it.codice; location.hash="compatibili"; render(); };
     const v=$("#aV"); if(v) v.onclick=()=>{ wizClose(); wizVendo(it); }; const p=$("#aP"); if(p) p.onclick=()=>{ wizClose(); wizPrezzo(it); };
     $("#aC").onclick=()=>{ wizClose(); wizConta(it); };
     $("#wAn").onclick=()=>{ WZ.stack=[]; wizStep(scegli); }; });
