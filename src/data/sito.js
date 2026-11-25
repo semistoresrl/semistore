@@ -66,7 +66,7 @@ export const SITO = {
   url: 'https://semistore.it',
   // Statistiche e pubblicità (partono solo dopo il consenso nel banner cookie). Vuoti = niente banner, niente script.
   ga4: 'G-1YSFK4NFN8', // ID misurazione Google Analytics 4, es. 'G-XXXXXXXXXX'
-  pixelMeta: '1100457146378642', // ID Pixel Meta (solo cifre)
+  pixelMeta: '2053772285330509', // ID Pixel Meta (solo cifre)
 };
 
 export const GOOGLE = {
