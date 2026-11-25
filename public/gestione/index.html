@@ -2964,7 +2964,7 @@ function openTicket(t, fromReq, draft){
   const rows=t.ricambi;
   const drawRows=()=>{
     $("#pRows").innerHTML = rows.length? rows.map((p,i)=>{const r=itm(p.codice); const disp=r?(Number(r.giacenza)||0):null;
-      return `<tr><td class="mono">${p.nuova?`<input data-cod="${i}" value="${esc(p.codice)}" placeholder="codice" autocapitalize="characters" style="width:110px;text-transform:uppercase">`:esc(p.codice)}</td><td>${p.nuova?`<input data-des="${i}" value="${esc(p.descr)}" placeholder="descrizione">`:esc(p.descr)}${disp!=null?`<div style="font-size:11px;color:${disp<=0?"var(--bad)":"var(--muted)"}">in magazzino: ${disp}${r.verificare?" (da contare)":""}</div>`:`<div style="font-size:11px;color:var(--warn)">non a magazzino</div>`}</td>
+      return `<tr><td class="mono">${p.nuova?`<input data-cod="${i}" value="${esc(p.codice)}" placeholder="codice" autocapitalize="characters" style="width:110px;text-transform:uppercase">`:p.codice==="MANUALE"?`<span class="sub">a mano</span>`:esc(p.codice)}</td><td>${p.nuova?`<input data-des="${i}" value="${esc(p.descr)}" placeholder="descrizione">`:esc(p.descr)}${disp!=null?`<div style="font-size:11px;color:${disp<=0?"var(--bad)":"var(--muted)"}">in magazzino: ${disp}${r.verificare?" (da contare)":""}</div>`:p.codice==="MANUALE"?"":`<div style="font-size:11px;color:var(--warn)">non a magazzino</div>`}</td>
       <td><input type="number" min="0" step="1" data-q="${i}" value="${p.qty}" style="text-align:right"></td><td><input type="number" step="0.01" data-p="${i}" value="${p.prezzo?netto(p.prezzo):""}" placeholder="+ IVA" style="text-align:right" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></td><td class="num">${eur(netto(p.qty*p.prezzo))}<div class="sub">+ IVA ${eur(ivaDi(p.qty*p.prezzo))}</div></td><td><button class="btn sm ghost danger" data-rm="${i}">×</button></td></tr>`}).join("")
       : `<tr><td colspan="6" class="empty">Nessun ricambio aggiunto</td></tr>`;
     $("#pRows").querySelectorAll("[data-q]").forEach(x=>x.oninput=()=>{rows[x.dataset.q].qty=Math.max(0,parseInt(x.value)||0);drawTot()});
@@ -3008,7 +3008,7 @@ function openTicket(t, fromReq, draft){
   $("#pAddRow").onclick=()=>{ rows.push({codice:"",descr:"",qty:1,prezzo:0,costo:0,nuova:true}); drawRows(); const l=$("#pRows").querySelectorAll("[data-cod]"); l[l.length-1]?.focus(); };
   $("#tTipo").addEventListener("change",()=>{$("#tGarBox").style.display=$("#tTipo").value==="garanzia"?"block":"none"});
   // parts missing from stock (beyond what this ticket already took) -> DEWALT sheet
-  const missing=()=>rows.map(p=>{const r=itm(p.codice); const giaPreso=(origRic.find(o=>o.codice===p.codice)?.qty)||0; const disp=r?(Number(r.giacenza)||0)+giaPreso:0; return {...p,manca:Math.max(0,p.qty-Math.max(0,disp))};}).filter(p=>p.manca>0);
+  const missing=()=>rows.filter(p=>p.codice!=="MANUALE"&&!p.manuale).map(p=>{const r=itm(p.codice); const giaPreso=(origRic.find(o=>o.codice===p.codice)?.qty)||0; const disp=r?(Number(r.giacenza)||0)+giaPreso:0; return {...p,manca:Math.max(0,p.qty-Math.max(0,disp))};}).filter(p=>p.manca>0);
   const inFoglio=c=>(foglioAperto()?.righe||[]).some(r=>r.codice===c&&(r.schede||[]).includes(t.num));
   const drawMiss=()=>{ const ms=missing(), box=$("#tMiss"); if(!box) return;
     if(!ms.length){box.innerHTML="";return}
