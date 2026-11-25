@@ -100,6 +100,15 @@ export async function onRequestPost({ request, env }) {
   f.set('cancel_url', `${origin}/carrello/`);
   f.set('phone_number_collection[enabled]', 'true');
   f.set('billing_address_collection', 'required');
+  if (body.mk === true) { // consenso marketing: dati tecnici per l'API Conversions di Meta (acquisto confermato dal server)
+    const ck = request.headers.get('cookie') || '';
+    const c = (n) => (ck.match(new RegExp('(?:^|;\\s*)' + n + '=([^;]+)')) || [])[1] || '';
+    f.set('metadata[mk]', '1');
+    if (c('_fbp')) f.set('metadata[fbp]', c('_fbp').slice(0, 200));
+    if (c('_fbc')) f.set('metadata[fbc]', c('_fbc').slice(0, 200));
+    f.set('metadata[ip]', (request.headers.get('cf-connecting-ip') || '').slice(0, 60));
+    f.set('metadata[ua]', (request.headers.get('user-agent') || '').slice(0, 450));
+  }
   f.set('metadata[consegna]', ritiro ? 'RITIRO IN NEGOZIO' : 'SPEDIZIONE');
   // ricevuta a tutti; fattura elettronica solo a chi ha un account con partita IVA (dati presi dal profilo)
   if (cl) {

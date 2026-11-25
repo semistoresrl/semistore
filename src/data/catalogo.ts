@@ -15,7 +15,7 @@ export const urlCategoria = (c: string) => `/categorie/${slugCategoria(c)}/`;
 export const voce = (p: any) => {
   const i = fotoDi(p.slug, 400) || (p.kit ? p.kit.find((k: any) => k.u)?.u : '') || '';
   return {
-    s: p.slug, n: p.nome, m: p.modello || '', b: p.marca, c: p.categoria, v: p.volt || '', p: p.prezzo,
+    s: p.slug, n: p.nome, m: p.modello || '', k: p.codice || '', b: p.marca, c: p.categoria, v: p.volt || '', p: p.prezzo,
     l: p.prezzoListino && p.prezzoListino > p.prezzo ? p.prezzoListino : 0, i, ss: fotoLocale(p.slug) ? 1 : 0, d: p.disponibilita === 'conferma' ? 1 : 0,
   };
 };

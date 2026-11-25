@@ -196,6 +196,16 @@ const nav = [
     const upd = () => document.querySelectorAll('[data-cart-count]').forEach((e) => (e.textContent = String(count())));
     upd(); addEventListener('cart:change', upd); addEventListener('storage', upd);
   </script>
+  <script>
+    import { evento } from '../scripts/track.js';
+    // Clic su WhatsApp, telefono o email: evento «Contact» (parte solo con il consenso marketing/statistica)
+    addEventListener('click', (e) => {
+      const a = (e.target as HTMLElement)?.closest?.('a[href]') as HTMLAnchorElement | null; if (!a) return;
+      const h = a.getAttribute('href') || '';
+      const tipo = /wa\.me|whatsapp/i.test(h) ? 'WhatsApp' : h.startsWith('tel:') ? 'Telefono' : h.startsWith('mailto:') ? 'Email' : '';
+      if (tipo) evento('Contact', { content_name: tipo, content_category: location.pathname.split('/')[1] || 'home' });
+    }, { capture: true });
+  </script>
   <script>import '../scripts/offerta.js';</script>
   <script>import '../scripts/suggerimenti.js';</script>
   <script>

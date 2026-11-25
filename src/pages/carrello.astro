@@ -116,7 +116,7 @@ import { SITO } from '../data/sito.js';
     try {
       const consegna = (document.querySelector('input[name=cons]:checked') as HTMLInputElement).value;
       try { const its = await itemsCarrello(read()); track('begin_checkout', { items: its, value: its.reduce((t, i) => t + i.prezzo * i.qty, 0) }); } catch {}
-      const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ items: read(), consegna, codice, buoni: buoni.map((b) => b.codice), buoniAccount: wallet.filter((w) => w.usa).map((w) => w.id) }) });
+      const r = await fetch('/api/checkout', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mk: (() => { try { const c = JSON.parse(localStorage.getItem('semi-consenso-v1') || 'null'); return !!(c && c.m && Date.now() - c.t < 182 * 864e5); } catch { return false; } })(), items: read(), consegna, codice, buoni: buoni.map((b) => b.codice), buoniAccount: wallet.filter((w) => w.usa).map((w) => w.id) }) });
       const j = await r.json();
       if (r.status === 401 && j.accedi) { // sconto del minigioco: serve l'account con la stessa email
         el('err').innerHTML = `${j.error} <a class="ul" href="/account/?dopo=${encodeURIComponent('/carrello/?codice=' + codice)}">Entra ora</a>`;
@@ -200,7 +200,7 @@ import { SITO } from '../data/sito.js';
     l.innerHTML = vis.slice(0, 8).map((s) => { const x = M[s]; return `<div class="upc-r"><a href="/prodotti/${s}/" class="upc-i">${x.i ? `<img src="${esc(x.i)}" width="64" height="64" alt="" loading="lazy">` : `<span class="mono">${esc(x.m || '')}</span>`}</a>
       <a href="/prodotti/${s}/" class="upc-n"><b>${esc(x.n)}</b><small class="mono">${esc(x.m || '')}${x.d ? ' · su conferma' : ' · disponibile'}</small></a>
       <span class="upc-p"><b>${eur(x.p)}</b><button type="button" class="upc-a" data-up="${s}">+ Aggiungi</button></span></div>`; }).join('');
-    l.querySelectorAll<HTMLButtonElement>('[data-up]').forEach((b) => b.onclick = () => { add(b.dataset.up!, 1); track('add_to_cart', { items: [{ id: M[b.dataset.up!].m, nome: M[b.dataset.up!].n, prezzo: M[b.dataset.up!].p / 100, qty: 1 }], value: M[b.dataset.up!].p / 100 }); render(); suggerisci(); });
+    l.querySelectorAll<HTMLButtonElement>('[data-up]').forEach((b) => b.onclick = () => { add(b.dataset.up!, 1); track('add_to_cart', { items: [{ id: M[b.dataset.up!].k || M[b.dataset.up!].m || b.dataset.up!, nome: M[b.dataset.up!].n, prezzo: M[b.dataset.up!].p / 100, qty: 1 }], value: M[b.dataset.up!].p / 100 }); render(); suggerisci(); });
   }
   addEventListener('cart:change', () => suggerisci());
   indice().then((l: any[]) => { M = Object.fromEntries(l.map((x) => [x.s, x])); render(); }).catch(() => { el('righe').innerHTML = '<p style="padding:20px;margin:0">Non riusciamo a caricare il carrello: ricarica la pagina.</p>'; });

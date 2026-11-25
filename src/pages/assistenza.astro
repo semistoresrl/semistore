@@ -92,6 +92,7 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
 </Base>
 <script define:vars={{ STATI }}>window.__STATI = STATI;</script>
 <script>
+  import { evento } from '../scripts/track.js';
   import { precompila, ricorda, capAutomatico } from '../scripts/precompila.js';
   const STATI: string[] = (window as any).__STATI;
   const f = document.getElementById('req') as HTMLFormElement, msg = document.getElementById('msg')!;
@@ -107,6 +108,7 @@ const STATI = ['Ricevuto', 'In diagnosi', 'Preventivo inviato', 'Attesa ricambi'
       ricorda(f);
       const r = await fetch('/api/assistenza', { method: 'POST', body: new FormData(f) });
       const j = await r.json(); if (!r.ok) throw new Error(j.error || 'errore');
+      evento('Lead', { content_name: 'Richiesta riparazione', content_category: 'Assistenza' });
       if (j.ddt) { location.href = j.ddt; return; }
       f.reset(); pac(); precompila(f); msg.className = 'msg ok'; msg.textContent = `Richiesta ricevuta (n. ${j.id}). Ti richiamiamo entro un giorno lavorativo.`;
     } catch { msg.className = 'msg ko'; msg.textContent = 'Invio non riuscito. Riprova o chiamaci.'; }

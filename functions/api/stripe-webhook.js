@@ -51,6 +51,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     if (slug) await movimento(env, `st:${sid}:${slug}`, 'sito', slug, -Number(li.quantity || 1));
   }
   try { await registraOrdine(env, ev.data.object, righe); } catch (e) { console.error('ordine', e); }
+  if (ev.data.object.metadata?.mk === '1' && SITO.pixelMeta && env.META_CAPI_TOKEN) waitUntil(acquistoMeta(env, ev.data.object, righe, new URL(request.url).origin).catch((e) => console.error('meta capi', e)));
   if (configurato(env)) waitUntil(sincronizza(env, new URL(request.url).origin, { limite: 30 }).catch(() => {}));
   return new Response('ok');
 }
@@ -169,4 +170,33 @@ async function buonoRegalo(env, o, origin) {
   await inviaEmail(env, { a: (env.EMAIL_TO || SITO.email).split(','), da: env.EMAIL_FROM || 'Semi Store <info@semistore.it>',
     oggetto: `Venduto buono regalo ${eur(importo)}`,
     testo: `Venduto un buono regalo da ${eur(importo)} (pagamento ${o.id.slice(-8).toUpperCase()}) a ${email}${regalo ? ` per ${md.destinatario}${md.emailDest ? ' <' + md.emailDest + '>' : ''}` : ''}.\nBuono multiuso (art. 6-quater DPR 633/72): l'IVA si applica quando viene speso, non ora.` });
+}
+
+// API Conversions di Meta: l'acquisto confermato da Stripe arriva a Meta anche se il browser blocca il Pixel.
+// Solo con consenso marketing (metadata mk = 1). Stesso event_id del Pixel nella pagina «grazie», così Meta lo conta una volta.
+// Email, telefono e dati personali partono solo come hash SHA-256, come chiede Meta. Token: variabile segreta META_CAPI_TOKEN su Cloudflare.
+async function acquistoMeta(env, o, righe, origin) {
+  const h = async (s) => { s = String(s || '').trim().toLowerCase(); if (!s) return undefined; const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join(''); };
+  let ids = {};
+  try { const l = await (await fetch(`${origin}/indice.json`)).json(); ids = Object.fromEntries((Array.isArray(l) ? l : []).map((v) => [v.s, v.k || v.m || v.s])); } catch {}
+  const contents = righe.map((li) => { const slug = li.price?.product?.metadata?.slug; return slug ? { id: ids[slug] || slug, quantity: Number(li.quantity || 1), item_price: (li.price?.unit_amount || 0) / 100 } : null; }).filter(Boolean);
+  if (!contents.length) return;
+  const cd = o.customer_details || {}, ad = cd.address || {}, md = o.metadata || {};
+  const nome = String(cd.name || '').trim().split(/\s+/);
+  const tel = String(cd.phone || '').replace(/\D/g, '');
+  const user_data = {
+    em: [await h(cd.email)].filter(Boolean), ph: tel ? [await h(tel.length === 10 ? '39' + tel : tel)] : undefined,
+    fn: nome[0] ? [await h(nome[0])] : undefined, ln: nome.length > 1 ? [await h(nome.slice(1).join(' '))] : undefined,
+    ct: ad.city ? [await h(ad.city.replace(/\s+/g, ''))] : undefined, zp: ad.postal_code ? [await h(ad.postal_code)] : undefined,
+    country: [await h(ad.country || 'it')], external_id: md.cliente ? [await h(md.cliente)] : undefined,
+    client_ip_address: md.ip || undefined, client_user_agent: md.ua || undefined, fbp: md.fbp || undefined, fbc: md.fbc || undefined,
+  };
+  const valore = contents.reduce((t, c) => t + c.item_price * c.quantity, 0);
+  const evento = {
+    event_name: 'Purchase', event_time: Math.floor((o.created || Date.now() / 1000)), event_id: String(o.id).slice(-20), action_source: 'website',
+    event_source_url: `${SITO.url}/grazie/`, user_data,
+    custom_data: { currency: 'EUR', value: Math.round(valore * 100) / 100, content_type: 'product', content_ids: contents.map((c) => c.id), contents, num_items: contents.reduce((n, c) => n + c.quantity, 0), order_id: String(o.id).slice(-20) },
+  };
+  const r = await fetch(`https://graph.facebook.com/v21.0/${SITO.pixelMeta}/events`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ data: [evento], access_token: env.META_CAPI_TOKEN }) });
+  if (!r.ok) console.error('meta capi', r.status, (await r.text()).slice(0, 300));
 }

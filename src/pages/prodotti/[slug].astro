@@ -51,7 +51,7 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
         {risparmio > 0 && <p class="pd-lst">Prezzo consigliato dal produttore <s>{euro(p.prezzoListino)}</s> · {risparmio}% in meno del prezzo consigliato</p>}
         <div class="row" style="gap:10px">
           <label class="field qty"><span class="sr">Quantità</span><input id="qty" type="number" min="1" max="20" value="1" inputmode="numeric" /></label>
-          <button class="btn btn-y" id="add" data-slug={p.slug} data-id={p.modello || p.slug} data-nome={p.nome} data-marca={p.marca} data-cat={p.categoria} data-prezzo={(p.prezzo / 100).toFixed(2)} style="flex:1">Aggiungi al carrello</button>
+          <button class="btn btn-y" id="add" data-slug={p.slug} data-id={p.codice || p.modello || p.slug} data-nome={p.nome} data-marca={p.marca} data-cat={p.categoria} data-prezzo={(p.prezzo / 100).toFixed(2)} style="flex:1">Aggiungi al carrello</button>
         </div>
         {nol && <a class="nol" href={`/noleggio/?add=${encodeURIComponent(nol.c)}`}><span><b>Anche a noleggio per aziende</b><small>{euro(Math.round(nol.k * 100))} al mese + IVA, manutenzione 3 anni inclusa</small></span><span class="nol-v">Noleggialo →</span></a>}
         <p id="ok" hidden class="okmsg" role="status">Aggiunto. <a class="ul" href="/carrello/">Vai al carrello</a></p>
@@ -169,7 +169,7 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
     }
   });
   import { add } from '../../scripts/cart.js';
-  import { track } from '../../scripts/track.js';
+  import { track, itemsCarrello } from '../../scripts/track.js';
   const b = document.getElementById('add')!;
   const art = (qty = 1) => ({ items: [{ id: b.dataset.id, nome: b.dataset.nome, marca: b.dataset.marca, cat: b.dataset.cat, prezzo: Number(b.dataset.prezzo), qty }], value: Number(b.dataset.prezzo) * qty });
   track('view_item', art());
@@ -179,7 +179,7 @@ const vLingua = p.video && p.video.l && p.video.l !== 'it' ? (LINGUE[p.video.l] 
   });
   // upselling: pulsanti «+ Aggiungi», pacchetto «Completa l'acquisto», schede degli accessori
   const fatto = (btn: HTMLElement) => { btn.textContent = 'Aggiunto ✓'; btn.classList.add('ok'); (document.getElementById('ok') as HTMLElement).hidden = false; };
-  document.querySelectorAll<HTMLButtonElement>('[data-add]').forEach((x) => x.addEventListener('click', () => { add(x.dataset.add!, 1); track('add_to_cart', { items: [{ id: x.dataset.add }], value: 0 }); fatto(x); }));
+  document.querySelectorAll<HTMLButtonElement>('[data-add]').forEach((x) => x.addEventListener('click', () => { add(x.dataset.add!, 1); itemsCarrello([{ slug: x.dataset.add!, qty: 1 }]).then((its) => track('add_to_cart', { items: its, value: its.reduce((t, i) => t + i.prezzo, 0) })); fatto(x); }));
   const bg = document.getElementById('bundGo');
   if (bg) {
     const box = document.getElementById('bund')!, tot = document.getElementById('bundTot')!;

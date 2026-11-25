@@ -28,6 +28,9 @@ const volts = ['12V', '18V', '36V', '54V', '230V'].filter((v) => prodotti.some((
 </Base>
 <script>
   import { card, indice, cerca } from '../scripts/card.js';
+  import { evento } from '../scripts/track.js';
+  let cercato = '', tc: any;
+  const segnaRicerca = (s: string) => { clearTimeout(tc); tc = setTimeout(() => { s = s.trim(); if (s.length > 1 && s !== cercato) { cercato = s; evento('Search', { search_string: s, content_category: 'Catalogo' }); } }, 1200); };
   const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
   const g = document.getElementById('g')!;
   const piu = document.getElementById('piu') as HTMLButtonElement;
@@ -52,6 +55,7 @@ const volts = ['12V', '18V', '36V', '54V', '230V'].filter((v) => prodotti.some((
     $('n').textContent = `${r.length} prodott${r.length === 1 ? 'o' : 'i'}`; (document.getElementById('vuoto') as HTMLElement).hidden = r.length > 0;
     const p = new URLSearchParams(); if ($('fq').value) p.set('q', $('fq').value); if (c) p.set('cat', c.toLowerCase().split(' ')[0]); if (m) p.set('marca', m.toLowerCase().replace(/[^a-z]/g, '')); if (v) p.set('volt', v.toLowerCase());
     history.replaceState(null, '', p.size ? `?${p}` : location.pathname);
+    segnaRicerca($('fq').value);
   }
   let t: any;
   ['fq', 'fc', 'fm', 'fo', 'fv'].forEach((id) => $(id).addEventListener('input', () => { lim = PAG; clearTimeout(t); t = setTimeout(() => run(), id === 'fq' ? 150 : 0); }));
