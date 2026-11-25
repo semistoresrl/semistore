@@ -890,6 +890,7 @@ function stats(){
   return {aperti,pronti,attesa,chiusiM,entratiM,tm,valRicM,gar,fatt,vecchi,low,ver,pub,items};
 }
 const netto=x=>Math.round((Number(x)||0)/1.22*100)/100;
+const ivaDi=x=>Math.round(((Number(x)||0)-netto(x))*100)/100;
 function totali(t){
   const ricL=(t.ricambi||[]).reduce((a,p)=>a+(Number(p.qty)||0)*(Number(p.prezzo)||0),0);
   const costo=(t.ricambi||[]).reduce((a,p)=>a+(Number(p.qty)||0)*(Number(p.costo)||0),0);
@@ -1128,10 +1129,10 @@ function schedaHtml(t){
      <div style="margin-top:1.5mm;font-size:8.4pt">Sconto ricambi: <b>${tt.sc?String(tt.sc).replace(".",",")+"%":"—"}</b></div>
      <div style="margin-top:1.5mm;font-size:8.4pt">Fine riparazione: <b>${dFine}</b></div></div>
     <div class="bxx"><div class="lb">Ricambi e manodopera</div>
-     <table><thead><tr><th style="width:30mm">Codice</th><th>Descrizione</th><th class="r" style="width:11mm">Q.tà</th><th class="r" style="width:19mm">Prezzo</th><th class="r" style="width:20mm">Importo</th></tr></thead><tbody>
-      ${ric.map(p=>`<tr><td class="mono">${esc(p.codice==="MANUALE"?"":p.codice||"")}</td><td>${esc(p.descr||"")}</td><td class="r">${esc(p.qty??"")}</td><td class="r">${gar||t.nascondiPrezzi?"":eur(netto(p.prezzo))}</td><td class="r">${gar||t.nascondiPrezzi?"":eur(netto((Number(p.qty)||0)*(Number(p.prezzo)||0)))}</td></tr>`).join("")}
-      ${"<tr><td></td><td></td><td></td><td></td><td></td></tr>".repeat(vuote)}
-      <tr class="mo"><td class="mono">MANOD.</td><td>${esc(t.manodoperaDescr||"Manodopera")}</td><td></td><td></td><td class="r">${gar?"":tt.mo?eur(tt.moN):""}</td></tr>
+     <table><thead><tr><th style="width:30mm">Codice</th><th>Descrizione</th><th class="r" style="width:11mm">Q.tà</th><th class="r" style="width:17mm">Prezzo</th><th class="r" style="width:18mm">Imponibile</th><th class="r" style="width:16mm">IVA 22%</th><th class="r" style="width:18mm">Totale</th></tr></thead><tbody>
+      ${ric.map(p=>`<tr><td class="mono">${esc(p.codice==="MANUALE"?"":p.codice||"")}</td><td>${esc(p.descr||"")}</td><td class="r">${esc(p.qty??"")}</td>${(()=>{ if(gar||t.nascondiPrezzi) return "<td></td><td></td><td></td><td></td>"; const l=(Number(p.qty)||0)*(Number(p.prezzo)||0); return `<td class="r">${eur(netto(p.prezzo))}</td><td class="r">${eur(netto(l))}</td><td class="r">${eur(ivaDi(l))}</td><td class="r">${eur(l)}</td>`; })()}</tr>`).join("")}
+      ${"<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>".repeat(vuote)}
+      <tr class="mo"><td class="mono">MANOD.</td><td>${esc(t.manodoperaDescr||"Manodopera")}</td><td></td><td></td>${gar||!tt.mo?"<td></td><td></td><td></td>":`<td class="r">${eur(tt.moN)}</td><td class="r">${eur(ivaDi(tt.mo))}</td><td class="r">${eur(tt.mo)}</td>`}</tr>
      </tbody></table>
      ${gar?`<div class="tot"><span>Intervento in garanzia</span><b class="r">€ 0,00</b></div>`:`<div class="tot">
       <span>Ricambi (IVA esclusa)</span><span class="r">${ric.length?eur(tt.ricLN):""}</span>
@@ -2311,8 +2312,8 @@ function openImportFatture(){
 /* 25/11: messaggio WhatsApp della scheda, diverso per ogni fase */
 function schedaTesto(t){ const tt=totali(t), n=t.num||"", ut=[t.modello,descrUtensile(t.modello,t.type)].filter(Boolean).join(" – ");
   const chi=t.cliFin?`${t.cliente} (${t.cliFin})`:t.cliente; const firma=`\n\nSE.M.I. S.R.L. – Centro assistenza autorizzato DEWALT · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947\nStato della riparazione: https://semistore.it/assistenza (scheda ${n})`;
-  const righe=(t.ricambi||[]).filter(r=>r.qty>0).map(r=>`• ${r.qty} × ${r.descr||r.codice}${!t.nascondiPrezzi&&Number(r.prezzo)>0?": "+eur(netto(Number(r.prezzo)*r.qty)):""}`).join("\n");
-  const prev=`${righe?`Ricambi (prezzi IVA esclusa):\n${righe}\n`:""}${t.nascondiPrezzi&&tt.ric?`Totale ricambi: ${eur(tt.ricN)}\n`:tt.scV?`Sconto ricambi ${tt.sc}%: −${eur(tt.scVN)}\n`:""}${tt.mo?`Manodopera: ${eur(tt.moN)}\n`:""}Imponibile: ${eur(tt.imponibile)}\nIVA 22%: ${eur(tt.iva)}\n*Totale: ${eur(tt.totale)} IVA inclusa*`;
+  const righe=(t.ricambi||[]).filter(r=>r.qty>0).map(r=>`• ${r.qty} × ${r.descr||r.codice}${!t.nascondiPrezzi&&Number(r.prezzo)>0?": "+eur(netto(Number(r.prezzo)*r.qty))+" + IVA "+eur(ivaDi(Number(r.prezzo)*r.qty)):""}`).join("\n");
+  const prev=`${righe?`Ricambi (prezzi IVA esclusa):\n${righe}\n`:""}${t.nascondiPrezzi&&tt.ric?`Totale ricambi: ${eur(tt.ricN)}\n`:tt.scV?`Sconto ricambi ${tt.sc}%: −${eur(tt.scVN)}\n`:""}${tt.mo?`Manodopera: ${eur(tt.moN)} + IVA ${eur(ivaDi(tt.mo))}\n`:""}Imponibile: ${eur(tt.imponibile)}\nIVA 22%: ${eur(tt.iva)}\n*Totale: ${eur(tt.totale)} IVA inclusa*`;
   const ddt=t.ddtNum?` (vs. DDT n. ${t.ddtNum}${t.ddtData?" del "+t.ddtData.split("-").reverse().join("/"):""})`:"";
   const st=t.stato||"Ricevuto";
   if(st==="Ricevuto") return `Buongiorno ${chi},\nabbiamo ricevuto in assistenza il vostro utensile *${ut}*${ddt}.\nScheda di lavorazione n. *${n}*${t.difetto?`\nDifetto segnalato: ${t.difetto}`:""}.\nVi aggiorniamo appena il tecnico lo ha controllato.`+firma;
@@ -2964,10 +2965,10 @@ function openTicket(t, fromReq, draft){
   const drawRows=()=>{
     $("#pRows").innerHTML = rows.length? rows.map((p,i)=>{const r=itm(p.codice); const disp=r?(Number(r.giacenza)||0):null;
       return `<tr><td class="mono">${p.nuova?`<input data-cod="${i}" value="${esc(p.codice)}" placeholder="codice" autocapitalize="characters" style="width:110px;text-transform:uppercase">`:esc(p.codice)}</td><td>${p.nuova?`<input data-des="${i}" value="${esc(p.descr)}" placeholder="descrizione">`:esc(p.descr)}${disp!=null?`<div style="font-size:11px;color:${disp<=0?"var(--bad)":"var(--muted)"}">in magazzino: ${disp}${r.verificare?" (da contare)":""}</div>`:`<div style="font-size:11px;color:var(--warn)">non a magazzino</div>`}</td>
-      <td><input type="number" min="0" step="1" data-q="${i}" value="${p.qty}" style="text-align:right"></td><td><input type="number" step="0.01" data-p="${i}" value="${p.prezzo?netto(p.prezzo):""}" placeholder="+ IVA" style="text-align:right" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></td><td class="num">${eur(netto(p.qty*p.prezzo))}</td><td><button class="btn sm ghost danger" data-rm="${i}">×</button></td></tr>`}).join("")
+      <td><input type="number" min="0" step="1" data-q="${i}" value="${p.qty}" style="text-align:right"></td><td><input type="number" step="0.01" data-p="${i}" value="${p.prezzo?netto(p.prezzo):""}" placeholder="+ IVA" style="text-align:right" ${puoPrezzi()?"":"disabled title=\"Solo l'amministratore può cambiare i prezzi\""}></td><td class="num">${eur(netto(p.qty*p.prezzo))}<div class="sub">+ IVA ${eur(ivaDi(p.qty*p.prezzo))}</div></td><td><button class="btn sm ghost danger" data-rm="${i}">×</button></td></tr>`}).join("")
       : `<tr><td colspan="6" class="empty">Nessun ricambio aggiunto</td></tr>`;
     $("#pRows").querySelectorAll("[data-q]").forEach(x=>x.oninput=()=>{rows[x.dataset.q].qty=Math.max(0,parseInt(x.value)||0);drawTot()});
-    $("#pRows").querySelectorAll("[data-p]").forEach(x=>x.oninput=()=>{const r=rows[x.dataset.p]; r.prezzo=Math.round((Number(x.value)||0)*1.22*100)/100; delete r.base; drawTot(); const c=x.closest("tr")?.querySelector("td.num"); if(c) c.textContent=eur(netto(r.qty*r.prezzo)); });
+    $("#pRows").querySelectorAll("[data-p]").forEach(x=>x.oninput=()=>{const r=rows[x.dataset.p]; r.prezzo=Math.round((Number(x.value)||0)*1.22*100)/100; delete r.base; drawTot(); const c=x.closest("tr")?.querySelector("td.num"); if(c) c.innerHTML=eur(netto(r.qty*r.prezzo))+`<div class="sub">+ IVA ${eur(ivaDi(r.qty*r.prezzo))}</div>`; });
     $("#pRows").querySelectorAll("[data-rm]").forEach(x=>x.onclick=()=>{rows.splice(x.dataset.rm,1);drawRows()});
     $("#pRows").querySelectorAll("[data-des]").forEach(x=>x.oninput=()=>{rows[x.dataset.des].descr=x.value});
     $("#pRows").querySelectorAll("[data-cod]").forEach(x=>{ const fill=()=>{ const i=+x.dataset.cod, c=x.value.trim().toUpperCase(); if(!c||!x.isConnected||x._fatto) return; x._fatto=1; const inf=infoRic(c);
