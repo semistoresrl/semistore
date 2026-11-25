@@ -65,7 +65,7 @@ export const SITO = {
     temi: [{ id: 'natale', nome: 'Natale' }, { id: 'compleanno', nome: 'Compleanno' }, { id: 'grazie', nome: 'Grazie' }, { id: 'cantiere', nome: 'Buon lavoro' }] },
   url: 'https://semistore.it',
   // Statistiche e pubblicità (partono solo dopo il consenso nel banner cookie). Vuoti = niente banner, niente script.
-  ga4: '', // ID misurazione Google Analytics 4, es. 'G-XXXXXXXXXX'
+  ga4: 'G-1YSFK4NFN8', // ID misurazione Google Analytics 4, es. 'G-XXXXXXXXXX'
   pixelMeta: '', // ID Pixel Meta (solo cifre)
 };
 
