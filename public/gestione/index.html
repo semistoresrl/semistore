@@ -2648,6 +2648,7 @@ function fotoModello(tx){ const T=String(tx||"").toUpperCase().replace(/([A-Z0-9
 function ruota(c,ang){ const o=document.createElement("canvas"); const r=ang%180!==0; o.width=r?c.height:c.width; o.height=r?c.width:c.height; const x=o.getContext("2d");
   x.translate(o.width/2,o.height/2); x.rotate(ang*Math.PI/180); x.drawImage(c,-c.width/2,-c.height/2); return o; }
 function striscia(c,lato,pc){ const w=Math.max(20,Math.round(c.width*(pc||0.06))), o=document.createElement("canvas"); o.width=w; o.height=c.height; o.getContext("2d").drawImage(c,lato==="dx"?c.width-w:0,0,w,c.height,0,0,w,c.height); return o; }
+function fotoIngrandisci(c){ const o=document.createElement("canvas"); o.width=c.width; o.height=c.height; const x=o.getContext("2d"); x.drawImage(c,0,0); return o.toDataURL("image/jpeg",0.9); }
 async function fotoBase64(c){ const k=Math.min(1,1600/Math.max(c.width,c.height)), o=document.createElement("canvas"); o.width=Math.round(c.width*k); o.height=Math.round(c.height*k); o.getContext("2d").drawImage(c,0,0,o.width,o.height); return o.toDataURL("image/jpeg",0.85); }
 
 // descrizione scritta → pezzi della distinta che le somigliano (italiano o inglese, anche abbreviato)
@@ -2703,8 +2704,8 @@ function pvDaFoto(p,indietro){
       <div class="fs"><h3>Pezzi segnati sulla foto</h3>
         ${F.img?`<div style="position:relative;display:inline-block;max-width:100%;line-height:0"><img src="${F.img}" style="max-width:100%;max-height:52vh;border-radius:8px;border:1px solid var(--line)" alt="foto">
          ${F.zone.map((z,i)=>`<div style="position:absolute;left:${z.x/F.W*100}%;top:${z.y/F.H*100}%;width:${z.w/F.W*100}%;height:${z.h/F.H*100}%;border:2px solid #d92b2b;border-radius:4px"><b style="position:absolute;left:-2px;top:-17px;background:#d92b2b;color:#fff;font-size:11px;line-height:15px;padding:0 4px;border-radius:3px">${i+1}</b></div>`).join("")}</div>`:""}
-        <div class="sub" style="margin:8px 0">${F.fonte==="ai"?"Letto con l'intelligenza artificiale.":F.img?"Letto sul telefono.":"Letto dal messaggio."} <b>Controlla ogni numero col suo ritaglio</b>: la lettura può sbagliare una cifra (es. 75 letto 78) e darebbe un altro pezzo. Correggi scrivendo sopra (anche più numeri, es. «63 64»).${F.dubbi?` <b>Da controllare:</b> ${esc(F.dubbi)}`:""}</div>
-        ${!F.img?"":F.zone.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px">${F.zone.map((z,i)=>`<div style="border:1px solid var(--line);border-radius:8px;padding:5px"><div style="display:flex;gap:6px;align-items:center"><b style="color:#d92b2b;min-width:16px">${i+1}</b><img src="${z.thumb}" style="height:50px;max-width:80px;object-fit:contain;background:#fff;border-radius:4px"><input data-dfz="${i}" value="${esc(z.val)}" inputmode="text" style="min-width:0;flex:1;font-size:17px;font-weight:700;padding:6px" placeholder="n°"></div>${fotoValori(z.val).map(v=>{ if(!/^\d+$/.test(v)||!e) return ""; const x=(e.parti||[]).find(q=>String(q.pos).replace(/^0+/,"")===v); return `<div class="sub" style="margin-top:3px;${x?"":"color:#b42318"}">${esc(v)}: ${x?esc(x.descr):"non c'è nella distinta"}</div>`; }).join("")}</div>`).join("")}</div>`:`<div class="sub">Nessuna parte evidenziata: ho letto il testo della foto (codici e pezzi scritti qui sotto).</div>`}
+        <div class="sub" style="margin:8px 0">${F.fonte==="ai"?"Letto con l'intelligenza artificiale.":F.fonte==="misto"?"Letto sul telefono e ricontrollato con l'intelligenza artificiale (in arancione dove non erano d'accordo).":F.img?"Letto sul telefono.":"Letto dal messaggio."} <b>Controlla ogni numero col suo ritaglio</b>: la lettura può sbagliare una cifra (es. 75 letto 78) e darebbe un altro pezzo. Correggi scrivendo sopra (anche più numeri, es. «63 64»).${F.dubbi?` <b>Da controllare:</b> ${esc(F.dubbi)}`:""}</div>
+        ${!F.img?"":F.zone.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px">${F.zone.map((z,i)=>`<div style="border:1px solid var(--line);border-radius:8px;padding:5px"><div style="display:flex;gap:6px;align-items:center"><b style="color:#d92b2b;min-width:16px">${i+1}</b><img src="${z.thumb}" style="height:50px;max-width:80px;object-fit:contain;background:#fff;border-radius:4px"><input data-dfz="${i}" value="${esc(z.val)}" inputmode="text" style="min-width:0;flex:1;font-size:17px;font-weight:700;padding:6px;${z.dubbio?"border-color:#d97706;background:#fff7e6":""}" placeholder="n°"></div>${z.dubbio?`<div class="sub" style="color:#b45309;margin-top:3px">⚠️ telefono «${esc(z.tel||"—")}», AI «${esc(z.ai)}»: controlla</div>`:""}${fotoValori(z.val).map(v=>{ if(!/^\d+$/.test(v)||!e) return ""; const x=(e.parti||[]).find(q=>String(q.pos).replace(/^0+/,"")===v); return `<div class="sub" style="margin-top:3px;${x?"":"color:#b42318"}">${esc(v)}: ${x?esc(x.descr):"non c'è nella distinta"}</div>`; }).join("")}</div>`).join("")}</div>`:`<div class="sub">Nessuna parte evidenziata: ho letto il testo della foto (codici e pezzi scritti qui sotto).</div>`}
         <label class="fl" style="margin-top:10px">Posizioni o codici (a mano o letti dalla foto)<input id="dfExtra" value="${esc(F.extra)}" placeholder="es. 22, 48 oppure N463936"></label>
         <label class="fl" style="margin-top:10px">Pezzi scritti a parole, uno per riga (es. «2 molla», «motore»)<textarea id="dfDesc" rows="${Math.max(2,Math.min(8,String(F.desc||"").split("\n").length+1))}" placeholder="2 molla&#10;motore">${esc(F.desc||"")}</textarea></label>
         ${F.testo?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Testo letto dalla foto</summary><pre class="sub" style="white-space:pre-wrap;margin:6px 0 0">${esc(F.testo)}</pre></details>`:""}
@@ -2750,7 +2751,10 @@ function pvDaFoto(p,indietro){
       const zone=fotoZone(c).slice(0,80); F.zone=zone.map(z=>({...z,...fotoRitaglio(c,z),val:""})); F.fonte=""; F.dubbi="";
       let ai=null;
       if(aiAttiva()){ prog("Leggo la foto con l'intelligenza artificiale…"); ai=await aiChiedi("preventivo",{img:await fotoBase64(c)}); }
-      if(ai&&(ai.posizioni?.length||ai.codici?.length||ai.pezzi?.length)){ F.fonte="ai"; F.dubbi=ai.dubbi||"";
+      const aiOk=ai&&(ai.posizioni?.length||ai.codici?.length||ai.pezzi?.length);
+      if(ai?.modello) F.modello=ai.modello;
+      // Claude legge bene la foto intera; con l'AI di Cloudflare la foto intera si usa solo se non ci sono zone evidenziate (biglietti, messaggi)
+      if(aiOk&&(ai.fonte==="claude"||!F.zone.length)){ F.fonte="ai"; F.dubbi=ai.dubbi||"";
         F.zone.forEach(z=>z.val=""); F.extra=[...(ai.posizioni||[]),...(ai.codici||[]).map(c=>c.codice)].join(", ");
         (ai.codici||[]).forEach(c=>{ if(c.qty>1) F.qty["c"+c.codice]=c.qty; });
         F.desc=(ai.pezzi||[]).map(x=>(Number(x.qty)>1?x.qty+" ":"")+x.testo).join("\n");
@@ -2771,6 +2775,12 @@ function pvDaFoto(p,indietro){
           const prove=[()=>c]; [0.045,0.08,0.12].forEach(pc=>["dx","sx"].forEach(l=>[270,90].forEach(a=>prove.push(()=>ruota(striscia(c,l,pc),a))))); // titolo scritto in verticale sul bordo
           for(let i=0;i<prove.length&&!F.modello;i++){ prog(`Cerco il modello dell'utensile (${i+1}/${prove.length})…`); await w.setParameters({tessedit_pageseg_mode:i?"6":"11"}); const r=await w.recognize(prove[i]()); const tx=r.data.text||"";
             F.modello=fotoModello(tx); const ty=tx.match(/TYPE\s*(\d{1,2})\b/i); if(ty&&!F.type) F.type=ty[1]; } } }
+      if(F.fonte!=="ai"&&F.zone.length&&aiAttiva()){ // ogni ritaglio letto anche dall'AI: se non è d'accordo col telefono vale l'AI, ma resta segnato da controllare
+        if(ai?.modello&&!F.modello) F.modello=ai.modello;
+        prog("Controllo i numeri con l'intelligenza artificiale…");
+        await Promise.all(F.zone.map(async z=>{ const r=await aiChiedi("zona",{img:fotoIngrandisci(z.ocr)}); const v=String(r?.testo||"").split(/\s+/).map(x=>x.replace(/\D/g,"")).filter(x=>x&&x.length<=4).map(x=>String(Number(x))).join(" "); z.ai=v; }));
+        F.zone.forEach(z=>{ if(z.ai&&z.ai!==z.val){ z.tel=z.val; z.val=z.ai; z.dubbio=true; } });
+        F.fonte="misto"; }
       F.zone.forEach(z=>delete z.ocr);
       if(F.type&&F.modello&&!distinteDi(F.modello).some(d=>String(d.type)===String(F.type))) F.type="";
       F.stato="pronta"; F.sel={}; F.qty={...F.qty}; draw();
