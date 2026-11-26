@@ -2,7 +2,7 @@
 """Pacchetto «Aggiornamento da Danea» per l'app Gestione (semistore.it/gestione → Impostazioni → Aggiorna da Danea).
 
 Uso:  python3 aggiorna.py "<archivio Danea .eft o backup .bef>" [uscita.json.gz]
-Serve Firebird 2.5 (embedded) e il modulo fdb. Variabili: FB_LIB = libreria client/embedded (libfbclient.so.2 / libfbembed.so).
+Serve Firebird 2.5 (embedded), il modulo fdb e, per i backup .bef (7z), py7zr. Variabili: FB_LIB = libreria client/embedded (libfbclient.so.2 / libfbembed.so).
 
 Il pacchetto contiene (niente giacenze: il magazzino lo contano in negozio):
 - numeri: ultimo numero Danea per tipo e anno (schede G, preventivi Q, DDT D, fatture I/F, note N, banco B)
@@ -20,9 +20,16 @@ GIORNI_APERTE = 90
 GIORNI_RECENTI = 120
 src = sys.argv[1]
 out = sys.argv[2] if len(sys.argv) > 2 else 'aggiornamento_danea.json.gz'
-if src.lower().endswith('.bef') or zipfile.is_zipfile(src):
+if zipfile.is_zipfile(src):
     tmp = tempfile.mkdtemp(); z = zipfile.ZipFile(src)
     eft = [n for n in z.namelist() if n.lower().endswith('.eft')][0]; z.extract(eft, tmp); src = os.path.join(tmp, eft)
+elif src.lower().endswith('.bef'):  # il backup di Easyfatt è un archivio 7z con dentro il database .eft
+    import py7zr
+    tmp = tempfile.mkdtemp()
+    with py7zr.SevenZipFile(src) as z:
+        eft = [n for n in z.getnames() if n.lower().endswith('.eft')][0]
+    with py7zr.SevenZipFile(src) as z: z.extract(path=tmp, targets=[eft])
+    src = os.path.join(tmp, eft)
 lib = os.environ.get('FB_LIB', '/home/claude/fb25/emb/libfbclient.so.2')
 con = fdb.connect(database=src, user='SYSDBA', password='masterkey', charset='WIN1252', fb_library_name=lib)
 cur = con.cursor()
