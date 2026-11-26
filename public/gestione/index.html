@@ -5283,7 +5283,7 @@ function trovaCodiceEt(raw,descr){ const c=String(raw||"").toUpperCase().replace
     else if(Math.abs(s.length-k.length)<=1&&lev(s,k)<=1) forse.push({r,come:"letto male",p:somiglia(r)}); }
   const sceglie=l=>{ if(!l.length) return null; l.sort((a,b)=>b.p-a.p); return (l.length===1||l[0].p>l[1].p)?l[0]:null; };
   const a=sceglie(sicuri); if(a) return {it:a.r,codice:a.r.codice,come:a.come};
-  const b=sceglie(forse); if(b&&b.p>0) return {it:b.r,codice:b.r.codice,come:b.come};
+  const b=sceglie(forse); if(b&&(b.p>0||(forse.length===1&&k.length>=7))) return {it:b.r,codice:b.r.codice,come:b.come}; // unico codice lungo a un carattere di distanza: quasi certo, ma resta da controllare
   return {codice:c,come:"nuovo",ipotesi:[...sicuri,...forse].sort((x,y)=>y.p-x.p).slice(0,4).map(x=>x.r.codice)}; }
 function analizzaEtichetta(testo){
   const L=testo.split(/\n/).map(x=>x.replace(/[|‘’“”"]/g," ").replace(/\s+/g," ").trim()).filter(Boolean), tutto=L.join("\n");
