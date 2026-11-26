@@ -20,7 +20,7 @@ export const cerca = (lista, q) => {
   if (!w.length) return lista;
   const out = [];
   for (const x of lista) {
-    const t = x._t ||= (() => { const b = norm(`${x.n} ${x.m} ${x.b} ${x.c} ${x.v}`); return b + ' ' + b.replace(/(\d+),0\s*(ah)/g, '$1$2').replace(/(\d+(?:,\d+)?)\s+(ah|v|mm|w|nm)\b/g, '$1$2'); })(); const c = x._c ||= t.replace(/[\s-]/g, '');
+    const t = x._t ||= (() => { const b = norm(`${x.n} ${x.m} ${x.k || ''} ${x.b} ${x.c} ${x.v}`); return b + ' ' + b.replace(/(\d+),0\s*(ah)/g, '$1$2').replace(/(\d+(?:,\d+)?)\s+(ah|v|mm|w|nm)\b/g, '$1$2'); })(); const c = x._c ||= t.replace(/[\s-]/g, '');
     if (!w.every((k) => t.includes(k) || c.includes(k.replace(/-/g, '')))) continue;
     // punteggio: codice che inizia con la parola > parola intera nel nome > parola dentro il testo
     const m = norm(x.m), n = ' ' + t.replace(/[^a-z0-9,]+/g, ' ') + ' ';
@@ -28,5 +28,7 @@ export const cerca = (lista, q) => {
     for (const k of w) { if (m === k) sc += 20; else if (m.startsWith(k)) sc += 8; if (n.includes(' ' + k + ' ') || n.includes(' ' + k + ',')) sc += 4; else if (n.includes(' ' + k)) sc += 2; }
     out.push([sc, x]);
   }
+  // 26/11: codici con il suffisso del listino (DT71516-QZ, DCD796P2-QW): se non trova niente riprova senza suffisso
+  if (!out.length && /[a-z]\d{2,}[a-z0-9]*[-\s][a-z0-9]{1,3}$/i.test(String(q).trim())) return cerca(lista, String(q).trim().replace(/[-\s][a-z0-9]{1,3}$/i, ''));
   return out.sort((a, b) => b[0] - a[0]).map((r) => r[1]);
 };
