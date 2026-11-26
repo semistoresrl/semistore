@@ -14,7 +14,7 @@ const eur = (v) => Math.round((Number(v) || 0) * 100) / 100;
 const json = (s) => { try { return JSON.parse(s || 'null'); } catch { return null; } };
 const varianti = (c) => { const u = String(c || '').trim().toUpperCase(); if (!u) return []; const b = u.replace(/-(QW|QZ|XJ|GB|LX|XE)$/, ''); return [...new Set([u, b, b + '-QW', b + '-QZ', b + '-XJ'])]; };
 
-async function prossimoNumero(d, at) {
+export async function prossimoNumero(d, at) {
   const t = new Date(at);
   const p = 'W' + String(t.getFullYear()).slice(2) + String(t.getMonth() + 1).padStart(2, '0') + '-';
   const r = await d.prepare("SELECT MAX(CAST(substr(json_extract(d,'$.num'),?) AS INTEGER)) n FROM docs WHERE c='ordiniWeb' AND json_extract(d,'$.num') LIKE ?")
@@ -23,7 +23,7 @@ async function prossimoNumero(d, at) {
 }
 
 // sposta la giacenza nel magazzino dell'app (stessa cosa che fa "muovi" nell'app) e registra il movimento
-async function muovi(d, codice, delta, causale, rif) {
+export async function muovi(d, codice, delta, causale, rif, chi = 'TikTok Shop') {
   const v = varianti(codice); if (!v.length) return false;
   const r = await d.prepare(`SELECT docs.id ch, j.key k, json_extract(j.value,'$.codice') cod, json_extract(j.value,'$.descr') descr,
       json_extract(j.value,'$.tipo') tipo, json_extract(j.value,'$.costo') costo FROM docs, json_each(docs.d,'$.items') j
@@ -31,10 +31,10 @@ async function muovi(d, codice, delta, causale, rif) {
   if (!r) return false;
   const now = Date.now(), base = `$.items.${JSON.stringify(r.k)}`;
   await d.batch([
-    d.prepare(`UPDATE docs SET d=json_set(d, ?, COALESCE(json_extract(d, ?),0)+?, ?, ?), u=?, chi='TikTok Shop' WHERE c='mag' AND id=?`)
-      .bind(base + '.giacenza', base + '.giacenza', delta, base + '.daInviare', now, now, r.ch),
+    d.prepare(`UPDATE docs SET d=json_set(d, ?, COALESCE(json_extract(d, ?),0)+?, ?, ?), u=?, chi=? WHERE c='mag' AND id=?`)
+      .bind(base + '.giacenza', base + '.giacenza', delta, base + '.daInviare', now, now, chi, r.ch),
     d.prepare('INSERT INTO docs(c,id,d,u,chi) VALUES(?,?,?,?,?)').bind('movimenti', 'tt' + now.toString(36) + Math.random().toString(36).slice(2, 7),
-      JSON.stringify({ at: now, codice: r.cod, descr: r.descr || '', tipo: r.tipo || '', qty: delta, causale, rif, by: null, costo: Number(r.costo) || 0 }), now, 'TikTok Shop'),
+      JSON.stringify({ at: now, codice: r.cod, descr: r.descr || '', tipo: r.tipo || '', qty: delta, causale, rif, by: null, costo: Number(r.costo) || 0 }), now, chi),
   ]);
   return true;
 }

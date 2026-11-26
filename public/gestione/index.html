@@ -481,6 +481,15 @@ details.stats>summary .i{color:var(--yd)}
 .cb .i{width:14px;height:14px}
 .cb-sito{background:#e8eefc;color:#2550a8}.cb-tiktok{background:#15171a;color:#fff}.cb-whatsapp{background:#dcf5e6;color:#126b39}.cb-telefono{background:#efe7fb;color:#6236a8}.cb-banco{background:#fff3c4;color:#7a5c00}
 .mh .cb{margin-left:4px}
+.cb-ebay{background:#fdecea;color:#b3261e}.cb-amazon{background:#ffe9c7;color:#7a4300}.cb-leroymerlin{background:#e3f4e1;color:#1e6b14}.cb-manomano{background:#e2f3f5;color:#0b5c66}
+.evr{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-top:8px;cursor:pointer}
+.evr.pb{background:#fff8ec;border-color:#f1c27d}.evr input[type=checkbox]{width:24px;height:24px;flex:none;accent-color:#15171a}
+.evm{flex:1;min-width:0}.evd{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.evp{display:flex;gap:6px;flex:none}.evp input{width:66px}
+.evs{flex:none;max-width:44%;font-size:13px;font-weight:700;text-align:right}.evs .ok{color:var(--ok)}.evs .i{width:14px;height:14px;vertical-align:-2px}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid #ddd;border-top-color:#15171a;border-radius:50%;animation:spg .8s linear infinite}@keyframes spg{to{transform:rotate(360deg)}}
+.btn.big{min-height:48px;font-size:16px;padding:0 20px}
+.tg-et{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;padding:2px 8px;border-radius:20px;background:#e3f4e1;color:#1e6b14}.tg-et.w{background:#fff3c4;color:#7a5c00}
+@media (max-width:860px){.evr{flex-wrap:wrap}.evs{max-width:100%;flex-basis:100%;text-align:left}.evp{order:3}}
 .stepper.big button{min-height:48px;font-size:13px;border-radius:12px}
 .seg.big{display:flex;width:100%}
 .seg.big button{flex:1;min-height:50px;font-size:14.5px;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -1519,6 +1528,7 @@ function vMovimenti(){
 }
 function vImpostazioni(){
   return header("Impostazioni","Tecnici, tariffa e numerazione delle schede")+
+  (SUL_SITO?`<div class="banner" style="max-width:640px">${ic("truck")} <b>Marketplace e corriere</b>: chiavi di eBay, Amazon, Leroy Merlin e degli altri marketplace, corriere per le etichette, formato di stampa. <button class="btn sm" data-act="spImp">${ic("cog")}Apri</button></div>`:"")+
   `<div class="fs" style="max-width:640px"><span class="lg">Banco assistenza</span>
    <div class="f">
     <label class="fl">Tecnici (uno per riga)<textarea id="cTec" rows="5">${esc((S.cfg.tecnici||[]).join("\n"))}</textarea></label>
@@ -2061,7 +2071,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impStoArt:()=>openImportStoricoArt(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impStoArt:()=>openImportStoricoArt(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,evadi:()=>openEvadi(),spImp:()=>openSpedImpost(),distinta:()=>stampaDistinta(),spTrk:()=>openTracking(),spAgg:()=>spImporta(true),newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -3383,8 +3393,13 @@ function vOrdini(){
   const all=S.ordiniWeb, cnt=s=>all.filter(o=>o.stato===s).length;
   const l=ordFilt();
   const dacf=all.filter(o=>o.stato==="Da confermare"), dinc=all.filter(o=>!o.pagato&&o.stato!=="Annullato"), dsc=dinc.filter(scaduto);
-  return header("Ordini online","Sito, TikTok Shop, WhatsApp, telefono e negozio in un'unica lista",
-    `<button class="btn" data-act="impOrd">${ic("up")}Importa ordini</button><button class="btn pri edit-only" data-act="newOrd">${ic("plus")}Nuovo ordine</button>`)+
+  if(SUL_SITO&&!SP.cfg&&!SP._carico){ SP._carico=1; spCarica().then(()=>{ if(S.view==="ordini") render(); }); }
+  if(SUL_SITO) setTimeout(()=>spImporta(),300);
+  const dsp=daSpedire(), dcf=spDaConfermare(), prn=spPronti();
+  return header("Ordini online","Sito, TikTok Shop, eBay, Amazon, Leroy Merlin, WhatsApp, telefono e negozio in un'unica lista",
+    `<button class="btn pri big edit-only" data-act="evadi">${ic("truck")}Evadi e stampa${dsp.length?` <b class="fbg" style="position:static;margin-left:4px;font-size:13px;padding:1px 8px;min-width:0">${dsp.length}</b>`:""}</button>${prn.length?`<button class="btn" data-act="distinta">${ic("clipboard")}Distinta corriere (${prn.length})</button>`:""}<button class="btn" data-act="spAgg" title="Leggi i nuovi ordini da eBay, Amazon e dagli altri marketplace">${ic("swap")}Aggiorna marketplace</button><button class="btn" data-act="impOrd">${ic("up")}Importa ordini</button><button class="btn edit-only" data-act="newOrd">${ic("plus")}Nuovo ordine</button><button class="btn" data-act="spImp" title="Marketplace e corriere">${ic("cog")}</button>`)+
+  (dsp.length?`<div class="banner">${ic("truck")} <b>${dsp.length} ${dsp.length===1?"ordine da spedire":"ordini da spedire"}</b> (${[...new Set(dsp.map(o=>CANALI[o.canale]||o.canale||"Sito"))].join(", ")}): premi <b>“Evadi e stampa”</b> e li evado tutti sui loro marketplace con un'unica stampa di etichette.</div>`:"")+
+  (dcf.length?`<div class="banner">${ic("barcode")} <b>${dcf.length} ${dcf.length===1?"etichetta":"etichette"} senza tracking</b>: <button class="btn sm" data-act="spTrk">Scrivi i tracking</button></div>`:"")+
   (dacf.length?`<div class="banner">${ic("clock")} <b>${dacf.length} ${dacf.length===1?"ordine da confermare":"ordini da confermare"}</b>: sul sito i prodotti sono “su conferma”, il cliente va avvisato entro 1 giorno lavorativo (disponibile → conferma, non disponibile → rimborso).</div>`:"")+
   `${dsc.length?`<div class="banner err">${ic("clock")} <b>${dsc.length} ${dsc.length===1?"pagamento scaduto":"pagamenti scaduti"}</b> per ${eur(dsc.reduce((a,o)=>a+ordTot(o).tot,0))}: tocca “Da incassare”.</div>`:""}<div class="bigchips">${[["aperti","Da evadere",all.filter(o=>ORD_APERTI.includes(o.stato)).length],["dainc","Da incassare",dinc.length],...ORD_STATI.map(s=>[s,s,cnt(s)]),["Annullato","Annullati",cnt("Annullato")],["tutti","Tutti",all.length]].map(([k,t,n])=>`<button class="bchip ${S.oFilt===k?"on":""}" data-of="${esc(k)}"><b>${n}</b><span>${t}</span></button>`).join("")}</div>
   <div class="toolbar"><input type="search" id="oq" placeholder="Cerca cliente, numero ordine, codice prodotto, tracciamento…" value="${esc(S.oq)}">
@@ -3397,6 +3412,7 @@ function oCard(o){
    <div class="oc1">${canBadge(o.canale)}<b class="mono">${esc(o.num)}</b><span class="sub">${fmtDT(o.at)}</span><span class="sp"></span><span class="badge ${ordCls(o.stato)}">${esc(o.stato)}</span></div>
    <div class="oc2"><div><b>${esc(o.cliente||"Cliente")}</b><div class="sub">${esc(ordArt(o))}</div></div><div class="ot">${eur(t.tot)}<div class="sub">${o.consegna==="ritiro"?"ritiro in negozio":"spedizione"}${o.pagato?" · pagato":" · <b class='low'>da pagare</b>"}${!o.pagato&&o.scadenza?`<div class="sub ${scaduto(o)?"low":""}">${scaduto(o)?"<b>scaduto</b> il":"entro il"} ${fmtG(o.scadenza)}</div>`:""}</div></div></div>
    ${late?`<div class="oc3 low">${ic("alert")} In attesa da oltre 24 ore</div>`:""}
+   ${o.evaso?.at&&o.stato!=="Annullato"?`<div class="oc3"><span class="tg-et ${o.evaso.daConfermare?"w":""}">${ic("check")}${o.evaso.daConfermare?"Etichetta stampata · tracking da scrivere":"Etichetta stampata"+(o.tracking?" · "+esc(o.corriere||"")+" "+esc(o.tracking):"")}</span></div>`:""}
   </div>`;
 }
 function vResi(){
@@ -3554,8 +3570,12 @@ function openOrdine(o){
      +((g.stato==="Spedito"||(g.consegna==="spedizione"&&g.tracking))?waBtn(g.tel,ordMsg(g,"spedito"),"Invia tracciamento"):"")
      +(trackUrl(g)?`<a class="btn" href="${esc(trackUrl(g))}" target="_blank" rel="noopener">${ic("truck")}Traccia</a>`:"")
      +(e?`<a class="btn" href="${esc(e)}" target="_blank" rel="noopener">${ic("ext")}${g.canale==="tiktok"?"Apri su TikTok":"Apri su Stripe"}</a>`:"")
+     +(id&&SUL_SITO&&spSpedibile(g)&&g.stato!=="Annullato"?(g.evaso?.at?`<button class="btn" id="oEtR">${ic("truck")}Ristampa etichetta</button>${g.evaso.daConfermare?`<button class="btn pri edit-only" id="oEtT">${ic("barcode")}Scrivi tracking</button>`:""}`:g.stato==="Confermato"?`<button class="btn pri edit-only" id="oEtE">${ic("truck")}Evadi e stampa etichetta</button>`:""):"")
      +(id&&g.stato!=="Annullato"?`<button class="btn edit-only" id="oFatt">🧾 ${g.fattura?.numero?"Fattura n. "+esc(g.fattura.numero):"Fattura"}</button>`:"")+(g.preventivoId?`<button class="btn" id="oPrev">${ic("clipboard")}${esc(g.preventivoNum||"Preventivo")}</button>`:"")+(g.tel?`<a class="btn" href="tel:${esc(g.tel)}">${ic("phone")}${esc(g.tel)}</a>`:"");
     const fb=$("#oFatt"); if(fb) fb.onclick=async()=>{ const s=await salva(); if(s) openFatturaOrdine(s); };
+    const eE=$("#oEtE"); if(eE) eE.onclick=async()=>{ const s=await salva(); if(s){ closeModal(); openEvadi([S.ordiniWeb.find(x=>x.id===id)||{...s,id}]); } };
+    const eR=$("#oEtR"); if(eR) eR.onclick=()=>ristampaEtichetta({...g,id});
+    const eT=$("#oEtT"); if(eT) eT.onclick=()=>{ closeModal(); openTracking([id]); };
     const pb=$("#oPrev"); if(pb) pb.onclick=()=>{ const pv=(S.preventivi||[]).find(x=>x.id===g.preventivoId); if(pv) openPreventivo(pv); else toast("Preventivo non trovato"); };
     const sn=$("#oScN"); if(sn) sn.onclick=()=>{ closeModal(); wizScaffale({ordine:{...gather(),id}}); };
     const sv=$("#oScV"); if(sv) sv.onclick=()=>{ const c=sulloScaffale().find(x=>x.ordineId===id); closeModal(); wizScaffale(c.id); };
@@ -5679,6 +5699,287 @@ function initShell(){
   gq.onblur=()=>setTimeout(()=>gl.style.display="none",150);
   document.addEventListener("keydown",e=>{ if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!$("#ov").classList.contains("show")){ e.preventDefault(); gq.focus(); } });
 }
+
+/* =====================================================================
+   26/11: PANNELLO UNICO SPEDIZIONI — Ordini online → «Evadi e stampa»
+   Un solo tasto per tutti i canali: per ogni ordine il server fa quello che si farebbe entrando nel marketplace
+   (TikTok: organizza il ritiro BRT e scarica l'etichetta; eBay / Amazon / Leroy Merlin…: etichetta col nostro corriere
+   e tracciamento inviato; sito e WhatsApp: etichetta col nostro corriere). Le etichette escono in un unico PDF
+   da stampare (etichettatrice 10×15 o foglio A4 da 4), poi la distinta per il corriere.
+   ===================================================================== */
+const SP={cfg:null,at:0,imp:0};
+const SP_PDFLIB="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js";
+const SP_NOSTRI=["sito","whatsapp","telefono","banco"];
+const SP_MITT_DEF="SEMI STORE - SE.M.I. S.R.L.\nViale G. Marconi 225\n80020 Casavatore (NA)\nTel. 081 553 6604";
+async function spApi(corpo,q=""){
+  const r=await fetch("/api/spedizioni"+q,{method:corpo?"POST":"GET",credentials:"same-origin",headers:corpo?{"content-type":"application/json"}:{},body:corpo?JSON.stringify(corpo):undefined});
+  const j=await r.json().catch(()=>({error:"risposta non valida dal server (HTTP "+r.status+")"}));
+  if(!r.ok||j.error){ const e=new Error(j.error||("errore "+r.status)); e.status=r.status; throw e; }
+  return j;
+}
+function spCanaliInApp(){ for(const c of SP.cfg?.canali||[]){ if(!CANALI[c.id]) CANALI[c.id]=c.nome; if(!CAN_IC[c.id]) CAN_IC[c.id]="store"; } }
+async function spCarica(forza){
+  if(!SUL_SITO) return null;
+  if(SP.cfg&&!forza&&Date.now()-SP.at<5*6e4) return SP.cfg;
+  try{ SP.cfg=await spApi(); SP.at=Date.now(); spCanaliInApp(); }catch(e){ if(!SP.cfg) SP.cfg={canali:[],impostazioni:{formato:"A6",pesoKg:2},corriere:{tipo:"indirizzo"},errore:e.message}; }
+  return SP.cfg;
+}
+const spCanale=id=>(SP.cfg?.canali||[]).find(c=>c.id===(id||"sito"))||{id,nome:CANALI[id]||id,stato:{ok:true}};
+// ordini da spedire: in spedizione (i marketplace spediscono sempre), confermati, non ancora evasi
+const spMarket=o=>!SP_NOSTRI.includes(o.canale||"sito");
+const spSpedibile=o=>(o.consegna==="spedizione"||spMarket(o))&&o.canale!=="banco";
+const daSpedire=()=>S.ordiniWeb.filter(o=>spSpedibile(o)&&o.stato==="Confermato"&&!o.evaso?.at).sort((a,b)=>(a.spedireEntro||a.at||0)-(b.spedireEntro||b.at||0));
+const spDaConfermare=()=>S.ordiniWeb.filter(o=>o.evaso?.daConfermare&&!["Annullato","Consegnato"].includes(o.stato));
+const spPronti=()=>S.ordiniWeb.filter(o=>o.stato==="Pronto"&&o.evaso?.at&&spSpedibile(o));
+// cosa manca per evadere un ordine (avviso nella lista, prima di premere)
+function spProblema(o){
+  const c=spCanale(o.canale);
+  if(!c.stato?.ok&&c.id!=="tiktok"&&!SP_NOSTRI.includes(c.id)) return c.nome+": "+(c.stato?.testo||"non collegato");
+  if(o.canale==="tiktok") return SP.cfg&&!c.stato?.ok?"TikTok non configurato":"";
+  if(SP.cfg?.corriere?.tipo==="sendcloud"){ const m=[!o.cliente&&"nome",!o.ind&&"indirizzo",!o.cap&&"CAP",!o.citta&&"città"].filter(Boolean); if(m.length) return "Manca "+m.join(", ")+": apri l'ordine e completalo"; }
+  if((o.mp?.statoMirakl)==="WAITING_ACCEPTANCE") return "Da accettare prima su "+c.nome;
+  return "";
+}
+const spEntro=o=>{ const t=o.spedireEntro||(o.mp?.entro?Date.parse(o.mp.entro):0); if(!t) return ""; const late=t<Date.now()+864e5; return `<span class="${late?"low":"sub"}">${late?"<b>":""}spedire entro ${fmtDay(t)}${late?"</b>":""}</span>`; };
+
+/* ---------- PDF: unione, 4 per foglio, etichetta indirizzo ---------- */
+function spPdfLib(){ if(window.PDFLib) return Promise.resolve(window.PDFLib); if(spPdfLib._p) return spPdfLib._p;
+  return spPdfLib._p=new Promise((ok,ko)=>{ const s=document.createElement("script"); s.src=SP_PDFLIB; s.onload=()=>ok(window.PDFLib); s.onerror=()=>{ spPdfLib._p=null; ko(new Error("Non riesco a caricare il programma dei PDF: controlla la connessione")); }; document.head.appendChild(s); }); }
+const b64u8=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+const spTxt=s=>String(s||"").normalize("NFC").replace(/[“”«»]/g,'"').replace(/[‘’]/g,"'").replace(/[–—]/g,"-").replace(/×/g,"x").replace(/€/g,"EUR").replace(/[^\x20-\x7E\xA0-\xFF\n]/g,"");
+async function spEtichettaIndirizzo(PL,o){
+  const doc=await PL.PDFDocument.create(), W=297.64, H=419.53, pg=doc.addPage([W,H]);
+  const F=await doc.embedFont(PL.StandardFonts.Helvetica), B=await doc.embedFont(PL.StandardFonts.HelveticaBold), K=PL.rgb(0,0,0);
+  const t=(s,x,y,sz,f=F)=>pg.drawText(spTxt(s),{x,y,size:sz,font:f,color:K});
+  const cut=(s,sz,f,max)=>{ s=spTxt(s); while(s&&f.widthOfTextAtSize(s,sz)>max) s=s.slice(0,-1); return s; };
+  const wrap=(s,sz,f,max)=>{ const out=[]; for(const par of spTxt(s).split("\n")){ let r=""; for(const w of par.split(/\s+/)){ const p=r?r+" "+w:w; if(f.widthOfTextAtSize(p,sz)>max&&r){ out.push(r); r=w; } else r=p; } out.push(r); } return out; };
+  pg.drawRectangle({x:10,y:10,width:W-20,height:H-20,borderColor:K,borderWidth:1.2});
+  let y=H-28; t("MITTENTE",18,y,7,B); y-=11;
+  for(const l of wrap(SP.cfg?.mittente||SP_MITT_DEF,8,F,W-40).slice(0,5)){ t(l,18,y,8); y-=10; }
+  y-=4; pg.drawLine({start:{x:10,y},end:{x:W-10,y},thickness:1.2,color:K}); y-=18;
+  t("DESTINATARIO",18,y,8,B); y-=24;
+  for(const l of wrap(o.cliente||"",18,B,W-40).slice(0,2)){ t(l,18,y,18,B); y-=21; }
+  if(o.azienda){ t(cut(o.azienda,11,F,W-40),18,y,11); y-=15; }
+  for(const l of wrap(o.ind||"",13,F,W-40).slice(0,2)){ t(l,18,y,13); y-=16; }
+  t(cut([o.cap,o.citta].filter(Boolean).join(" ")+(o.prov?" ("+String(o.prov).toUpperCase()+")":""),17,B,W-40),18,y,17,B); y-=20;
+  if((o.paese||"IT")!=="IT"){ t(o.paese,18,y,13,B); y-=16; }
+  if(o.tel){ t("Tel. "+o.tel,18,y,11); y-=14; }
+  y-=6; pg.drawLine({start:{x:10,y},end:{x:W-10,y},thickness:1.2,color:K}); y-=16;
+  t((CANALI[o.canale]||o.canale||"Sito")+"  ·  ordine "+(o.num||""),18,y,10,B); y-=12;
+  if(o.rif&&spMarket(o)) { t(cut("rif. "+o.rif,8,F,W-40),18,y,8); y-=11; }
+  // codice a barre del numero ordine (Code 128, come i bollini)
+  const v=[104]; for(const ch of String(o.num||"")){ const k=ch.charCodeAt(0)-32; v.push(k>=0&&k<95?k:0); } v.push(v.reduce((a,x,i)=>a+(i?x*i:x),0)%103); v.push(106);
+  const mod=v.reduce((a,k)=>a+[...C128[k]].reduce((s,d)=>s+ +d,0),0), u=Math.min(1.5,(W-24)/(mod+24)); let x=(W-mod*u)/2; const bh=36; y-=bh; // margine bianco ≥ 10 moduli per i lettori
+  for(const k of v){ const p=C128[k]; for(let i=0;i<p.length;i++){ const w=+p[i]*u; if(i%2===0) pg.drawRectangle({x,y,width:w,height:bh,color:K}); x+=w; } }
+  y-=14; const art=(o.righe||[]).filter(r=>r.codice||r.descr);
+  for(const r of art.slice(0,4)){ t(cut(`${r.qty||1} x ${r.codice||""} ${r.descr||""}`,7.5,F,W-40),18,y,7.5); y-=9.5; }
+  if(art.length>4) t(`… e altri ${art.length-4} articoli`,18,y,7.5);
+  t(new Date().toLocaleDateString("it-IT"),18,20,8); t(`COLLI: ${Number(o.evaso?.colli)||1}`,W-82,20,10,B);
+  return new Uint8Array(await doc.save());
+}
+// tutte le etichette in un unico PDF: A6 = una per pagina 10×15; A4 = quattro per foglio
+async function spUnisci(PL,pdfs,formato){
+  const out=await PL.PDFDocument.create(), A6=[297.64,419.53];
+  const pagine=[];
+  for(const u8 of pdfs){ const src=await PL.PDFDocument.load(u8,{ignoreEncryption:true}); const emb=await out.embedPages(src.getPages()); pagine.push(...emb); }
+  const fit=(pg,e,x,y,w,h)=>{ const s=Math.min(w/e.width,h/e.height); const dw=e.width*s, dh=e.height*s; pg.drawPage(e,{x:x+(w-dw)/2,y:y+(h-dh)/2,width:dw,height:dh}); };
+  if(formato==="A4"){ const W=595.28,H=841.89, q=[[0,H/2],[W/2,H/2],[0,0],[W/2,0]];
+    for(let i=0;i<pagine.length;i+=4){ const pg=out.addPage([W,H]); pagine.slice(i,i+4).forEach((e,k)=>{ const land=e.width>e.height; fit(pg,e,q[k][0]+8,q[k][1]+8,W/2-16,H/2-16); }); } }
+  else for(const e of pagine){ const land=e.width>e.height*1.1; const pg=out.addPage(land?[A6[1],A6[0]]:A6); fit(pg,e,0,0,pg.getWidth(),pg.getHeight()); }
+  return new Uint8Array(await out.save());
+}
+function spMostraPdf(w,u8,nome){
+  const url=URL.createObjectURL(new Blob([u8],{type:"application/pdf"}));
+  if(w&&!w.closed){ try{ w.location.href=url; }catch(e){ w=null; } }
+  if(!w||w.closed){ const a=document.createElement("a"); a.href=url; a.download=nome||"etichette.pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+  setTimeout(()=>URL.revokeObjectURL(url),10*6e4); return url;
+}
+
+/* ---------- Evadi e stampa ---------- */
+async function openEvadi(soli){
+  await spCarica();
+  const cfg=SP.cfg||{}; const imp=cfg.impostazioni||{};
+  const lista=soli||daSpedire();
+  const sel=new Set(lista.filter(o=>!spProblema(o)).map(o=>o.id));
+  const peso={}, colli={};
+  const gruppi=[...new Set(lista.map(o=>o.canale||"sito"))];
+  const sc=cfg.corriere?.tipo==="sendcloud";
+  openModal(`<div class="mh"><h2>${ic("truck")} Evadi e stampa etichette</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb">
+   ${cfg.errore?`<div class="banner err">${ic("alert")} Servizio spedizioni non raggiungibile: ${esc(cfg.errore)}</div>`:""}
+   <div class="banner">${ic("bolt")} Per ogni ordine faccio quello che faresti entrando nel suo marketplace: <b>TikTok</b> organizza il ritiro BRT e dà l'etichetta; <b>eBay, Amazon e gli altri</b> ricevono il tracciamento e l'ordine risulta spedito. Corriere per gli ordini spediti da noi: <b>${esc(cfg.corriere?.nome||"etichetta indirizzo")}</b>.</div>
+   ${lista.length?gruppi.map(g=>{ const l=lista.filter(o=>(o.canale||"sito")===g), c=spCanale(g);
+     return `<div class="fs"><span class="lg">${canBadge(g)} ${l.length} ${l.length===1?"ordine":"ordini"} <span class="sub" style="font-weight:600">· ${esc(c.etichettaDalMarketplace?"etichetta di "+c.nome:"etichetta nostra"+(spMarket({canale:g})?" + tracciamento a "+c.nome:""))}</span></span>
+      ${l.map(o=>{ const pb=spProblema(o); return `<label class="evr ${pb?"pb":""}" data-evr="${esc(o.id)}"><input type="checkbox" data-evk="${esc(o.id)}" ${sel.has(o.id)?"checked":""} ${pb?"":""}>
+       <span class="evm"><b class="mono">${esc(o.num)}</b> <b>${esc(o.cliente||"")}</b> ${o.citta?`<span class="sub">· ${esc(o.citta)}${o.prov?" ("+esc(o.prov)+")":""}</span>`:""}
+       <span class="sub evd">${esc(ordArt(o))}</span>${spEntro(o)}${pb?`<span class="low" style="display:block">${ic("alert")} ${esc(pb)}</span>`:""}</span>
+       ${sc&&o.canale!=="tiktok"?`<span class="evp"><input type="number" min="0.1" step="0.1" data-evp="${esc(o.id)}" placeholder="kg" title="Peso del pacco (vuoto = calcolato dagli articoli)"><input type="number" min="1" max="10" step="1" data-evc="${esc(o.id)}" placeholder="colli" title="Numero di colli"></span>`:""}
+       <span class="evs" data-evs="${esc(o.id)}"></span></label>`; }).join("")}</div>`; }).join("")
+   :`<div class="panel"><div class="empty">Nessun ordine da spedire 🎉<br><span class="sub">Qui arrivano gli ordini confermati con spedizione di tutti i canali.</span></div></div>`}
+   <div class="fs"><span class="lg">Stampa</span><div class="f">
+    <label class="fl">Formato<select id="evF"><option value="A6" ${imp.formato!=="A4"?"selected":""}>Etichettatrice 10×15 cm (A6)</option><option value="A4" ${imp.formato==="A4"?"selected":""}>Foglio A4, 4 etichette per foglio</option></select></label>
+    ${lista.some(o=>o.canale==="tiktok")?`<label class="fl">TikTok (BRT)<select id="evT"><option value="PICKUP" ${imp.consegnaTikTok!=="DROP_OFF"?"selected":""}>Ritiro del corriere in negozio</option><option value="DROP_OFF" ${imp.consegnaTikTok==="DROP_OFF"?"selected":""}>Lo porto io al punto BRT</option></select></label>`:""}
+   </div></div>
+   <div id="evEsito"></div>
+  </div>
+  <div class="mf"><button class="btn" id="evImp">${ic("cog")}Marketplace e corriere</button><span class="sp" style="flex:1"></span><button class="btn" data-close>Chiudi</button><button class="btn pri big edit-only" id="evGo" ${lista.length?"":"disabled"}>${ic("truck")}<span id="evN"></span></button></div>`);
+  const md=$("#modal");
+  const conta=()=>{ const n=sel.size; $("#evN").textContent=n?`Evadi e stampa ${n} ${n===1?"etichetta":"etichette"}`:"Seleziona gli ordini"; $("#evGo").disabled=!n; };
+  md.querySelectorAll("[data-evk]").forEach(c=>c.onchange=()=>{ c.checked?sel.add(c.dataset.evk):sel.delete(c.dataset.evk); conta(); });
+  md.querySelectorAll("[data-evp]").forEach(i=>i.onchange=()=>peso[i.dataset.evp]=Number(i.value)||undefined);
+  md.querySelectorAll("[data-evc]").forEach(i=>i.onchange=()=>colli[i.dataset.evc]=parseInt(i.value)||undefined);
+  $("#evImp").onclick=()=>openSpedImpost();
+  conta();
+  $("#evGo").onclick=async()=>{
+    const ids=lista.filter(o=>sel.has(o.id)).map(o=>o.id); if(!ids.length) return;
+    const w=window.open("","_blank"); if(w) w.document.write(`<p style="font:18px Arial;padding:30px">Preparo le etichette… lascia aperta questa pagina.</p>`);
+    const formato=$("#evF").value, consegna=$("#evT")?.value;
+    $("#evGo").disabled=true; md.querySelectorAll("[data-evk]").forEach(c=>c.disabled=true);
+    const fatti=[], ok=[], ko=[], conf=[], apri=[];
+    spPdfLib().catch(()=>{}); // lo carico intanto
+    for(const id of ids){
+      const st=md.querySelector(`[data-evs="${CSS.escape(id)}"]`); if(st) st.innerHTML=`<span class="spin"></span>`;
+      const o=S.ordiniWeb.find(x=>x.id===id);
+      try{
+        const r=await spApi({azione:"evadi",id,opz:{formato:formato==="A4"?"A6":formato,consegna,pesoKg:peso[id],colli:colli[id]}});
+        fatti.push({pdfs:(r.pdfs||[]).map(b64u8),indirizzo:r.indirizzo?{...o,...r.ordine,evaso:{...(o?.evaso||{}),colli:colli[id]||1}}:null});
+        if(r.daConfermare) conf.push(id); if(r.apri) apri.push([o,r]);
+        ok.push(id); if(st) st.innerHTML=`<span class="ok">${ic("check")} ${esc(r.ordine?.tracking||r.nota||"fatto")}${r.ristampa?" · ristampa":""}</span>`;
+      }catch(e){ ko.push([id,e.message]); if(st) st.innerHTML=`<span class="low">${ic("x")} ${esc(e.message)}</span>`; }
+    }
+    let url="", errPdf="";
+    const creaPdf=async(win)=>{ const PL=await spPdfLib(); const pdfs=[]; for(const f of fatti){ pdfs.push(...f.pdfs); if(f.indirizzo) pdfs.push(await spEtichettaIndirizzo(PL,f.indirizzo)); }
+      if(!pdfs.length){ if(win) win.close(); return ""; } return spMostraPdf(win,await spUnisci(PL,pdfs,formato),`etichette-${new Date().toISOString().slice(0,10)}.pdf`); };
+    try{ url=await creaPdf(w); }catch(e){ errPdf=e.message; if(w) w.close(); }
+    $("#evEsito").innerHTML=`<div class="panel" style="margin-top:12px"><h3>${ok.length?ic("check"):ic("alert")} ${ok.length} ${ok.length===1?"ordine evaso":"ordini evasi"}${ko.length?` · <span class="low">${ko.length} non riusciti</span>`:""}</h3>
+      ${errPdf?`<div class="banner err">${ic("alert")} Ordini evasi, ma il PDF delle etichette non si è creato: ${esc(errPdf)}. Premi <b>“Crea di nuovo il PDF”</b> (le etichette sono salvate, niente viene ricomprato).</div>`:""}
+      ${ko.length?`<p class="sub" style="margin:4px 0 8px">Quelli non riusciti restano da spedire: correggi e riprova (niente è stato comprato due volte).</p>`:""}
+      ${conf.length?`<p style="margin:6px 0"><b>${conf.length}</b> con etichetta indirizzo: quando hai il numero di spedizione scrivilo da <b>“Scrivi i tracking”</b> e lo mando io al marketplace.</p>`:""}
+      ${apri.map(([o,r])=>`<p style="margin:6px 0">${canBadge(o.canale)} ${esc(o.num)}: ${esc(r.nota)} <a class="btn sm" href="${esc(r.apri)}" target="_blank" rel="noopener">${ic("ext")}Apri ${esc(CANALI[o.canale]||"")}</a>${r.ordine?.tracking?` <button class="btn sm" data-cp="${esc(r.ordine.tracking)}">${ic("clipboard")}Copia tracking</button>`:""}</p>`).join("")}
+      <div class="qa" style="margin-top:10px">${url?`<a class="btn pri" href="${url}" target="_blank" rel="noopener">${ic("down")}Apri / stampa di nuovo il PDF</a>`:""}${errPdf?`<button class="btn pri" id="evPdf">${ic("down")}Crea di nuovo il PDF</button>`:""}<button class="btn" id="evDist">${ic("clipboard")}Distinta per il corriere</button>${conf.length?`<button class="btn" id="evConf">${ic("barcode")}Scrivi i tracking</button>`:""}${ko.length?`<button class="btn" id="evRip">${ic("swap")}Riprova i non riusciti</button>`:""}</div></div>`;
+    md.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>copyText(b.dataset.cp,"Tracking copiato"));
+    $("#evDist").onclick=()=>stampaDistinta();
+    const pb=$("#evPdf"); if(pb) pb.onclick=async()=>{ const w2=window.open("","_blank"); try{ await creaPdf(w2); pb.remove(); }catch(e){ if(w2) w2.close(); toast(e.message); } };
+    const cb=$("#evConf"); if(cb) cb.onclick=()=>openTracking(conf);
+    const rb=$("#evRip"); if(rb) rb.onclick=()=>openEvadi(ko.map(([id])=>S.ordiniWeb.find(o=>o.id===id)).filter(Boolean));
+    $("#evEsito").scrollIntoView({behavior:"smooth",block:"start"});
+    if(ok.length) toast(`${ok.length} ${ok.length===1?"ordine evaso":"ordini evasi"}`);
+  };
+}
+
+// ristampa di un ordine già evaso (dal dettaglio ordine)
+async function ristampaEtichetta(o){
+  const w=window.open("","_blank"); if(w) w.document.write(`<p style="font:18px Arial;padding:30px">Recupero l'etichetta…</p>`);
+  try{ await spCarica(); const [PL,r]=await Promise.all([spPdfLib(),spApi(null,"?etichetta="+encodeURIComponent(o.id))]);
+    const pdfs=(r.pdfs||[]).map(b64u8); if(r.indirizzo||!pdfs.length&&o.evaso?.indirizzo) pdfs.push(await spEtichettaIndirizzo(PL,o));
+    if(!pdfs.length){ if(w) w.close(); toast("Etichetta non trovata in archivio"); return; }
+    spMostraPdf(w,await spUnisci(PL,pdfs,(SP.cfg?.impostazioni?.formato)||"A6"),`etichetta-${o.num}.pdf`);
+  }catch(e){ if(w) w.close(); toast(e.message); }
+}
+
+/* ---------- tracking scritti a mano (etichetta indirizzo) ---------- */
+function openTracking(ids){
+  const l=(ids||spDaConfermare().map(o=>o.id)).map(id=>S.ordiniWeb.find(o=>o.id===id)).filter(Boolean);
+  openModal(`<div class="mh"><h2>${ic("barcode")} Scrivi i numeri di spedizione</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><p class="sub" style="margin-top:0">Per i marketplace lo mando io (eBay, Amazon, Leroy Merlin…): l'ordine risulta spedito. Per sito e WhatsApp resta nell'ordine e lo puoi inviare al cliente.</p>
+  ${l.length?l.map(o=>`<div class="evr" style="cursor:default"><span class="evm">${canBadge(o.canale)} <b class="mono">${esc(o.num)}</b> <b>${esc(o.cliente||"")}</b><span class="sub evd">${esc(ordArt(o))}</span></span>
+   <span class="evp" style="flex-wrap:wrap"><select data-tc="${esc(o.id)}">${Object.keys(CORRIERI).map(c=>`<option ${o.corriere===c?"selected":""}>${c}</option>`).join("")}<option>InPost</option><option>Altro</option></select><input class="mono" data-tt="${esc(o.id)}" placeholder="n° spedizione" value="${esc(o.tracking||"")}" style="width:170px"></span><span class="evs" data-ts="${esc(o.id)}"></span></div>`).join("")
+  :`<div class="empty">Nessun tracking da scrivere</div>`}</div>
+  <div class="mf"><span class="sp" style="flex:1"></span><button class="btn" data-close>Chiudi</button><button class="btn pri edit-only" id="tkOk" ${l.length?"":"disabled"}>${ic("send")}Salva e invia</button></div>`);
+  const md=$("#modal");
+  $("#tkOk").onclick=async()=>{ $("#tkOk").disabled=true; let n=0;
+    for(const o of l){ const t=md.querySelector(`[data-tt="${CSS.escape(o.id)}"]`).value.trim(), c=md.querySelector(`[data-tc="${CSS.escape(o.id)}"]`).value, st=md.querySelector(`[data-ts="${CSS.escape(o.id)}"]`);
+      if(!t) continue; st.innerHTML=`<span class="spin"></span>`;
+      try{ const r=await spApi({azione:"conferma",id:o.id,tracking:t,corriere:c}); n++;
+        st.innerHTML=r.apri?`<span class="ok">${ic("check")} salvato</span> <button class="btn sm" data-cpt="${esc(t)}">${ic("clipboard")}Copia</button> <a class="btn sm" href="${esc(r.apri)}" target="_blank" rel="noopener">${ic("ext")}Apri ${esc(CANALI[o.canale]||"")}</a>`:`<span class="ok">${ic("check")} ${esc(spMarket(o)?"inviato a "+(CANALI[o.canale]||""):"salvato")}</span>`;
+        st.querySelectorAll("[data-cpt]").forEach(x=>x.onclick=()=>copyText(x.dataset.cpt,"Tracking copiato: incollalo su "+(CANALI[o.canale]||"marketplace"))); }
+      catch(e){ st.innerHTML=`<span class="low">${ic("x")} ${esc(e.message)}</span>`; } }
+    $("#tkOk").disabled=false; if(n) toast(n+" tracking salvati"); };
+}
+
+/* ---------- distinta di ritiro per il corriere ---------- */
+function stampaDistinta(){
+  const l=spPronti().sort((a,b)=>String(a.corriere||"").localeCompare(String(b.corriere||""))||(a.evaso?.at||0)-(b.evaso?.at||0));
+  if(!l.length){ toast("Nessun pacco pronto per il corriere"); return; }
+  const w=window.open("","_blank"); if(!w){ toast("Il telefono ha bloccato la finestra: consenti i popup per semistore.it"); return; }
+  const per=[...new Set(l.map(o=>o.corriere||"Da assegnare"))];
+  w.document.open(); w.document.write(`<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Distinta ritiro ${fmtD(Date.now())}</title><style>
+  @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font:10pt Arial,Helvetica,sans-serif;color:#000;margin:0;padding:70px 14px 14px}
+  h1{font-size:16pt;margin:0 0 2mm}h2{font-size:12pt;margin:6mm 0 2mm;border-bottom:2pt solid #000;padding-bottom:1mm}
+  table{width:100%;border-collapse:collapse}th,td{border:.6pt solid #000;padding:1.5mm 2mm;text-align:left;vertical-align:top}th{background:#eee;font-size:8.5pt}
+  .m{font-family:monospace;font-size:10pt}.f{display:flex;gap:20mm;margin-top:10mm}.f div{flex:1;border-top:.8pt solid #000;padding-top:1mm;font-size:8.5pt}
+  .bar{position:fixed;top:0;left:0;right:0;display:flex;gap:8px;justify-content:center;padding:10px;background:#15171a}
+  .bar button{font-size:18px;font-weight:800;padding:12px 22px;border-radius:12px;border:0;background:#f5b800;cursor:pointer}
+  @media print{.bar{display:none}body{padding:0}}</style></head><body><div class="bar"><button onclick="print()">Stampa</button></div>
+  <h1>SEMI STORE · SE.M.I. S.R.L. — Distinta di ritiro</h1><div>${esc(SHOP.ind)} · ${new Date().toLocaleString("it-IT")} · ${l.length} spedizioni</div>
+  ${per.map(c=>{ const g=l.filter(o=>(o.corriere||"Da assegnare")===c), colli=g.reduce((a,o)=>a+(Number(o.evaso?.colli)||1),0), kg=g.reduce((a,o)=>a+(Number(o.evaso?.pesoKg)||0),0);
+   return `<h2>${esc(c)} — ${g.length} spedizioni, ${colli} colli${kg?", "+kg.toFixed(1).replace(".",",")+" kg":""}</h2><table><thead><tr><th>#</th><th>Ordine</th><th>Canale</th><th>Tracking</th><th>Destinatario</th><th>Colli</th><th>Peso</th></tr></thead><tbody>
+   ${g.map((o,i)=>`<tr><td>${i+1}</td><td class="m">${esc(o.num)}</td><td>${esc(CANALI[o.canale]||o.canale||"Sito")}</td><td class="m">${esc(o.tracking||"—")}</td><td>${esc(o.cliente||"")}${o.citta?"<br>"+esc([o.cap,o.citta].filter(Boolean).join(" ")):""}</td><td>${Number(o.evaso?.colli)||1}</td><td>${o.evaso?.pesoKg?esc(String(o.evaso.pesoKg).replace(".",","))+" kg":""}</td></tr>`).join("")}</tbody></table>
+   <div class="f"><div>Consegnato da (Semi Store)</div><div>Ritirato da (autista ${esc(c)}) — data e ora</div></div>`; }).join("")}
+  </body></html>`); w.document.close();
+  if(S.canWrite) setTimeout(()=>{ if(confirm(`Il corriere ha ritirato i ${l.length} pacchi della distinta?\n\nOK = segno gli ordini come «Spedito».`)) spApi({azione:"spediti",ids:l.map(o=>o.id)}).then(r=>toast((r.spediti||[]).length+" ordini segnati come spediti")).catch(e=>toast(e.message)); },800);
+}
+
+/* ---------- import ordini dei marketplace (all'apertura di Ordini online, ogni 10 minuti) ---------- */
+async function spImporta(forza){
+  if(!SUL_SITO||(!forza&&Date.now()-SP.imp<10*6e4)) return; SP.imp=Date.now();
+  await spCarica(); const da=(SP.cfg?.canali||[]).filter(c=>c.importa&&c.stato?.ok); if(!da.length&&!forza) return;
+  try{ const r=await spApi({azione:"importa"}); const nuovi=Object.values(r.esito||{}).reduce((a,e)=>a+(e.nuovi||0),0), err=Object.entries(r.esito||{}).filter(([,e])=>e.errore);
+    if(nuovi) toast(`${nuovi} ${nuovi===1?"nuovo ordine":"nuovi ordini"} dai marketplace`); else if(forza) toast("Marketplace aggiornati: nessun ordine nuovo");
+    if(err.length&&forza) toast(err.map(([k,e])=>(CANALI[k]||k)+": "+e.errore).join(" · "));
+  }catch(e){ if(forza) toast(e.message); }
+}
+
+/* ---------- impostazioni: marketplace e corriere (solo amministratore) ---------- */
+async function openSpedImpost(){
+  await spCarica(true); const cfg=SP.cfg||{};
+  if(!isAdmin()){ openModal(`<div class="mh"><h2>Marketplace e corriere</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb">${(cfg.canali||[]).map(c=>`<div class="evr" style="cursor:default">${canBadge(c.id)}<span class="evm sub">${esc(c.stato?.testo||"")}</span><span class="badge ${c.stato?.ok?"st-Pronto":"st-Attesa_ricambi"}">${c.stato?.ok?"OK":"Da fare"}</span></div>`).join("")}<p class="sub">Le chiavi le inserisce l'amministratore.</p></div><div class="mf"><button class="btn" data-close>Chiudi</button></div>`); return; }
+  const co=cfg.corriere||{tipo:"indirizzo"}, ct=cfg.conti||{}, imp=cfg.impostazioni||{};
+  let mercati=clean(ct.mercati||[]);
+  const inp=(id,v,ph="",t="text")=>`<input id="${id}" type="${t}" value="${esc(v||"")}" placeholder="${esc(ph)}" autocomplete="off">`;
+  const drawM=()=>{ $("#siM").innerHTML=mercati.map((m,i)=>`<div class="fs" style="margin:8px 0"><div class="f">
+    <label class="fl">Nome<input data-m="${i}" data-k="nome" value="${esc(m.nome||"")}" placeholder="es. Leroy Merlin"></label>
+    <label class="fl">Tipo<select data-m="${i}" data-k="tipo"><option value="mirakl" ${m.tipo==="mirakl"?"selected":""}>Mirakl (ordini e tracking automatici)</option><option value="manuale" ${m.tipo!=="mirakl"?"selected":""}>Senza API (etichetta nostra, tracking da incollare)</option></select></label>
+    ${m.tipo==="mirakl"?`<label class="fl">Indirizzo API<input data-m="${i}" data-k="url" value="${esc(m.url||"")}" placeholder="https://….mirakl.net"></label><label class="fl">Chiave API del negozio<input data-m="${i}" data-k="apiKey" value="${esc(m.apiKey||"")}" autocomplete="off"></label>`:""}
+    <label class="fl">Pagina ordini del venditore<input data-m="${i}" data-k="pannello" value="${esc(m.pannello||"")}" placeholder="https://…"></label>
+    <div style="align-self:end"><button class="btn sm danger" data-mdel="${i}">${ic("x")}Togli</button></div></div></div>`).join("")||`<p class="sub">Nessun marketplace aggiunto.</p>`;
+    $("#siM").querySelectorAll("[data-m]").forEach(x=>x.onchange=()=>{ mercati[x.dataset.m][x.dataset.k]=x.value; if(x.dataset.k==="tipo") drawM(); });
+    $("#siM").querySelectorAll("[data-mdel]").forEach(b=>b.onclick=()=>{ mercati.splice(+b.dataset.mdel,1); drawM(); }); };
+  openModal(`<div class="mh"><h2>${ic("cog")} Marketplace e corriere</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb">
+   <div class="fs"><span class="lg">Stato dei canali</span>${(cfg.canali||[]).map(c=>`<div class="evr" style="cursor:default">${canBadge(c.id)}<span class="evm sub">${esc(c.stato?.testo||"")}</span><span class="badge ${c.stato?.ok?"st-Pronto":"st-Attesa_ricambi"}">${c.stato?.ok?"OK":"Da fare"}</span></div>`).join("")}</div>
+   <div class="fs"><span class="lg">Corriere per gli ordini spediti da noi</span><div class="f">
+    <label class="fl">Come stampo<select id="siCt"><option value="indirizzo" ${co.tipo!=="sendcloud"?"selected":""}>Etichetta indirizzo (tracking scritto a mano)</option><option value="sendcloud" ${co.tipo==="sendcloud"?"selected":""}>Sendcloud (BRT, GLS, Poste, SDA, InPost…)</option></select></label>
+    <div id="siSc" style="display:contents">
+     <label class="fl">Sendcloud chiave pubblica${inp("siPk",co.publicKey)}</label><label class="fl">Sendcloud chiave segreta${inp("siSk",co.secretKey)}</label>
+     <label class="fl">Servizio predefinito<select id="siMet"><option value="${esc(co.metodo||"")}">${esc(co.metodoNome||(co.metodo?"servizio "+co.metodo:"— carica i servizi —"))}</option></select></label>
+     <label class="fl">Indirizzo mittente Sendcloud<select id="siMit"><option value="${esc(co.mittente||"")}">${esc(co.mittenteNome||(co.mittente?"mittente "+co.mittente:"predefinito"))}</option></select></label>
+     <div style="align-self:end"><button class="btn sm" id="siLoad">${ic("down")}Carica servizi da Sendcloud</button></div>
+    </div>
+    <label class="fl" style="grid-column:span 2">Mittente stampato sull'etichetta indirizzo<textarea id="siMt" rows="3">${esc(cfg.mittente||SP_MITT_DEF)}</textarea></label>
+    <label class="fl">Peso pacco se non noto (kg)<input id="siPeso" type="number" step="0.1" min="0.1" value="${esc(imp.pesoKg||2)}"></label>
+    <label class="fl">Formato di stampa<select id="siFmt"><option value="A6" ${imp.formato!=="A4"?"selected":""}>Etichettatrice 10×15</option><option value="A4" ${imp.formato==="A4"?"selected":""}>A4, 4 per foglio</option></select></label>
+    <label class="fl">TikTok: consegna a BRT<select id="siTt"><option value="PICKUP" ${imp.consegnaTikTok!=="DROP_OFF"?"selected":""}>Ritiro in negozio</option><option value="DROP_OFF" ${imp.consegnaTikTok==="DROP_OFF"?"selected":""}>Porto io al punto</option></select></label>
+   </div></div>
+   <div class="fs"><span class="lg">eBay (Sell Fulfillment API, utente semistore_srl)</span><div class="f"><label class="fl">Client ID${inp("siEi",ct.ebay?.clientId)}</label><label class="fl">Client secret${inp("siEs",ct.ebay?.clientSecret)}</label><label class="fl" style="grid-column:span 2">Refresh token utente${inp("siEr",ct.ebay?.refreshToken)}</label></div></div>
+   <div class="fs"><span class="lg">Amazon (SP-API, SemiStore Casavatore)</span><div class="f"><label class="fl">LWA Client ID${inp("siAi",ct.amazon?.clientId)}</label><label class="fl">LWA Client secret${inp("siAs",ct.amazon?.clientSecret)}</label><label class="fl" style="grid-column:span 2">Refresh token del negozio${inp("siAr",ct.amazon?.refreshToken)}</label></div></div>
+   <div class="fs"><span class="lg">Altri marketplace</span><p class="sub" style="margin:0 0 6px">Su piattaforma <b>Mirakl</b> (Leroy Merlin e molti altri) basta indirizzo e chiave API: ordini e tracking vanno da soli. Gli altri si aggiungono “senza API”: gli ordini li registri tu (o li importi), l'etichetta la stampo io e ti apro la loro pagina con il tracking pronto. Puoi aggiungerne quanti vuoi.</p>
+    <div id="siM"></div><button class="btn sm" id="siAdd">${ic("plus")}Aggiungi marketplace</button></div>
+  </div>
+  <div class="mf"><span class="sp" style="flex:1"></span><button class="btn" data-close>Chiudi</button><button class="btn pri" id="siOk">${ic("check")}Salva</button></div>`);
+  const tipo=()=>{ $("#siSc").style.display=$("#siCt").value==="sendcloud"?"contents":"none"; }; $("#siCt").onchange=tipo; tipo();
+  drawM(); $("#siAdd").onclick=()=>{ mercati.push({nome:"",tipo:"mirakl"}); drawM(); };
+  const raccogli=()=>{ const v=i=>$("#"+i).value.trim(); const met=$("#siMet"), mit=$("#siMit");
+    return {corriere:{tipo:v("siCt"),publicKey:v("siPk"),secretKey:v("siSk"),metodo:met.value?Number(met.value):"",metodoNome:met.selectedOptions[0]?.textContent||"",mittente:mit.value?Number(mit.value):"",mittenteNome:mit.value?mit.selectedOptions[0]?.textContent:""},
+      ebay:{clientId:v("siEi"),clientSecret:v("siEs"),refreshToken:v("siEr")},amazon:{clientId:v("siAi"),clientSecret:v("siAs"),refreshToken:v("siAr")},
+      impostazioni:{pesoKg:Number(v("siPeso"))||2,formato:v("siFmt"),consegnaTikTok:v("siTt")},mittenteTesto:$("#siMt").value.trim(),mercati}; };
+  $("#siOk").onclick=async()=>{ $("#siOk").disabled=true; try{ await spApi({azione:"conti",conti:raccogli()}); await spCarica(true); toast("Impostazioni spedizioni salvate"); closeModal(); render(); }catch(e){ toast(e.message); } $("#siOk").disabled=false; };
+  $("#siLoad").onclick=async()=>{ const b=$("#siLoad"); b.disabled=true; try{ await spApi({azione:"conti",conti:{corriere:raccogli().corriere}}); const r=await spApi({azione:"metodi"});
+      $("#siMet").innerHTML=r.metodi.map(m=>`<option value="${m.id}" ${co.metodo==m.id?"selected":""}>${esc(m.nome)}${m.max?" · fino a "+m.max+" kg":""}${m.prezzo!=null?" · "+eur(m.prezzo):""}</option>`).join("")||`<option value="">nessun servizio per l'Italia</option>`;
+      $("#siMit").innerHTML=`<option value="">predefinito</option>`+r.mittenti.map(m=>`<option value="${m.id}" ${co.mittente==m.id?"selected":""}>${esc(m.nome)}</option>`).join("");
+      toast(r.metodi.length+" servizi trovati"); }catch(e){ toast(e.message); } b.disabled=false; };
+}
+
 initShell();
 init();
 })();
