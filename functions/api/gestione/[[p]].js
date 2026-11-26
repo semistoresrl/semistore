@@ -93,11 +93,10 @@ export async function onRequest(ctx) {
     if (!env.ANTHROPIC_API_KEY) return json({ error: 'lettura AI non attiva' }, 501);
     const img = String(body.img || '').replace(/^data:image\/\w+;base64,/, '');
     if (!img || img.length > 4_500_000) return json({ error: 'foto mancante o troppo grande' }, 400);
-    const prompt = `Questa è la foto di un esploso ricambi (disegno con i numeri di posizione) oppure di un elenco ricambi, di un utensile DEWALT, STANLEY o BLACK+DECKER.
-Il cliente ha segnato i pezzi che vuole (evidenziatore, cerchi, frecce, spunte o sottolineature).
+    const prompt = `Questa foto è una richiesta di preventivo per un centro assistenza DEWALT, STANLEY e BLACK+DECKER. Può essere: un esploso ricambi (disegno con numeri di posizione) con i pezzi segnati dal cliente (evidenziatore, cerchi, frecce, spunte); un biglietto o un elenco scritto a penna; uno screenshot di un messaggio; una targhetta o un'etichetta; un elenco stampato.
 Rispondi SOLO con un oggetto JSON, senza altro testo:
-{"modello":"codice del modello se scritto (es. DCH273), altrimenti stringa vuota","type":"numero del Type se scritto, altrimenti stringa vuota","posizioni":["numeri di posizione SEGNATI, esattamente come scritti"],"codici":[{"codice":"codice ricambio segnato o scritto a mano","qty":1}],"dubbi":"cosa non si legge bene, in italiano, oppure stringa vuota"}
-Metti in "posizioni" solo i numeri segnati dal cliente, non tutti quelli del disegno. Se un numero segnato non si legge con certezza scrivilo comunque e spiegalo in "dubbi".`;
+{"modello":"codice del modello dell'utensile se scritto (es. DCH273), altrimenti stringa vuota","type":"numero del Type se scritto, altrimenti stringa vuota","posizioni":["numeri di posizione dell'esploso SEGNATI o richiesti, come scritti"],"codici":[{"codice":"codice ricambio o prodotto scritto (es. N463936, 590306-00, DCB184)","qty":1}],"pezzi":[{"testo":"pezzo chiesto a parole senza codice né posizione, in italiano (es. motore, carboncini, molla)","qty":1}],"dubbi":"cosa non si legge bene, in italiano, oppure stringa vuota"}
+In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti quelli del disegno. Leggi con cura la scrittura a mano: cifre e lettere dei codici devono essere esatte; se non sei sicuro scrivi la lettura più probabile e spiegalo in "dubbi". Le quantità scritte (2x, n. 3, 3 pz) vanno in qty.`;
     try {
       const r = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -114,6 +113,7 @@ Metti in "posizioni" solo i numeri segnati dal cliente, non tutti quelli del dis
         modello: String(o.modello || '').trim().toUpperCase(), type: String(o.type || '').replace(/\D/g, ''),
         posizioni: (Array.isArray(o.posizioni) ? o.posizioni : []).map((x) => String(x).trim()).filter(Boolean).slice(0, 200),
         codici: (Array.isArray(o.codici) ? o.codici : []).map((c) => ({ codice: String(c?.codice || c || '').trim().toUpperCase(), qty: Number(c?.qty) || 1 })).filter((c) => c.codice).slice(0, 200),
+        pezzi: (Array.isArray(o.pezzi) ? o.pezzi : []).map((x) => ({ testo: String(x?.testo || x || '').trim().slice(0, 80), qty: Number(x?.qty) || 1 })).filter((x) => x.testo).slice(0, 100),
         dubbi: String(o.dubbi || '').slice(0, 500),
       });
     } catch (e) { return json({ error: 'lettura AI non riuscita' }, 502); }
