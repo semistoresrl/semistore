@@ -4680,7 +4680,7 @@ function vPosta(){
   const k=pChiave(), L=PO.liste[k]; if(!L&&!PO.carico) caricaElenco();
   const cart=(cs||[]).find(x=>x.nome===PO.f)||{vista:PO.f==="INBOX"?"In arrivo":PO.f};
   return header("Posta",`${esc(PO.caselle.find(c=>c.id===PO.c)?.email||"")} · ${esc(cart.vista)}`,`<button class="btn" data-act="pCaselle">${ic("cog")}Caselle</button><button class="btn" data-act="pAgg">${ic("swap")}Aggiorna</button><button class="btn pri" data-act="pScrivi">${ic("plus")}Scrivi</button>`)+
-  `<div class="pbox"><div class="chips pcas">${PO.caselle.map(c=>`<button class="chip ${c.id===PO.c?"on":""}" data-pc="${c.id}">${esc(c.nome||c.email)}${PO.nuove[c.id]?` <b class="pn">${PO.nuove[c.id]}</b>`:""}${c.errore?" ⚠️":""}</button>`).join("")}</div>
+  `<div id="paBox"></div><div class="pbox"><div class="chips pcas">${PO.caselle.map(c=>`<button class="chip ${c.id===PO.c?"on":""}" data-pc="${c.id}">${esc(c.nome||c.email)}${PO.nuove[c.id]?` <b class="pn">${PO.nuove[c.id]}</b>`:""}${c.errore?" ⚠️":""}</button>`).join("")}</div>
    <div class="chips pfol">${(cs||[]).map(f=>`<button class="chip ${f.nome===PO.f?"on":""} ${f.uso==="spam"?"spam":""}" data-pf="${esc(f.nome)}">${ic(USO_IC[f.uso]||"folder")}${esc(f.vista)}${f.nuove?` <b class="pn">${f.nuove}</b>`:f.uso==="spam"&&f.tot?` <b class="pn sp">${f.tot}</b>`:""}</button>`).join("")||`<span class="sub">Carico le cartelle…</span>`}</div>
    <div class="toolbar"><input type="search" id="pQ" placeholder="Cerca in ${esc(cart.vista)}: mittente, oggetto, testo…" value="${esc(PO.cerca)}"></div>
    ${PO.err?`<div class="banner err">${esc(PO.err)}</div>`:""}
@@ -4965,7 +4965,15 @@ function modCasella(c){ const n=!c.id;
     catch(e){ b.disabled=false; b.innerHTML=ic("check")+"Prova e salva"; toast(e.message); } };
   const x=$("#mcX"); if(x) x.onclick=async()=>{ if(x.dataset.sure!=="1"){ x.dataset.sure="1"; x.textContent="Sicuro? Le email restano sul server"; return; } await pPost("caselle",{azione:"elimina",id:c.id}); toast("Tolta dall'app"); if(PO.c===c.id) PO.c=null; closeModal(); await caricaCaselle(true); render(); };
 }
+// email parcheggiate quando l'archivio non accettava scritture (vedi /api/posta/attesa)
+function disegnaAttesa(){ const b=$("#paBox"), r=PO.pa; if(!b||!r||!r.n) { if(b) b.innerHTML=""; return; }
+  b.innerHTML=`<div class="panel" style="border:2px solid var(--y);margin-bottom:12px"><h3>${ic("clock")}${r.n} email arrivate mentre l'archivio era bloccato<span class="sp"></span><button class="btn pri sm" id="paImp">Metti nella Posta</button></h3>
+   <div class="sub" style="margin-bottom:8px">Sono al sicuro e si possono già leggere qui. «Metti nella Posta» le sposta nelle caselle (funziona quando l'archivio accetta di nuovo le scritture).</div>
+   ${(r.email||[]).map((e,i)=>`<details style="border-top:1px solid var(--line);padding:6px 0"><summary><b>${esc(e.oggetto||"(senza oggetto)")}</b> <span class="sub">da ${esc(e.da)} · per ${esc(e.a)} · ${e.at?fmtDT(e.at):""}</span></summary><pre style="white-space:pre-wrap;font:inherit;font-size:14px;margin:8px 0">${esc(e.testo||"")}</pre></details>`).join("")}</div>`;
+  $("#paImp").onclick=async()=>{ const x=$("#paImp"); x.disabled=true; x.textContent="Sposto…"; try{ const o=await SEMI.post("../posta/attesa?importa=1",{}); toast(o.errore?`Spostate ${o.ok}, le altre restano in attesa: ${o.errore}`:`${o.ok} email messe nella Posta`); PO.pa=null; render(); }catch(e){ toast("Non riesco ancora: "+(e.message||"errore")); x.disabled=false; x.textContent="Metti nella Posta"; } };
+}
 function bindPosta(){ const m=$("#main");
+  if(isAdmin()&&$("#paBox")){ if(PO.pa&&Date.now()-PO.pa.at<60000) disegnaAttesa(); else SEMI.req("../posta/attesa").then(r=>{ PO.pa={...r,at:Date.now()}; disegnaAttesa(); }).catch(()=>{}); }
   m.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ PO.c=b.dataset.pc; PO.f="INBOX"; PO.cerca=""; render(); });
   m.querySelectorAll("[data-pf]").forEach(b=>b.onclick=()=>{ PO.f=b.dataset.pf; PO.cerca=""; render(); });
   m.querySelectorAll("[data-pu]").forEach(b=>b.onclick=()=>apriEmail(/^\d+$/.test(b.dataset.pu)?Number(b.dataset.pu):b.dataset.pu));
