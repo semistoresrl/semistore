@@ -11,7 +11,7 @@
 //  GET/POST utenti               → solo admin: elenco, aggiungi/modifica, codice d'accesso a mano
 //  POST file                     → allegato (corpo = file, header x-nome) → {id}; si legge da /_blob/<id>
 //  GET  presenze?da&a            → solo admin: persone sul sito (in diretta, per periodo)
-//  POST leggi-foto {img}         → lettura AI di una foto (esploso evidenziato), solo se c'è ANTHROPIC_API_KEY
+//  POST ai {compito,img?,testo?}  → intelligenza artificiale (Claude con ANTHROPIC_API_KEY, altrimenti Workers AI)
 import { gdb, json, utente, sha, casuale, cookieSessione, cookieVia, fondi, differenza, mandaEmail, giornoIT } from '../../_lib/gestione.js';
 import { riprovaRicostruzione } from '../../_lib/ricostruzione.js';
 
@@ -30,7 +30,7 @@ export async function onRequest(ctx) {
   if (p === 'io') {
     const n = (await d.prepare('SELECT COUNT(*) n FROM utenti').first()).n;
     if (io) await d.prepare('UPDATE utenti SET ultimo=? WHERE email=?').bind(Date.now(), io.email).run();
-    return json({ utente: io, primoAvvio: n === 0, email: !!env.RESEND_API_KEY, mittente: !!env.EMAIL_FROM, ai: !!env.ANTHROPIC_API_KEY });
+    return json({ utente: io, primoAvvio: n === 0, email: !!env.RESEND_API_KEY, mittente: !!env.EMAIL_FROM, ai: !!(env.ANTHROPIC_API_KEY || env.AI) });
   }
   if (p === 'primo' && m === 'POST') {
     const n = (await d.prepare('SELECT COUNT(*) n FROM utenti').first()).n;
@@ -87,36 +87,58 @@ export async function onRequest(ctx) {
   if (!io) return json({ error: 'non collegato' }, 401);
   const admin = io.ruolo === 'admin';
 
-  // 26/11: lettura con l'intelligenza artificiale di una foto (esploso con i pezzi evidenziati, elenco codici).
-  // Facoltativa: funziona solo se su Cloudflare c'è la variabile ANTHROPIC_API_KEY; altrimenti l'app legge la foto sul telefono.
-  if (p === 'leggi-foto' && m === 'POST') {
-    if (!env.ANTHROPIC_API_KEY) return json({ error: 'lettura AI non attiva' }, 501);
+  // 26/11: intelligenza artificiale dell'app. Usa Claude se su Cloudflare c'è ANTHROPIC_API_KEY,
+  // altrimenti Workers AI di Cloudflare (binding "AI", senza chiavi). Senza nessuno dei due l'app lavora come prima.
+  //  POST ai {compito:'preventivo', img? , testo?}  → {modello,type,posizioni,codici,pezzi,dubbi}
+  //  POST ai {compito:'trascrivi', img}             → {testo}   (etichette, documenti, biglietti)
+  //  POST ai {compito:'risposta', testo, istruzioni?} → {testo}  (bozza di risposta a un'email)
+  if ((p === 'ai' || p === 'leggi-foto') && m === 'POST') {
+    if (!env.ANTHROPIC_API_KEY && !env.AI) return json({ error: 'intelligenza artificiale non attiva' }, 501);
+    const compito = p === 'leggi-foto' ? 'preventivo' : String(body.compito || '');
     const img = String(body.img || '').replace(/^data:image\/\w+;base64,/, '');
-    if (!img || img.length > 4_500_000) return json({ error: 'foto mancante o troppo grande' }, 400);
-    const prompt = `Questa foto è una richiesta di preventivo per un centro assistenza DEWALT, STANLEY e BLACK+DECKER. Può essere: un esploso ricambi (disegno con numeri di posizione) con i pezzi segnati dal cliente (evidenziatore, cerchi, frecce, spunte); un biglietto o un elenco scritto a penna; uno screenshot di un messaggio; una targhetta o un'etichetta; un elenco stampato.
+    const testo = String(body.testo || '').slice(0, 20000);
+    if (img.length > 4_500_000) return json({ error: 'foto troppo grande' }, 400);
+    const P = {
+      preventivo: `Questa è una richiesta di preventivo per un centro assistenza DEWALT, STANLEY e BLACK+DECKER. Può essere: un esploso ricambi (disegno con numeri di posizione) con i pezzi segnati dal cliente (evidenziatore, cerchi, frecce, spunte); un biglietto o un elenco scritto a penna; un messaggio WhatsApp o email; una targhetta o un'etichetta; un elenco stampato.
 Rispondi SOLO con un oggetto JSON, senza altro testo:
 {"modello":"codice del modello dell'utensile se scritto (es. DCH273), altrimenti stringa vuota","type":"numero del Type se scritto, altrimenti stringa vuota","posizioni":["numeri di posizione dell'esploso SEGNATI o richiesti, come scritti"],"codici":[{"codice":"codice ricambio o prodotto scritto (es. N463936, 590306-00, DCB184)","qty":1}],"pezzi":[{"testo":"pezzo chiesto a parole senza codice né posizione, in italiano (es. motore, carboncini, molla)","qty":1}],"dubbi":"cosa non si legge bene, in italiano, oppure stringa vuota"}
-In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti quelli del disegno. Leggi con cura la scrittura a mano: cifre e lettere dei codici devono essere esatte; se non sei sicuro scrivi la lettura più probabile e spiegalo in "dubbi". Le quantità scritte (2x, n. 3, 3 pz) vanno in qty.`;
+In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti quelli del disegno. Leggi con cura la scrittura a mano: cifre e lettere dei codici devono essere esatte; se non sei sicuro scrivi la lettura più probabile e spiegalo in "dubbi". Le quantità scritte (2x, n. 3, 3 pz) vanno in qty.`,
+      trascrivi: `Trascrivi fedelmente tutto il testo di questa foto (etichetta, documento, bolla, fattura, biglietto, anche scritto a mano), riga per riga, nell'ordine in cui si legge. Nelle tabelle tieni ogni riga della tabella su una riga e separa le colonne con tre spazi. Non tradurre, non correggere, non aggiungere commenti: rispondi solo con il testo.`,
+      risposta: `Sei l'assistente di SE.M.I. S.R.L. (Semi Store), concessionario DEWALT, STANLEY e BLACK+DECKER e centro assistenza autorizzato a Casavatore (NA). Scrivi in italiano una bozza di risposta cortese, chiara e breve all'email qui sotto, dando del Lei. Non inventare prezzi, disponibilità, date o impegni che non sono scritti: dove servono, metti [DA COMPLETARE: …]. Non aggiungere la firma (si aggiunge da sola). Rispondi solo con il testo della risposta.${body.istruzioni ? '\nIndicazioni di chi risponde: ' + String(body.istruzioni).slice(0, 1000) : ''}`,
+    }[compito];
+    if (!P) return json({ error: 'compito sconosciuto' }, 400);
+    if (compito !== 'risposta' && !img && !testo) return json({ error: 'foto o testo mancanti' }, 400);
+    const domanda = P + (testo ? '\n\n---\n' + testo : '');
+    let out = '';
     try {
-      const r = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: env.ANTHROPIC_MODEL || 'claude-sonnet-5-5', max_tokens: 1500,
-          messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img } }, { type: 'text', text: prompt }] }] }),
-      });
-      const j = await r.json().catch(() => ({}));
-      if (!r.ok) return json({ error: 'lettura AI non riuscita: ' + (j.error?.message || r.status) }, 502);
-      const tx = (j.content || []).map((c) => c.text || '').join('');
-      const mm = tx.match(/\{[\s\S]*\}/);
-      const o = mm ? JSON.parse(mm[0]) : {};
-      return json({
-        modello: String(o.modello || '').trim().toUpperCase(), type: String(o.type || '').replace(/\D/g, ''),
-        posizioni: (Array.isArray(o.posizioni) ? o.posizioni : []).map((x) => String(x).trim()).filter(Boolean).slice(0, 200),
-        codici: (Array.isArray(o.codici) ? o.codici : []).map((c) => ({ codice: String(c?.codice || c || '').trim().toUpperCase(), qty: Number(c?.qty) || 1 })).filter((c) => c.codice).slice(0, 200),
-        pezzi: (Array.isArray(o.pezzi) ? o.pezzi : []).map((x) => ({ testo: String(x?.testo || x || '').trim().slice(0, 80), qty: Number(x?.qty) || 1 })).filter((x) => x.testo).slice(0, 100),
-        dubbi: String(o.dubbi || '').slice(0, 500),
-      });
-    } catch (e) { return json({ error: 'lettura AI non riuscita' }, 502); }
+      if (env.ANTHROPIC_API_KEY) {
+        const r = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+          body: JSON.stringify({ model: env.ANTHROPIC_MODEL || 'claude-sonnet-5-5', max_tokens: 3000,
+            messages: [{ role: 'user', content: [...(img ? [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img } }] : []), { type: 'text', text: domanda }] }] }),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) return json({ error: 'AI non riuscita: ' + (j.error?.message || r.status) }, 502);
+        out = (j.content || []).map((c) => c.text || '').join('');
+      } else {
+        const r = await env.AI.run(env.AI_MODEL || '@cf/meta/llama-4-scout-17b-16e-instruct', {
+          messages: [{ role: 'user', content: [{ type: 'text', text: domanda }, ...(img ? [{ type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + img } }] : [])] }],
+          max_tokens: 3000, temperature: 0.1,
+        });
+        out = typeof r?.response === 'string' ? r.response : r?.response ? JSON.stringify(r.response) : String(r?.result?.response || '');
+      }
+    } catch (e) { return json({ error: 'AI non riuscita: ' + String(e?.message || e).slice(0, 200) }, 502); }
+    if (compito !== 'preventivo') return json({ testo: out.trim(), fonte: env.ANTHROPIC_API_KEY ? 'claude' : 'cloudflare' });
+    let o = {}; try { const mm = out.match(/\{[\s\S]*\}/); o = mm ? JSON.parse(mm[0]) : {}; } catch (e) { o = {}; }
+    return json({
+      fonte: env.ANTHROPIC_API_KEY ? 'claude' : 'cloudflare',
+      modello: String(o.modello || '').trim().toUpperCase(), type: String(o.type || '').replace(/\D/g, ''),
+      posizioni: (Array.isArray(o.posizioni) ? o.posizioni : []).map((x) => String(x).trim()).filter(Boolean).slice(0, 200),
+      codici: (Array.isArray(o.codici) ? o.codici : []).map((c) => ({ codice: String(c?.codice || c || '').trim().toUpperCase(), qty: Number(c?.qty) || 1 })).filter((c) => c.codice).slice(0, 200),
+      pezzi: (Array.isArray(o.pezzi) ? o.pezzi : []).map((x) => ({ testo: String(x?.testo || x || '').trim().slice(0, 80), qty: Number(x?.qty) || 1 })).filter((x) => x.testo).slice(0, 100),
+      dubbi: String(o.dubbi || '').slice(0, 500),
+    });
   }
 
   if (p === 'db' && m === 'GET') {
