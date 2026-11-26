@@ -4801,6 +4801,7 @@ function vFacile(st){
     ${B("conta","clipboard","f-w","Conto la merce","Scrivo quanti pezzi ci sono")}
     ${puoPrezzi()?B("prezzo","tag","f-w","Cambio un prezzo","Nuovo prezzo di vendita"):""}
     ${B("esplosi","drill","f-w","Esplosi e ricambi","Disegni DEWALT e pezzi")}
+    ${B("associa","swap","f-w","Associo un pezzo","Arrivato: lo do a un cliente o a una scheda")}
     <a class="fbtn f-w" href="#preventivi">${(()=>{const n=(S.preventivi||[]).filter(p=>["bozza","inviato"].includes(p.stato||"bozza")).length; return n?`<span class="fbg">${n}</span>`:"";})()}${ic("euro")}<b>Preventivi</b><small>Listino o volantino, con sconto</small></a>
     <a class="fbtn f-w" href="#noleggi">${(()=>{const n=(S.noleggi||[]).filter(x=>["nuova","contattato","offerta"].includes(x.stato||"nuova")).length; return n?`<span class="fbg">${n}</span>`:"";})()}${ic("clock")}<b>Noleggi</b><small>Richieste dal sito e pratiche</small></a>
     <a class="fbtn f-w" href="#ordini">${ordAp?`<span class="fbg">${ordAp}</span>`:""}${ic("send")}<b>Ordini online</b><small>Sito, TikTok, WhatsApp</small></a>
@@ -5240,13 +5241,14 @@ function schedeInAttesa(){ const out=[];
 function vPrenotate(){ const P=S.pren||[], att=P.filter(p=>p.stato==="attesa").sort((a,b)=>(a.at||0)-(b.at||0)), par=P.filter(p=>p.stato==="arrivato").sort((a,b)=>(a.arrivatoAt||0)-(b.arrivatoAt||0)), sch=schedeInAttesa();
   const riga=p=>`<tr><td><b class="mono">${esc(p.codice)}</b><div class="sub">${esc(p.descr||"")}</div></td><td>${esc(p.cliente||"")}${p.rif?`<div class="sub">${esc(p.tipo||"")} ${esc(p.rif)}</div>`:""}${p.tel?`<div class="sub">${esc(p.tel)}</div>`:""}</td><td class="num">${Number(p.qty)||1}</td><td><span class="sub">${p.stato==="attesa"?"dal "+fmtD(p.at):"arrivato il "+fmtD(p.arrivatoAt)}</span>${p.note?`<div class="sub">${esc(p.note)}</div>`:""}</td>
     <td style="white-space:nowrap" class="edit-only">${p.stato==="arrivato"?`${p.tel?waBtn(p.tel,avvisoArrivo(p.cliente,p.descr||p.codice,p.rif),"Avvisa","sm"):""}<button class="btn sm pri" data-pok="${esc(p.id)}">${ic("check")}Consegnato</button>`:""}<button class="btn sm" data-pno="${esc(p.id)}">${ic("x")}Annulla</button></td></tr>`;
-  return `<div class="hdr"><h1>Merce attesa e prenotata</h1><span class="sp"></span><button class="btn pri edit-only" id="prNew">${ic("plus")}Prenota per un cliente</button></div>
+  return `<div class="hdr"><h1>Merce attesa e prenotata</h1><span class="sp"></span><button class="btn pri edit-only" id="prAss">${ic("swap")}Associa un pezzo arrivato</button><button class="btn edit-only" id="prNew">${ic("clock")}Prenota per un cliente</button></div>
   <p class="sub" style="margin:-6px 0 14px">Quando arriva merce, con «È arrivata merce» e il codice a barre esce la lista di chi la aspetta: schede di assistenza, vendite, preventivi accettati e prenotazioni qui sotto. Si può anche associare al volo a una scheda o a una vendita nuova.</p>
   <div class="panel"><h3>Messi da parte per i clienti <span class="sp"></span><span class="sub">${par.length}</span></h3>${par.length?`<table><thead><tr><th>Articolo</th><th>Cliente</th><th class="num">Pz</th><th></th><th></th></tr></thead><tbody>${par.map(riga).join("")}</tbody></table>`:`<div class="empty">Niente messo da parte</div>`}</div>
   <div class="panel"><h3>Prenotati, in attesa di arrivo <span class="sp"></span><span class="sub">${att.length}</span></h3>${att.length?`<table><thead><tr><th>Articolo</th><th>Cliente</th><th class="num">Pz</th><th></th><th></th></tr></thead><tbody>${att.map(riga).join("")}</tbody></table>`:`<div class="empty">Nessuna prenotazione aperta</div>`}</div>
   <div class="panel"><h3>Ricambi attesi dalle schede <span class="sp"></span><span class="sub">${sch.length}</span></h3>${sch.length?`<table><thead><tr><th>Ricambio</th><th>Scheda</th><th class="num">Pz</th><th>Stato</th></tr></thead><tbody>${sch.map(({t,r})=>`<tr data-open="${esc(t.id)}" style="cursor:pointer"><td><b class="mono">${esc(r.codice)}</b><div class="sub">${esc(r.descr||"")}</div></td><td><b>${esc(t.num)}</b> · ${esc(t.cliente||"")}<div class="sub">${esc(t.modello||"")}</div></td><td class="num">${Number(r.qty)||1}</td><td><span class="sub">${esc(t.stato)} · in negozio ${Number(itm(r.codice)?.giacenza)||0}</span></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessuna scheda aspetta ricambi</div>`}</div>`; }
 function bindPrenotate(){ const m=$("#main");
   const b=$("#prNew"); if(b) b.onclick=()=>{ wizCerca(); };
+  const a=$("#prAss"); if(a) a.onclick=()=>wizAssocia();
   m.querySelectorAll("[data-pok]").forEach(x=>x.onclick=()=>write(()=>S.db.collection("prenotazioni").doc(x.dataset.pok).update({stato:"consegnato",chiusoAt:Date.now()}),"Segnato come consegnato"));
   m.querySelectorAll("[data-pno]").forEach(x=>x.onclick=()=>{ if(!confirm("Annullare questa prenotazione?")) return; write(()=>S.db.collection("prenotazioni").doc(x.dataset.pno).update({stato:"annullato",chiusoAt:Date.now()}),"Prenotazione annullata"); }); }
 
@@ -5357,6 +5359,15 @@ async function caricaEtichetta(){ const E=WZ.et, on=E.righe.filter(r=>r.on&&r.co
   $("#wzB").querySelectorAll("[data-eal]").forEach(x=>x.onclick=()=>assoc(on[+x.dataset.eal]));
   $("#wEfine").onclick=wizClose; }
 
+/* 26/11: associare dopo un pezzo già in negozio (arrivato prima) a una scheda, una vendita o un cliente */
+function wizAssocia(pre){
+  wizOpen("Associo un pezzo arrivato","f-p");
+  const scegli=step(()=>pickItem("Quale pezzo?",{onPick:it=>{ WZ.it=it; wizStep(quanti); },hint:"Inquadra il codice a barre o scrivi il codice: poi scegli la scheda, la vendita o il cliente."}));
+  const quanti=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wq sm">Quanti pezzi?</div>${qtyBox("wqA",1,1)}`, wBtn("wAok","Avanti","pri","chev")); bindQty();
+    $("#wAok").onclick=()=>{ const q=Math.max(1,parseInt($("#wqA").value)||1); wizStep(step(()=>stepAssocia(itm(it.codice)||it,q))); }; });
+  if(pre){ WZ.it=pre; WZ.stack=[scegli]; wizStep(quanti); } else wizStep(scegli);
+}
+
 /* ---------- 4. È arrivata merce ---------- */
 function wizArrivo(){
   wizOpen("È arrivata merce","f-p"); let fatti=0;
@@ -5416,8 +5427,9 @@ function wizPrezzo(pre){
 function wizCerca(pre){
   wizOpen("Cerco un prezzo","f-w");
   const scegli=step(()=>pickItem("Cosa cerchi?",{onPick:it=>{ WZ.it=it; wizStep(scheda); }}));
-  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button><button class="wbig sec" id="aX">${ic("plug")}Accessori e compatibilità</button><button class="wbig sec" id="aPr">${ic("clock")}Prenota per un cliente</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
+  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button><button class="wbig sec" id="aX">${ic("plug")}Accessori e compatibilità</button><button class="wbig sec" id="aAs">${ic("swap")}Associa a un cliente o a una scheda</button><button class="wbig sec" id="aPr">${ic("clock")}Prenota per un cliente (non ancora arrivato)</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
     $("#aPr").onclick=()=>wizStep(step(()=>stepCliente(it,1,"attesa")));
+    $("#aAs").onclick=()=>{ wizClose(); wizAssocia(it); };
     $("#aX").onclick=()=>{ wizClose(); S.cq=it.codice; location.hash="compatibili"; render(); };
     const v=$("#aV"); if(v) v.onclick=()=>{ wizClose(); wizVendo(it); }; const p=$("#aP"); if(p) p.onclick=()=>{ wizClose(); wizPrezzo(it); };
     $("#aC").onclick=()=>{ wizClose(); wizConta(it); };
@@ -5454,7 +5466,7 @@ function wizInvia(){
     const g=$("#wGo"); if(g) g.addEventListener("click",()=>dopo(l,g)); const a=$("#wAll"); if(a) a.addEventListener("click",()=>dopo(tutti,a)); });
   wizStep(main);
 }
-const WIZ={esplosi:()=>wizEsplosi(),scaffale:()=>wizScaffale(),ricevo:wizRicevo,consegno:wizConsegno,vendo:()=>wizVendo(),arrivo:wizArrivo,cerca:wizCerca,conta:wizConta,prezzo:()=>wizPrezzo(),invia:wizInvia};
+const WIZ={associa:()=>wizAssocia(),esplosi:()=>wizEsplosi(),scaffale:()=>wizScaffale(),ricevo:wizRicevo,consegno:wizConsegno,vendo:()=>wizVendo(),arrivo:wizArrivo,cerca:wizCerca,conta:wizConta,prezzo:()=>wizPrezzo(),invia:wizInvia};
 function bindFacile(){ const m=$("#main");
   m.querySelectorAll("[data-wiz]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&!['cerca','esplosi'].includes(b.dataset.wiz)){ toast("Non hai i permessi per modificare"); return; } WIZ[b.dataset.wiz](); });
   m.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setFacile(b.dataset.mode!=="completa")); }
