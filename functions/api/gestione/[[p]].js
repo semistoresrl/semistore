@@ -23,7 +23,7 @@ export async function onRequest(ctx) {
   catch (e) { // errore leggibile invece della pagina di Cloudflare
     const msg = String(e && (e.message || e) || 'errore');
     console.error('gestione', ctx.params?.p, msg);
-    return json({ error: /SQLITE_FULL|maximum|too big|exceed|size limit/i.test(msg) ? 'Database pieno: ' + msg : 'Errore del server: ' + msg.slice(0, 300) }, 500);
+    return json({ error: /daily row write limit/i.test(msg) ? 'Il database ha finito le scritture gratuite di oggi (piano gratuito Cloudflare): si riattiva all\'01:00, oppure subito passando al piano Workers Paid.' : /SQLITE_FULL|maximum|too big|size limit/i.test(msg) ? 'Database pieno: ' + msg : 'Errore del server: ' + msg.slice(0, 300) }, 500);
   }
 }
 async function gestisci(ctx) {
