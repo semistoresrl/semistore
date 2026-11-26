@@ -17,11 +17,11 @@ let pronto = false;
 export async function adb(env) {
   const d = env.DB;
   if (!pronto) {
-    await d.batch([
+    try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS affidabilita (k TEXT NOT NULL, servizio TEXT NOT NULL, at INTEGER NOT NULL, chi TEXT,
         esito TEXT, dati TEXT, richiesta TEXT, PRIMARY KEY (k, servizio))`),
       d.prepare('CREATE INDEX IF NOT EXISTS aff_at ON affidabilita(at)'),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     pronto = true;
   }
   return d;

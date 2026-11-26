@@ -257,13 +257,13 @@ In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti 
   // STORICO PER CODICE (26/11): righe dei documenti Danea (vendite, DDT, fatture, rapporti d'intervento, arrivi, preventivi)
   if (p === 'storicoart') {
     if (!io) return json({ error: 'non autorizzato' }, 401);
-    await d.batch([
+    try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS storico_art (cod TEXT NOT NULL, base TEXT NOT NULL, tipo TEXT, data TEXT, num TEXT, cli TEXT, nome TEXT,
         qta REAL, prezzo REAL, sconti TEXT, tot REAL, descr TEXT)`),
       d.prepare('CREATE INDEX IF NOT EXISTS sa_base ON storico_art(base)'),
       d.prepare('CREATE INDEX IF NOT EXISTS sa_cli ON storico_art(cli)'),
       d.prepare('CREATE TABLE IF NOT EXISTS storico_art_info (k TEXT PRIMARY KEY, v TEXT)'),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     const baseDi = c => String(c || '').trim().toUpperCase().replace(/-(QW|XJ|QS|QZ|XE|GB|LX|KR|QT|B5|B3|BL|DE|FR|IT|EU|SFDPS)$/, '');
     if (m === 'POST') {
       if (io.ruolo !== 'admin') return json({ error: 'solo amministratore' }, 403);
@@ -301,12 +301,12 @@ In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti 
   // ARCHIVIO DOCUMENTI DANEA (26/11): rapporti d'intervento, DDT, fatture e note storiche. Tutti consultano, importi solo all'amministratore.
   if (p === 'storicodoc') {
     if (!io) return json({ error: 'non autorizzato' }, 401);
-    await d.batch([
+    try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS storico_doc (id TEXT PRIMARY KEY, k TEXT, anno TEXT, n TEXT, d TEXT, cli TEXT, nm TEXT, txt TEXT, j TEXT)`),
       d.prepare('CREATE INDEX IF NOT EXISTS sd_cli ON storico_doc(cli)'),
       d.prepare('CREATE INDEX IF NOT EXISTS sd_d ON storico_doc(d)'),
       d.prepare('CREATE TABLE IF NOT EXISTS storico_doc_info (k TEXT PRIMARY KEY, v TEXT)'),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     const vedeSoldi = admin || io.ruolo === 'contabilita';
     const pulisci = (x) => {
       if (vedeSoldi) return x;

@@ -7,7 +7,7 @@ let pronto = false;
 export async function gdb(env) {
   const d = await db(env);
   if (!pronto) {
-    await d.batch([
+    try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS utenti (email TEXT PRIMARY KEY, nome TEXT NOT NULL, ruolo TEXT NOT NULL DEFAULT 'operatore',
         attivo INTEGER NOT NULL DEFAULT 1, creato INTEGER, ultimo INTEGER)`),
       d.prepare('CREATE TABLE IF NOT EXISTS codici (email TEXT PRIMARY KEY, hash TEXT, scade INTEGER, tentativi INTEGER NOT NULL DEFAULT 0, inviato INTEGER)'),
@@ -22,7 +22,7 @@ export async function gdb(env) {
         pagine INTEGER NOT NULL DEFAULT 1, pagina TEXT, PRIMARY KEY (vid, giorno))`),
       d.prepare('CREATE INDEX IF NOT EXISTS pres_ultimo ON presenze(ultimo)'),
       d.prepare('CREATE INDEX IF NOT EXISTS pres_giorno ON presenze(giorno)'),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     try { await d.prepare('ALTER TABLE utenti ADD COLUMN recupero TEXT').run(); } catch (e) { /* colonna già presente */ }
     pronto = true;
   }

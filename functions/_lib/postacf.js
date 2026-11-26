@@ -9,7 +9,7 @@ const CHUNK = 1_500_000;
 
 export async function cdb(env) {
   const d = env.DB;
-  await d.batch([
+  try { await d.batch([
     d.prepare(`CREATE TABLE IF NOT EXISTS pcaselle(indirizzo TEXT PRIMARY KEY, nome TEXT, firma TEXT, auto_on INTEGER DEFAULT 0, auto_oggetto TEXT, auto_testo TEXT,
       norisposta INTEGER DEFAULT 0, ordine INTEGER DEFAULT 0, at INTEGER)`),
     d.prepare(`CREATE TABLE IF NOT EXISTS pmail(id TEXT PRIMARY KEY, casella TEXT, cartella TEXT, da_nome TEXT, da_email TEXT, a TEXT, cc TEXT, per TEXT, oggetto TEXT,
@@ -20,7 +20,7 @@ export async function cdb(env) {
     d.prepare('CREATE TABLE IF NOT EXISTS pmail_raw(id TEXT, n INTEGER, dati BLOB, PRIMARY KEY(id, n))'),
     d.prepare('CREATE TABLE IF NOT EXISTS pmail_liste(email TEXT PRIMARY KEY, tipo TEXT, at INTEGER)'),
     d.prepare('CREATE TABLE IF NOT EXISTS pmail_auto(casella TEXT, email TEXT, at INTEGER, PRIMARY KEY(casella, email))'),
-  ]);
+  ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
   const n = await d.prepare('SELECT COUNT(*) n FROM pcaselle').first();
   if (!n.n) await d.batch(CASELLE_BASE.map((c, i) => d.prepare('INSERT OR IGNORE INTO pcaselle(indirizzo,nome,firma,auto_on,auto_oggetto,auto_testo,norisposta,ordine,at) VALUES(?,?,?,?,?,?,?,?,?)')
     .bind(c.indirizzo, c.nome, '', c.auto ? 1 : 0, c.oggetto || '', c.testo, c.norisposta ? 1 : 0, i, Date.now())));

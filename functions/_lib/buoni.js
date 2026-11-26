@@ -21,7 +21,7 @@ let pronto = false;
 export async function dbb(env) {
   const d = await dbc(env);
   if (!pronto) {
-    await d.batch([
+    try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS buoni (
         id TEXT PRIMARY KEY, h TEXT UNIQUE NOT NULL, fine TEXT, tipo TEXT NOT NULL,
         importo INTEGER NOT NULL, saldo INTEGER NOT NULL, cliente TEXT,
@@ -32,7 +32,7 @@ export async function dbb(env) {
         sessione TEXT NOT NULL, buono TEXT NOT NULL, importo INTEGER NOT NULL, scade INTEGER NOT NULL, PRIMARY KEY (sessione, buono))`),
       d.prepare(`CREATE TABLE IF NOT EXISTS buoni_mov (
         id TEXT PRIMARY KEY, buono TEXT NOT NULL, delta INTEGER NOT NULL, motivo TEXT, quando TEXT)`),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     try { await d.prepare('ALTER TABLE ordini ADD COLUMN base INTEGER').run(); } catch {}
     try { await d.prepare('ALTER TABLE buoni ADD COLUMN pi TEXT').run(); } catch {} // pagamento Stripe del buono regalo (per i rimborsi)
     pronto = true;

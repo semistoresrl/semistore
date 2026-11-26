@@ -4,7 +4,7 @@ let pronto = false;
 export async function db(env) {
   if (!env.DB) throw new Error('database D1 non collegato (binding DB)');
   if (!pronto) {
-    await env.DB.batch([
+    try { await env.DB.batch([
       env.DB.prepare(`CREATE TABLE IF NOT EXISTS giacenze (
         slug TEXT PRIMARY KEY, codice TEXT, qty INTEGER NOT NULL DEFAULT 0, prezzo INTEGER,
         dati TEXT, aggiornata TEXT,
@@ -16,7 +16,7 @@ export async function db(env) {
       env.DB.prepare('CREATE TABLE IF NOT EXISTS impostazioni (k TEXT PRIMARY KEY, v TEXT)'),
       env.DB.prepare(`CREATE TABLE IF NOT EXISTS movimenti (
         id TEXT PRIMARY KEY, canale TEXT, slug TEXT, qty INTEGER, quando TEXT)`),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     // colonna aggiunta dopo (prodotti già caricati a mano su TikTok): sulle tabelle esistenti la aggiungo
     try { await env.DB.prepare('ALTER TABLE giacenze ADD COLUMN tt_esistente INTEGER NOT NULL DEFAULT 0').run(); } catch {}
     pronto = true;

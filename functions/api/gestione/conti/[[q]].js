@@ -41,7 +41,7 @@ let pronto = false;
 async function cdb(env) {
   const d = await gdb(env);
   if (!pronto) {
-    await d.batch([
+    try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS cont_doc (id TEXT PRIMARY KEY, fonte TEXT, dt TEXT, tipo TEXT, verso TEXT, num TEXT, data TEXT, anno TEXT,
         cli TEXT, nome TEXT, piva TEXT, imp REAL, fimp REAL, fiva REAL, ftot REAL, righe INTEGER, pagamento TEXT, scadenza TEXT, pagato INTEGER,
         pagatoIl TEXT, metodo TEXT, note TEXT, canale TEXT, rif TEXT, categoria TEXT, stat INTEGER NOT NULL DEFAULT 0, nasc INTEGER NOT NULL DEFAULT 0,
@@ -53,7 +53,7 @@ async function cdb(env) {
       d.prepare('CREATE INDEX IF NOT EXISTS sa_base ON storico_art(base)'),
       d.prepare('CREATE INDEX IF NOT EXISTS sa_cli ON storico_art(cli)'),
       d.prepare('CREATE TABLE IF NOT EXISTS storico_art_info (k TEXT PRIMARY KEY, v TEXT)'),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     try { await d.prepare('CREATE INDEX IF NOT EXISTS sa_doc ON storico_art(tipo, num, data)').run(); } catch (e) {}
     pronto = true;
   }

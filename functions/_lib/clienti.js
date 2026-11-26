@@ -17,7 +17,7 @@ let pronto = false;
 export async function dbc(env) {
   const d = await db(env);
   if (!pronto) {
-    await d.batch([
+    try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS clienti (
         id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, tipo TEXT,
         nome TEXT, cognome TEXT, telefono TEXT, cf TEXT,
@@ -37,7 +37,7 @@ export async function dbc(env) {
       d.prepare(`CREATE TABLE IF NOT EXISTS punti_mov (
         id TEXT PRIMARY KEY, cliente TEXT NOT NULL, delta INTEGER NOT NULL, motivo TEXT, quando TEXT)`),
       d.prepare('CREATE INDEX IF NOT EXISTS p_cliente ON punti_mov(cliente)'),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     try { await d.prepare('ALTER TABLE ordini ADD COLUMN pi TEXT').run(); } catch {} // payment intent, per i rimborsi
     try { await d.prepare('ALTER TABLE clienti ADD COLUMN stripe_cus TEXT').run(); } catch {} // cliente Stripe: il pagamento si apre già compilato
     pronto = true;

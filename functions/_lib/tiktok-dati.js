@@ -36,14 +36,14 @@ let pronto = false;
 export async function tdb(env) {
   const d = await db(env);
   if (!pronto) {
-    await d.batch([
+    try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS tt_ordini (id TEXT PRIMARY KEY, creato INTEGER, aggiornato INTEGER, stato TEXT,
         totale INTEGER, spedizione INTEGER, sconti INTEGER, valuta TEXT, campione INTEGER NOT NULL DEFAULT 0, articoli TEXT,
         tracking TEXT, corriere TEXT, scadenza INTEGER, annullo TEXT, salvato TEXT)`),
       d.prepare('CREATE INDEX IF NOT EXISTS tto_creato ON tt_ordini(creato)'),
       d.prepare(`CREATE TABLE IF NOT EXISTS tt_prodotti (id TEXT PRIMARY KEY, titolo TEXT, stato TEXT, sku TEXT,
         scorte INTEGER, prezzo INTEGER, problemi TEXT, creato INTEGER, aggiornato INTEGER, visto TEXT)`),
-    ]);
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
     try { await d.prepare('ALTER TABLE tt_prodotti ADD COLUMN sku_id TEXT').run(); } catch {}
     pronto = true;
   }
