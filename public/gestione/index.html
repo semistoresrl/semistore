@@ -5626,7 +5626,7 @@ window.addEventListener("hashchange",()=>{window.scrollTo(0,0);render()});
 function tCardify(root){ (root||document).querySelectorAll("table:not(.pvt):not(.nocard)").forEach(t=>{ const rows=t.querySelectorAll(":scope>tbody>tr:not([data-tc]),:scope>tfoot>tr:not([data-tc])"); if(t.classList.contains("tcard")&&!rows.length) return; const th=[...t.querySelectorAll(":scope>thead>tr:last-child>th")]; if(!th.length) return; const lab=[]; th.forEach(h=>{ const c=+(h.getAttribute("colspan")||1); for(let k=0;k<c;k++) lab.push((h.textContent||"").trim()); });
   rows.forEach(tr=>{ tr.setAttribute("data-tc",""); let i=0; [...tr.children].forEach(td=>{ const c=+(td.getAttribute("colspan")||1); if(c===1&&lab[i]&&!td.hasAttribute("data-l")) td.setAttribute("data-l",lab[i]); i+=c; }); });
   t.classList.add("tcard"); }); }
-(function(){ let q=0; const go=()=>{q=0; try{tCardify(document)}catch(e){}}; new MutationObserver(()=>{ if(!q){q=1; requestAnimationFrame(go);} }).observe(document.documentElement,{childList:true,subtree:true});
+(function(){ let q=0; const go=()=>{q=0; try{tCardify(document)}catch(e){}}; new MutationObserver(()=>{ if(!q){q=1; setTimeout(go,30);} }).observe(document.documentElement,{childList:true,subtree:true});
   try{ matchMedia("(max-width:860px)").addEventListener("change",()=>{ try{render()}catch(e){} }); }catch(e){} })();
 /* ---------- shell: menu, quick search, new ticket ---------- */
 function initShell(){
