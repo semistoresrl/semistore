@@ -1370,7 +1370,7 @@ function filtBar(withStato=true){
 function tkCard(t){
   const old=days(t.createdAt)>14;
   return `<div class="tk ${old?"old":""}" data-open="${esc(t.id)}">
-    <div class="n"><span>${esc(t.num)}</span><span>${days(t.createdAt)} gg</span></div>
+    <div class="n"><span>${esc(t.num)}${t.dnum&&t.origine!=="danea"?` · Danea ${esc(String(t.dnum).slice(-4).replace(/^0+/,""))}`:""}</span><span>${days(t.createdAt)} gg</span></div>
     <div class="m">${esc(t.modello||"Utensile")}</div>
     <div class="c">${esc(t.cliente||"—")}${t.cliFin?` <span class="sub">→ ${esc(t.cliFin)}</span>`:""}${t.ddtNum?` <span class="sub">· DDT ${esc(t.ddtNum)}</span>`:""}</div>
     <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
@@ -5486,22 +5486,54 @@ async function leggiPacchetto(f){
   else txt=await f.text();
   const P=JSON.parse(txt); if(!P||P.tipo!=="aggiornamento_danea") throw new Error("Non è un file di aggiornamento Danea"); return P;
 }
+// --- riconciliazione: la stessa riparazione registrata sia in Danea sia nell'app (uso in parallelo) ---
+const IMPORT0=1795705731246; // primo caricamento del 26/11: le schede importate allora non hanno importAt
+const modK=m=>String(m||"").toUpperCase().replace(/[^A-Z0-9]/g,"").replace(/(QW|XJ|QS|QZ|XE|GB|LX|KR|QT)$/,"").slice(0,6);
+function stessoCliente(t,r){ if(t.cliId&&r.cliId&&t.cliId===r.cliId) return true; if(normNome(t.cliente)&&normNome(t.cliente)===normNome(r.cliente)) return true;
+  const k=telKey(t.tel); return !!k&&[r.tel,r.tel2].some(x=>telKey(x)===k); }
+function punteggio(t,r){ if(!stessoCliente(t,r)) return -1; const dr=new Date(r.d+"T12:00:00").getTime(), tc=t.createdAt||0, G=864e5;
+  if(dr<tc-3*G||dr>(t.consegnatoAt||Date.now())+7*G) return -1;
+  const a=modK(t.modello), b=modK(r.modello);
+  if(a.length>=4&&b.length>=4) return a===b?100-Math.abs(dr-tc)/G:-1;
+  return Math.abs(dr-tc)<=2*G?50-Math.abs(dr-tc)/G:-1; }
+const intatta=t=>t.origine==="danea"&&(Number(t.updatedAt)||0)<=(Number(t.importAt)||IMPORT0)+120000;
+function pianoDanea(P){
+  const T=S.tickets||[], perD=new Map(T.filter(t=>t.danea).map(t=>[t.danea,t])), usate=new Set(), piano={collega:[],unisci:[],dubbi:[],crea:[],chiudi:[]};
+  const app=T.filter(t=>t.origine!=="danea"&&!t.danea);
+  const migliore=r=>{ let best=null,bs=-1; for(const t of app){ if(usate.has(t.id)) continue; const s=punteggio(t,r); if(s>bs){bs=s;best=t;} } return best; };
+  const aperte=new Map((P.aperte||[]).map(a=>[a.danea,a]));
+  for(const r of (P.recenti||[])){ const gia=perD.get(r.danea);
+    if(gia){ if(gia.origine==="danea"){ const t=migliore(r); if(t){ usate.add(t.id); (intatta(gia)?piano.unisci:piano.dubbi).push({r,t,imp:gia}); } } continue; }
+    const t=migliore(r); if(t){ usate.add(t.id); piano.collega.push({r,t}); continue; }
+    if(aperte.has(r.danea)) piano.crea.push(aperte.get(r.danea)); }
+  // rapporti aperti fuori dalla finestra dei recenti (non dovrebbe succedere) e primo caricamento senza "recenti"
+  for(const a of (P.aperte||[])) if(!perD.has(a.danea)&&!piano.crea.includes(a)&&!piano.collega.some(x=>x.r.danea===a.danea)&&!(P.recenti||[]).some(r=>r.danea===a.danea)) piano.crea.push(a);
+  const collegate=new Map([...piano.collega,...piano.unisci].map(x=>[x.r.danea,x.t]));
+  for(const [d,c] of Object.entries(P.chiuse||{})){ const t=collegate.get(d)||(perD.get(d)&&!piano.unisci.some(x=>x.imp===perD.get(d))?perD.get(d):null); if(t&&t.stato!=="Consegnato") piano.chiudi.push({t,c}); }
+  return piano; }
 function numDanea(k,y){ return Number(S.cfg?.danea?.numeri?.[k]?.[y])||0; }
 async function applicaPacchetto(P,log,prog){
-  const now=Date.now(), y0=String(new Date().getFullYear()); const out={nuove:0,chiuse:0,giaPresenti:0};
+  const now=Date.now(), y0=String(new Date().getFullYear()); const out={nuove:0,chiuse:0,collegate:0,unite:0,dubbi:0};
   // 1. numerazioni
   log("Numerazioni Danea…");
   await S.db.doc("config/impostazioni").set({...S.cfg,danea:{al:P.al,numeri:P.numeri,aggiornatoAt:now,by:S.me||null}});
   S.cfg.danea={al:P.al,numeri:P.numeri};
-  // 2. schede aperte
-  log(`Schede aperte di Danea (${nf(P.aperte.length)})…`);
-  const pre=(S.cfg.prefisso||"AS"); const perDanea=new Map(S.tickets.filter(t=>t.danea).map(t=>[t.danea,t])); const nums=new Set(S.tickets.map(t=>t.num));
-  let i=0;
-  for(const a of P.aperte){ i++; prog(i/P.aperte.length*0.25);
-    if(perDanea.has(a.danea)){ out.giaPresenti++; continue; }
+  // 2. schede: collega quelle registrate in tutti e due, unisce i doppioni, crea le aperte, chiude le fatturate
+  const pi=pianoDanea(P); log(`Schede: ${pi.collega.length} collegate, ${pi.unisci.length} doppioni uniti, ${pi.crea.length} nuove da Danea, ${pi.chiudi.length} da chiudere…`);
+  const pre=(S.cfg.prefisso||"AS"); const nums=new Set(S.tickets.map(t=>t.num)); let i=0; const tot=pi.collega.length+pi.unisci.length+pi.dubbi.length+pi.crea.length+pi.chiudi.length||1;
+  const nota=(t,x)=>[t.note,x].filter(Boolean).join(" · ");
+  for(const {r,t} of pi.collega){ i++; prog(i/tot*0.25);
+    await S.db.doc("tickets/"+t.id).update({danea:r.danea,dnum:r.dnum,note:nota(t,`Registrata anche in Danea: rapporto ${r.n} del ${arFd(r.d)}`)}); t.danea=r.danea; out.collegate++; }
+  for(const {r,t,imp} of pi.unisci){ i++; prog(i/tot*0.25);
+    await S.db.doc("tickets/"+t.id).update({danea:r.danea,dnum:r.dnum,note:nota(t,`Registrata anche in Danea: rapporto ${r.n} del ${arFd(r.d)} (tolto il doppione ${imp.num})`)});
+    await S.db.doc("tickets/"+imp.id).delete(); t.danea=r.danea; out.unite++; }
+  for(const {r,t,imp} of pi.dubbi){ i++; prog(i/tot*0.25);
+    if(!String(imp.note||"").includes("Possibile doppione")) await S.db.doc("tickets/"+imp.id).update({note:nota(imp,`Possibile doppione della scheda ${t.num}: controllare e tenerne una`)});
+    if(!String(t.note||"").includes("Possibile doppione")) await S.db.doc("tickets/"+t.id).update({note:nota(t,`Possibile doppione della scheda ${imp.num} (rapporto Danea ${r.n}): controllare e tenerne una`)}); out.dubbi++; }
+  for(const a of pi.crea){ i++; prog(i/tot*0.25);
     let num=pre+"-"+a.d.slice(0,4)+"-"+String(a.n).padStart(4,"0"); if(nums.has(num)) num+="-D"; nums.add(num);
     const at=new Date(a.d+"T09:00:00").getTime();
-    const data={num,danea:a.danea,dnum:a.dnum,origine:"danea",stato:a.stato,tipo:a.tipo,createdAt:at,updatedAt:now,
+    const data={num,danea:a.danea,dnum:a.dnum,origine:"danea",importAt:now,stato:a.stato,tipo:a.tipo,createdAt:at,updatedAt:now,
       cliente:a.cliente,cliId:a.cliId||null,tel:a.tel,email:a.email,piva:a.piva,ind:a.ind,cap:a.cap,citta:a.citta,prov:a.prov,
       modello:a.modello,accessori:a.accessori,difetto:a.difetto,dataAcquisto:a.dataAcquisto||"",
       note:[a.descrUt&&a.descrUt!==a.modello?a.descrUt:"",a.esito?"Esito in Danea: "+a.esito:"",a.acquisto?"Acquisto: "+a.acquisto:"",a.note].filter(Boolean).join(" · "),
@@ -5510,8 +5542,7 @@ async function applicaPacchetto(P,log,prog){
       ...(a.stato==="Pronto"?{prontoAt:now}:{}),
       storico:[{stato:"Ricevuto",at,by:"Danea"},...(a.stato!=="Ricevuto"?[{stato:a.stato,at:now,by:"Danea"}]:[])]};
     await S.db.collection("tickets").doc().set(data); out.nuove++; }
-  // schede importate che in Danea risultano chiuse (richiamate in DDT, fattura o banco)
-  for(const t of S.tickets){ if(!t.danea||t.stato==="Consegnato") continue; const c=P.chiuse[t.danea]; if(!c) continue;
+  for(const {t,c} of pi.chiudi){ i++; prog(i/tot*0.25);
     await S.db.doc("tickets/"+t.id).update({stato:"Consegnato",consegnatoAt:now,prontoAt:t.prontoAt||now,updatedAt:now,storico:[...(t.storico||[]),{stato:"Consegnato",at:now,by:"Danea",nota:c}]}); out.chiuse++; }
   // 3. clienti (aggiornati e aggiunti; i dati scritti solo nell'app restano)
   log(`Clienti (${nf(P.clienti.length)})…`);
@@ -5542,10 +5573,10 @@ function openAggDanea(){
   <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="adGo" disabled>Aggiorna</button></div>`);
   let P=null;
   $("#adF").onchange=async e=>{ const f=e.target.files[0]; if(!f) return; $("#adRes").textContent="Leggo il file…";
-    try{ P=await leggiPacchetto(f); const y=P.al.slice(0,4); const gia=new Set(S.tickets.filter(t=>t.danea).map(t=>t.danea)); const nuove=P.aperte.filter(a=>!gia.has(a.danea)); const st={}; nuove.forEach(a=>st[a.stato]=(st[a.stato]||0)+1);
-      const daChiudere=S.tickets.filter(t=>t.danea&&t.stato!=="Consegnato"&&P.chiuse[t.danea]).length;
+    try{ P=await leggiPacchetto(f); const y=P.al.slice(0,4); const pi=pianoDanea(P); const nuove=pi.crea; const st={}; nuove.forEach(a=>st[a.stato]=(st[a.stato]||0)+1); const daChiudere=pi.chiudi.length;
       $("#adRes").innerHTML=`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc">Dati Danea al <b>${arFd(P.al)}</b>.<br>
-        Schede aperte da creare: <b>${nf(nuove.length)}</b>${nuove.length?" ("+Object.entries(st).map(([k,v])=>v+" "+k.toLowerCase()).join(", ")+")":""}${P.aperte.length-nuove.length?` · già nell'app: ${nf(P.aperte.length-nuove.length)}`:""}${daChiudere?` · da segnare consegnate: <b>${daChiudere}</b>`:""}<br>
+        Schede aperte da creare: <b>${nf(nuove.length)}</b>${nuove.length?" ("+Object.entries(st).map(([k,v])=>v+" "+k.toLowerCase()).join(", ")+")":""}${daChiudere?` · da segnare consegnate: <b>${daChiudere}</b>`:""}<br>
+        ${pi.collega.length||pi.unisci.length||pi.dubbi.length?`Stessa riparazione in Danea e nell'app: <b>${pi.collega.length+pi.unisci.length}</b> da collegare${pi.unisci.length?` (${pi.unisci.length} doppioni da togliere)`:""}${pi.dubbi.length?` · <b>${pi.dubbi.length}</b> possibili doppioni da controllare a mano`:""}<div class="sub" style="margin:4px 0">${[...pi.collega,...pi.unisci,...pi.dubbi].slice(0,12).map(x=>`${esc(x.t.num)} ↔ Danea ${esc(x.r.n)} · ${esc(x.t.cliente||"")} · ${esc(x.t.modello||"")}`).join("<br>")}</div>`:""}
         Prossimo numero scheda: <b>${esc((S.cfg.prefisso||"AS")+"-"+y+"-"+String(Math.max(Number(P.numeri?.G?.[y])||0,...S.tickets.filter(t=>String(t.num||"").startsWith((S.cfg.prefisso||"AS")+"-"+y+"-")).map(t=>parseInt(String(t.num).split("-")[2],10)||0))+1).padStart(4,"0"))}</b> · preventivo: <b>PR-${y}-${String((Number(P.numeri?.Q?.[y])||0)+1).padStart(4,"0")}</b> o successivo<br>
         Clienti: <b>${nf(P.clienti.length)}</b> · archivio: <b>${nf(P.archivio.length)}</b> documenti · storico per codice: <b>${nf(P.storicoArt.righe.length)}</b> righe
         ${P.vecchieNonChiuse?`<br><span class="sub">${P.vecchieNonChiuse} riparazioni ${y} più vecchie di ${P.giorniAperte} giorni non risultano chiuse in Danea: non vengono importate (si trovano nell'Archivio Danea).</span>`:""}</div>`;
@@ -5553,7 +5584,7 @@ function openAggDanea(){
     catch(x){ P=null; $("#adRes").innerHTML=`<div class="banner err" style="margin:0">${esc(x.message||"File non valido")}</div>`; } };
   $("#adGo").onclick=async()=>{ const b=$("#adGo"); b.disabled=true; $("#adProg").style.display="block"; const lg=$("#adLog");
     try{ const r=await applicaPacchetto(P,m=>{ lg.innerHTML+=esc(m)+"<br>"; },f=>{ $("#adProg i").style.width=Math.round(f*100)+"%"; });
-      lg.innerHTML+=`<b>Fatto.</b> ${r.nuove} schede create${r.chiuse?`, ${r.chiuse} segnate consegnate`:""}${r.giaPresenti?`, ${r.giaPresenti} già presenti`:""}.`; toast("Aggiornamento da Danea completato"); b.textContent="Fatto"; }
+      lg.innerHTML+=`<b>Fatto.</b> ${r.nuove} schede create da Danea${r.collegate?`, ${r.collegate} collegate a schede dell'app`:""}${r.unite?`, ${r.unite} doppioni tolti`:""}${r.dubbi?`, ${r.dubbi} possibili doppioni segnati nelle note`:""}${r.chiuse?`, ${r.chiuse} segnate consegnate`:""}.`; toast("Aggiornamento da Danea completato"); b.textContent="Fatto"; }
     catch(e){ lg.innerHTML+=`<div class="banner err">${esc(e.message||"errore")}. Si può rifare: non crea doppioni.</div>`; b.disabled=false; b.textContent="Riprova"; } };
 }
 function apriStorico(cod){ S.sa=S.sa||{cache:{}}; S.sa.cod=String(cod||"").toUpperCase(); S.sa.q=S.sa.cod; S.sa.f="tutto"; S.sa.anno=""; try{ closeModal(); }catch(e){} if(location.hash!=="#storico") location.hash="#storico"; else render(); }

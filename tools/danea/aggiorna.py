@@ -17,6 +17,7 @@ import sys, os, json, gzip, zipfile, tempfile, collections, datetime, re
 import fdb
 
 GIORNI_APERTE = 90
+GIORNI_RECENTI = 120
 src = sys.argv[1]
 out = sys.argv[2] if len(sys.argv) > 2 else 'aggiornamento_danea.json.gz'
 if src.lower().endswith('.bef') or zipfile.is_zipfile(src):
@@ -189,9 +190,19 @@ for i, r in T.items():
                        manodopera=round(mo * 1.22, 2), manodoperaDescr=', '.join(moD)[:200], note=S(r[16])[:300], sconto=a.get('sconto', '')))
 aperte.sort(key=lambda x: (x['d'], x['n']))
 
+# rapporti recenti (aperti e chiusi): servono a riconoscere le riparazioni registrate sia in Danea sia nell'app
+recenti = []
+da_rec = (oggi - datetime.timedelta(days=GIORNI_RECENTI)).isoformat()
+for i, r in T.items():
+    if r[1] != 'G' or not r[2] or str(r[2])[:10] < da_rec: continue
+    u, ud = utensile(RW.get(i, [])); a = ANA.get(r[4], {})
+    recenti.append(dict(danea=ID[i], dnum=S(r[3]), d=str(r[2])[:10], n=nshort(r[3], r[2]), cliId=cliDi(r[4]), cliente=S(r[5]) or a.get('nome', ''),
+                        tel=a.get('cell') or a.get('tel') or '', tel2=a.get('tel') or '', modello=(u or ud).upper(), chiusa=chiuse.get(ID[i], '') if r[11] else ''))
+recenti.sort(key=lambda x: x['d'])
+
 pac = dict(tipo='aggiornamento_danea', versione=1, al=ultima, creato=datetime.datetime.now().isoformat(timespec='seconds'), giorniAperte=GIORNI_APERTE,
-           numeri=numeri, aperte=aperte, vecchieNonChiuse=vecchie, chiuse=chiuse, clienti=clienti, riparazioni=rip, archivio=arch,
+           numeri=numeri, aperte=aperte, recenti=recenti, vecchieNonChiuse=vecchie, chiuse=chiuse, clienti=clienti, riparazioni=rip, archivio=arch,
            storicoArt=dict(righe=sa, info=dict(codici=len(codici), da=sa[0][2] if sa else '', a=sa[-1][2] if sa else '', righe=len(sa))))
 with gzip.open(out, 'wt', encoding='utf-8') as f: json.dump(pac, f, ensure_ascii=False, separators=(',', ':'))
-print(json.dumps(dict(al=ultima, numeri=numeri, aperte=len(aperte), statiAperte=collections.Counter(x['stato'] for x in aperte), tipiAperte=collections.Counter(x['tipo'] for x in aperte),
+print(json.dumps(dict(al=ultima, numeri=numeri, aperte=len(aperte), recenti=len(recenti), statiAperte=collections.Counter(x['stato'] for x in aperte), tipiAperte=collections.Counter(x['tipo'] for x in aperte),
                       vecchieNonChiuse=vecchie, chiuse=len(chiuse), clienti=len(clienti), clientiRip=len(rip), archivio=len(arch), storicoArt=len(sa), file=out, MB=round(os.path.getsize(out) / 1e6, 1)), ensure_ascii=False, indent=1))
