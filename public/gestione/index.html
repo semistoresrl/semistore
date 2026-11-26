@@ -623,6 +623,7 @@ textarea.winp{min-height:110px;font-size:20px}
 .pbox .chips{margin-bottom:10px;flex-wrap:wrap}.pfol .chip .i{width:15px;height:15px;vertical-align:-3px;margin-right:4px}.pn{background:var(--bad);color:#fff;border-radius:9px;padding:0 6px;font-size:12px;margin-left:4px}.pn.sp{background:var(--muted)}
 .plist{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .prow{display:grid;grid-template-columns:minmax(120px,220px) 1fr auto;gap:12px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:#fff;padding:12px 14px;font:inherit;cursor:pointer;color:var(--ink)}
+.prw{display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:#fff}.prw .prow{border-bottom:0;flex:1;min-width:0}.prw.sel,.prw.sel .prow{background:#eef4ff}.pck{display:flex;align-items:center;padding:0 4px 0 12px;cursor:pointer}.pck input{width:20px;height:20px;cursor:pointer}.psel{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}.psel .btn{padding:7px 12px}
 .prow:hover{background:var(--paper)}.prow.nl{background:#fffbea}.prow.nl .pfrom,.prow.nl .psub{font-weight:800}
 .pfrom,.psub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.psub{color:#333}.pdate{font-size:12px;color:var(--muted);white-space:nowrap;display:flex;gap:4px;align-items:center}.pdate .i{width:14px;height:14px}
 @media (max-width:700px){.prow{grid-template-columns:1fr auto;grid-template-areas:"f d" "s s";row-gap:2px}.pfrom{grid-area:f}.pdate{grid-area:d}.psub{grid-area:s;font-size:14px}}
@@ -4683,9 +4684,10 @@ function vPosta(){
   `<div id="paBox"></div><div class="pbox"><div class="chips pcas">${PO.caselle.map(c=>`<button class="chip ${c.id===PO.c?"on":""}" data-pc="${c.id}">${esc(c.nome||c.email)}${PO.nuove[c.id]?` <b class="pn">${PO.nuove[c.id]}</b>`:""}${c.errore?" ⚠️":""}</button>`).join("")}</div>
    <div class="chips pfol">${(cs||[]).map(f=>`<button class="chip ${f.nome===PO.f?"on":""} ${f.uso==="spam"?"spam":""}" data-pf="${esc(f.nome)}">${ic(USO_IC[f.uso]||"folder")}${esc(f.vista)}${f.nuove?` <b class="pn">${f.nuove}</b>`:f.uso==="spam"&&f.tot?` <b class="pn sp">${f.tot}</b>`:""}</button>`).join("")||`<span class="sub">Carico le cartelle…</span>`}</div>
    <div class="toolbar"><input type="search" id="pQ" placeholder="Cerca in ${esc(cart.vista)}: mittente, oggetto, testo…" value="${esc(PO.cerca)}"></div>
+   ${L&&L.mess.length?(()=>{ const sel=PO.sel||new Set(), n=L.mess.filter(m=>sel.has(String(m.uid))).length; return `<div class="psel"><label class="pck" style="padding:0"><input type="checkbox" id="pSelAll" ${n&&n===L.mess.length?"checked":""}></label><span class="sub">${n?`<b>${n}</b> selezionate`:"Seleziona tutte"}</span>${n?`<button class="btn" id="pBL">${ic("check")}Segna come lette</button><button class="btn" id="pBN">Segna come non lette</button><button class="btn ghost" id="pBX">Annulla selezione</button>`:""}</div>`; })():""}
    ${PO.err?`<div class="banner err">${esc(PO.err)}</div>`:""}
    ${cart.uso==="spam"?`<div class="banner">Qui finiscono le email che il server considera spam. Aprile per vedere il punteggio; se una è buona tocca <b>“Non è spam”</b> e torna in arrivo.</div>`:""}
-   <div class="plist">${!L?`<div class="empty">Carico le email…</div>`:L.mess.length?L.mess.map(m=>`<button class="prow ${m.letto?"":"nl"}" data-pu="${m.uid}"><span class="pfrom">${esc(cart.uso==="inviati"?"A: "+(m.a||[]).map(chi).join(", "):chi(m.da))}</span><span class="psub">${m.stella?"⭐ ":""}${m.risposto?"↩︎ ":""}${m.auto?`<span class="badge">automatica</span> `:""}${m.per?`<span class="badge">per ${esc(m.per)}</span> `:""}${esc(m.oggetto||"(senza oggetto)")}</span><span class="pdate">${m.allegati?ic("clipboard"):""}${dataBreve(m.data)}</span></button>`).join("")
+   <div class="plist">${!L?`<div class="empty">Carico le email…</div>`:L.mess.length?L.mess.map(m=>`<div class="prw ${(PO.sel||new Set()).has(String(m.uid))?"sel":""}"><label class="pck" title="Seleziona"><input type="checkbox" data-psel="${m.uid}" ${(PO.sel||new Set()).has(String(m.uid))?"checked":""}></label><button class="prow ${m.letto?"":"nl"}" data-pu="${m.uid}"><span class="pfrom">${esc(cart.uso==="inviati"?"A: "+(m.a||[]).map(chi).join(", "):chi(m.da))}</span><span class="psub">${m.stella?"⭐ ":""}${m.risposto?"↩︎ ":""}${m.auto?`<span class="badge">automatica</span> `:""}${m.per?`<span class="badge">per ${esc(m.per)}</span> `:""}${esc(m.oggetto||"(senza oggetto)")}</span><span class="pdate">${m.allegati?ic("clipboard"):""}${dataBreve(m.data)}</span></button></div>`).join("")
      +(L.mess.length<L.tot?`<button class="btn" data-act="pAltre" style="margin:10px auto;display:flex">${PO.carico?"Carico…":`Carica altre (${L.tot-L.mess.length})`}</button>`:""):`<div class="empty">${PO.cerca?"Nessuna email trovata":"Nessuna email"}</div>`}</div></div>`;
 }
 
@@ -4974,8 +4976,21 @@ function disegnaAttesa(){ const b=$("#paBox"), r=PO.pa; if(!b||!r||!r.n) { if(b)
 }
 function bindPosta(){ const m=$("#main");
   if(isAdmin()&&$("#paBox")){ if(PO.pa&&Date.now()-PO.pa.at<60000) disegnaAttesa(); else SEMI.req("../posta/attesa").then(r=>{ PO.pa={...r,at:Date.now()}; disegnaAttesa(); }).catch(()=>{}); }
-  m.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ PO.c=b.dataset.pc; PO.f="INBOX"; PO.cerca=""; render(); });
-  m.querySelectorAll("[data-pf]").forEach(b=>b.onclick=()=>{ PO.f=b.dataset.pf; PO.cerca=""; render(); });
+  m.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ PO.c=b.dataset.pc; PO.f="INBOX"; PO.cerca=""; PO.sel=new Set(); render(); });
+  m.querySelectorAll("[data-pf]").forEach(b=>b.onclick=()=>{ PO.f=b.dataset.pf; PO.cerca=""; PO.sel=new Set(); render(); });
+  // selezione multipla: segna come lette / non lette
+  if(!PO.sel) PO.sel=new Set();
+  const Lp=PO.liste[pChiave()];
+  m.querySelectorAll("[data-psel]").forEach(c=>c.onchange=()=>{ const u=c.dataset.psel; c.checked?PO.sel.add(u):PO.sel.delete(u); render(); });
+  const sa=$("#pSelAll"); if(sa&&Lp) sa.onchange=()=>{ PO.sel=sa.checked?new Set(Lp.mess.map(x=>String(x.uid))):new Set(); render(); };
+  const segna=async(op)=>{ if(!Lp) return; const l=Lp.mess.filter(x=>PO.sel.has(String(x.uid))&&!!x.letto!==(op==="letto")); const tutte=Lp.mess.filter(x=>PO.sel.has(String(x.uid)));
+    if(!l.length){ toast(op==="letto"?"Sono già tutte lette":"Sono già tutte da leggere"); PO.sel=new Set(); render(); return; }
+    toast(`Aggiorno ${l.length} email…`); let ok=0, err="";
+    for(let i=0;i<l.length;i+=5) await Promise.all(l.slice(i,i+5).map(x=>pPost("azione",{c:PO.c,f:PO.f,uid:x.uid,op}).then(()=>{ x.letto=op==="letto"; ok++; }).catch(e=>{ err=e.message; })));
+    PO.sel=new Set(); toast(err?`${ok} aggiornate, ${l.length-ok} non riuscite: ${err}`:`${ok} email segnate come ${op==="letto"?"lette":"da leggere"}`); caricaCartelle(true); caricaCaselle(true); render(); };
+  const bl=$("#pBL"); if(bl) bl.onclick=()=>segna("letto");
+  const bn=$("#pBN"); if(bn) bn.onclick=()=>segna("nonletto");
+  const bx=$("#pBX"); if(bx) bx.onclick=()=>{ PO.sel=new Set(); render(); };
   m.querySelectorAll("[data-pu]").forEach(b=>b.onclick=()=>apriEmail(/^\d+$/.test(b.dataset.pu)?Number(b.dataset.pu):b.dataset.pu));
   const q=$("#pQ"); if(q) q.onkeydown=e=>{ if(e.key==="Enter"){ PO.cerca=q.value.trim(); render(); } };
   if(q) q.onsearch=()=>{ PO.cerca=q.value.trim(); render(); };
