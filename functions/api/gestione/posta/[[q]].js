@@ -151,8 +151,8 @@ export async function onRequest({ request, env, params }) {
       const CART = [['INBOX', 'arrivo', 'In arrivo'], ['Inviati', 'inviati', 'Inviati'], ['Spam', 'spam', 'Spam'], ['Archivio', 'archivio', 'Archivio'], ['Cestino', 'cestino', 'Cestino']];
       const daNome = (f) => (CART.find((x) => x[0] === f) || CART[0])[1];
       // pulizia: cestino e spam più vecchi di 30 giorni
-      if (Math.random() < 0.05) { const vecchi = ((await dc.prepare("SELECT id FROM pmail WHERE cartella IN ('cestino','spam') AND at < ? LIMIT 200").bind(Date.now() - 30 * 864e5).all()).results || []).map((r) => r.id);
-        for (const i of vecchi) await dc.batch([dc.prepare('DELETE FROM pmail_raw WHERE id=?').bind(i), dc.prepare('DELETE FROM pmail WHERE id=?').bind(i)]); }
+      if (Math.random() < 0.05) try { const vecchi = ((await dc.prepare("SELECT id FROM pmail WHERE cartella IN ('cestino','spam') AND at < ? LIMIT 200").bind(Date.now() - 30 * 864e5).all()).results || []).map((r) => r.id);
+        for (const i of vecchi) await dc.batch([dc.prepare('DELETE FROM pmail_raw WHERE id=?').bind(i), dc.prepare('DELETE FROM pmail WHERE id=?').bind(i)]); } catch (e) { /* pulizia rimandata */ }
       if (p === 'cartelle') {
         const st = Object.fromEntries((((await dc.prepare('SELECT cartella, COUNT(*) tot, SUM(CASE WHEN letto=0 THEN 1 ELSE 0 END) nuove FROM pmail WHERE casella=? GROUP BY cartella').bind(ind).all()).results) || []).map((r) => [r.cartella, r]));
         return json({ cartelle: CART.map(([nome, uso, vista]) => ({ nome, uso: uso === 'arrivo' ? 'arrivo' : uso, vista, tot: st[uso]?.tot || 0, nuove: uso === 'inviati' ? 0 : st[uso]?.nuove || 0 })) });
@@ -174,7 +174,7 @@ export async function onRequest({ request, env, params }) {
         if (p === 'originale') return new Response(Uint8Array.from(raw, (x) => x.charCodeAt(0) & 255), { headers: { 'content-type': 'message/rfc822', 'content-disposition': `attachment; filename="email.eml"`, 'cache-control': 'private, no-store' } });
         if (p === 'allegato') { const a = parteMime(raw, g('part')); if (!a) return json({ error: 'allegato non trovato' }, 404);
           return new Response(a.dati, { headers: { 'content-type': a.tipo || 'application/octet-stream', 'content-disposition': `${/^(image|application\/pdf|text)/.test(a.tipo) ? 'inline' : 'attachment'}; filename*=UTF-8''${encodeURIComponent(a.nome)}`, 'cache-control': 'private, no-store' } }); }
-        if (!r.letto) await dc.prepare('UPDATE pmail SET letto=1 WHERE id=?').bind(uid).run();
+        if (!r.letto) await dc.prepare('UPDATE pmail SET letto=1 WHERE id=?').bind(uid).run().catch(() => {}); // sola lettura se le scritture sono finite
         const x = leggiMime(raw), h = x.h, si = JSON.parse(r.spam_info || '{}');
         return json({ uid, oggetto: r.oggetto || dec2047(h.subject || ''), data: r.data, da: { nome: r.da_nome, email: r.da_email }, a: JSON.parse(r.a || '[]'), cc: JSON.parse(r.cc || '[]'), per: r.per,
           rispondiA: indirizzi(h['reply-to'])[0] || null, messageId: r.message_id, riferimenti: r.riferimenti, testo: x.testo, html: x.html, cid: x.cid, allegati: x.allegati,
