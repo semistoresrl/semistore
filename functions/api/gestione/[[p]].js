@@ -40,6 +40,17 @@ async function gestisci(ctx) {
     if (io) await d.prepare('UPDATE utenti SET ultimo=? WHERE email=?').bind(Date.now(), io.email).run().catch(() => {}); // se il database non accetta scritture si entra lo stesso in sola lettura
     return json({ utente: io, primoAvvio: n === 0, email: !!env.RESEND_API_KEY, mittente: !!env.EMAIL_FROM, ai: !!(env.ANTHROPIC_API_KEY || env.AI) });
   }
+  // prova dell'API Conversions di Meta (solo admin): manda un evento di prova a «Testa gli eventi» e restituisce la risposta di Meta
+  if (p === 'metatest' && m === 'POST') {
+    if (!io || io.ruolo !== 'admin') return json({ error: 'solo amministratore' }, 403);
+    if (!env.META_CAPI_TOKEN) return json({ error: 'META_CAPI_TOKEN non impostato' }, 400);
+    const ev = { event_name: 'PageView', event_time: Math.floor(Date.now() / 1000), event_id: 'prova-' + Date.now(), action_source: 'website',
+      event_source_url: 'https://semistore.it/', user_data: { client_ip_address: request.headers.get('cf-connecting-ip') || undefined, client_user_agent: request.headers.get('user-agent') || undefined } };
+    const q = { data: [ev], access_token: env.META_CAPI_TOKEN };
+    if (body && body.codice) q.test_event_code = String(body.codice).slice(0, 40);
+    const r = await fetch('https://graph.facebook.com/v21.0/2053772285330509/events', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(q) });
+    return json({ stato: r.status, meta: await r.json().catch(() => null) });
+  }
   if (p === 'primo' && m === 'POST') {
     const n = (await d.prepare('SELECT COUNT(*) n FROM utenti').first()).n;
     if (n > 0) return json({ error: 'già configurato' }, 409);
