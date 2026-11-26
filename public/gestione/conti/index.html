@@ -245,6 +245,7 @@ function leggiHash(){ const h=decodeURIComponent(location.hash.slice(1)||"riepil
 function vai(v,arg){ location.hash=v+(arg?"/"+encodeURIComponent(arg):""); }
 function render(){
   $$("#nav a,#bb a").forEach(a=>a.classList.toggle("on",a.dataset.v===S.view||(S.view==="cliente"&&a.dataset.v==="clienti")||(a.dataset.v==="altro"&&["articoli","anni","carica","modifiche","incassi","altro"].includes(S.view))));
+  const av=$("#avviso"); if(av) av.remove(); if(S.st?.avviso){ const b=document.createElement("div"); b.id="avviso"; b.className="banner ko"; b.style.margin="0 0 14px"; b.textContent="⚠️ "+S.st.avviso; $("#wrap").before(b); b.style.margin="12px 18px 0"; }
   const d=S.st?.danea; $("#navNt").innerHTML=d?`Danea: documenti dal ${gma(d.da)} al ${gma(d.a)}. Dopo, i dati arrivano dall'app.`:"";
   const f={riepilogo:vRiepilogo,documenti:vDocumenti,clienti:vClienti,cliente:vCliente,incassi:vIncassi,commercialista:vCommercialista,articoli:vArticoli,anni:vAnni,carica:vCarica,modifiche:vModifiche,altro:vAltro}[S.view]||vRiepilogo;
   window.scrollTo(0,0); f();

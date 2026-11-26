@@ -41,20 +41,20 @@ let pronto = false;
 async function cdb(env) {
   const d = await gdb(env);
   if (!pronto) {
+    // piano gratuito D1: 100.000 righe scritte al giorno (ogni indice conta come una scrittura in più) → un solo indice
+    const c = await d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='cont_doc'").first();
+    if (c.n) { pronto = true; return d; }
     try { await d.batch([
       d.prepare(`CREATE TABLE IF NOT EXISTS cont_doc (id TEXT PRIMARY KEY, fonte TEXT, dt TEXT, tipo TEXT, verso TEXT, num TEXT, data TEXT, anno TEXT,
         cli TEXT, nome TEXT, piva TEXT, imp REAL, fimp REAL, fiva REAL, ftot REAL, righe INTEGER, pagamento TEXT, scadenza TEXT, pagato INTEGER,
         pagatoIl TEXT, metodo TEXT, note TEXT, canale TEXT, rif TEXT, categoria TEXT, stat INTEGER NOT NULL DEFAULT 0, nasc INTEGER NOT NULL DEFAULT 0,
         mod INTEGER NOT NULL DEFAULT 0, chi TEXT, u INTEGER)`),
       d.prepare('CREATE INDEX IF NOT EXISTS cd_data ON cont_doc(data)'),
-      d.prepare('CREATE INDEX IF NOT EXISTS cd_cli ON cont_doc(cli)'),
-      d.prepare('CREATE INDEX IF NOT EXISTS cd_tipo ON cont_doc(tipo, data)'),
       d.prepare('CREATE TABLE IF NOT EXISTS storico_art (cod TEXT NOT NULL, base TEXT NOT NULL, tipo TEXT, data TEXT, num TEXT, cli TEXT, nome TEXT, qta REAL, prezzo REAL, sconti TEXT, tot REAL, descr TEXT)'),
       d.prepare('CREATE INDEX IF NOT EXISTS sa_base ON storico_art(base)'),
       d.prepare('CREATE INDEX IF NOT EXISTS sa_cli ON storico_art(cli)'),
       d.prepare('CREATE TABLE IF NOT EXISTS storico_art_info (k TEXT PRIMARY KEY, v TEXT)'),
     ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
-    try { await d.prepare('CREATE INDEX IF NOT EXISTS sa_doc ON storico_art(tipo, num, data)').run(); } catch (e) {}
     pronto = true;
   }
   return d;
@@ -93,9 +93,11 @@ async function ricalcolaDanea(d) {
     ON CONFLICT(id) DO UPDATE SET imp=excluded.imp, righe=excluded.righe, stat=excluded.stat,
       cli=CASE WHEN cont_doc.mod=1 THEN cont_doc.cli ELSE excluded.cli END, nome=CASE WHEN cont_doc.mod=1 THEN cont_doc.nome ELSE excluded.nome END,
       data=CASE WHEN cont_doc.mod=1 THEN cont_doc.data ELSE excluded.data END, anno=CASE WHEN cont_doc.mod=1 THEN cont_doc.anno ELSE excluded.anno END,
-      tipo=CASE WHEN cont_doc.mod=1 THEN cont_doc.tipo ELSE excluded.tipo END, u=excluded.u`).run();
+      tipo=CASE WHEN cont_doc.mod=1 THEN cont_doc.tipo ELSE excluded.tipo END, u=excluded.u
+    WHERE cont_doc.imp IS NOT excluded.imp OR cont_doc.righe IS NOT excluded.righe OR cont_doc.stat IS NOT excluded.stat
+      OR (cont_doc.mod=0 AND (cont_doc.cli IS NOT excluded.cli OR cont_doc.nome IS NOT excluded.nome OR cont_doc.data IS NOT excluded.data))`).run();
   // documenti Danea non più nello storico (ricaricato): tolti, tranne quelli toccati a mano o con importi esatti
-  await d.prepare("DELETE FROM cont_doc WHERE fonte='danea' AND u<? AND mod=0 AND fimp IS NULL").bind(now).run();
+  await d.prepare(`DELETE FROM cont_doc WHERE fonte='danea' AND mod=0 AND fimp IS NULL AND id NOT IN (SELECT ${ID_SQL} FROM storico_art WHERE data IS NOT NULL AND data<>'')`).run();
   const fine = await d.prepare("SELECT MIN(data) da, MAX(data) a, COUNT(*) n FROM storico_art WHERE data<>''").first();
   const n = (await d.prepare("SELECT COUNT(*) n FROM cont_doc WHERE fonte='danea'").first()).n;
   await setInfo(d, 'conti_danea', { at: now, da: fine?.da || '', a: fine?.a || '', righe: fine?.n || 0, documenti: n });
@@ -153,12 +155,15 @@ async function ricalcolaApp(d) {
       scadenza=CASE WHEN cont_doc.mod=1 THEN cont_doc.scadenza ELSE excluded.scadenza END, nome=CASE WHEN cont_doc.mod=1 THEN cont_doc.nome ELSE excluded.nome END,
       num=CASE WHEN cont_doc.mod=1 THEN cont_doc.num ELSE excluded.num END, data=CASE WHEN cont_doc.mod=1 THEN cont_doc.data ELSE excluded.data END,
       anno=CASE WHEN cont_doc.mod=1 THEN cont_doc.anno ELSE excluded.anno END, note=CASE WHEN cont_doc.mod=1 THEN cont_doc.note ELSE excluded.note END,
-      metodo=excluded.metodo, canale=excluded.canale, cli=CASE WHEN cont_doc.mod=1 THEN cont_doc.cli ELSE excluded.cli END`;
+      metodo=excluded.metodo, canale=excluded.canale, cli=CASE WHEN cont_doc.mod=1 THEN cont_doc.cli ELSE excluded.cli END
+    WHERE cont_doc.imp IS NOT excluded.imp OR cont_doc.stat IS NOT excluded.stat OR cont_doc.righe IS NOT excluded.righe OR cont_doc.metodo IS NOT excluded.metodo OR cont_doc.canale IS NOT excluded.canale
+      OR (cont_doc.mod=0 AND cont_doc.fonte<>'xml' AND (cont_doc.ftot IS NOT excluded.ftot OR cont_doc.nasc IS NOT excluded.nasc OR cont_doc.pagato IS NOT excluded.pagato OR cont_doc.pagatoIl IS NOT excluded.pagatoIl
+        OR cont_doc.scadenza IS NOT excluded.scadenza OR cont_doc.nome IS NOT excluded.nome OR cont_doc.num IS NOT excluded.num OR cont_doc.data IS NOT excluded.data OR cont_doc.note IS NOT excluded.note OR cont_doc.cli IS NOT excluded.cli))`;
   for (let i = 0; i < out.length; i += 40) {
     await d.batch(out.slice(i, i + 40).map((r) => d.prepare(ins).bind(...riga(r, now))));
   }
   // documenti dell'app spariti (cancellati nell'app): tolti se non toccati a mano
-  await d.prepare("DELETE FROM cont_doc WHERE fonte='app' AND u<? AND mod=0").bind(now).run();
+  await d.prepare("DELETE FROM cont_doc WHERE fonte='app' AND mod=0 AND id NOT IN (SELECT value FROM json_each(?))").bind(JSON.stringify(out.map((r) => r.id))).run();
   await setInfo(d, 'conti_app', { at: now, documenti: out.length, daneaFino: fineD });
   return { documenti: out.length };
 }
@@ -222,12 +227,16 @@ export async function onRequest(ctx) {
     const sa = await info(d, 'info');
     const nSa = (await d.prepare('SELECT COUNT(*) n FROM storico_art').first()).n;
     // ricalcolo automatico: Danea se lo storico è cambiato, app se sono passati più di 3 minuti
-    if (nSa && (!dan || dan.righe !== nSa)) dan = { ...(await ricalcolaDanea(d)), at: Date.now() };
-    if (!app || Date.now() - app.at > 180_000) app = { ...(await ricalcolaApp(d)), at: Date.now() };
+    let avviso = '';
+    try {
+      if (nSa && (!dan || dan.righe !== nSa)) await ricalcolaDanea(d);
+      if (!app || Date.now() - app.at > 600_000) await ricalcolaApp(d);
+    } catch (e) { avviso = /write limit|daily row/i.test(String(e?.message || e)) ? 'Il database ha finito le scritture gratuite di oggi: i conti si vedono ma non si aggiornano né si modificano fino all\'01:00 (oppure subito con il piano Workers Paid di Cloudflare).' : 'Aggiornamento dei conti non riuscito: ' + String(e?.message || e).slice(0, 200); }
+    app = await info(d, 'conti_app');
     dan = await info(d, 'conti_danea');
     const c = (await d.prepare("SELECT COUNT(*) n, MIN(data) da, MAX(data) a, SUM(fonte='xml' OR fimp IS NOT NULL AND fonte='danea') esatti, SUM(mod) modificati FROM cont_doc").first());
     const anni = (await d.prepare("SELECT anno, COUNT(*) n FROM cont_doc WHERE anno<>'' GROUP BY anno ORDER BY anno").all()).results;
-    return json({ io, danea: dan, app, storico: sa, documenti: c, anni, oggi: oggi() });
+    return json({ io, danea: dan, app, storico: sa, documenti: c, anni, oggi: oggi(), avviso });
   }
   if (p === 'ricalcola' && m === 'POST') {
     const parte = body.parte || 'tutto', r = {};
@@ -412,20 +421,22 @@ export async function onRequest(ctx) {
       if (verso === 'vendita' && num) {
         const lett = { fattura: ['I', 'F', 'A'], nota: ['N'], banco: ['B'], ddt: ['D'], riparazione: ['G'] }[tipo] || ['I'];
         const numN = num.replace(/^0+/, '').replace(/\s/g, '');
-        const c = await d.prepare(`SELECT id FROM cont_doc WHERE fonte='danea' AND anno=? AND dt IN (${lett.map(() => '?').join(',')}) AND (num=? OR num=? OR REPLACE(num,' ','')=?) LIMIT 1`).bind(data.slice(0, 4), ...lett, num, numN, numN).first();
+        const conAnno = data.slice(2, 4) + numN.padStart(4, '0');
+        const c = await d.prepare(`SELECT id FROM cont_doc WHERE fonte='danea' AND anno=? AND dt IN (${lett.map(() => '?').join(',')}) AND (num=? OR num=? OR num=? OR REPLACE(num,' ','')=?) LIMIT 1`).bind(data.slice(0, 4), ...lett, num, numN, conAnno, numN).first();
         if (c) id = c.id;
       }
       const campi = { fimp, fiva, ftot, ...(x.pagamento ? { pagamento: String(x.pagamento).slice(0, 80) } : {}), ...(x.scadenza && /^\d{4}-\d{2}-\d{2}$/.test(x.scadenza) ? { scadenza: x.scadenza } : {}), ...(x.piva ? { piva: String(x.piva).slice(0, 20) } : {}) };
       if (id) {
         const ks = Object.keys(campi);
-        st.push(d.prepare(`UPDATE cont_doc SET ${ks.map((k) => k + '=?').join(',')}, u=? WHERE id=?`).bind(...ks.map((k) => campi[k]), now, id)); aggiornati++;
+        st.push(d.prepare(`UPDATE cont_doc SET ${ks.map((k) => k + '=?').join(',')}, u=? WHERE id=? AND (${ks.map((k) => k + ' IS NOT ?').join(' OR ')})`).bind(...ks.map((k) => campi[k]), now, id, ...ks.map((k) => campi[k]))); aggiornati++;
       } else {
         id = verso === 'acquisto' ? 'F:' + String((x.piva || '') + '_' + num + '_' + data).replace(/[^A-Za-z0-9_-]/g, '-') : 'X:' + tipo + ':' + data.slice(0, 4) + ':' + (num || casuale(4));
         // vendite caricate da file e non trovate in Danea: elenco e commercialista sì, statistiche no (le righe sono già contate dai DDT/rapporti)
         const r = { id, fonte: 'xml', dt: x.td || '', tipo, verso, num, data, cli: x.cli || x.piva || '', nome: String(x.nome || '').slice(0, 120), piva: x.piva || '', imp: fimp, ...campi,
           note: String(x.note || '').slice(0, 200), stat: verso === 'acquisto' ? 1 : 0, rif: x.file || '' };
         st.push(d.prepare(`INSERT INTO cont_doc (${COLS}) VALUES (${COLS.split(',').map(() => '?').join(',')})
-          ON CONFLICT(id) DO UPDATE SET fimp=excluded.fimp, fiva=excluded.fiva, ftot=excluded.ftot, imp=CASE WHEN cont_doc.fonte IN ('app','xml') THEN excluded.imp ELSE cont_doc.imp END, fonte=CASE WHEN cont_doc.fonte='app' THEN 'xml' ELSE cont_doc.fonte END, u=excluded.u`).bind(...riga(r, now, io.nome)));
+          ON CONFLICT(id) DO UPDATE SET fimp=excluded.fimp, fiva=excluded.fiva, ftot=excluded.ftot, imp=CASE WHEN cont_doc.fonte IN ('app','xml') THEN excluded.imp ELSE cont_doc.imp END, fonte=CASE WHEN cont_doc.fonte='app' THEN 'xml' ELSE cont_doc.fonte END, u=excluded.u
+          WHERE cont_doc.fimp IS NOT excluded.fimp OR cont_doc.fiva IS NOT excluded.fiva OR cont_doc.ftot IS NOT excluded.ftot`).bind(...riga(r, now, io.nome)));
         nuovi++;
       }
     }
