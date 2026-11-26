@@ -660,6 +660,40 @@ textarea.winp{min-height:110px;font-size:20px}
   .pvt select,.pvt td.pva{min-width:0}
 }
 @media (max-width:420px){.ttl{grid-template-columns:1fr}}
+/* telefono: niente "torna indietro" scorrendo di lato, tabelle a schede, niente sbordature */
+html,body{overscroll-behavior-x:none;max-width:100%}
+.board,.tts,.bigchips,.ov,.wzb,.gsl,.acl{overscroll-behavior-x:contain}
+.bstab{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.bstab button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;gap:6px;align-items:center}
+.bstab button b{background:#ebe9e2;border-radius:10px;padding:0 7px;font-size:12px}
+.bstab button.on{background:var(--ink);color:#fff;border-color:var(--ink)}.bstab button.on b{background:var(--y);color:var(--ink)}
+@media (max-width:860px){
+  .bigchips{flex-wrap:wrap;overflow:visible}
+  .panel h3{flex-wrap:wrap}
+  .panel h3 input,.panel h3 select{max-width:100%!important;flex:1 1 180px;min-width:0}
+  .panel,.top,.acts,.toolbar{min-width:0;max-width:100%}
+  .acts{flex-wrap:wrap}
+  img,video,canvas{max-width:100%}
+  #main .btn,#modal .btn{white-space:normal;max-width:100%}
+}
+@media (max-width:600px){
+  .tb{flex-wrap:wrap;row-gap:8px}
+  .tb .gs{order:9;flex:1 1 100%;max-width:none}
+}
+@media (max-width:700px){
+  table.tcard,table.tcard tbody,table.tcard tfoot{display:block;width:100%;border:0;background:transparent;min-width:0!important}
+  table.tcard thead{display:none}
+  table.tcard tr{display:block;background:var(--card,#fff);border:1px solid var(--line);border-radius:12px;padding:6px 12px;margin-bottom:8px}
+  table.tcard td{display:block;padding:5px 0;border:0;text-align:right!important;overflow-wrap:anywhere;min-width:0;width:auto!important}
+  table.tcard td::after{content:"";display:block;clear:both}
+  table.tcard td[data-l]::before{content:attr(data-l);float:left;margin-right:12px;max-width:45%;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding-top:2px}
+  table.tcard td:first-child{text-align:left!important;font-weight:600;border-bottom:1px solid #efede7;padding-bottom:7px;margin-bottom:2px}
+  table.tcard td:first-child::before{float:none;display:block;max-width:none}
+  table.tcard td:empty{display:none}
+  table.tcard td input,table.tcard td select{max-width:100%}
+  table.tcard tr.click:hover{background:#fffbea}
+  .tts{overflow:visible}
+}
 </style>
 </head>
 <body>
@@ -1329,6 +1363,10 @@ function tkCard(t){
 function vLavorazioni(){
   const list=filtered().filter(t=>APERTI.includes(t.stato));
   const act=`<div class="seg"><button data-lay="board" class="${S.layout==="board"?"on":""}">Bacheca</button><button data-lay="list" class="${S.layout==="list"?"on":""}">Elenco</button></div> <button class="btn pri edit-only" data-act="new">＋ Nuova scheda</button>`;
+  const tel=window.matchMedia&&matchMedia("(max-width:860px)").matches;
+  if(tel&&S.layout==="board"){ const n=s=>list.filter(t=>t.stato===s).length; if(!APERTI.includes(S.bSt)||(!n(S.bSt)&&list.length&&!S.bStMan)) S.bSt=APERTI.find(n)||APERTI[0];
+    const l=list.filter(t=>t.stato===S.bSt);
+    return header("Lavorazioni in corso","Ogni utensile entrato e non ancora riconsegnato. Rosso = fermo da oltre 14 giorni.",act)+filtBar(false)+`<div class="bstab">${APERTI.map(s=>`<button data-bst="${esc(s)}" class="${s===S.bSt?"on":""}">${esc(s)} <b>${n(s)}</b></button>`).join("")}</div><div class="col" style="min-height:0">${l.map(tkCard).join("")||`<div class="empty" style="padding:8px">Nessuna scheda in «${esc(S.bSt)}»</div>`}</div>`; }
   const body = S.layout==="board"
     ? `<div class="board">${APERTI.map(s=>{const l=list.filter(t=>t.stato===s);return `<div class="col"><h4><span>${s}</span><span>${l.length}</span></h4>${l.map(tkCard).join("")||`<div class="empty" style="padding:8px">—</div>`}</div>`}).join("")}</div>`
     : tTable(list);
@@ -2030,6 +2068,7 @@ function bindView(){
   m.querySelectorAll("[data-bol]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const t=S.tickets.find(x=>x.id===b.dataset.bol); if(t) stampaBollino(t); });
   m.querySelectorAll("[data-sch]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); const t=S.tickets.find(x=>x.id===b.dataset.sch); if(t) stampaScheda(t); });
   m.querySelectorAll("[data-lay]").forEach(b=>b.onclick=()=>{S.layout=b.dataset.lay;render()});
+  m.querySelectorAll("[data-bst]").forEach(b=>b.onclick=()=>{S.bSt=b.dataset.bst;S.bStMan=1;render()});
   m.querySelectorAll("[data-car]").forEach(b=>b.onclick=()=>openCarico(itm(b.dataset.car)));
   m.querySelectorAll("[data-edric]").forEach(b=>b.onclick=()=>openRic(itm(b.dataset.edric)));
   m.querySelectorAll("[data-done]").forEach(b=>b.onclick=()=>{const r=S.richieste.find(x=>x.id===b.dataset.done); write(()=>S.db.doc("richieste/"+r.id).update({gestita:true}),"Richiesta archiviata")});
@@ -5583,6 +5622,12 @@ function bindFacile(){ const m=$("#main");
   m.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setFacile(b.dataset.mode!=="completa")); }
 
 window.addEventListener("hashchange",()=>{window.scrollTo(0,0);render()});
+/* telefono: tabelle come schede (etichetta da intestazione) */
+function tCardify(root){ (root||document).querySelectorAll("table:not(.pvt):not(.nocard)").forEach(t=>{ const rows=t.querySelectorAll(":scope>tbody>tr:not([data-tc]),:scope>tfoot>tr:not([data-tc])"); if(t.classList.contains("tcard")&&!rows.length) return; const th=[...t.querySelectorAll(":scope>thead>tr:last-child>th")]; if(!th.length) return; const lab=[]; th.forEach(h=>{ const c=+(h.getAttribute("colspan")||1); for(let k=0;k<c;k++) lab.push((h.textContent||"").trim()); });
+  rows.forEach(tr=>{ tr.setAttribute("data-tc",""); let i=0; [...tr.children].forEach(td=>{ const c=+(td.getAttribute("colspan")||1); if(c===1&&lab[i]&&!td.hasAttribute("data-l")) td.setAttribute("data-l",lab[i]); i+=c; }); });
+  t.classList.add("tcard"); }); }
+(function(){ let q=0; const go=()=>{q=0; try{tCardify(document)}catch(e){}}; new MutationObserver(()=>{ if(!q){q=1; requestAnimationFrame(go);} }).observe(document.documentElement,{childList:true,subtree:true});
+  try{ matchMedia("(max-width:860px)").addEventListener("change",()=>{ try{render()}catch(e){} }); }catch(e){} })();
 /* ---------- shell: menu, quick search, new ticket ---------- */
 function initShell(){
   fetch("./data/sito.json").then(r=>r.json()).then(d=>{S.sito=d||{}; if(S.view==="cruscotto") render();}).catch(()=>{});
