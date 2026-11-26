@@ -82,3 +82,29 @@ Le giacenze caricate dall'app interna stanno nel database **D1** (binding `DB`).
 - **API** `/api/gestione/affid`: `GET ?k=` (dati salvati), `GET tutti` (riepilogo), `POST {k,servizio,forza}` (forza solo admin), `GET/POST chiave` (solo admin: token, sandbox, auto, soloAdmin).
 - **Sito**: quando un'azienda salva il profilo con una P.IVA nuova, se la chiave c'è e "auto" è attivo, parte un rating advanced in background (il cliente non vede nulla).
 - Per cambiare fornitore (Cerved, Creditsafe…): nuova funzione in `affidabilita.js` con la stessa uscita (`semaforo`, `rating`, `fido`).
+
+## Spedizioni: un solo pannello per tutti i marketplace (26/11/2026)
+App gestione → **Ordini online → “Evadi e stampa”**. Si spuntano gli ordini da spedire di tutti i canali e con un tasto,
+per ognuno, l'app fa quello che si farebbe entrando nel suo marketplace; le etichette escono in **un unico PDF**
+(etichettatrice 10×15 oppure A4 con 4 etichette per foglio), poi c'è la **distinta per il corriere** (alla firma gli ordini diventano “Spedito”).
+
+| Canale | Cosa succede premendo “Evadi e stampa” |
+|---|---|
+| TikTok Shop | Ship Package (ritiro BRT in negozio o consegna al punto) + etichetta BRT di TikTok (A6). Se è già “in attesa di ritiro” ristampa. |
+| eBay | Etichetta del nostro corriere + tracciamento inviato con la Sell Fulfillment API: l'ordine risulta spedito. |
+| Amazon (MFN) | Etichetta del nostro corriere + conferma di spedizione (Orders API `shipmentConfirmation`). |
+| Marketplace Mirakl (Leroy Merlin…) | Etichetta del nostro corriere + OR23 tracciamento + OR24 spedito. Si aggiungono dall'app, senza codice. |
+| Marketplace senza API (es. ManoMano) | Etichetta del nostro corriere; l'app apre la loro pagina ordini con il tracking da incollare. |
+| Sito, WhatsApp, telefono | Etichetta del nostro corriere (gli ordini con ritiro in negozio sono esclusi). |
+
+- **Corriere nostro**: Sendcloud (un account per BRT, GLS, Poste, SDA, InPost…: etichetta vera con tracking) oppure, finché non c'è,
+  **etichetta indirizzo** stampata dall'app (mittente, destinatario, codice a barre dell'ordine, articoli); il tracking si scrive dopo
+  da “Scrivi i tracking” e l'app lo manda al marketplace.
+- Chiavi e impostazioni (solo amministratore): Ordini online → ⚙ oppure Impostazioni → Marketplace e corriere. Stanno in D1
+  (`impostazioni.mp_conti`) e non tornano mai in chiaro all'app.
+- Gli ordini di eBay, Amazon e Mirakl entrano da soli in Ordini online all'apertura della pagina (ogni 10 minuti) o con “Aggiorna marketplace”;
+  scalano subito le giacenze ufficiali del sito (che riallineano TikTok). Il magazzino dell'app scala quando l'etichetta è stampata.
+- Sicurezze: un ordine già evaso si **ristampa** dall'archivio (non si ricompra l'etichetta); due persone non possono evadere lo stesso ordine insieme;
+  ordini annullati o con richiesta di annullamento vengono fermati; ogni evasione va nel registro modifiche.
+- Codice: `functions/_lib/marketplace/` (un file per canale + `corriere.js` + `comune.js`), `functions/api/spedizioni.js`, vista in `public/gestione/index.html`.
+  Un nuovo marketplace con API diversa = un file come `ebay.js` (info, stato, ordini, evadi) e una riga in `marketplace/index.js`.
