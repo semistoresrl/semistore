@@ -277,7 +277,9 @@ In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti 
     const u = new URL(request.url), c = u.searchParams.get('c'), q = u.searchParams.get('q');
     if (c) {
       const righe = (await d.prepare('SELECT cod,tipo,data,num,cli,nome,qta,prezzo,sconti,tot,descr FROM storico_art WHERE base=? ORDER BY data DESC LIMIT 20000').bind(baseDi(c)).all()).results;
-      return json({ righe });
+      const soldi = io.ruolo === 'admin' || io.ruolo === 'contabilita';
+      if (!soldi) for (const r of righe) { r.prezzo = null; r.sconti = ''; r.tot = null; }
+      return json({ righe, soldi });
     }
     if (q) {
       const t = String(q).trim().toUpperCase();
@@ -287,6 +289,67 @@ In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti 
     const info = await d.prepare("SELECT v FROM storico_art_info WHERE k='info'").first();
     const n = (await d.prepare('SELECT COUNT(*) n FROM storico_art').first()).n;
     return json({ righe: n, info: info ? JSON.parse(info.v) : null });
+  }
+  // ARCHIVIO DOCUMENTI DANEA (26/11): rapporti d'intervento, DDT, fatture e note storiche. Tutti consultano, importi solo all'amministratore.
+  if (p === 'storicodoc') {
+    if (!io) return json({ error: 'non autorizzato' }, 401);
+    await d.batch([
+      d.prepare(`CREATE TABLE IF NOT EXISTS storico_doc (id TEXT PRIMARY KEY, k TEXT, anno TEXT, n TEXT, d TEXT, cli TEXT, nm TEXT, txt TEXT, j TEXT)`),
+      d.prepare('CREATE INDEX IF NOT EXISTS sd_cli ON storico_doc(cli)'),
+      d.prepare('CREATE INDEX IF NOT EXISTS sd_d ON storico_doc(d)'),
+      d.prepare('CREATE TABLE IF NOT EXISTS storico_doc_info (k TEXT PRIMARY KEY, v TEXT)'),
+    ]);
+    const vedeSoldi = admin || io.ruolo === 'contabilita';
+    const pulisci = (x) => {
+      if (vedeSoldi) return x;
+      const y = { ...x }; delete y.imp; delete y.iva; delete y.tot; delete y.pg;
+      y.r = (x.r || []).map(r => [r[0], r[1], r[2]]);
+      return y;
+    };
+    const breve = (x) => { const u = (x.r || []).find(r => r[0] && !/^(MAN|RIP|GAR|TRASP|SPESE)$/i.test(r[0])) || (x.r || [])[0];
+      const o = { i: x.i, k: x.k, n: x.n, d: x.d, cli: x.cli, nm: x.nm, inc: x.inc || '', ncmp: (x.cmp || []).length, acc: x.acc || '', esi: x.esi || '', dif: x.dif || '', u: u ? [u[0], u[1]] : null, nr: (x.r || []).length };
+      if (vedeSoldi) o.tot = x.tot; return o; };
+    if (m === 'POST') {
+      if (!admin) return json({ error: 'solo amministratore' }, 403);
+      const b = body || {};
+      if (b.reset) await d.prepare('DELETE FROM storico_doc').run();
+      const docs = Array.isArray(b.docs) ? b.docs.slice(0, 400) : [];
+      const st = docs.map(x => {
+        const txt = [x.i, x.n, x.nm, x.pi, x.cli, x.acc, x.esi, x.dif, x.acq, x.note, ...(x.r || []).map(r => r[0] + ' ' + r[1])].join(' ').toUpperCase();
+        return d.prepare('INSERT OR REPLACE INTO storico_doc (id,k,anno,n,d,cli,nm,txt,j) VALUES (?,?,?,?,?,?,?,?,?)')
+          .bind(String(x.i).slice(0, 40), String(x.k || ''), String(x.d || '').slice(0, 4), String(x.n || ''), String(x.d || '').slice(0, 10), String(x.cli || ''), String(x.nm || '').slice(0, 160), txt, JSON.stringify(x));
+      });
+      if (b.info) st.push(d.prepare('INSERT OR REPLACE INTO storico_doc_info (k,v) VALUES (?,?)').bind('info', JSON.stringify(b.info)));
+      for (let i = 0; i < st.length; i += 50) await d.batch(st.slice(i, i + 50));
+      return json({ ok: true, n: docs.length });
+    }
+    const u = new URL(request.url), sp = u.searchParams;
+    const id = sp.get('id');
+    if (id) {
+      const r = await d.prepare('SELECT j FROM storico_doc WHERE id=?').bind(id).first();
+      if (!r) return json({ error: 'non trovato' }, 404);
+      const x = JSON.parse(r.j);
+      const legati = [x.inc, ...(x.cmp || [])].filter(Boolean);
+      let rel = [];
+      if (legati.length) rel = (await d.prepare(`SELECT j FROM storico_doc WHERE id IN (${legati.slice(0, 60).map(() => '?').join(',')})`).bind(...legati.slice(0, 60)).all()).results.map(z => breve(JSON.parse(z.j)));
+      return json({ doc: pulisci(x), legati: rel, soldi: vedeSoldi });
+    }
+    const cli = sp.get('cli'), q = (sp.get('q') || '').trim().toUpperCase(), k = sp.get('k') || '', anno = sp.get('anno') || '';
+    const off = Math.max(0, Number(sp.get('off')) || 0), lim = Math.min(200, Number(sp.get('lim')) || 60);
+    if (cli || q || k || anno) {
+      const w = [], a = [];
+      if (cli) { w.push('cli=?'); a.push(cli); }
+      if (k) { w.push('k=?'); a.push(k); }
+      if (anno) { w.push('anno=?'); a.push(anno); }
+      if (q) for (const t of q.split(/\s+/).filter(Boolean).slice(0, 5)) { w.push('(txt LIKE ? OR n=?)'); a.push('%' + t + '%', t); }
+      const wh = w.length ? 'WHERE ' + w.join(' AND ') : '';
+      const n = (await d.prepare(`SELECT COUNT(*) n FROM storico_doc ${wh}`).bind(...a).first()).n;
+      const r = (await d.prepare(`SELECT j FROM storico_doc ${wh} ORDER BY d DESC, id DESC LIMIT ? OFFSET ?`).bind(...a, lim, off).all()).results;
+      return json({ n, docs: r.map(z => breve(JSON.parse(z.j))), soldi: vedeSoldi });
+    }
+    const info = await d.prepare("SELECT v FROM storico_doc_info WHERE k='info'").first();
+    const per = (await d.prepare('SELECT k, anno, COUNT(*) n FROM storico_doc GROUP BY k, anno').all()).results;
+    return json({ info: info ? JSON.parse(info.v) : null, per, soldi: vedeSoldi });
   }
   // AFFIDABILITÀ CLIENTI (26/11): rating OpenAPI.it per P.IVA, controllo protesti per P.IVA o C.F. (vedi _lib/affidabilita.js)
   if (p === 'affid' || p.startsWith('affid/')) {
