@@ -1561,7 +1561,7 @@ function vImpostazioni(){
    <button class="btn pri" data-act="controllo">${ic("check")}Fai tutti i controlli</button></div>
   <div class="fs" style="max-width:640px"><span class="lg">Clienti</span>
    <p style="margin:0 0 10px">${nf(S.clienti.size)} clienti in archivio${S.clienti.size?` (${nf([...S.clienti.values()].filter(c=>c.origine==="danea").length)} da Danea, ${nf([...S.clienti.values()].filter(c=>scontoNum(c.sconto)).length)} con sconto ricambi)`:""}. Nella scheda il cliente si compila da solo scrivendo nome, telefono o P.IVA.</p>
-   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button><button class="btn adm-only" data-act="impStoArt">${ic("up")}Carica storico per codice</button><button class="btn adm-only" data-act="impArch">${ic("up")}Carica archivio documenti Danea</button><button class="btn" data-act="impSto">${ic("up")}Carica storico riparazioni Danea</button></div>
+   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button><button class="btn adm-only" data-act="impStoArt">${ic("up")}Carica storico per codice</button><button class="btn adm-only" data-act="impArch">${ic("up")}Carica archivio documenti Danea</button><button class="btn pri adm-only" data-act="aggDanea">${ic("up")}Aggiorna da Danea (tutto)</button><button class="btn" data-act="impSto">${ic("up")}Carica storico riparazioni Danea</button></div>
    ${SUL_SITO?`<div class="adm-only" style="margin-top:8px"><button class="btn" data-act="affCfg">${ic("check")}Affidabilità clienti (rating e fido)</button></div>`:""}
    ${S.storico&&S.storico.size?`<p class="sub" style="margin:8px 0 0">Storico riparazioni Danea: ${nf([...S.storico.values()].reduce((a,l)=>a+l.length,0))} rapporti d'intervento di ${nf(S.storico.size)} clienti.</p>`:""}
   </div>
@@ -1701,7 +1701,7 @@ function bindVault(){
     if(!confirm(msg)) return;
     await write(()=>S.db.doc("ordini/"+o.id).delete(),o.stato==="aperto"?"Foglio eliminato":"Ordine eliminato"); };
   m.querySelectorAll("[data-v-del]").forEach(b=>b.onclick=()=>elimina(S.ordini.find(o=>o.id===b.dataset.vDel)));
-  const acts={impArch:()=>openImportArchivio(),
+  const acts={
     import:()=>openImportVault(),
     low:()=>{ const l=allItems().filter(r=>r.tipo==="ricambio"&&isLow(r)).map(r=>({codice:r.codice,descr:r.descr,qty:Math.max(1,(Number(r.scortaMin)||0)*2-(Number(r.giacenza)||0)),prezzo:Number(r.costo)||0})); addToFoglio(l,null); },
     copy:()=>copyText(fastEntry(f.righe),"Righe copiate: incollale in Caricamento ordine",$("#vCopyBox")),
@@ -2083,7 +2083,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impStoArt:()=>openImportStoricoArt(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),affCfg:()=>openAffCfg(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,evadi:()=>openEvadi(),spImp:()=>openSpedImpost(),distinta:()=>stampaDistinta(),spTrk:()=>openTracking(),spAgg:()=>spImporta(true),newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={aggDanea:()=>openAggDanea(),impArch:()=>openImportArchivio(),ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impStoArt:()=>openImportStoricoArt(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),affCfg:()=>openAffCfg(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,evadi:()=>openEvadi(),spImp:()=>openSpedImpost(),distinta:()=>stampaDistinta(),spTrk:()=>openTracking(),spAgg:()=>spImporta(true),newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -2489,7 +2489,7 @@ function pvUnitEx(p,r){ return r2(pvBaseEx(r)*(1-pvScontoRiga(p,r)/100)); }
 function pvTotali(p){ const righe=(p.righe||[]); const lordo=r2(righe.reduce((a,r)=>a+pvBaseEx(r)*(Number(r.qty)||0),0));
   const netto=r2(righe.reduce((a,r)=>a+pvUnitEx(p,r)*(Number(r.qty)||0),0)); const extra=Number(p.sconto)||0; const imp=r2(netto*(1-extra/100));
   const iva=r2(imp*0.22); return {lordo,netto,extra:r2(netto-imp),imponibile:imp,iva,totale:r2(imp+iva),pezzi:righe.reduce((a,r)=>a+(Number(r.qty)||0),0),risparmio:r2(lordo-imp)}; }
-function nextPrev(){ const y=new Date().getFullYear(), pre="PR-"+y+"-"; let max=0; (S.preventivi||[]).forEach(t=>{ if(String(t.num||"").startsWith(pre)){ const n=parseInt(String(t.num).slice(pre.length),10); if(n>max) max=n; }}); return pre+String(max+1).padStart(4,"0"); }
+function nextPrev(){ const y=new Date().getFullYear(), pre="PR-"+y+"-"; let max=numDanea("Q",String(y)); (S.preventivi||[]).forEach(t=>{ if(String(t.num||"").startsWith(pre)){ const n=parseInt(String(t.num).slice(pre.length),10); if(n>max) max=n; }}); return pre+String(max+1).padStart(4,"0"); }
 function pvNuovo(){ const d=new Date(); d.setDate(d.getDate()+15); return {num:nextPrev(),at:Date.now(),by:S.me||null,cliente:"",tel:"",email:"",piva:"",ind:"",cliId:"",fonte:"auto",scVolantino:0,scListino:0,scSito:0,sconto:0,righe:[],note:"",validita:d.toISOString().slice(0,10),stato:"bozza"}; }
 function vPreventivi(){
   let l=(S.preventivi||[]).slice().sort((a,b)=>(b.at||0)-(a.at||0)); const oggi=new Date().toISOString().slice(0,10);
@@ -3172,7 +3172,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeModal(); });
 
 function nextNum(){
   const y=new Date().getFullYear(), pre=(S.cfg.prefisso||"AS")+"-"+y+"-";
-  let max=0; S.tickets.forEach(t=>{ if(String(t.num||"").startsWith(pre)){ const n=parseInt(String(t.num).slice(pre.length),10); if(n>max) max=n; }});
+  let max=numDanea("G",String(y)); S.tickets.forEach(t=>{ if(String(t.num||"").startsWith(pre)){ const n=parseInt(String(t.num).slice(pre.length),10); if(n>max) max=n; }});
   return pre+String(max+1).padStart(4,"0");
 }
 
@@ -3394,7 +3394,7 @@ function openTicket(t, fromReq, draft){
   const twa=$("#tWa"); if(twa) twa.onclick=()=>{ snapshotForm(); waScheda({...t,stato}); };
 
   const del=$("#tDel"); if(del){ let armed=false; del.onclick=async()=>{ if(!armed){armed=true;del.textContent="Confermi? I ricambi tornano a magazzino";return}
-    const ok=await write(async()=>{ for(const p of origRic){ if(itm(p.codice)&&p.qty) await muovi(p.codice,+p.qty,"reso da scheda eliminata",t.num); } await S.db.doc("tickets/"+t.id).delete(); },"Scheda eliminata"); if(ok) closeModal(); }; }
+    const ok=await write(async()=>{ for(const p of origRic){ if(!p.daDanea&&itm(p.codice)&&p.qty) await muovi(p.codice,+p.qty,"reso da scheda eliminata",t.num); } await S.db.doc("tickets/"+t.id).delete(); },"Scheda eliminata"); if(ok) closeModal(); }; }
 
   const salvaScheda=async(w)=>{
     const cli=$("#tCli").value.trim(), mod=$("#tMod").value.trim();
@@ -3417,8 +3417,8 @@ function openTicket(t, fromReq, draft){
       const ref = isNew? S.db.collection("tickets").doc() : S.db.doc("tickets/"+t.id);
       await ref.set(data);
       const diff=new Map();
-      origRic.forEach(p=>diff.set(p.codice,(diff.get(p.codice)||0)+(Number(p.qty)||0)));
-      data.ricambi.forEach(p=>diff.set(p.codice,(diff.get(p.codice)||0)-(Number(p.qty)||0)));
+      origRic.filter(p=>!p.daDanea).forEach(p=>diff.set(p.codice,(diff.get(p.codice)||0)+(Number(p.qty)||0)));
+      data.ricambi.filter(p=>!p.daDanea).forEach(p=>diff.set(p.codice,(diff.get(p.codice)||0)-(Number(p.qty)||0)));
       for(const [cod,d] of diff){ if(d!==0 && itm(cod)) await muovi(cod,d,d<0?"scarico su scheda":"reso da scheda",data.num); }
       for(const p of data.ricambi) if(p.arrivatoAt&&isNew) await logAss({azione:"nuova scheda",codice:p.codice,descr:p.descr||"",qty:Number(p.qty)||1,verso:"scheda",rif:data.num,cliente:data.cliente||"",tel:data.tel||""});
       try{ const cid=await cliDaScheda(data); if(cid&&cid!==data.cliId){ data.cliId=cid; await ref.update({cliId:cid}); } }catch(e){ console.warn("cliente",e); }
@@ -5474,6 +5474,87 @@ function openImportArchivio(){
       if(!ok) break; $("#arProg i").style.width=Math.min(100,(i+N)/D.length*100)+"%"; b.textContent=`Carico ${nf(Math.min(D.length,i+N))}/${nf(D.length)}…`; }
     if(i>=D.length){ toast(`Archivio Danea caricato: ${nf(D.length)} documenti`); if(S.ar){ S.ar.info=null; S.ar._inf=0; } closeModal(); }
     else{ $("#arRes").innerHTML+=`<div class="banner err">Interrotto a ${nf(i)} documenti: ${esc(err)}. Riprova (riparte da capo).</div>`; b.disabled=false; b.textContent="Riprova"; } };
+}
+/* =====================================================================
+   AGGIORNA DA DANEA (26/11): un solo file preparato da tools/danea/aggiorna.py.
+   Allinea numerazioni, schede aperte, clienti, storico riparazioni, archivio documenti e storico per codice.
+   NON tocca le giacenze né i movimenti di magazzino (i ricambi delle schede importate sono segnati daDanea).
+   ===================================================================== */
+async function leggiPacchetto(f){
+  let txt;
+  if(/\.gz$/i.test(f.name)){ const ds=new DecompressionStream("gzip"); txt=await new Response(f.stream().pipeThrough(ds)).text(); }
+  else txt=await f.text();
+  const P=JSON.parse(txt); if(!P||P.tipo!=="aggiornamento_danea") throw new Error("Non è un file di aggiornamento Danea"); return P;
+}
+function numDanea(k,y){ return Number(S.cfg?.danea?.numeri?.[k]?.[y])||0; }
+async function applicaPacchetto(P,log,prog){
+  const now=Date.now(), y0=String(new Date().getFullYear()); const out={nuove:0,chiuse:0,giaPresenti:0};
+  // 1. numerazioni
+  log("Numerazioni Danea…");
+  await S.db.doc("config/impostazioni").set({...S.cfg,danea:{al:P.al,numeri:P.numeri,aggiornatoAt:now,by:S.me||null}});
+  S.cfg.danea={al:P.al,numeri:P.numeri};
+  // 2. schede aperte
+  log(`Schede aperte di Danea (${nf(P.aperte.length)})…`);
+  const pre=(S.cfg.prefisso||"AS"); const perDanea=new Map(S.tickets.filter(t=>t.danea).map(t=>[t.danea,t])); const nums=new Set(S.tickets.map(t=>t.num));
+  let i=0;
+  for(const a of P.aperte){ i++; prog(i/P.aperte.length*0.25);
+    if(perDanea.has(a.danea)){ out.giaPresenti++; continue; }
+    let num=pre+"-"+a.d.slice(0,4)+"-"+String(a.n).padStart(4,"0"); if(nums.has(num)) num+="-D"; nums.add(num);
+    const at=new Date(a.d+"T09:00:00").getTime();
+    const data={num,danea:a.danea,dnum:a.dnum,origine:"danea",stato:a.stato,tipo:a.tipo,createdAt:at,updatedAt:now,
+      cliente:a.cliente,cliId:a.cliId||null,tel:a.tel,email:a.email,piva:a.piva,ind:a.ind,cap:a.cap,citta:a.citta,prov:a.prov,
+      modello:a.modello,accessori:a.accessori,difetto:a.difetto,dataAcquisto:a.dataAcquisto||"",
+      note:[a.descrUt&&a.descrUt!==a.modello?a.descrUt:"",a.esito?"Esito in Danea: "+a.esito:"",a.acquisto?"Acquisto: "+a.acquisto:"",a.note].filter(Boolean).join(" · "),
+      ricambi:a.ricambi||[],ore:0,tariffa:Number(S.cfg.tariffa)||0,manodopera:a.manodopera||0,manodoperaDescr:a.manodoperaDescr||"",scontoRic:0,
+      ...(a.tipo==="garanzia"?{gar:{rif:num}}:{}),
+      ...(a.stato==="Pronto"?{prontoAt:now}:{}),
+      storico:[{stato:"Ricevuto",at,by:"Danea"},...(a.stato!=="Ricevuto"?[{stato:a.stato,at:now,by:"Danea"}]:[])]};
+    await S.db.collection("tickets").doc().set(data); out.nuove++; }
+  // schede importate che in Danea risultano chiuse (richiamate in DDT, fattura o banco)
+  for(const t of S.tickets){ if(!t.danea||t.stato==="Consegnato") continue; const c=P.chiuse[t.danea]; if(!c) continue;
+    await S.db.doc("tickets/"+t.id).update({stato:"Consegnato",consegnatoAt:now,prontoAt:t.prontoAt||now,updatedAt:now,storico:[...(t.storico||[]),{stato:"Consegnato",at:now,by:"Danea",nota:c}]}); out.chiuse++; }
+  // 3. clienti (aggiornati e aggiunti; i dati scritti solo nell'app restano)
+  log(`Clienti (${nf(P.clienti.length)})…`);
+  const per={}; P.clienti.forEach(c0=>{ const c={...c0}; const id="D"+String(c.cod).replace(/[^\w-]/g,""); delete c.cod; c.origine="danea"; c.updatedAt=now; (per[cliChunk(id)]=per[cliChunk(id)]||{})[id]=c; });
+  let n=0; const ks=Object.keys(per); for(const k of ks){ await S.db.doc("clienti/"+k).merge({items:per[k]}); n++; prog(0.25+n/ks.length*0.1); }
+  // 4. storico riparazioni per cliente
+  log("Storico riparazioni nelle schede cliente…");
+  const pr={}; for(const k in P.riparazioni){ let h=0; for(const ch of k) h=(h*31+ch.charCodeAt(0))>>>0; const g="s"+String(h%64).padStart(2,"0"); (pr[g]=pr[g]||{})[k]=P.riparazioni[k]; }
+  n=0; const gs=Object.keys(pr); for(const g of gs){ await S.db.doc("storico/"+g).set({items:pr[g],al:P.al}); n++; prog(0.35+n/gs.length*0.05); }
+  // 5. archivio documenti
+  const D=P.archivio, N=250; log(`Archivio documenti (${nf(D.length)})…`);
+  for(i=0;i<D.length;i+=N){ let ok=false, err=""; for(let t=0;t<3&&!ok;t++){ try{ await SEMI.post("storicodoc",{docs:D.slice(i,i+N),reset:i===0,info:i+N>=D.length?{n:D.length,da:D[0].d,a:D[D.length-1].d,al:P.al,at:now}:undefined}); ok=true; }catch(e){ err=e.message; await new Promise(r=>setTimeout(r,1500)); } }
+    if(!ok) throw new Error("archivio interrotto a "+i+": "+err); prog(0.4+Math.min(1,(i+N)/D.length)*0.3); }
+  // 6. storico per codice
+  const R=P.storicoArt.righe, M=800; log(`Storico per codice (${nf(R.length)} righe)…`);
+  for(i=0;i<R.length;i+=M){ let ok=false, err=""; for(let t=0;t<3&&!ok;t++){ try{ await SEMI.post("storicoart",{righe:R.slice(i,i+M),reset:i===0,info:i+M>=R.length?P.storicoArt.info:undefined}); ok=true; }catch(e){ err=e.message; await new Promise(r=>setTimeout(r,1500)); } }
+    if(!ok) throw new Error("storico per codice interrotto a "+i+": "+err); prog(0.7+Math.min(1,(i+M)/R.length)*0.3); }
+  if(S.sa){ S.sa.cache={}; S.sa.info=null; S.sa._inf=0; } if(S.ar){ S.ar.info=null; S.ar._inf=0; }
+  return out;
+}
+function openAggDanea(){
+  const d=S.cfg?.danea;
+  openModal(`<div class="mh"><h2>Aggiorna da Danea</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><p style="margin-top:0">Carica il file <b>aggiornamento_danea_….json.gz</b> preparato dall'archivio Danea. Aggiorna <b>numerazioni</b>, <b>schede aperte</b> (le riparazioni di Danea non ancora consegnate diventano schede dell'app con lo stesso numero), <b>clienti</b>, <b>storico riparazioni</b>, <b>Archivio Danea</b> e <b>Storico codice</b>.</p>
+   <div class="banner" style="margin:0 0 12px">Le <b>giacenze non vengono toccate</b>: niente carichi né scarichi, i ricambi delle schede importate non muovono il magazzino.</div>
+   ${d?`<p class="sub">Ultimo aggiornamento: dati Danea al <b>${arFd(d.al)}</b>${d.aggiornatoAt?` (caricati il ${fmtDT(d.aggiornatoAt)})`:""}.</p>`:""}
+   <label class="btn pri">${ic("up")}Scegli il file<input type="file" id="adF" accept=".gz,.json" style="display:none"></label><div id="adRes" style="margin-top:12px"></div><div class="prog" id="adProg" style="display:none;margin-top:8px"><i></i></div><div id="adLog" class="sub" style="margin-top:8px"></div></div>
+  <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="adGo" disabled>Aggiorna</button></div>`);
+  let P=null;
+  $("#adF").onchange=async e=>{ const f=e.target.files[0]; if(!f) return; $("#adRes").textContent="Leggo il file…";
+    try{ P=await leggiPacchetto(f); const y=P.al.slice(0,4); const gia=new Set(S.tickets.filter(t=>t.danea).map(t=>t.danea)); const nuove=P.aperte.filter(a=>!gia.has(a.danea)); const st={}; nuove.forEach(a=>st[a.stato]=(st[a.stato]||0)+1);
+      const daChiudere=S.tickets.filter(t=>t.danea&&t.stato!=="Consegnato"&&P.chiuse[t.danea]).length;
+      $("#adRes").innerHTML=`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc">Dati Danea al <b>${arFd(P.al)}</b>.<br>
+        Schede aperte da creare: <b>${nf(nuove.length)}</b>${nuove.length?" ("+Object.entries(st).map(([k,v])=>v+" "+k.toLowerCase()).join(", ")+")":""}${P.aperte.length-nuove.length?` · già nell'app: ${nf(P.aperte.length-nuove.length)}`:""}${daChiudere?` · da segnare consegnate: <b>${daChiudere}</b>`:""}<br>
+        Prossimo numero scheda: <b>${esc((S.cfg.prefisso||"AS")+"-"+y+"-"+String(Math.max(Number(P.numeri?.G?.[y])||0,...S.tickets.filter(t=>String(t.num||"").startsWith((S.cfg.prefisso||"AS")+"-"+y+"-")).map(t=>parseInt(String(t.num).split("-")[2],10)||0))+1).padStart(4,"0"))}</b> · preventivo: <b>PR-${y}-${String((Number(P.numeri?.Q?.[y])||0)+1).padStart(4,"0")}</b> o successivo<br>
+        Clienti: <b>${nf(P.clienti.length)}</b> · archivio: <b>${nf(P.archivio.length)}</b> documenti · storico per codice: <b>${nf(P.storicoArt.righe.length)}</b> righe
+        ${P.vecchieNonChiuse?`<br><span class="sub">${P.vecchieNonChiuse} riparazioni ${y} più vecchie di ${P.giorniAperte} giorni non risultano chiuse in Danea: non vengono importate (si trovano nell'Archivio Danea).</span>`:""}</div>`;
+      $("#adGo").disabled=false; }
+    catch(x){ P=null; $("#adRes").innerHTML=`<div class="banner err" style="margin:0">${esc(x.message||"File non valido")}</div>`; } };
+  $("#adGo").onclick=async()=>{ const b=$("#adGo"); b.disabled=true; $("#adProg").style.display="block"; const lg=$("#adLog");
+    try{ const r=await applicaPacchetto(P,m=>{ lg.innerHTML+=esc(m)+"<br>"; },f=>{ $("#adProg i").style.width=Math.round(f*100)+"%"; });
+      lg.innerHTML+=`<b>Fatto.</b> ${r.nuove} schede create${r.chiuse?`, ${r.chiuse} segnate consegnate`:""}${r.giaPresenti?`, ${r.giaPresenti} già presenti`:""}.`; toast("Aggiornamento da Danea completato"); b.textContent="Fatto"; }
+    catch(e){ lg.innerHTML+=`<div class="banner err">${esc(e.message||"errore")}. Si può rifare: non crea doppioni.</div>`; b.disabled=false; b.textContent="Riprova"; } };
 }
 function apriStorico(cod){ S.sa=S.sa||{cache:{}}; S.sa.cod=String(cod||"").toUpperCase(); S.sa.q=S.sa.cod; S.sa.f="tutto"; S.sa.anno=""; try{ closeModal(); }catch(e){} if(location.hash!=="#storico") location.hash="#storico"; else render(); }
 // caricamento dello storico Danea per codice (Impostazioni → Clienti, solo admin)
