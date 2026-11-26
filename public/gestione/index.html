@@ -680,6 +680,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#garanzie" data-v="garanzie"><svg class="i"><use href="#i-shield"/></svg><span>Garanzie</span><span class="ct" id="ctGar">0</span></a>
 <a href="#resi" data-v="resi"><svg class="i"><use href="#i-return"/></svg><span>Resi</span><span class="ct" id="ctResi">0</span></a>
 <a href="#consegne" data-v="consegne"><svg class="i"><use href="#i-box"/></svg><span>Scaffale consegne</span><span class="ct" id="ctCons">0</span></a>
+<a href="#prenotate" data-v="prenotate"><svg class="i"><use href="#i-clock"/></svg><span>Merce attesa e prenotata</span><span class="ct" id="ctPren">0</span></a>
 <a href="#preventivi" data-v="preventivi"><svg class="i"><use href="#i-euro"/></svg><span>Preventivi</span><span class="ct" id="ctPrev">0</span></a>
 <a href="#clienti" data-v="clienti"><svg class="i"><use href="#i-user"/></svg><span>Clienti</span></a>
 <a href="#noleggi" data-v="noleggi"><svg class="i"><use href="#i-clock"/></svg><span>Noleggi</span><span class="ct" id="ctNol">0</span></a>
@@ -840,6 +841,7 @@ async function init(){
   db.collection("ricambiDW").onSnapshot(s=>{const m=new Map(); s.docs.forEach(d=>{const x=d.data(); if(x&&x.codice) m.set(String(x.codice).toUpperCase(),{id:d.id,...x})}); S.ricDW=m; s.metadata.fromCache?schedule():done("d");},err);
   db.collection("ordiniWeb").onSnapshot(s=>{S.ordiniWeb=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("w");},err);
   db.collection("consegne").onSnapshot(s=>{S.consegne=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
+  db.collection("prenotazioni").onSnapshot(s=>{S.pren=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("noleggi").onSnapshot(s=>{S.noleggi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("preventivi").onSnapshot(s=>{S.preventivi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("resi").onSnapshot(s=>{S.resi=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("x");},err);
@@ -1182,7 +1184,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["clienti","prezzi","compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["prenotate","clienti","prezzi","compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -1201,6 +1203,7 @@ function render(){
   $("#ctOrd").textContent=S.ordiniWeb.filter(o=>ORD_APERTI.includes(o.stato)).length; $("#ctOrd").classList.toggle("hot",oCf>0);
   $("#ctResi").textContent=S.resi.filter(r=>r.stato!=="Chiuso").length;
   { const e=$("#ctCons"); if(e){ const n=sulloScaffale().length; e.textContent=n; } }
+  { const e=$("#ctPren"); if(e){ e.textContent=(S.pren||[]).filter(p=>p.stato==="attesa"||p.stato==="arrivato").length; } }
   { const e=$("#ctNol"); if(e){ const l=S.noleggi||[]; e.textContent=l.filter(n=>["nuova","contattato","offerta","pratica","approvata","firmato"].includes(n.stato||"nuova")).length; e.classList.toggle("hot",l.some(n=>(n.stato||"nuova")==="nuova")); } }
   { const e=$("#ctPrev"); if(e){ e.textContent=(S.preventivi||[]).filter(p=>!["accettato","rifiutato","scaduto"].includes(p.stato)).length; } }
   document.querySelectorAll("#nav .ct").forEach(c=>c.toggleAttribute("data-z",/^0( €)?$/.test(c.textContent.trim())));
@@ -1209,7 +1212,7 @@ function render(){
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = S.db ? "" : S.dbErr ? `<div class="banner err">L'archivio condiviso non è raggiungibile. Controlla la connessione e ricarica la pagina.</div>` : `<div class="banner">Sto scaricando l'archivio… un momento.</div>`;
-  const fns={clienti:vClienti,prezzi:vPrezzi,compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={prenotate:vPrenotate,clienti:vClienti,prezzi:vPrezzi,compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
   S._vistaPrec=S.view;
@@ -1239,7 +1242,7 @@ function patchTieni(m,html,vivo){
   }
   return true;
 }
-const VICON={"clienti":"user","prezzi":"tag","compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={"prenotate":"clock","clienti":"user","prezzi":"tag","compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -2046,6 +2049,7 @@ function bindView(){
   const sel=(id,fn)=>{const e=$("#"+id); if(e) e.onchange=()=>{fn(e.value);render()}};
   sel("fst",v=>S.filt.stato=v); sel("ftp",v=>S.filt.tipo=v); sel("ftc",v=>S.filt.tec=v);
   sel("cCat",v=>{S.cCat=v;S.cPage=1}); sel("cMarca",v=>{S.cMarca=v;S.cPage=1}); sel("cPiatt",v=>{S.cPiatt=v;S.cPage=1});
+  if(S.view==="prenotate") bindPrenotate();
   if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="prezzi") bindPrezzi(); if(S.view==="clienti") bindClienti(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="compatibili") bindCompatibili(); if(S.view==="noleggi") bindNoleggi();
   const fst=$("#fst"); if(fst) fst.value=S.filt.stato; const ftp=$("#ftp"); if(ftp) ftp.value=S.filt.tipo; const ftc=$("#ftc"); if(ftc) ftc.value=S.filt.tec;
 }
@@ -2872,7 +2876,7 @@ async function openEsporta(){
       file("02_Magazzino","ricambi_dewalt_catalogo",plain("ricambiDW"));
       // 03 Vendite
       file("03_Vendite","ordini_online_app",plain("ordiniWeb")); file("03_Vendite","ordini_pagati_sul_sito",T.ordini||[]); file("03_Vendite","resi",plain("resi"));
-      file("03_Vendite","codici_sconto",plain("sconti")); file("03_Vendite","scaffale_consegne",plain("consegne"));
+      file("03_Vendite","codici_sconto",plain("sconti")); file("03_Vendite","scaffale_consegne",plain("consegne")); file("03_Vendite","merce_prenotata",plain("prenotazioni"));
       // 04 Clienti
       file("04_Clienti","clienti_archivio_app",items("clienti").map(c=>({...c,sconto_perc:scontoNum(c.sconto)})),["nome","tel","cell","email","piva","cf","ind","cap","citta","prov","sconto","sconto_perc","listino","origine"]);
       file("04_Clienti","account_clienti_sito",T.clienti||[]); file("04_Clienti","punti_movimenti",T.punti_mov||[]);
@@ -2890,7 +2894,7 @@ async function openEsporta(){
       file("08_App_e_utenti","utenti",T.utenti||[]); file("08_App_e_utenti","registro_attivita",(T.registro||[]).sort((a,b)=>(a.at||0)-(b.at||0)));
       file("08_App_e_utenti","impostazioni_app",plain("config").flatMap(c=>Object.entries(c).filter(([k])=>!k.startsWith("_")).map(([k,v])=>({documento:c._id,voce:k,valore:v}))));
       // altro: collezioni e tabelle non previste sopra
-      const noteC=new Set(["tickets","richieste","esplosi","mag","movimenti","ean","backup","ricambiDW","ordiniWeb","resi","sconti","consegne","clienti","ordini","config"]);
+      const noteC=new Set(["tickets","richieste","esplosi","mag","movimenti","ean","backup","ricambiDW","ordiniWeb","resi","sconti","consegne","prenotazioni","clienti","ordini","config"]);
       Object.keys(C).filter(c=>!noteC.has(c)).forEach(c=>file("09_Altro","app_"+c,(C[c]||[]).some(d=>d.items)?items(c):plain(c)));
       const noteT=new Set(["docs","ordini","clienti","punti_mov","buoni","buoni_mov","buoni_prenotati","giacenze","movimenti","impostazioni","presenze","pmail","pcaselle","pmail_liste","pmail_auto","caselle","utenti","registro","files"]);
       Object.keys(T).filter(t=>!noteT.has(t)).forEach(t=>file("09_Altro","tabella_"+t,T[t]));
@@ -3764,7 +3768,7 @@ function bindNuovo(){
 const SUL_SITO=!!window.SEMI;
 const isAdmin=()=>SUL_SITO&&window.SEMI.io?.ruolo==="admin";
 const puoPrezzi=()=>!SUL_SITO||isAdmin(); // gli operatori non cambiano i prezzi (controllato anche dal server)
-const NOMI_COL={tickets:"Scheda",mag:"Magazzino",movimenti:"Movimento",richieste:"Richiesta dal sito",ordini:"Foglio DEWALT",esplosi:"Distinta",ricambiDW:"Ricambio DEWALT",ordiniWeb:"Ordine online",consegne:"Scaffale consegne",clienti:"Clienti",backup:"Copia di sicurezza",resi:"Reso",ean:"Codice a barre",sconti:"Codice sconto",config:"Impostazioni",utenti:"Utente","*":"Archivio"};
+const NOMI_COL={prenotazioni:"Merce prenotata",tickets:"Scheda",mag:"Magazzino",movimenti:"Movimento",richieste:"Richiesta dal sito",ordini:"Foglio DEWALT",esplosi:"Distinta",ricambiDW:"Ricambio DEWALT",ordiniWeb:"Ordine online",consegne:"Scaffale consegne",clienti:"Clienti",backup:"Copia di sicurezza",resi:"Reso",ean:"Codice a barre",sconti:"Codice sconto",config:"Impostazioni",utenti:"Utente","*":"Archivio"};
 const NOMI_CAMPI={ubic:"scaffale",posto:"ripiano",incassare:"da incassare",modo:"ritiro/consegna",chiusoAt:"chiuso",stato:"stato",giacenza:"pezzi",prezzoSito:"prezzo",prezzo:"prezzo listino",cliente:"cliente",tel:"telefono",modello:"modello",difetto:"difetto",diagnosi:"lavoro fatto",preventivo:"preventivo",ricambi:"ricambi",tecnico:"tecnico",scaffale:"scaffale",note:"note",verificare:"da contare",daInviare:"da inviare",posto:"posto scaffale",tracking:"tracciamento",pagato:"pagato",esito:"esito",rimborso:"rimborso",tipo:"tipo",ore:"ore",storico:"storico"};
 const decK=k=>String(k).replace(/~([0-9a-f]{2})/g,(m,h)=>String.fromCharCode(parseInt(h,16)));
 
@@ -4858,7 +4862,7 @@ function prezziBox(it){ S._pvMagg=0; const pr=prezziDi(it); if(!pr.listino&&!pr.
 function itemCard(it){ const s=sitoDi(it);
   return `<div class="wcard"><div class="wname">${esc(nomeDi(it))}</div><div class="mono wsub">${esc(it.codice)}${it.marca?" · "+esc(it.marca):""}</div>
   <div class="wrow"><div><small>Prezzo</small><div class="wprice">${prezzoVendita(it)?eur(prezzoVendita(it)):"—"}</div></div><div><small>In negozio</small><div class="wstock ${(Number(it.giacenza)||0)>0?"":"zero"}">${it.verificare?"?":(Number(it.giacenza)||0)}</div></div></div>
-  ${it.verificare?`<div class="wwarn">Quantità non ancora contata</div>`:""}${prezziBox(it)}${ubiBox(it)}${s?`<a class="wlink" href="${SITO_URL}/prodotti/${esc(s.s)}/" target="_blank" rel="noopener">${ic("ext")}Vedi sul sito</a>`:""}</div>`; }
+  ${it.verificare?`<div class="wwarn">Quantità non ancora contata</div>`:""}${atteseBox(it)}${prezziBox(it)}${ubiBox(it)}${s?`<a class="wlink" href="${SITO_URL}/prodotti/${esc(s.s)}/" target="_blank" rel="noopener">${ic("ext")}Vedi sul sito</a>`:""}</div>`; }
 const segnaInvio=(it,f={})=>updItem(it.codice,{...f,...(it.tipo==="vendita"?{daInviare:Date.now()}:{})});
 
 /* ---------- 1. Ricevo un utensile ---------- */
@@ -5144,18 +5148,127 @@ function wizVendo(pre,cliPre){
   if(pre){ WZ.it=pre; WZ.stack=[scegli]; wizStep(quanti); } else wizStep(scegli);
 }
 
+
+/* 26/11: a chi è destinata la merce. Ricambi e attrezzatura attesi da schede, vendite, preventivi o clienti;
+   all'arrivo (codice a barre) esce la lista e si assegna; si può anche associare al volo a una scheda o vendita nuova. */
+const ST_APERTE=["Ricevuto","In diagnosi","Preventivo inviato","Attesa ricambi","In riparazione"];
+const codEq=(a,b)=>String(a||"").trim().toUpperCase()===String(b||"").trim().toUpperCase();
+function attesePer(codice){
+  const out=[], it=itm(codice), g=Number(it?.giacenza)||0;
+  const inOrdine=new Set(); (S.ordini||[]).filter(o=>o.stato!=="arrivato").forEach(o=>(o.righe||[]).forEach(r=>{ if(codEq(r.codice,codice)) (r.schede||[]).forEach(n=>inOrdine.add(n)); }));
+  for(const t of S.tickets||[]){ if(!ST_APERTE.includes(t.stato)) continue;
+    (t.ricambi||[]).forEach((r,i)=>{ if(!codEq(r.codice,codice)||r.arrivatoAt) return;
+      if(!(g<0||t.stato==="Attesa ricambi"||inOrdine.has(t.num))) return;
+      out.push({k:"t",id:t.id,i,qty:Number(r.qty)||1,rif:t.num,cliente:t.cliente||"",tel:t.tel||"",titolo:"Scheda "+t.num,sub:[t.modello,t.stato].filter(Boolean).join(" · ")}); }); }
+  if(g<=0){
+    for(const o of S.ordiniWeb||[]){ if(!["Da confermare","Confermato"].includes(o.stato)) continue;
+      (o.righe||[]).forEach((r,i)=>{ if(codEq(r.codice,codice)&&!r.arrivatoAt) out.push({k:"w",id:o.id,i,qty:Number(r.qty)||1,rif:o.num,cliente:o.cliente||"",tel:o.tel||"",titolo:"Vendita "+(o.num||""),sub:[o.canale==="banco"?"al banco":o.canale||"sito",o.stato].filter(Boolean).join(" · ")}); }); }
+    for(const p of S.preventivi||[]){ if(p.stato!=="accettato") continue;
+      (p.righe||[]).forEach((r,i)=>{ if(codEq(r.codice,codice)&&!r.arrivatoAt) out.push({k:"v",id:p.id,i,qty:Number(r.qty)||1,rif:p.num,cliente:p.cliente||"",tel:p.tel||"",titolo:"Preventivo "+(p.num||""),sub:"accettato"}); }); } }
+  for(const p of S.pren||[]){ if(p.stato==="attesa"&&codEq(p.codice,codice)) out.push({k:"p",id:p.id,qty:Number(p.qty)||1,rif:p.rif||"",cliente:p.cliente||"",tel:p.tel||"",titolo:p.rif?(p.tipo==="scheda"?"Scheda ":"Vendita ")+p.rif:"Prenotato",sub:[p.note,"prenotato il "+fmtD(p.at)].filter(Boolean).join(" · ")}); }
+  return out; }
+const messiDaParte=codice=>(S.pren||[]).filter(p=>p.stato==="arrivato"&&codEq(p.codice,codice));
+function atteseBox(it){ const a=attesePer(it.codice), m=messiDaParte(it.codice); if(!a.length&&!m.length) return "";
+  return `<div class="wwarn" style="background:#eef4ff;border-color:#c9dafb;color:#1d3f7a;text-align:left">${a.length?`<b>Atteso da ${a.length}:</b> ${a.slice(0,4).map(x=>`${esc(x.titolo)}${x.cliente?" ("+esc(x.cliente)+")":""} ×${x.qty}`).join(", ")}${a.length>4?"…":""}`:""}${m.length?`${a.length?"<br>":""}<b>Messi da parte:</b> ${m.map(x=>`${esc(x.cliente||"cliente")} ×${x.qty}`).join(", ")}`:""}</div>`; }
+const avvisoArrivo=(nome,cosa,rif)=>`Ciao ${(nome||"").split(" ")[0]}, è arrivato ${cosa}${rif?` (${rif})`:""}. Ti aspettiamo da SE.M.I. – Viale G. Marconi, Casavatore. Grazie!`;
+async function assegnaArrivo(a,it,q){ const now=Date.now(), cosa=nomeDi(it)+" ("+it.codice+")";
+  return write(async()=>{
+    if(a.k==="t"){ const t=S.tickets.find(x=>x.id===a.id); const ric=clean(t.ricambi||[]); if(ric[a.i]) ric[a.i].arrivatoAt=now;
+      await S.db.doc("tickets/"+a.id).update({ricambi:ric,updatedAt:now}); }
+    else if(a.k==="w"){ const o=S.ordiniWeb.find(x=>x.id===a.id); const r=clean(o.righe||[]); if(r[a.i]) r[a.i].arrivatoAt=now; await S.db.collection("ordiniWeb").doc(a.id).update({righe:r,updatedAt:now}); }
+    else if(a.k==="v"){ const p=S.preventivi.find(x=>x.id===a.id); const r=clean(p.righe||[]); if(r[a.i]) r[a.i].arrivatoAt=now; await S.db.collection("preventivi").doc(a.id).update({righe:r}); }
+    else if(a.k==="p"){ await S.db.collection("prenotazioni").doc(a.id).update({stato:"arrivato",arrivatoAt:now,qtyArr:q}); }
+    await S.db.collection("movimenti").add({at:now,codice:it.codice,descr:it.descr||"",tipo:it.tipo||"",qty:0,causale:"assegnato all'arrivo",rif:(a.titolo+(a.cliente?" · "+a.cliente:"")).slice(0,120),by:S.me||null,costo:Number(it.costo)||0});
+  },`${esc(it.codice)} → ${esc(a.titolo)}${a.cliente?" ("+esc(a.cliente)+")":""}`); }
+// passo del wizard: lista di chi aspetta questo codice + associa a scheda/vendita (anche nuova)
+function stepAssegna(it,q,dopo,L0){ const L=L0||attesePer(it.codice);
+  wz(`<div class="wdone" style="padding-bottom:6px"><div class="we">📦</div><h2>Caricati ${q} pezzi</h2><p>${esc(nomeDi(it))} · <span class="mono">${esc(it.codice)}</span></p></div>
+    ${L.length?`<div class="wq sm">Questo pezzo è atteso da:</div><div class="wlist">${L.map((a,j)=>`<div class="wcard" style="display:flex;gap:10px;align-items:center;margin-bottom:8px"><div style="flex:1"><b>${esc(a.titolo)}</b>${a.cliente?" · "+esc(a.cliente):""}<div class="wsub">${esc(a.sub||"")} · servono ${a.qty}</div></div><button class="btn pri" data-as="${j}">${ic("check")}Assegna</button></div>`).join("")}</div>`:`<div class="wsub" style="margin:8px 0">Nessuna scheda o vendita aspetta questo codice.</div>`}
+    <div class="wyn"><button class="wbig sec" id="wAss">${ic("swap")}Associa a una scheda o vendita</button></div>`,
+    scanLabel("nxScanA","Inquadra il prossimo","ok")+wBtn("wEndA","Ho finito","sec","home"));
+  $("#wzB").querySelectorAll("[data-as]").forEach(b=>b.onclick=async()=>{ const a=L[+b.dataset.as]; b.disabled=true; if(await assegnaArrivo(a,it,q)){ b.outerHTML=`<span class="badge st-Pronto">Assegnato</span>${a.tel?waBtn(a.tel,avvisoArrivo(a.cliente,nomeDi(it),a.k==="t"?"scheda "+a.rif:a.rif),"Avvisa"):""}`; } else b.disabled=false; });
+  $("#wAss").onclick=()=>wizStep(step(()=>stepAssocia(it,q)));
+  bindScan("nxScanA",dopo); $("#wEndA").onclick=()=>wizClose(); }
+function stepAssocia(it,q){
+  wz(`<div class="wq">A chi va ${esc(it.codice)}?</div><input class="winp" id="wAq" placeholder="Numero scheda, cliente, modello o n° vendita" autocomplete="off" autofocus>
+    <div id="wAl" style="margin-top:10px"></div>
+    <div class="wyn"><button class="wbig sec" id="wAnS">${ic("wrench")}Nuova scheda assistenza</button><button class="wbig sec" id="wAnV">${ic("user")}Vendita a un cliente (non registrata)</button></div>`,"");
+  const draw=()=>{ const s=normNome($("#wAq").value||""), m=x=>!s||normNome(x).includes(s);
+    const sch=(S.tickets||[]).filter(t=>ST_APERTE.includes(t.stato)&&m([t.num,t.cliente,t.modello,t.tel].join(" "))).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,8);
+    const ven=(S.ordiniWeb||[]).filter(o=>!["Consegnato","Annullato"].includes(o.stato)&&m([o.num,o.cliente,o.tel].join(" "))).slice(0,5);
+    const pv=(S.preventivi||[]).filter(p=>["bozza","inviato","accettato"].includes(p.stato)&&m([p.num,p.cliente,p.tel].join(" "))).slice(0,5);
+    const riga=(k,id,tit,sub)=>`<button class="wcard" data-ak="${k}" data-aid="${esc(id)}" style="display:block;width:100%;text-align:left;margin-bottom:8px;cursor:pointer"><b>${esc(tit)}</b><div class="wsub">${esc(sub)}</div></button>`;
+    $("#wAl").innerHTML=(sch.map(t=>riga("t",t.id,"Scheda "+t.num+" · "+(t.cliente||""),[t.modello,t.stato].filter(Boolean).join(" · "))).join("")+ven.map(o=>riga("w",o.id,"Vendita "+(o.num||"")+" · "+(o.cliente||""),o.stato||"")).join("")+pv.map(p=>riga("v",p.id,"Preventivo "+(p.num||"")+" · "+(p.cliente||""),PV_STATI[p.stato]||p.stato)).join(""))||`<div class="wsub">Niente trovato: usa i pulsanti qui sotto.</div>`;
+    $("#wAl").querySelectorAll("[data-ak]").forEach(b=>b.onclick=()=>associa(b.dataset.ak,b.dataset.aid)); };
+  $("#wAq").oninput=draw; draw();
+  const associa=async(k,id)=>{ const now=Date.now(); let fatto=null;
+    if(k==="t"){ const t=S.tickets.find(x=>x.id===id); const ric=clean(t.ricambi||[]); const ex=ric.find(r=>codEq(r.codice,it.codice)&&!r.arrivatoAt);
+      if(ex) ex.arrivatoAt=now; else { const inf=infoRic(it.codice); ric.push({codice:it.codice,descr:inf.descr||it.descr||"",qty:q,prezzo:inf.prezzo?conMagg(inf.prezzo,Number(t.maggRic)||0):0,...(inf.prezzo?{base:inf.prezzo}:{}),costo:inf.costo||Number(it.costo)||0,arrivatoAt:now}); }
+      const ok=await write(async()=>{ await S.db.doc("tickets/"+id).update({ricambi:ric,updatedAt:now}); if(!ex) await muovi(it.codice,-q,"scarico su scheda",t.num); },`${esc(it.codice)} nella scheda ${esc(t.num)}`);
+      if(ok) fatto={titolo:"Scheda "+t.num,cliente:t.cliente,tel:t.tel,rif:"scheda "+t.num}; }
+    else { const o=k==="w"?S.ordiniWeb.find(x=>x.id===id):S.preventivi.find(x=>x.id===id); const tit=(k==="w"?"Vendita ":"Preventivo ")+(o.num||"");
+      const ok=await write(()=>S.db.collection("prenotazioni").add({codice:it.codice,descr:nomeDi(it),qty:q,tipo:k==="w"?"vendita":"preventivo",rif:o.num||"",rifId:id,cliente:o.cliente||"",tel:o.tel||"",cliId:o.cliId||"",stato:"arrivato",at:now,arrivatoAt:now,by:S.me||null}),`${esc(it.codice)} messo da parte per ${esc(o.cliente||tit)}`);
+      if(ok) fatto={titolo:tit,cliente:o.cliente,tel:o.tel,rif:o.num}; }
+    if(fatto) wizDone("🔗","Associato",`${esc(nomeDi(it))} ×${q}<br>→ <b>${esc(fatto.titolo)}</b>${fatto.cliente?"<br>"+esc(fatto.cliente):""}`,fatto.tel?`<div class="wyn">${waBtn(fatto.tel,avvisoArrivo(fatto.cliente,nomeDi(it),fatto.rif),"Avvisa il cliente").replace('class="btn wa','class="wbig wa')}</div>`:""); };
+  $("#wAnS").onclick=()=>{ const inf=infoRic(it.codice); wizClose();
+    openTicket(null,null,{stato:"Ricevuto",tipo:"pagamento",ricambi:[{codice:it.codice,descr:inf.descr||it.descr||"",qty:q,prezzo:inf.prezzo||0,...(inf.prezzo?{base:inf.prezzo}:{}),costo:inf.costo||Number(it.costo)||0,arrivatoAt:Date.now()}],ore:0,tariffa:S.cfg.tariffa,createdAt:Date.now(),storico:[],origine:"banco"}); };
+  $("#wAnV").onclick=()=>wizStep(step(()=>stepCliente(it,q,"arrivato"))); }
+// cliente per una vendita non ancora registrata: «arrivato» = messo da parte adesso, «attesa» = prenotato prima dell'arrivo
+function stepCliente(it,q,stato){
+  wz(`<div class="wq">Per quale cliente?</div><input class="winp" id="wPc" placeholder="Nome, telefono o partita IVA" autocomplete="off" autofocus><div id="wPl" style="margin-top:8px"></div>
+    <div class="wq sm">Telefono (per avvisarlo)</div><input class="winp" id="wPt" type="tel" placeholder="es. 333 1234567">
+    ${stato==="attesa"?`<div class="wq sm">Quanti pezzi</div>${qtyBox("wPq",q||1,1)}`:""}
+    <div class="wq sm">Nota (facoltativa)</div><input class="winp" id="wPn" placeholder="es. acconto 50 €, lo ritira sabato">`, wBtn("wPok",stato==="attesa"?"Prenota":"Metti da parte","pri","check"));
+  if(stato==="attesa") bindQty(); let cli=null;
+  const L=$("#wPl"); $("#wPc").oninput=()=>{ cli=null; const s=$("#wPc").value.trim(); const l=s.length>1?cercaCli(s,5):[];
+    L.innerHTML=l.map((c,j)=>`<button class="chip" data-pc="${j}" style="margin:0 6px 6px 0">${esc(c.nome)}${c.tel||c.cell?" · "+esc(c.tel||c.cell):""}</button>`).join("");
+    L.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{ cli=l[+b.dataset.pc]; $("#wPc").value=cli.nome; $("#wPt").value=cli.cell||cli.tel||""; L.innerHTML=""; }); };
+  $("#wPok").onclick=async()=>{ const nome=$("#wPc").value.trim(); if(!nome){ toast("Scrivi il nome del cliente"); return; }
+    const qq=stato==="attesa"?Math.max(1,parseInt($("#wPq").value)||1):q, tel=$("#wPt").value.trim(), now=Date.now();
+    const d={codice:it.codice,descr:nomeDi(it),qty:qq,tipo:"vendita",rif:"",cliente:nome,tel,cliId:cli?.id||"",note:$("#wPn").value.trim(),stato,at:now,...(stato==="arrivato"?{arrivatoAt:now}:{}),by:S.me||null};
+    const ok=await write(()=>S.db.collection("prenotazioni").add(d),stato==="attesa"?`Prenotato per ${esc(nome)}`:`Messo da parte per ${esc(nome)}`);
+    if(ok) wizDone(stato==="attesa"?"🕒":"🔗",stato==="attesa"?"Prenotato":"Messo da parte",`${esc(nomeDi(it))} ×${qq}<br>→ <b>${esc(nome)}</b>${stato==="attesa"?"<br>Quando arriva e lo scansioni con «È arrivata merce» esce il suo nome.":""}`,stato==="arrivato"&&tel?`<div class="wyn">${waBtn(tel,avvisoArrivo(nome,nomeDi(it),""),"Avvisa il cliente").replace('class="btn wa','class="wbig wa')}</div>`:""); }; }
+
+
+/* 26/11: vista «Merce attesa e prenotata» */
+function schedeInAttesa(){ const out=[];
+  for(const t of S.tickets||[]){ if(!ST_APERTE.includes(t.stato)) continue;
+    (t.ricambi||[]).forEach(r=>{ if(!r.codice||r.manuale||r.codice==="MANUALE"||r.arrivatoAt) return; const it=itm(r.codice); if(!it) return;
+      if((Number(it.giacenza)||0)<0||t.stato==="Attesa ricambi") out.push({t,r}); }); }
+  return out.sort((a,b)=>(a.t.createdAt||0)-(b.t.createdAt||0)); }
+function vPrenotate(){ const P=S.pren||[], att=P.filter(p=>p.stato==="attesa").sort((a,b)=>(a.at||0)-(b.at||0)), par=P.filter(p=>p.stato==="arrivato").sort((a,b)=>(a.arrivatoAt||0)-(b.arrivatoAt||0)), sch=schedeInAttesa();
+  const riga=p=>`<tr><td><b class="mono">${esc(p.codice)}</b><div class="sub">${esc(p.descr||"")}</div></td><td>${esc(p.cliente||"")}${p.rif?`<div class="sub">${esc(p.tipo||"")} ${esc(p.rif)}</div>`:""}${p.tel?`<div class="sub">${esc(p.tel)}</div>`:""}</td><td class="num">${Number(p.qty)||1}</td><td><span class="sub">${p.stato==="attesa"?"dal "+fmtD(p.at):"arrivato il "+fmtD(p.arrivatoAt)}</span>${p.note?`<div class="sub">${esc(p.note)}</div>`:""}</td>
+    <td style="white-space:nowrap" class="edit-only">${p.stato==="arrivato"?`${p.tel?waBtn(p.tel,avvisoArrivo(p.cliente,p.descr||p.codice,p.rif),"Avvisa","sm"):""}<button class="btn sm pri" data-pok="${esc(p.id)}">${ic("check")}Consegnato</button>`:""}<button class="btn sm" data-pno="${esc(p.id)}">${ic("x")}Annulla</button></td></tr>`;
+  return `<div class="hdr"><h1>Merce attesa e prenotata</h1><span class="sp"></span><button class="btn pri edit-only" id="prNew">${ic("plus")}Prenota per un cliente</button></div>
+  <p class="sub" style="margin:-6px 0 14px">Quando arriva merce, con «È arrivata merce» e il codice a barre esce la lista di chi la aspetta: schede di assistenza, vendite, preventivi accettati e prenotazioni qui sotto. Si può anche associare al volo a una scheda o a una vendita nuova.</p>
+  <div class="panel"><h3>Messi da parte per i clienti <span class="sp"></span><span class="sub">${par.length}</span></h3>${par.length?`<table><thead><tr><th>Articolo</th><th>Cliente</th><th class="num">Pz</th><th></th><th></th></tr></thead><tbody>${par.map(riga).join("")}</tbody></table>`:`<div class="empty">Niente messo da parte</div>`}</div>
+  <div class="panel"><h3>Prenotati, in attesa di arrivo <span class="sp"></span><span class="sub">${att.length}</span></h3>${att.length?`<table><thead><tr><th>Articolo</th><th>Cliente</th><th class="num">Pz</th><th></th><th></th></tr></thead><tbody>${att.map(riga).join("")}</tbody></table>`:`<div class="empty">Nessuna prenotazione aperta</div>`}</div>
+  <div class="panel"><h3>Ricambi attesi dalle schede <span class="sp"></span><span class="sub">${sch.length}</span></h3>${sch.length?`<table><thead><tr><th>Ricambio</th><th>Scheda</th><th class="num">Pz</th><th>Stato</th></tr></thead><tbody>${sch.map(({t,r})=>`<tr data-open="${esc(t.id)}" style="cursor:pointer"><td><b class="mono">${esc(r.codice)}</b><div class="sub">${esc(r.descr||"")}</div></td><td><b>${esc(t.num)}</b> · ${esc(t.cliente||"")}<div class="sub">${esc(t.modello||"")}</div></td><td class="num">${Number(r.qty)||1}</td><td><span class="sub">${esc(t.stato)} · in negozio ${Number(itm(r.codice)?.giacenza)||0}</span></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessuna scheda aspetta ricambi</div>`}</div>`; }
+function bindPrenotate(){ const m=$("#main");
+  const b=$("#prNew"); if(b) b.onclick=()=>{ wizCerca(); };
+  m.querySelectorAll("[data-pok]").forEach(x=>x.onclick=()=>write(()=>S.db.collection("prenotazioni").doc(x.dataset.pok).update({stato:"consegnato",chiusoAt:Date.now()}),"Segnato come consegnato"));
+  m.querySelectorAll("[data-pno]").forEach(x=>x.onclick=()=>{ if(!confirm("Annullare questa prenotazione?")) return; write(()=>S.db.collection("prenotazioni").doc(x.dataset.pno).update({stato:"annullato",chiusoAt:Date.now()}),"Prenotazione annullata"); }); }
+
 /* ---------- 4. È arrivata merce ---------- */
 function wizArrivo(){
   wizOpen("È arrivata merce","f-p"); let fatti=0;
   const scegli=step(()=>pickItem("Cosa è arrivato?",{onPick:it=>{ WZ.it=it; wizStep(quanti); },hint:"Prodotti in vendita e ricambi. Scrivi il codice che c'è sulla scatola."}));
   const prossimo=t=>{ WZ.stack=[]; wizStep(scegli); WZ.pkHandle(t); };
-  const quanti=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wq sm">Quanti pezzi sono arrivati?</div>${qtyBox("wq1",1,1)}`,
-      scanLabel("nxScan","Carica e inquadra il prossimo","ok")+wBtn("wOk","Carica e basta","sec","plus")); bindQty();
+  const quanti=step(()=>{ const it=WZ.it, att=attesePer(it.codice);
     const carica=async()=>{ const q=Math.max(1,parseInt($("#wq1").value)||1); const ok=await write(()=>muovi(it.codice,q,"arrivo merce","banco"),`+${q} ${esc(it.codice)} (ora ${(Number(it.giacenza)||0)+q})`); if(ok) fatti++; return ok?q:0; };
-    let fatto=false; $("#nxScan").addEventListener("click",()=>{ if(fatto) return; fatto=true; carica().then(q=>{ if(!q) return; $("#wzB").innerHTML=`<div class="wdone"><div class="we">📦</div><h2>Caricati ${q} pezzi</h2><p>${esc(nomeDi(it))}<br>Ora in negozio: <b>${Number(itm(it.codice)?.giacenza)||0}</b></p></div>`; const l=document.querySelector('[data-scanbox="nxScan"] span'); if(l) l.textContent="Inquadra il prossimo"; const o=$("#wOk"); o.innerHTML=ic("home")+"Ho finito"; o.onclick=wizClose; }); });
+    let fatto=false;
+    if(att.length){ // qualcuno lo aspetta: dopo il carico si assegna
+      wz(itemCard(it)+`<div class="wq sm">Quanti pezzi sono arrivati?</div>${qtyBox("wq1",Math.min(99,att.reduce((a,x)=>a+x.qty,0))||1,1)}`, wBtn("wOk","Carica e assegna","pri","check")); bindQty();
+      $("#wOk").onclick=async()=>{ if(fatto) return; fatto=true; const q=await carica(); if(q) stepAssegna(itm(it.codice)||it,q,prossimo,att); else fatto=false; };
+      return; }
+    wz(itemCard(it)+`<div class="wq sm">Quanti pezzi sono arrivati?</div>${qtyBox("wq1",1,1)}`,
+      scanLabel("nxScan","Carica e inquadra il prossimo","ok")+wBtn("wOk","Carica e basta","sec","plus")); bindQty();
+    const dopoCarico=(q,conScan)=>{ $("#wzB").innerHTML=`<div class="wdone"><div class="we">📦</div><h2>Caricati ${q} pezzi</h2><p>${esc(nomeDi(it))}<br>Ora in negozio: <b>${Number(itm(it.codice)?.giacenza)||0}</b></p></div><div class="wyn"><button class="wbig sec" id="wAss2">${ic("swap")}Associa a una scheda o vendita</button></div>`;
+      $("#wAss2").onclick=()=>{ WZ.it=itm(it.codice)||it; wizStep(step(()=>stepAssocia(WZ.it,q))); }; };
+    $("#nxScan").addEventListener("click",()=>{ if(fatto) return; fatto=true; carica().then(q=>{ if(!q) return; dopoCarico(q); const l=document.querySelector('[data-scanbox="nxScan"] span'); if(l) l.textContent="Inquadra il prossimo"; const o=$("#wOk"); o.innerHTML=ic("home")+"Ho finito"; o.onclick=wizClose; }); });
     bindScan("nxScan",prossimo);
     $("#wOk").onclick=async()=>{ if(fatto) return; fatto=true; const q=await carica();
-      if(q){ wz(`<div class="wdone"><div class="we">📦</div><h2>Caricati ${q} pezzi</h2><p>${esc(nomeDi(it))}<br>Ora in negozio: <b>${Number(itm(it.codice)?.giacenza)||0}</b></p></div>`, scanLabel("nxScan3","Inquadra il prossimo","ok")+wBtn("wAn","Cerca a mano","sec","search")+wBtn("wEnd","Ho finito","sec","home")); bindScan("nxScan3",prossimo); $("#wAn").onclick=()=>{ WZ.stack=[]; wizStep(scegli); }; $("#wEnd").onclick=wizClose; } }; });
+      if(q){ wz("", scanLabel("nxScan3","Inquadra il prossimo","ok")+wBtn("wAn","Cerca a mano","sec","search")+wBtn("wEnd","Ho finito","sec","home")); dopoCarico(q); bindScan("nxScan3",prossimo); $("#wAn").onclick=()=>{ WZ.stack=[]; wizStep(scegli); }; $("#wEnd").onclick=wizClose; } }; });
   wizStep(scegli);
 }
 
@@ -5193,7 +5306,8 @@ function wizPrezzo(pre){
 function wizCerca(pre){
   wizOpen("Cerco un prezzo","f-w");
   const scegli=step(()=>pickItem("Cosa cerchi?",{onPick:it=>{ WZ.it=it; wizStep(scheda); }}));
-  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button><button class="wbig sec" id="aX">${ic("plug")}Accessori e compatibilità</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
+  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button><button class="wbig sec" id="aX">${ic("plug")}Accessori e compatibilità</button><button class="wbig sec" id="aPr">${ic("clock")}Prenota per un cliente</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
+    $("#aPr").onclick=()=>wizStep(step(()=>stepCliente(it,1,"attesa")));
     $("#aX").onclick=()=>{ wizClose(); S.cq=it.codice; location.hash="compatibili"; render(); };
     const v=$("#aV"); if(v) v.onclick=()=>{ wizClose(); wizVendo(it); }; const p=$("#aP"); if(p) p.onclick=()=>{ wizClose(); wizPrezzo(it); };
     $("#aC").onclick=()=>{ wizClose(); wizConta(it); };
