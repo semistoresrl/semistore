@@ -844,6 +844,7 @@ async function init(){
   db.collection("consegne").onSnapshot(s=>{S.consegne=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("prenotazioni").onSnapshot(s=>{S.pren=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("colli").onSnapshot(s=>{S.colli=s.docs.map(d=>({id:d.id,...d.data()}));},()=>{});
+  db.collection("associazioni").onSnapshot(s=>{S.ass=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("noleggi").onSnapshot(s=>{S.noleggi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("preventivi").onSnapshot(s=>{S.preventivi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("resi").onSnapshot(s=>{S.resi=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("x");},err);
@@ -2878,7 +2879,7 @@ async function openEsporta(){
       file("02_Magazzino","ricambi_dewalt_catalogo",plain("ricambiDW"));
       // 03 Vendite
       file("03_Vendite","ordini_online_app",plain("ordiniWeb")); file("03_Vendite","ordini_pagati_sul_sito",T.ordini||[]); file("03_Vendite","resi",plain("resi"));
-      file("03_Vendite","codici_sconto",plain("sconti")); file("03_Vendite","scaffale_consegne",plain("consegne")); file("03_Vendite","merce_prenotata",plain("prenotazioni"));
+      file("03_Vendite","codici_sconto",plain("sconti")); file("03_Vendite","scaffale_consegne",plain("consegne")); file("03_Vendite","merce_prenotata",plain("prenotazioni")); file("03_Vendite","storico_associazioni",plain("associazioni"));
       // 04 Clienti
       file("04_Clienti","clienti_archivio_app",items("clienti").map(c=>({...c,sconto_perc:scontoNum(c.sconto)})),["nome","tel","cell","email","piva","cf","ind","cap","citta","prov","sconto","sconto_perc","listino","origine"]);
       file("04_Clienti","account_clienti_sito",T.clienti||[]); file("04_Clienti","punti_movimenti",T.punti_mov||[]);
@@ -2896,7 +2897,7 @@ async function openEsporta(){
       file("08_App_e_utenti","utenti",T.utenti||[]); file("08_App_e_utenti","registro_attivita",(T.registro||[]).sort((a,b)=>(a.at||0)-(b.at||0)));
       file("08_App_e_utenti","impostazioni_app",plain("config").flatMap(c=>Object.entries(c).filter(([k])=>!k.startsWith("_")).map(([k,v])=>({documento:c._id,voce:k,valore:v}))));
       // altro: collezioni e tabelle non previste sopra
-      const noteC=new Set(["tickets","richieste","esplosi","mag","movimenti","ean","backup","ricambiDW","ordiniWeb","resi","sconti","consegne","prenotazioni","clienti","ordini","config"]);
+      const noteC=new Set(["tickets","richieste","esplosi","mag","movimenti","ean","backup","ricambiDW","ordiniWeb","resi","sconti","consegne","prenotazioni","associazioni","clienti","ordini","config"]);
       Object.keys(C).filter(c=>!noteC.has(c)).forEach(c=>file("09_Altro","app_"+c,(C[c]||[]).some(d=>d.items)?items(c):plain(c)));
       const noteT=new Set(["docs","ordini","clienti","punti_mov","buoni","buoni_mov","buoni_prenotati","giacenze","movimenti","impostazioni","presenze","pmail","pcaselle","pmail_liste","pmail_auto","caselle","utenti","registro","files"]);
       Object.keys(T).filter(t=>!noteT.has(t)).forEach(t=>file("09_Altro","tabella_"+t,T[t]));
@@ -3178,6 +3179,7 @@ function openTicket(t, fromReq, draft){
       origRic.forEach(p=>diff.set(p.codice,(diff.get(p.codice)||0)+(Number(p.qty)||0)));
       data.ricambi.forEach(p=>diff.set(p.codice,(diff.get(p.codice)||0)-(Number(p.qty)||0)));
       for(const [cod,d] of diff){ if(d!==0 && itm(cod)) await muovi(cod,d,d<0?"scarico su scheda":"reso da scheda",data.num); }
+      for(const p of data.ricambi) if(p.arrivatoAt&&isNew) await logAss({azione:"nuova scheda",codice:p.codice,descr:p.descr||"",qty:Number(p.qty)||1,verso:"scheda",rif:data.num,cliente:data.cliente||"",tel:data.tel||""});
       try{ const cid=await cliDaScheda(data); if(cid&&cid!==data.cliId){ data.cliId=cid; await ref.update({cliId:cid}); } }catch(e){ console.warn("cliente",e); }
       if(t.reqId){ const rq=S.richieste.find(x=>x.id===t.reqId); await S.db.doc("richieste/"+t.reqId).update({gestita:true,ticketNum:data.num,...(rq&&rq.pacco?{pacco:{...rq.pacco,stato:"arrivato",arrivatoAt:Date.now()}}:{})}); }
     }, isNew?`Scheda ${data.num} aperta`:"Scheda salvata");
@@ -3770,7 +3772,7 @@ function bindNuovo(){
 const SUL_SITO=!!window.SEMI;
 const isAdmin=()=>SUL_SITO&&window.SEMI.io?.ruolo==="admin";
 const puoPrezzi=()=>!SUL_SITO||isAdmin(); // gli operatori non cambiano i prezzi (controllato anche dal server)
-const NOMI_COL={prenotazioni:"Merce prenotata",tickets:"Scheda",mag:"Magazzino",movimenti:"Movimento",richieste:"Richiesta dal sito",ordini:"Foglio DEWALT",esplosi:"Distinta",ricambiDW:"Ricambio DEWALT",ordiniWeb:"Ordine online",consegne:"Scaffale consegne",clienti:"Clienti",backup:"Copia di sicurezza",resi:"Reso",ean:"Codice a barre",sconti:"Codice sconto",config:"Impostazioni",utenti:"Utente","*":"Archivio"};
+const NOMI_COL={prenotazioni:"Merce prenotata",associazioni:"Associazione merce",tickets:"Scheda",mag:"Magazzino",movimenti:"Movimento",richieste:"Richiesta dal sito",ordini:"Foglio DEWALT",esplosi:"Distinta",ricambiDW:"Ricambio DEWALT",ordiniWeb:"Ordine online",consegne:"Scaffale consegne",clienti:"Clienti",backup:"Copia di sicurezza",resi:"Reso",ean:"Codice a barre",sconti:"Codice sconto",config:"Impostazioni",utenti:"Utente","*":"Archivio"};
 const NOMI_CAMPI={ubic:"scaffale",posto:"ripiano",incassare:"da incassare",modo:"ritiro/consegna",chiusoAt:"chiuso",stato:"stato",giacenza:"pezzi",prezzoSito:"prezzo",prezzo:"prezzo listino",cliente:"cliente",tel:"telefono",modello:"modello",difetto:"difetto",diagnosi:"lavoro fatto",preventivo:"preventivo",ricambi:"ricambi",tecnico:"tecnico",scaffale:"scaffale",note:"note",verificare:"da contare",daInviare:"da inviare",posto:"posto scaffale",tracking:"tracciamento",pagato:"pagato",esito:"esito",rimborso:"rimborso",tipo:"tipo",ore:"ore",storico:"storico"};
 const decK=k=>String(k).replace(/~([0-9a-f]{2})/g,(m,h)=>String.fromCharCode(parseInt(h,16)));
 
@@ -5271,6 +5273,8 @@ function attesePer(codice){
 const messiDaParte=codice=>(S.pren||[]).filter(p=>p.stato==="arrivato"&&codEq(p.codice,codice));
 function atteseBox(it){ const a=attesePer(it.codice), m=messiDaParte(it.codice); if(!a.length&&!m.length) return "";
   return `<div class="wwarn" style="background:#eef4ff;border-color:#c9dafb;color:#1d3f7a;text-align:left">${a.length?`<b>Atteso da ${a.length}:</b> ${a.slice(0,4).map(x=>`${esc(x.titolo)}${x.cliente?" ("+esc(x.cliente)+")":""} ×${x.qty}`).join(", ")}${a.length>4?"…":""}`:""}${m.length?`${a.length?"<br>":""}<b>Messi da parte:</b> ${m.map(x=>`${esc(x.cliente||"cliente")} ×${x.qty}`).join(", ")}`:""}</div>`; }
+/* storico di tutte le associazioni (chi, quando, cosa, a chi) */
+const logAss=d=>S.db.collection("associazioni").add({at:Date.now(),by:S.me||null,chi:window.SEMI?.io?.nome||S.me||"",...d});
 const avvisoArrivo=(nome,cosa,rif)=>`Ciao ${(nome||"").split(" ")[0]}, è arrivato ${cosa}${rif?` (${rif})`:""}. Ti aspettiamo da SE.M.I. – Viale G. Marconi, Casavatore. Grazie!`;
 async function assegnaArrivo(a,it,q){ const now=Date.now(), cosa=nomeDi(it)+" ("+it.codice+")";
   return write(async()=>{
@@ -5279,6 +5283,7 @@ async function assegnaArrivo(a,it,q){ const now=Date.now(), cosa=nomeDi(it)+" ("
     else if(a.k==="w"){ const o=S.ordiniWeb.find(x=>x.id===a.id); const r=clean(o.righe||[]); if(r[a.i]) r[a.i].arrivatoAt=now; await S.db.collection("ordiniWeb").doc(a.id).update({righe:r,updatedAt:now}); }
     else if(a.k==="v"){ const p=S.preventivi.find(x=>x.id===a.id); const r=clean(p.righe||[]); if(r[a.i]) r[a.i].arrivatoAt=now; await S.db.collection("preventivi").doc(a.id).update({righe:r}); }
     else if(a.k==="p"){ await S.db.collection("prenotazioni").doc(a.id).update({stato:"arrivato",arrivatoAt:now,qtyArr:q}); }
+    await logAss({azione:"assegnato",codice:it.codice,descr:nomeDi(it),qty:q,verso:{t:"scheda",w:"vendita",v:"preventivo",p:"prenotazione"}[a.k]||"",rif:a.rif||"",cliente:a.cliente||"",tel:a.tel||""});
     await S.db.collection("movimenti").add({at:now,codice:it.codice,descr:it.descr||"",tipo:it.tipo||"",qty:0,causale:"assegnato all'arrivo",rif:(a.titolo+(a.cliente?" · "+a.cliente:"")).slice(0,120),by:S.me||null,costo:Number(it.costo)||0});
   },`${esc(it.codice)} → ${esc(a.titolo)}${a.cliente?" ("+esc(a.cliente)+")":""}`); }
 // passo del wizard: lista di chi aspetta questo codice + associa a scheda/vendita (anche nuova)
@@ -5305,10 +5310,11 @@ function stepAssocia(it,q){
   const associa=async(k,id)=>{ const now=Date.now(); let fatto=null;
     if(k==="t"){ const t=S.tickets.find(x=>x.id===id); const ric=clean(t.ricambi||[]); const ex=ric.find(r=>codEq(r.codice,it.codice)&&!r.arrivatoAt);
       if(ex) ex.arrivatoAt=now; else { const inf=infoRic(it.codice); ric.push({codice:it.codice,descr:inf.descr||it.descr||"",qty:q,prezzo:inf.prezzo?conMagg(inf.prezzo,Number(t.maggRic)||0):0,...(inf.prezzo?{base:inf.prezzo}:{}),costo:inf.costo||Number(it.costo)||0,arrivatoAt:now}); }
-      const ok=await write(async()=>{ await S.db.doc("tickets/"+id).update({ricambi:ric,updatedAt:now}); if(!ex) await muovi(it.codice,-q,"scarico su scheda",t.num); },`${esc(it.codice)} nella scheda ${esc(t.num)}`);
+      const ok=await write(async()=>{ await S.db.doc("tickets/"+id).update({ricambi:ric,updatedAt:now}); if(!ex) await muovi(it.codice,-q,"scarico su scheda",t.num); await logAss({azione:"associato",codice:it.codice,descr:nomeDi(it),qty:q,verso:"scheda",rif:t.num,cliente:t.cliente||"",tel:t.tel||""}); },`${esc(it.codice)} nella scheda ${esc(t.num)}`);
       if(ok) fatto={titolo:"Scheda "+t.num,cliente:t.cliente,tel:t.tel,rif:"scheda "+t.num}; }
     else { const o=k==="w"?S.ordiniWeb.find(x=>x.id===id):S.preventivi.find(x=>x.id===id); const tit=(k==="w"?"Vendita ":"Preventivo ")+(o.num||"");
-      const ok=await write(()=>S.db.collection("prenotazioni").add({codice:it.codice,descr:nomeDi(it),qty:q,tipo:k==="w"?"vendita":"preventivo",rif:o.num||"",rifId:id,cliente:o.cliente||"",tel:o.tel||"",cliId:o.cliId||"",stato:"arrivato",at:now,arrivatoAt:now,by:S.me||null}),`${esc(it.codice)} messo da parte per ${esc(o.cliente||tit)}`);
+      const ok=await write(async()=>{ await S.db.collection("prenotazioni").add({codice:it.codice,descr:nomeDi(it),qty:q,tipo:k==="w"?"vendita":"preventivo",rif:o.num||"",rifId:id,cliente:o.cliente||"",tel:o.tel||"",cliId:o.cliId||"",stato:"arrivato",at:now,arrivatoAt:now,by:S.me||null});
+        await logAss({azione:"messo da parte",codice:it.codice,descr:nomeDi(it),qty:q,verso:k==="w"?"vendita":"preventivo",rif:o.num||"",cliente:o.cliente||"",tel:o.tel||""}); },`${esc(it.codice)} messo da parte per ${esc(o.cliente||tit)}`);
       if(ok) fatto={titolo:tit,cliente:o.cliente,tel:o.tel,rif:o.num}; }
     if(fatto) wizDone("🔗","Associato",`${esc(nomeDi(it))} ×${q}<br>→ <b>${esc(fatto.titolo)}</b>${fatto.cliente?"<br>"+esc(fatto.cliente):""}`,fatto.tel?`<div class="wyn">${waBtn(fatto.tel,avvisoArrivo(fatto.cliente,nomeDi(it),fatto.rif),"Avvisa il cliente").replace('class="btn wa','class="wbig wa')}</div>`:""); };
   $("#wAnS").onclick=()=>{ const inf=infoRic(it.codice); wizClose();
@@ -5327,7 +5333,7 @@ function stepCliente(it,q,stato){
   $("#wPok").onclick=async()=>{ const nome=$("#wPc").value.trim(); if(!nome){ toast("Scrivi il nome del cliente"); return; }
     const qq=stato==="attesa"?Math.max(1,parseInt($("#wPq").value)||1):q, tel=$("#wPt").value.trim(), now=Date.now();
     const d={codice:it.codice,descr:nomeDi(it),qty:qq,tipo:"vendita",rif:"",cliente:nome,tel,cliId:cli?.id||"",note:$("#wPn").value.trim(),stato,at:now,...(stato==="arrivato"?{arrivatoAt:now}:{}),by:S.me||null};
-    const ok=await write(()=>S.db.collection("prenotazioni").add(d),stato==="attesa"?`Prenotato per ${esc(nome)}`:`Messo da parte per ${esc(nome)}`);
+    const ok=await write(async()=>{ await S.db.collection("prenotazioni").add(d); await logAss({azione:stato==="attesa"?"prenotato":"messo da parte",codice:it.codice,descr:nomeDi(it),qty:qq,verso:"cliente",rif:"",cliente:nome,tel,note:d.note}); },stato==="attesa"?`Prenotato per ${esc(nome)}`:`Messo da parte per ${esc(nome)}`);
     if(ok) wizDone(stato==="attesa"?"🕒":"🔗",stato==="attesa"?"Prenotato":"Messo da parte",`${esc(nomeDi(it))} ×${qq}<br>→ <b>${esc(nome)}</b>${stato==="attesa"?"<br>Quando arriva e lo scansioni con «È arrivata merce» esce il suo nome.":""}`,stato==="arrivato"&&tel?`<div class="wyn">${waBtn(tel,avvisoArrivo(nome,nomeDi(it),""),"Avvisa il cliente").replace('class="btn wa','class="wbig wa')}</div>`:""); }; }
 
 
@@ -5344,12 +5350,17 @@ function vPrenotate(){ const P=S.pren||[], att=P.filter(p=>p.stato==="attesa").s
   <p class="sub" style="margin:-6px 0 14px">Quando arriva merce, con «È arrivata merce» e il codice a barre esce la lista di chi la aspetta: schede di assistenza, vendite, preventivi accettati e prenotazioni qui sotto. Si può anche associare al volo a una scheda o a una vendita nuova.</p>
   <div class="panel"><h3>Messi da parte per i clienti <span class="sp"></span><span class="sub">${par.length}</span></h3>${par.length?`<table><thead><tr><th>Articolo</th><th>Cliente</th><th class="num">Pz</th><th></th><th></th></tr></thead><tbody>${par.map(riga).join("")}</tbody></table>`:`<div class="empty">Niente messo da parte</div>`}</div>
   <div class="panel"><h3>Prenotati, in attesa di arrivo <span class="sp"></span><span class="sub">${att.length}</span></h3>${att.length?`<table><thead><tr><th>Articolo</th><th>Cliente</th><th class="num">Pz</th><th></th><th></th></tr></thead><tbody>${att.map(riga).join("")}</tbody></table>`:`<div class="empty">Nessuna prenotazione aperta</div>`}</div>
-  <div class="panel"><h3>Ricambi attesi dalle schede <span class="sp"></span><span class="sub">${sch.length}</span></h3>${sch.length?`<table><thead><tr><th>Ricambio</th><th>Scheda</th><th class="num">Pz</th><th>Stato</th></tr></thead><tbody>${sch.map(({t,r})=>`<tr data-open="${esc(t.id)}" style="cursor:pointer"><td><b class="mono">${esc(r.codice)}</b><div class="sub">${esc(r.descr||"")}</div></td><td><b>${esc(t.num)}</b> · ${esc(t.cliente||"")}<div class="sub">${esc(t.modello||"")}</div></td><td class="num">${Number(r.qty)||1}</td><td><span class="sub">${esc(t.stato)} · in negozio ${Number(itm(r.codice)?.giacenza)||0}</span></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessuna scheda aspetta ricambi</div>`}</div>`; }
+  <div class="panel"><h3>Ricambi attesi dalle schede <span class="sp"></span><span class="sub">${sch.length}</span></h3>${sch.length?`<table><thead><tr><th>Ricambio</th><th>Scheda</th><th class="num">Pz</th><th>Stato</th></tr></thead><tbody>${sch.map(({t,r})=>`<tr data-open="${esc(t.id)}" style="cursor:pointer"><td><b class="mono">${esc(r.codice)}</b><div class="sub">${esc(r.descr||"")}</div></td><td><b>${esc(t.num)}</b> · ${esc(t.cliente||"")}<div class="sub">${esc(t.modello||"")}</div></td><td class="num">${Number(r.qty)||1}</td><td><span class="sub">${esc(t.stato)} · in negozio ${Number(itm(r.codice)?.giacenza)||0}</span></td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessuna scheda aspetta ricambi</div>`}</div>
+  <div class="panel"><h3>Storico associazioni <span class="sp"></span><input type="search" id="asQ" placeholder="Cerca codice, cliente, scheda…" value="${esc(S.asQ||"")}" style="max-width:260px"></h3>${(()=>{ const q=normNome(S.asQ||""); const l=(S.ass||[]).filter(a=>!q||normNome([a.codice,a.descr,a.cliente,a.rif,a.verso,a.azione,a.chi].join(" ")).includes(q)).sort((a,b)=>(b.at||0)-(a.at||0)).slice(0,300);
+    const col={assegnato:"st-Pronto","associato":"st-Pronto","messo da parte":"st-Pronto","nuova scheda":"st-Pronto",prenotato:"st-Ricevuto",consegnato:"st-Consegnato",annullato:"st-Annullato"};
+    return l.length?`<table><thead><tr><th>Quando</th><th>Articolo</th><th class="num">Pz</th><th>A chi</th><th>Cosa</th><th>Chi</th></tr></thead><tbody>${l.map(a=>`<tr><td><span class="sub">${fmtDT(a.at)}</span></td><td><b class="mono">${esc(a.codice)}</b><div class="sub">${esc(a.descr||"")}</div></td><td class="num">${Number(a.qty)||1}</td><td>${esc(a.cliente||"")}<div class="sub">${esc(a.verso||"")}${a.rif?" "+esc(a.rif):""}</div></td><td><span class="badge ${col[a.azione]||""}">${esc(a.azione||"")}</span>${a.note?`<div class="sub">${esc(a.note)}</div>`:""}</td><td><span class="sub">${esc(a.chi||"")}</span></td></tr>`).join("")}</tbody></table>`:`<div class="empty">${q?"Nessun risultato":"Nessuna associazione ancora"}</div>`; })()}</div>`; }
 function bindPrenotate(){ const m=$("#main");
   const b=$("#prNew"); if(b) b.onclick=()=>{ wizCerca(); };
   const a=$("#prAss"); if(a) a.onclick=()=>wizAssocia();
-  m.querySelectorAll("[data-pok]").forEach(x=>x.onclick=()=>write(()=>S.db.collection("prenotazioni").doc(x.dataset.pok).update({stato:"consegnato",chiusoAt:Date.now()}),"Segnato come consegnato"));
-  m.querySelectorAll("[data-pno]").forEach(x=>x.onclick=()=>{ if(!confirm("Annullare questa prenotazione?")) return; write(()=>S.db.collection("prenotazioni").doc(x.dataset.pno).update({stato:"annullato",chiusoAt:Date.now()}),"Prenotazione annullata"); }); }
+  const aq=$("#asQ"); if(aq) aq.oninput=()=>{ S.asQ=aq.value; clearTimeout(aq._t); aq._t=setTimeout(render,250); };
+  const logP=(id,azione)=>{ const p=(S.pren||[]).find(x=>x.id===id)||{}; return logAss({azione,codice:p.codice||"",descr:p.descr||"",qty:Number(p.qty)||1,verso:p.tipo==="vendita"&&!p.rif?"cliente":p.tipo||"cliente",rif:p.rif||"",cliente:p.cliente||"",tel:p.tel||""}); };
+  m.querySelectorAll("[data-pok]").forEach(x=>x.onclick=()=>write(async()=>{ await S.db.collection("prenotazioni").doc(x.dataset.pok).update({stato:"consegnato",chiusoAt:Date.now()}); await logP(x.dataset.pok,"consegnato"); },"Segnato come consegnato"));
+  m.querySelectorAll("[data-pno]").forEach(x=>x.onclick=()=>{ if(!confirm("Annullare questa prenotazione?")) return; write(async()=>{ await S.db.collection("prenotazioni").doc(x.dataset.pno).update({stato:"annullato",chiusoAt:Date.now()}); await logP(x.dataset.pno,"annullato"); },"Prenotazione annullata"); }); }
 
 
 /* 26/11: etichetta «CONTENTS» dei pacchi Stanley Black & Decker. Foto → lettura (OCR in inglese) → righe SKU/quantità
