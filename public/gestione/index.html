@@ -574,6 +574,16 @@ textarea.winp{min-height:110px;font-size:20px}
 .wrow{display:flex;gap:16px;margin-top:14px}.wrow>div{flex:1;background:var(--paper);border-radius:16px;padding:12px 14px}.wrow small{font-size:15px;color:var(--muted);font-weight:700}
 .wprice{font-size:44px;font-weight:900;line-height:1.1}.wstock{font-size:44px;font-weight:900;color:var(--ok);line-height:1.1}.wstock.zero{color:var(--bad)}
 .wwarn{margin-top:10px;background:#fff3c4;color:#6a5000;border-radius:12px;padding:10px 12px;font-weight:700}
+/* affidabilità clienti (26/11) */
+.aff{border:1px solid var(--line,#e3e4e8);border-radius:14px;padding:12px 14px;margin:0 0 12px;background:#fff}
+.aff h3{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.aff .sem{display:inline-flex;align-items:center;gap:6px;font-weight:800;border-radius:999px;padding:3px 10px;font-size:13px}
+.sem.verde{background:#e3f5e9;color:#17683a}.sem.giallo{background:#fff3c4;color:#6a5000}.sem.rosso{background:#fde3e1;color:#a3221a}.sem.nd{background:#eef0f3;color:#55595f}
+.aff .ag{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0}
+.aff .ag>div{background:#f6f7f9;border-radius:10px;padding:8px 10px}.aff .ag small{display:block;color:#6b6f76;font-size:11px}.aff .ag b{font-size:15px}
+.aff ul{margin:6px 0 0;padding-left:18px}.aff li{margin:2px 0}
+.wstop{margin-top:10px;background:#fde3e1;color:#a3221a;border-radius:12px;padding:10px 12px;font-weight:700}
+.wok{margin-top:10px;background:#e3f5e9;color:#17683a;border-radius:12px;padding:10px 12px;font-weight:700}
 .wlink{display:inline-flex;gap:6px;align-items:center;margin-top:12px;font-weight:700;color:#2563c9}
 .qty{display:flex;align-items:center;justify-content:center;gap:14px}
 .qty button{width:88px;height:88px;border-radius:22px;border:0;background:#15171a;color:#fff;font-size:46px;font-weight:900;cursor:pointer}
@@ -1541,6 +1551,7 @@ function vImpostazioni(){
   <div class="fs" style="max-width:640px"><span class="lg">Clienti</span>
    <p style="margin:0 0 10px">${nf(S.clienti.size)} clienti in archivio${S.clienti.size?` (${nf([...S.clienti.values()].filter(c=>c.origine==="danea").length)} da Danea, ${nf([...S.clienti.values()].filter(c=>scontoNum(c.sconto)).length)} con sconto ricambi)`:""}. Nella scheda il cliente si compila da solo scrivendo nome, telefono o P.IVA.</p>
    <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button><button class="btn adm-only" data-act="impStoArt">${ic("up")}Carica storico per codice</button><button class="btn" data-act="impSto">${ic("up")}Carica storico riparazioni Danea</button></div>
+   ${SUL_SITO?`<div class="adm-only" style="margin-top:8px"><button class="btn" data-act="affCfg">${ic("check")}Affidabilità clienti (rating e fido)</button></div>`:""}
    ${S.storico&&S.storico.size?`<p class="sub" style="margin:8px 0 0">Storico riparazioni Danea: ${nf([...S.storico.values()].reduce((a,l)=>a+l.length,0))} rapporti d'intervento di ${nf(S.storico.size)} clienti.</p>`:""}
   </div>
   <div class="fs" style="max-width:640px"><span class="lg">Inventario</span>
@@ -2061,7 +2072,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impStoArt:()=>openImportStoricoArt(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impStoArt:()=>openImportStoricoArt(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),affCfg:()=>openAffCfg(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -4082,7 +4093,7 @@ function wizScaffale(apri){
     $("#wDopo").onclick=()=>wizStep(incDopo); });
   const incDopo=step(()=>{ const c=S.consegne.find(x=>x.id===WZ.c); if(!c){ wizBack(); return; }
     const cl=c.cliId?S.clienti.get(c.cliId):cercaCli(c.cliente,1).find(x=>normNome(x.nome)===normNome(c.cliente));
-    wzScadenza(c.cliente,cl?.pagamento,c.incassare,t=>chiudiDopo({...c,...(cl?.id&&!c.cliId?{cliId:cl.id}:{})},t)); });
+    wzScadenza(c.cliente,cl?.pagamento,c.incassare,t=>chiudiDopo({...c,...(cl?.id&&!c.cliId?{cliId:cl.id}:{})},t),cl||null); });
   const chiudiDopo=async(c,t)=>{ const now=Date.now();
     const ok=await write(async()=>{ const id=await debitoDaConsegna(c,t);
       await S.db.collection("consegne").doc(c.id).update({stato:"consegnato",chiusoAt:now,pagato:false,pagaDopo:true,scadenza:t.scadenza,termini:t.termini,metodo:t.metodo,...(id?{debito:id}:{})}); },"Consegnato: da incassare entro il "+fmtG(t.scadenza));
@@ -4184,7 +4195,7 @@ function wizScaffale(apri){
     $("#wN").onclick=()=>{ imp(); n.pagaDopo=false; delete n.scadenza; delete n.termini; delete n.rate; wizStep(nuovo5); };
     $("#wDopo").onclick=()=>{ imp(); if(!n.incassare){ toast("Scrivi l'importo da pagare"); $("#wI").focus(); return; } wizStep(nuovoDopo); }; });
   const nuovoDopo=step(()=>{ const n=WZ.n;
-    wzScadenza(n.cliente,n.pagCli,n.incassare,t=>{ n.pagaDopo=true; n.scadenza=t.scadenza; n.termini=t.termini; n.metodo=t.metodo; if(t.rate) n.rate=t.rate; else delete n.rate; wizStep(nuovo5); }); });
+    wzScadenza(n.cliente,n.pagCli,n.incassare,t=>{ n.pagaDopo=true; n.scadenza=t.scadenza; n.termini=t.termini; n.metodo=t.metodo; if(t.rate) n.rate=t.rate; else delete n.rate; wizStep(nuovo5); },n.cliId?S.clienti.get(n.cliId):null); });
   const nuovo5=step(()=>{ const n=WZ.n;
     wz(`<div class="wq">Su quale ripiano lo metti?</div><div class="wsub">Scrivi il ripiano anche sul pacco.</div>${ripChips(n.posto)}`,"");
     bindRip(async p=>{ n.posto=p; const now=Date.now(); const {docFile,_prev,_da,pagCli,...pul}=n; const d={...pul,stato:"sullo scaffale",at:now,chi:window.SEMI?.io?.nome||S.me||""};
@@ -4995,15 +5006,17 @@ const fmtG=t=>t?new Date(t).toLocaleDateString("it-IT",{day:"2-digit",month:"2-d
 const daIncassare=()=>S.ordiniWeb.filter(o=>!o.pagato&&o.stato!=="Annullato"&&o.canale==="banco");
 const scaduto=o=>o.scadenza&&o.scadenza<Date.now()-864e5/2&&!o.pagato;
 // passo "entro quando paga" condiviso (banco e scaffale): scadenze da Danea, fine mese, 30/60 gg o data scelta
-function wzScadenza(nome,pagamento,tot,fai){
+function wzScadenza(nome,pagamento,tot,fai,cliObj){
   const pi=pagInfo(pagamento), sc=pagScadenze(pi);
+  const cliA=cliObj||(nome?cercaCli(nome,1).find(x=>normNome(x.nome)===normNome(nome)):null)||(nome?{nome}:null), blk=SUL_SITO&&cliA?" disabled":"";
   const g12=d=>{ d.setHours(12,0,0,0); return d; }, fineMese=(()=>{ const d=g12(new Date()); d.setMonth(d.getMonth()+1,0); return d.getTime(); })(), tra=n=>{ const d=g12(new Date()); d.setDate(d.getDate()+n); return d.getTime(); };
   const opz=[...(sc.length?[["danea",`Come da Danea: ${pi.testo}`,sc[0],sc]]:[]),["fm","Fine mese",fineMese],["30","Tra 30 giorni",tra(30)],["60","Tra 60 giorni",tra(60)]];
-  wz(`<div class="wq">Entro quando paga?</div><div class="wsub">${esc(nome||"")}${tot?" · "+eur(tot):""}</div>
-    <div class="wyn">${opz.map(([k,t,d,r])=>`<button class="wbig ${k==="danea"?"ok":"sec"}" data-sc="${k}">${ic("clock")}${esc(t)}<small style="display:block;font-weight:600">${r&&r.length>1?r.map(fmtG).join(" · "):fmtG(d)}</small></button>`).join("")}</div>
+  wz(`<div class="wq">Entro quando paga?</div><div class="wsub">${esc(nome||"")}${tot?" · "+eur(tot):""}</div><div id="wAff"></div>
+    <div class="wyn">${opz.map(([k,t,d,r])=>`<button class="wbig ${k==="danea"?"ok":"sec"}" data-sc="${k}"${blk}>${ic("clock")}${esc(t)}<small style="display:block;font-weight:600">${r&&r.length>1?r.map(fmtG).join(" · "):fmtG(d)}</small></button>`).join("")}</div>
     <div class="wq sm">Oppure scegli la data</div><input class="winp" id="wDt" type="date" min="${new Date().toISOString().slice(0,10)}">
     <div class="wq sm">Come pagherà</div><div class="wchips" id="wMet">${[...new Set([pi?.metodo,"Bonifico","RiBa","Contanti","POS","Assegno"].filter(Boolean))].map(m=>`<button data-m="${esc(m)}" class="${(pi?.metodo||"Bonifico")===m?"on":""}">${esc(m)}</button>`).join("")}</div>`,
     wBtn("wOkD","Registra: paga il giorno scelto","ok","check"));
+  if(blk) $("#wOkD").disabled=true; affBanner(cliA,tot);
   let met=pi?.metodo||"Bonifico"; $("#wMet").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ met=b.dataset.m; $("#wMet").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); });
   $("#wzB").querySelectorAll("[data-sc]").forEach(b=>b.onclick=()=>{ const o=opz.find(x=>x[0]===b.dataset.sc); b.disabled=true; fai({scadenza:o[2],rate:o[3]&&o[3].length>1?o[3]:null,termini:o[1].replace(/^Come da Danea: /,""),metodo:met}); });
   $("#wOkD").onclick=()=>{ const v=$("#wDt").value; if(!v){ toast("Scegli una data o tocca una delle scadenze"); return; } fai({scadenza:new Date(v+"T12:00:00").getTime(),rate:null,termini:"data concordata",metodo:met}); };
@@ -5216,6 +5229,7 @@ function openCliente(c){
   const wa=waLink(c.cell||c.tel,`Buongiorno ${c.nome}, `);
   openModal(`<div class="mh"><h2>${esc(c.nome)}</h2><span class="sp"></span>${c.id?`<span class="sub mono">${esc(c.id)}</span>`:""}<button class="x" data-close>×</button></div><div class="mb">
    <div class="chips" style="margin-bottom:10px">${[c.tel&&`<a class="chip" href="tel:${esc(c.tel)}">${ic("phone")} ${esc(c.tel)}</a>`,c.cell&&c.cell!==c.tel&&`<a class="chip" href="tel:${esc(c.cell)}">${ic("phone")} ${esc(c.cell)}</a>`,wa&&`<a class="chip" href="${wa}" target="_blank">${ic("chat")} WhatsApp</a>`,c.email&&`<a class="chip" href="mailto:${esc(c.email)}">${ic("send")} ${esc(c.email)}</a>`,c.pec&&`<a class="chip" href="mailto:${esc(c.pec)}">PEC</a>`,(c.ind||c.citta)&&`<a class="chip" href="https://www.google.com/maps/search/${encodeURIComponent([c.ind,c.cap,c.citta,c.prov].filter(Boolean).join(" "))}" target="_blank">${ic("globe")} ${esc([c.ind,c.cap,c.citta,c.prov].filter(Boolean).join(" "))}</a>`,c.piva&&`<span class="chip">P.IVA ${esc(c.piva)}</span>`,c.cf&&c.cf!==c.piva&&`<span class="chip">C.F. ${esc(c.cf)}</span>`].filter(Boolean).join("")}</div>
+   <div id="affBox" class="aff"></div>
    <div class="kpis" style="margin-bottom:12px">
     <div class="kpi"><div class="l">Fatturato Danea 2024–2026</div><div class="v">${eur(fattTot)}</div><div class="s">${[2024,2025,2026].map(y=>`${y}: ${eur(fatt[y])}`).join(" · ")}</div></div>
     <div class="kpi"><div class="l">Riparazioni</div><div class="v">${nf(st.length+sch.length)}</div><div class="s">${st.length?`${nf(st.length)} in Danea (${eur(stTot)}, ${fmtDay(primo).slice(-4)}–${fmtDay(ultimo).slice(-4)})`:"nessuna in Danea"}${sch.length?` · ${sch.length} nell'app`:""}</div></div>
@@ -5243,8 +5257,142 @@ function openCliente(c){
   $("#clV").onclick=()=>{ closeModal(); wizVendo(null,c); };
   $("#clSch").onclick=()=>{ closeModal(); openTicket(null,null,{stato:"Ricevuto",tipo:"pagamento",ricambi:[],ore:0,tariffa:S.cfg.tariffa,createdAt:Date.now(),storico:[],origine:"banco",cliente:c.nome,tel:c.tel||c.cell||"",email:c.email||"",piva:c.piva||c.cf||"",ind:c.ind||"",cap:c.cap||"",citta:c.citta||"",prov:c.prov||"",cliId:c.id||""}); };
   $("#clPrev").onclick=()=>{ closeModal(); const p=pvNuovo(); Object.assign(p,{cliente:c.nome,tel:c.tel||c.cell||"",email:c.email||"",piva:c.piva||c.cf||"",ind:[c.ind,c.cap,c.citta,c.prov].filter(Boolean).join(" "),cliId:c.id||""}); openPreventivo(p); };
+  affScheda(c);
   const ps=$("#clPagS"); if(ps) ps.onclick=async()=>{ const v=$("#clPag").value.trim();
     if(await write(()=>S.db.doc("clienti/"+cliChunk(c.id)).merge({items:{[c.id]:{pagamento:v,updatedAt:Date.now()}}}),"Pagamento salvato")){ c.pagamento=v; closeModal(); openCliente(c); } };
+}
+
+
+/* ---------- AFFIDABILITÀ CLIENTI (26/11/2026) ----------
+   Due livelli: 1) storico interno (come paga a noi: vendite "paga dopo", ritardi, scaduto, anzianità, fatturato Danea);
+   2) rating esterno OpenAPI.it per P.IVA (rating A1–C3, semaforo, fido stimato) e controllo protesti per P.IVA o C.F.
+   Il giudizio finale è il peggiore dei due. "Paga dopo" bloccato per gli operatori se rosso o oltre il fido concesso. */
+const affK=c=>{ const p=String(c?.piva||"").toUpperCase().replace(/^IT/,"").replace(/\D/g,""); if(/^\d{11}$/.test(p)) return p;
+  const f=String(c?.cf||"").toUpperCase().replace(/[^A-Z0-9]/g,""); return /^\d{11}$/.test(f)||/^[A-Z0-9]{16}$/.test(f)?f:""; };
+const SEM_T={verde:"Affidabile",giallo:"Attenzione",rosso:"A rischio","":"Da valutare"};
+const semHtml=(s,t)=>`<span class="sem ${s||"nd"}">${s?"●":"○"} ${esc(t||SEM_T[s||""])}</span>`;
+const peggio=(...l)=>["rosso","giallo","verde"].find(x=>l.includes(x))||"";
+const AFF_COSTI={advanced:"0,15 €",top:"1,10 €",negativita:"0,70 €"};
+function affTutti(forza){ if(!SUL_SITO) return Promise.resolve({}); if(S.affT&&!forza) return Promise.resolve(S.affT); if(S._affP&&!forza) return S._affP;
+  S._affP=window.SEMI.req("affid/tutti").then(r=>(S.affT=r.chiavi||{})).catch(()=>(S.affT=S.affT||{})); return S._affP; }
+function affInterno(c){
+  const nn=normNome(c?.nome), g=864e5, ora=Date.now();
+  const ord=S.ordiniWeb.filter(o=>o.stato!=="Annullato"&&((c?.id&&o.cliId===c.id)||(nn&&normNome(o.cliente)===nn)));
+  const dop=ord.filter(o=>o.scadenza);
+  const pagati=dop.filter(o=>o.pagato&&o.pagatoAt), rit=pagati.map(o=>Math.round((o.pagatoAt-o.scadenza)/g)).filter(x=>x>5);
+  const aperti=dop.filter(o=>!o.pagato), scad=aperti.filter(scaduto), gMax=scad.reduce((a,o)=>Math.max(a,Math.round((ora-o.scadenza)/g)),0);
+  const espo=aperti.reduce((a,o)=>a+ordTot(o).tot,0), scadTot=scad.reduce((a,o)=>a+ordTot(o).tot,0);
+  const fatt=numImp(c?.fatt2024)+numImp(c?.fatt2025)+numImp(c?.fatt2026);
+  const st=c?storicoDi(c):[]; const primoD=st.map(x=>String(x.d||"")).filter(Boolean).sort()[0]||"";
+  const anni=primoD?(ora-new Date(primoD).getTime())/(365*g):numImp(c?.fatt2024)?2:numImp(c?.fatt2025)?1:0;
+  const why=[]; let p=70;
+  if(!(fatt>0||st.length||ord.length)) return {s:"",punti:null,why:["Cliente nuovo: nessuno storico con noi"],espo,scadTot,gMax,nuovo:true};
+  if(anni>=1){ p+=Math.min(10,Math.round(anni*2)); why.push(`Cliente dal ${primoD?primoD.slice(0,4):(numImp(c?.fatt2024)?"2024":"2025")}`); }
+  if(fatt>=10000){ p+=10; why.push(`Fatturato Danea 2024–2026: ${eur(fatt)}`); } else if(fatt>=2000){ p+=5; why.push(`Fatturato Danea 2024–2026: ${eur(fatt)}`); } else if(fatt>0) why.push(`Fatturato Danea 2024–2026: ${eur(fatt)}`);
+  const punt=pagati.length-rit.length;
+  if(punt>0){ p+=Math.min(10,2*punt); why.push(`Ha pagato puntuale ${punt} ${punt===1?"volta":"volte"} con "paga dopo"`); }
+  if(rit.length){ p-=Math.min(30,8*rit.length); why.push(`Ha pagato in ritardo ${rit.length} ${rit.length===1?"volta":"volte"} (fino a ${Math.max(...rit)} giorni)`); }
+  if(scad.length){ p-=25+10*(scad.length-1); if(gMax>60) p-=15; why.push(`Ha ${scad.length} ${scad.length===1?"pagamento scaduto":"pagamenti scaduti"}: ${eur(scadTot)} (da ${gMax} giorni)`); }
+  if(espo&&!scad.length) why.push(`Deve ancora pagare ${eur(espo)} (non scaduto)`);
+  if(!dop.length&&(fatt>0||st.length)) why.push('Nessuna vendita "paga dopo" registrata nell\'app (lo scadenzario Danea non era aggiornato)');
+  p=Math.max(0,Math.min(100,p));
+  let s=p>=65?"verde":p>=40?"giallo":"rosso";
+  if(scad.length&&s==="verde") s="giallo"; if(gMax>60) s="rosso";
+  return {s,punti:p,why,espo,scadTot,gMax,nuovo:false};
+}
+// giudizio complessivo (sincrono, usa il riepilogo dei rating già caricato)
+function affGiudizio(c,extra=0){
+  const int=affInterno(c), k=affK(c), e=k&&S.affT?S.affT[k]:null, fido=Number(c?.fido)||0;
+  const vecchio=e?.at&&Date.now()-e.at>90*864e5;
+  const fidoSup=fido>0&&int.espo+extra>fido;
+  const motivi=[...int.why];
+  if(e?.s) motivi.push(`Rating esterno${e.rating?" "+e.rating:""}: ${SEM_T[e.s].toLowerCase()}${vecchio?" (di più di 90 giorni fa)":""}`);
+  if(e?.neg?.s==="rosso") motivi.push("Risultano protesti, pregiudizievoli o procedure");
+  if(fidoSup) motivi.push(`Supera il fido concesso: ${eur(int.espo+extra)} su ${eur(fido)}`);
+  const s=peggio(int.s,e?.s||"",e?.neg?.s==="rosso"?"rosso":"",fidoSup?"rosso":"");
+  const neg=/scadut|ritardo|Supera|protesti|a rischio|attenzione/i; motivi.sort((a,b)=>neg.test(b)-neg.test(a)); // prima i motivi del blocco
+  return {s,int,e,k,fido,fidoSup,motivi,blocca:s==="rosso"};
+}
+// banner nel passo "Entro quando paga?" (tutti i "paga dopo" passano da qui)
+async function affBanner(cli,tot){
+  const box=$("#wAff"), btns=[...document.querySelectorAll("#wzB [data-sc], #wOkD")];
+  const sblocca=()=>btns.forEach(b=>b.disabled=false);
+  if(!box||!cli){ sblocca(); return; }
+  await affTutti(); if(!document.body.contains(box)) return;
+  const g=affGiudizio(cli,tot);
+  const li=`<ul>${g.motivi.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>`;
+  if(!g.blocca){ box.innerHTML=g.s==="verde"?`<div class="wok">${semHtml("verde")} Può pagare dopo${li}</div>`:`<div class="wwarn">${semHtml(g.s)} ${g.s?"Controlla prima di concedere il pagamento posticipato":"Cliente da valutare"}${li}${!g.e&&g.k?`<div style="font-weight:600">Puoi chiedere il rating dalla scheda del cliente.</div>`:""}</div>`; sblocca(); return; }
+  box.innerHTML=`<div class="wstop">${semHtml("rosso")} Pagamento posticipato sconsigliato${li}${isAdmin()?`<button class="wbig sec" id="wAut" style="margin-top:8px">${ic("alert")}Autorizzo io lo stesso</button>`:`<div style="font-weight:600;margin-top:6px">Solo l'amministratore può autorizzarlo: fallo pagare adesso oppure chiama Gianluca.</div>`}</div>`;
+  const a=$("#wAut"); if(a) a.onclick=async()=>{ if(a.dataset.sure!=="1"){ a.dataset.sure="1"; a.innerHTML=ic("alert")+"Sicuro? Tocca di nuovo"; return; }
+    try{ await S.db.collection("affAutorizzazioni").add({at:Date.now(),chi:window.SEMI?.io?.nome||S.me||"",cliente:cli.nome,cliId:cli.id||"",importo:tot||0,motivi:g.motivi}); }catch(e){}
+    a.remove(); sblocca(); toast("Autorizzato: scegli la scadenza"); };
+}
+// riquadro nella scheda cliente
+async function affScheda(c){
+  const box=$("#affBox"); if(!box) return;
+  const draw=(r,err)=>{ if(!document.body.contains(box)) return;
+    const scritti=["affFido","affPi"].map(id=>[id,$("#"+id)?.value,document.activeElement?.id===id]); // non perdo quello che si sta scrivendo
+    const g=affGiudizio(c), int=g.int, k=g.k, dati=r?.dati||{}, conf=r?.configurata, puo=r?.puoChiedere;
+    const sc=["top","advanced","start"].map(x=>dati[x]).filter(x=>x&&x.esito==="ok").sort((a,b)=>b.at-a.at)[0], neg=dati.negativita;
+    const errS=["top","advanced"].map(x=>dati[x]).find(x=>x&&x.esito==="errore"&&(!sc||x.at>sc.at));
+    const sem=peggio(int.s,sc?.semaforo||"",neg?.esito==="ok"&&neg.semaforo==="rosso"?"rosso":"",g.fidoSup?"rosso":"");
+    const vecchio=x=>x&&Date.now()-x.at>90*864e5;
+    box.innerHTML=`<h3>Affidabilità ${semHtml(sem)}${int.punti!=null?`<span class="sub">storico con noi ${int.punti}/100</span>`:""}</h3>
+     <div class="ag">
+      <div><small>Come paga a noi</small>${semHtml(int.s)}</div>
+      <div><small>Rating esterno${sc?" · "+fmtG(sc.at):""}</small>${sc?`${semHtml(sc.semaforo,sc.rating?sc.rating+" · "+(sc.rischioTesto||SEM_T[sc.semaforo]):"")}`:`<b>—</b>`}${vecchio(sc)?`<small>più di 90 giorni fa</small>`:""}</div>
+      <div><small>Fido stimato (banche)</small><b>${sc?.fido!=null?eur(sc.fido):"—"}</b></div>
+      <div><small>Protesti e procedure${neg?.at?" · "+fmtG(neg.at):""}</small>${neg?.esito==="ok"?semHtml(neg.semaforo,neg.semaforo==="rosso"?[neg.protesti&&"protesti",neg.pregiudizievoli&&"pregiudizievoli",neg.procedure&&"procedure"].filter(Boolean).join(", "):"Nessuno"):neg?.esito==="attesa"?`<b>in arrivo…</b>`:`<b>—</b>`}</div>
+      <div><small>Deve pagare ora</small><b>${eur(int.espo)}</b>${int.scadTot?`<small class="low">di cui scaduto ${eur(int.scadTot)}</small>`:""}</div>
+      <div><small>Fido concesso da noi</small><b>${g.fido?eur(g.fido):"non impostato"}</b></div>
+     </div>
+     <ul>${[...int.why,...(sc?.rischioTesto?[`Rischio di insolvenza ${sc.rischioTesto} (fonte OpenAPI.it)`]:[]),...(g.fidoSup?[`Supera il fido concesso`]:[])].map(m=>`<li>${esc(m)}</li>`).join("")}</ul>
+     ${errS?`<div class="banner err" style="margin:8px 0 0">${esc(errS.errore||"Errore")}</div>`:""}${err?`<div class="banner err" style="margin:8px 0 0">${esc(err)}</div>`:""}
+     ${!SUL_SITO?`<p class="sub">Il rating esterno si vede solo nell'app sul sito (semistore.it/gestione).</p>`:
+      !k?`<div class="f" style="display:flex;gap:8px;align-items:flex-end;margin-top:10px"><label class="fl" style="flex:1">P.IVA o codice fiscale (serve per il rating)<input id="affPi" placeholder="11 cifre o 16 caratteri"></label><button class="btn edit-only" id="affPiS" type="button">${ic("check")}Salva</button></div>`:
+      !conf?`<p class="sub" style="margin:8px 0 0">${isAdmin()?`Per il rating esterno inserisci la chiave OpenAPI in Impostazioni → Affidabilità clienti.`:`Il rating esterno non è ancora attivo: chiedi all'amministratore.`}</p>`:
+      !puo?`<p class="sub" style="margin:8px 0 0">Solo l'amministratore può chiedere i rating.</p>`:
+      `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${/^\d{11}$/.test(k)?`<button class="btn sm" data-aff="advanced">${ic("check")}${sc?"Aggiorna rating":"Chiedi rating"} <small>(${AFF_COSTI.advanced})</small></button>${isAdmin()?`<button class="btn sm" data-aff="top">Rating completo <small>(${AFF_COSTI.top})</small></button>`:""}`:`<span class="sub">Privato: per il codice fiscale c'è solo il controllo protesti.</span>`}<button class="btn sm" data-aff="negativita">${neg?.esito==="ok"?"Ricontrolla":"Controlla"} protesti <small>(${AFF_COSTI.negativita})</small></button></div>
+       ${sc&&!vecchio(sc)&&!isAdmin()?`<p class="sub" style="margin:6px 0 0">Il rating salvato vale 90 giorni: se lo richiedi ora non si paga di nuovo.</p>`:""}`}
+     ${isAdmin()&&c.id?`<div class="f" style="display:flex;gap:8px;align-items:flex-end;margin-top:10px"><label class="fl" style="flex:1">Fido concesso da noi (€): oltre questa cifra gli operatori non possono far pagare dopo<input id="affFido" type="number" min="0" step="50" inputmode="decimal" value="${g.fido||""}" placeholder="vuoto = nessun limite"></label><button class="btn" id="affFidoS" type="button">${ic("check")}Salva</button></div>`:""}`;
+    scritti.forEach(([id,v,f])=>{ const el=$("#"+id); if(el&&v!=null&&v!==""&&el.value!==v){ el.value=v; if(f) el.focus(); } });
+    box.querySelectorAll("[data-aff]").forEach(b=>b.onclick=async()=>{ const sv=b.dataset.aff; const gia=sv==="negativita"?dati.negativita:dati[sv];
+      const forza=isAdmin()&&gia&&gia.esito!=="attesa"; if(forza&&b.dataset.sure!=="1"){ b.dataset.sure="1"; b.innerHTML=`Si paga ${AFF_COSTI[sv]}: tocca di nuovo`; return; }
+      b.disabled=true; b.textContent="Chiedo…";
+      try{ const x=await window.SEMI.post("affid",{k,servizio:sv,forza,nome:c.nome}); await affTutti(true); draw({...r,dati:x.dati}); }catch(e){ draw(r,e.message); } });
+    const fs=$("#affFidoS"); if(fs) fs.onclick=async()=>{ const v=Math.max(0,Number($("#affFido").value)||0);
+      if(await write(()=>S.db.doc("clienti/"+cliChunk(c.id)).merge({items:{[c.id]:{fido:v||null,updatedAt:Date.now()}}}),v?"Fido salvato: "+eur(v):"Fido tolto")){ c.fido=v||null; draw(r); } };
+    const ps=$("#affPiS"); if(ps) ps.onclick=async()=>{ const v=String($("#affPi").value||"").toUpperCase().replace(/^IT/,"").replace(/[^A-Z0-9]/g,"");
+      if(!/^\d{11}$/.test(v)&&!/^[A-Z0-9]{16}$/.test(v)){ toast("Scrivi 11 cifre (P.IVA) o 16 caratteri (C.F.)"); return; }
+      if(!c.id){ toast("Prima salva il cliente in archivio"); return; }
+      const campo=/^\d{11}$/.test(v)?{piva:v}:{cf:v};
+      if(await write(()=>S.db.doc("clienti/"+cliChunk(c.id)).merge({items:{[c.id]:{...campo,updatedAt:Date.now()}}}),"Salvato")){ Object.assign(c,campo); affScheda(c); } };
+  };
+  draw(null); if(!SUL_SITO) return;
+  const k=affK(c); await affTutti();
+  if(!k){ draw(null); return; }
+  try{ draw(await window.SEMI.req("affid?k="+encodeURIComponent(k))); }catch(e){ draw(null,e.message); }
+}
+// Impostazioni → Affidabilità clienti (solo admin)
+async function openAffCfg(){
+  let cfg={}; try{ cfg=await window.SEMI.req("affid/chiave"); }catch(e){ toast(e.message); return; }
+  openModal(`<div class="mh"><h2>Affidabilità clienti</h2><span class="sp"></span><button class="x" data-close>×</button></div><div class="mb">
+   <p style="margin-top:0">Rating delle aziende (A1–C3, semaforo, fido stimato) e controllo protesti con <b>OpenAPI.it</b>: si paga solo quando si chiede un controllo (rating ${AFF_COSTI.advanced}, completo ${AFF_COSTI.top}, protesti ${AFF_COSTI.negativita} + IVA). Ogni risultato resta salvato 90 giorni.</p>
+   <ol class="sub" style="margin:0 0 12px;padding-left:18px"><li>Registrati su <a href="https://openapi.it" target="_blank" rel="noopener">openapi.it</a> con i dati di SE.M.I. S.r.l. e ricarica il conto (c'è una ricarica minima: la vedi al momento del pagamento).</li><li>In <a href="https://console.openapi.com" target="_blank" rel="noopener">console.openapi.com</a> crea un <b>token</b> con gli scope del servizio <b>Risk</b>: IT-creditscore-advanced, IT-creditscore-top, IT-negativita, IT-request.</li><li>Incolla il token qui sotto e salva.</li></ol>
+   <label class="fl">Token OpenAPI ${cfg.configurata?`<span class="sub">(salvato, finisce con ${esc(cfg.fine)}: lascia vuoto per tenerlo)</span>`:""}<input id="afT" type="password" autocomplete="off" placeholder="${cfg.configurata?"••••••••":"incolla qui il token"}"></label>
+   <label class="chk" style="display:flex;gap:8px;margin-top:10px"><input type="checkbox" id="afAuto" ${cfg.auto!==false?"checked":""}> Controlla in automatico le aziende che si registrano sul sito con la P.IVA (${AFF_COSTI.advanced} ciascuna; il cliente non vede niente)</label>
+   <label class="chk" style="display:flex;gap:8px;margin-top:6px"><input type="checkbox" id="afSolo" ${cfg.soloAdmin?"checked":""}> Solo l'amministratore può chiedere rating e protesti</label>
+   <label class="chk" style="display:flex;gap:8px;margin-top:6px"><input type="checkbox" id="afSb" ${cfg.sandbox?"checked":""}> Ambiente di prova di OpenAPI (dati finti, gratis)</label>
+   <div id="afRes" style="margin-top:10px"></div>
+   <p class="sub" style="margin:10px 0 0">Il giudizio finale è il peggiore tra lo storico con noi e il rating esterno. Con giudizio rosso o oltre il fido concesso, gli operatori non possono registrare un "paga dopo": solo tu puoi autorizzarlo (resta nel registro).</p>
+  </div><div class="mf"><button class="btn" data-close>Chiudi</button>${cfg.configurata?`<button class="btn danger" id="afDel">Togli la chiave</button><button class="btn" id="afProva">Prova con la P.IVA di Semi (${AFF_COSTI.advanced})</button>`:""}<span class="sp" style="flex:1"></span><button class="btn pri" id="afOk">${ic("check")}Salva</button></div>`);
+  const res=$("#afRes");
+  $("#afOk").onclick=async()=>{ try{ await window.SEMI.post("affid/chiave",{token:$("#afT").value.trim(),auto:$("#afAuto").checked,soloAdmin:$("#afSolo").checked,sandbox:$("#afSb").checked}); toast("Salvato"); closeModal(); openAffCfg(); }catch(e){ res.innerHTML=`<div class="banner err">${esc(e.message)}</div>`; } };
+  const del=$("#afDel"); if(del) del.onclick=async()=>{ if(del.dataset.sure!=="1"){ del.dataset.sure="1"; del.textContent="Sicuro? Tocca di nuovo"; return; } try{ await window.SEMI.post("affid/chiave",{togli:true}); toast("Chiave tolta"); closeModal(); }catch(e){ toast(e.message); } };
+  const pr=$("#afProva"); if(pr) pr.onclick=async()=>{ pr.disabled=true; pr.textContent="Provo…";
+    try{ const x=await window.SEMI.post("affid",{k:"07149740636",servizio:"advanced",forza:true,nome:"SE.M.I. S.r.l. (prova)"}); const a=x.dati?.advanced||{};
+      res.innerHTML=a.esito==="ok"?`<div class="banner" style="background:#e9f6ee;border-color:#bfe3cc">✅ Funziona. ${esc(a.ragioneSociale||"SE.M.I.")}: ${semHtml(a.semaforo,(a.rating||"")+" "+(a.rischioTesto||""))}${a.fido!=null?` · fido stimato ${eur(a.fido)}`:""}</div>`:`<div class="banner err">${esc(a.errore||"Nessuna risposta")}</div>`; affTutti(true); }
+    catch(e){ res.innerHTML=`<div class="banner err">${esc(e.message)}</div>`; } pr.disabled=false; pr.textContent="Riprova"; };
 }
 
 /* ---------- 3. Vendo al banco ---------- */
@@ -5286,7 +5434,7 @@ function wizVendo(pre,cliPre){
     $("#wzB").querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>{ b.disabled=true; registra({pagato:true,metodo:b.dataset.pay,pagatoAt:Date.now()},["💶","Venduto!"],esc(b.dataset.pay)); });
     $("#wDopo").onclick=()=>{ if(!cli){ toast("Per pagare dopo serve il nome del cliente"); wizStep(chi); return; } wizStep(quando); }; });
   const quando=step(()=>{ const tot=cart.reduce((a,r)=>a+r.qty*r.prezzo,0);
-    wzScadenza(cli.nome,cli.pagamento,tot,t=>registra({pagato:false,metodo:t.metodo,daPagare:true,scadenza:t.scadenza,...(t.rate?{rate:t.rate}:{}),termini:t.termini},["🕒","Venduto, paga dopo"],`da pagare entro il <b>${fmtG(t.scadenza)}</b> (${esc(t.metodo)})`)); });
+    wzScadenza(cli.nome,cli.pagamento,tot,t=>registra({pagato:false,metodo:t.metodo,daPagare:true,scadenza:t.scadenza,...(t.rate?{rate:t.rate}:{}),termini:t.termini},["🕒","Venduto, paga dopo"],`da pagare entro il <b>${fmtG(t.scadenza)}</b> (${esc(t.metodo)})`),cli.id?cli:null); });
   if(pre){ WZ.it=pre; WZ.stack=[scegli]; wizStep(quanti); } else wizStep(scegli);
 }
 

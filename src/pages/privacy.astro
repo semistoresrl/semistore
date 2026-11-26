@@ -4,7 +4,7 @@
 // solo quando i relativi ID sono impostati in sito.js.
 import Base from '../layouts/Base.astro';
 import { SITO } from '../data/sito.js';
-const agg = '20 novembre 2026';
+const agg = '26 novembre 2026';
 ---
 <Base title="Informativa privacy e cookie" description="Come Semi Store tratta i dati personali di clienti e visitatori di semistore.it: finalità, basi giuridiche, conservazione, diritti e cookie.">
   <section class="wrap sec prose pv">
@@ -29,10 +29,11 @@ const agg = '20 novembre 2026';
         <tr><td><b>Minigioco e codice sconto</b>: inviare il codice e verificare che ognuno ne riceva uno al mese</td><td>email, codice, data</td><td>esecuzione della tua richiesta (art. 6.1.b)</td><td>12 mesi dalla registrazione</td></tr>
         <tr><td><b>Offerte e novità via email</b>, solo se spunti la casella facoltativa</td><td>email</td><td>consenso (art. 6.1.a), revocabile in ogni momento</td><td>fino alla revoca, e comunque non oltre 24 mesi dall'ultima interazione</td></tr>
         <tr><td><b>Sicurezza del sito</b>: prevenire abusi, spam e frodi</td><td>indirizzo IP, dati tecnici della richiesta</td><td>interesse legittimo (art. 6.1.f)</td><td>i log tecnici sono cancellati dai fornitori entro pochi giorni</td></tr>
+        <tr><td><b>Valutazione dell'affidabilità per i pagamenti posticipati</b>: decidere se concedere il pagamento a scadenza (es. RiBa, bonifico a 30/60 giorni) o un fido, ai clienti che lo chiedono</td><td>partita IVA o codice fiscale, ragione sociale; storico dei pagamenti verso di noi; rating, indicatore di rischio e fido stimato dell'impresa; presenza di protesti, pregiudizievoli o procedure concorsuali da registri pubblici</td><td>interesse legittimo a tutelare il credito (art. 6.1.f)</td><td>24 mesi dall'ultimo controllo, o fino al saldo dei pagamenti aperti se dura di più</td></tr>
         <tr><td><b>Tutela in caso di controversie</b></td><td>i dati necessari tra quelli sopra</td><td>interesse legittimo (art. 6.1.f)</td><td>per la durata della controversia e fino alla prescrizione</td></tr>
       </tbody>
     </table></div>
-    <p><b>È obbligatorio darci i dati?</b> I dati segnati con * nei moduli e quelli richiesti al pagamento servono per eseguire l'ordine o la richiesta: senza, non possiamo procedere. Il consenso alle offerte è sempre facoltativo e non incide sull'acquisto. Non prendiamo decisioni basate unicamente su trattamenti automatizzati, profilazione compresa, che producano effetti giuridici su di te.</p>
+    <p><b>È obbligatorio darci i dati?</b> I dati segnati con * nei moduli e quelli richiesti al pagamento servono per eseguire l'ordine o la richiesta: senza, non possiamo procedere. Il consenso alle offerte è sempre facoltativo e non incide sull'acquisto. Non prendiamo decisioni basate unicamente su trattamenti automatizzati, profilazione compresa, che producano effetti giuridici su di te: anche la concessione del pagamento posticipato la decide sempre una persona, e puoi chiederci di spiegarti la valutazione e contestarla.</p>
 
     <h2>3. A chi comunichiamo i dati</h2>
     <p>I dati sono trattati dal personale di Semi Store autorizzato e, per conto nostro o come titolari autonomi, da questi soggetti:</p>
@@ -41,6 +42,7 @@ const agg = '20 novembre 2026';
       <li><b>Stripe Payments Europe Ltd.</b> (Irlanda) – pagamenti (titolare autonomo per i dati di pagamento e antifrode);</li>
       <li><b>Resend</b> – invio delle email di conferma e dei codici (responsabile del trattamento);</li>
       <li><b>Agenzia delle Entrate – Sistema di Interscambio</b> – invio delle fatture elettroniche ai clienti con partita IVA; <b>Commissione europea (VIES)</b> – solo per cercare i dati pubblici dell'azienda quando inserisci una partita IVA;</li>
+      <li><b>Openapi S.p.A.</b> – solo per i clienti a cui concediamo il pagamento posticipato: verifica del rating dell'impresa e dei protesti da banche dati e registri pubblici (titolare autonomo per i dati che fornisce);</li>
       <li><b>corrieri e spedizionieri</b> – consegna dei prodotti e ritiro degli utensili da riparare;</li>
       <li><b>produttori</b> (es. Stanley Black &amp; Decker per DEWALT) – solo per pratiche di garanzia e ricambi che li richiedono;</li>
       <li><b>commercialista e consulenti</b> – adempimenti fiscali e contabili; autorità pubbliche quando la legge lo impone;</li>

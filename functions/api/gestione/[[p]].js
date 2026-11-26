@@ -233,6 +233,42 @@ export async function onRequest(ctx) {
     const n = (await d.prepare('SELECT COUNT(*) n FROM storico_art').first()).n;
     return json({ righe: n, info: info ? JSON.parse(info.v) : null });
   }
+  // AFFIDABILITÀ CLIENTI (26/11): rating OpenAPI.it per P.IVA, controllo protesti per P.IVA o C.F. (vedi _lib/affidabilita.js)
+  if (p === 'affid' || p.startsWith('affid/')) {
+    const A = await import('../../_lib/affidabilita.js');
+    const { segreto } = await import('../../_lib/posta.js');
+    const sub = p.slice(6);
+    try {
+      if (sub === 'chiave') {
+        if (!admin) return json({ error: 'solo amministratore' }, 403);
+        const cfg = (await A.config(env)) || {};
+        if (m === 'GET') return json({ configurata: !!cfg.token, sandbox: !!cfg.sandbox, auto: cfg.auto !== false, soloAdmin: !!cfg.soloAdmin, at: cfg.at || null, fine: cfg.token ? '…' + cfg.token.slice(-4) : '' });
+        if (body.togli) { await segreto(env, 'openapi_risk', null); return json({ ok: true }); }
+        const nuovo = { ...cfg, sandbox: !!body.sandbox, auto: body.auto !== false, soloAdmin: !!body.soloAdmin, at: Date.now() };
+        if (body.token) { const t = String(body.token).trim(); if (t.length < 20 || /\s/.test(t)) return json({ error: 'La chiave non sembra giusta: copia tutto il token da console.openapi.com' }, 400); nuovo.token = t; }
+        if (!nuovo.token) return json({ error: 'Incolla la chiave (token) di OpenAPI' }, 400);
+        await segreto(env, 'openapi_risk', nuovo);
+        await d.prepare('INSERT INTO registro(at,chi,nome,c,docid,op,d) VALUES(?,?,?,?,?,?,?)').bind(Date.now(), io.email, io.nome, 'impostazioni', 'openapi', 'chiave', JSON.stringify({ sandbox: nuovo.sandbox, auto: nuovo.auto, soloAdmin: nuovo.soloAdmin, chiave: body.token ? 'cambiata' : 'invariata' })).run();
+        return json({ ok: true });
+      }
+      if (sub === 'tutti' && m === 'GET') return json({ chiavi: await A.riepilogo(env) });
+      if (m === 'GET') {
+        const k = String(new URL(request.url).searchParams.get('k') || '').toUpperCase().replace(/^IT/, '').replace(/[^A-Z0-9]/g, '');
+        if (!A.chiaveValida(k)) return json({ error: 'P.IVA o C.F. non valido' }, 400);
+        const cfg = await A.config(env);
+        return json({ k, dati: await A.aggiornaAttese(env, k), configurata: !!cfg?.token, puoChiedere: !!cfg?.token && (admin || !cfg.soloAdmin), validita: A.VALIDITA });
+      }
+      if (m === 'POST') {
+        const cfg = await A.config(env);
+        if (cfg?.soloAdmin && !admin) return json({ error: 'Solo l\'amministratore può chiedere i rating' }, 403);
+        const forza = !!body.forza && admin;
+        const dati = await A.chiedi(env, body.k, String(body.servizio || 'advanced'), io.nome, { forza });
+        if (!dati._cache) await d.prepare('INSERT INTO registro(at,chi,nome,c,docid,op,d) VALUES(?,?,?,?,?,?,?)').bind(Date.now(), io.email, io.nome, 'affidabilita', String(body.k || ''), 'chiedi', JSON.stringify({ servizio: body.servizio, cliente: String(body.nome || '').slice(0, 80) })).run();
+        return json({ ok: true, dati });
+      }
+    } catch (e) { return json({ error: e.message || 'errore' }, e.status && e.status < 600 ? (e.status === 402 ? 402 : e.status) : 500); }
+    return json({ error: 'non trovato' }, 404);
+  }
   if (p === 'esporta' && m === 'GET') {
     if (!io || io.ruolo !== 'admin') return json({ error: 'solo amministratore' }, 403);
     const NO_TAB = /^(codici|sessioni|csessioni|accessi|segreti|pmail_raw|sqlite_sequence|_cf_.*|d1_.*)$/;

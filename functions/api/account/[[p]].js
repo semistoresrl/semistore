@@ -11,6 +11,7 @@ import {
 } from '../../_lib/clienti.js';
 import { SITO } from '../../../src/data/sito.js';
 import { pivaValida, cercaPiva } from '../../_lib/piva.js';
+import { config as affCfg, chiedi as affChiedi } from '../../_lib/affidabilita.js';
 import { livelloDi } from '../../../src/lib/punti.js';
 import { dbb } from '../../_lib/buoni.js';
 
@@ -107,7 +108,8 @@ const safe = (s) => { try { return JSON.parse(s || '[]'); } catch { return []; }
 
 const pulisci = (v, n = 120) => String(v ?? '').replace(/[<>]/g, '').trim().slice(0, n);
 
-async function salva({ request, env }) {
+async function salva(ctx) {
+  const { request, env } = ctx;
   const c = await cliente(request, env);
   if (!c) return json({ error: 'Sessione scaduta: entra di nuovo.' }, 401);
   let b; try { b = await request.json(); } catch { return json({ error: 'richiesta non valida' }, 400); }
@@ -144,6 +146,8 @@ async function salva({ request, env }) {
       indirizzo=?, cap=?, citta=?, provincia=?, offerte=?, aggiornato=? WHERE id=?`)
     .bind(r.tipo, r.nome || null, r.cognome || null, r.telefono || null, r.cf || null, r.ragione_sociale, r.piva, r.sdi, r.pec,
       r.indirizzo || null, r.cap || null, r.citta || null, r.provincia || null, r.offerte, new Date().toISOString(), c.id).run();
+  // 26/11: azienda nuova o P.IVA cambiata → semaforo di affidabilità in automatico (solo per l'app interna, il cliente non lo vede)
+  if (r.piva && r.piva !== c.piva && ctx.waitUntil) ctx.waitUntil(ratingAuto(env, r.piva, r.ragione_sociale).catch(() => {}));
   return json({ ok: true, profilo: profilo(await d.prepare('SELECT * FROM clienti WHERE id=?').bind(c.id).first()) });
 }
 
@@ -164,4 +168,10 @@ async function elimina({ request, env }) {
     d.prepare('DELETE FROM clienti WHERE id=?').bind(c.id),
   ]);
   return json({ ok: true }, 200, { 'set-cookie': cookieVia() });
+}
+
+async function ratingAuto(env, piva, nome) {
+  const cfg = await affCfg(env);
+  if (!cfg?.token || cfg.auto === false) return;
+  await affChiedi(env, piva, 'advanced', 'Sito (registrazione ' + String(nome || '').slice(0, 60) + ')');
 }

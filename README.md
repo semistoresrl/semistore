@@ -73,3 +73,12 @@ Le giacenze caricate dall'app interna stanno nel database **D1** (binding `DB`).
    Finché semistore.it non punta al nuovo sito, negli indirizzi qui sopra usare `https://semistore.pages.dev` al posto di `https://semistore.it`.
 
 **Come crea i prodotti su TikTok**: categoria suggerita da TikTok in base al titolo, marchio (deve essere autorizzato con la Brand Qualification), fino a 3 foto, descrizione e caratteristiche del sito, peso dalle caratteristiche (+0,5 kg di imballo, altrimenti 3 kg), scatola 45×35×15 cm se non indicata. Se TikTok chiede dati che mancano (attributi, certificazioni) il prodotto viene creato **in bozza**: si completa in Seller Center e da lì in poi giacenza e prezzo restano allineati da soli.
+
+## Affidabilità clienti (rating, protesti, fido) – 26/11/2026
+- **Dove**: nell'app, scheda cliente → riquadro "Affidabilità"; passo "Entro quando paga?" di ogni "paga dopo" (vendita al banco, scaffale consegne); Impostazioni → Clienti → "Affidabilità clienti" (solo admin).
+- **Storico interno** (calcolato nell'app): anzianità, fatturato Danea, vendite "paga dopo" pagate puntuali o in ritardo, scaduto aperto.
+- **Rating esterno** OpenAPI.it (API Risk, `functions/_lib/affidabilita.js`): `IT-creditscore-advanced|top/{piva}` → rating A1–C3, semaforo, fido stimato; `IT-negativita` + `IT-request/{id}` → protesti, pregiudizievoli, procedure (anche per C.F. dei privati). Risultati in D1 tabella `affidabilita`, validi 90 giorni (si riusano senza pagare). Token salvato cifrato in `segreti` (chiave `openapi_risk`), mai rimandato al browser.
+- **Giudizio** = il peggiore tra storico interno, rating esterno, protesti e fido concesso. Se è rosso gli operatori non possono registrare il "paga dopo"; l'admin può autorizzare (collezione `affAutorizzazioni`, nel registro).
+- **API** `/api/gestione/affid`: `GET ?k=` (dati salvati), `GET tutti` (riepilogo), `POST {k,servizio,forza}` (forza solo admin), `GET/POST chiave` (solo admin: token, sandbox, auto, soloAdmin).
+- **Sito**: quando un'azienda salva il profilo con una P.IVA nuova, se la chiave c'è e "auto" è attivo, parte un rating advanced in background (il cliente non vede nulla).
+- Per cambiare fornitore (Cerved, Creditsafe…): nuova funzione in `affidabilita.js` con la stessa uscita (`semaforo`, `rating`, `fido`).
