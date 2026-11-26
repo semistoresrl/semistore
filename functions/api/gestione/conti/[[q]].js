@@ -54,7 +54,7 @@ async function cdb(env) {
       d.prepare('CREATE INDEX IF NOT EXISTS sa_base ON storico_art(base)'),
       d.prepare('CREATE INDEX IF NOT EXISTS sa_cli ON storico_art(cli)'),
       d.prepare('CREATE TABLE IF NOT EXISTS storico_art_info (k TEXT PRIMARY KEY, v TEXT)'),
-    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; /* scritture finite per oggi: le tabelle ci sono già */ }
+    ]); } catch (e) { if (!/write limit|read.?only/i.test(String(e && e.message))) throw e; return d; /* scritture finite per oggi: si riprova alla prossima chiamata */ }
     pronto = true;
   }
   return d;
@@ -211,6 +211,14 @@ const VAL = 'COALESCE(fimp,imp,0)';      // importo IVA esclusa del documento
 const VAL_S = 'COALESCE(imp,fimp,0)';     // importo per le statistiche (righe proprie: niente doppioni)
 
 export async function onRequest(ctx) {
+  try { return await gestisci(ctx); }
+  catch (e) {
+    const m = String(e?.message || e);
+    return json({ error: /write limit|daily row/i.test(m) ? 'Il database ha finito le scritture gratuite di oggi: le modifiche si possono fare dopo l\'01:00 (oppure subito con il piano Workers Paid di Cloudflare).'
+      : /no such table/i.test(m) ? 'I conti non sono ancora stati preparati (si preparano da soli appena il database accetta scritture).' : 'Errore del server: ' + m.slice(0, 300) }, 500);
+  }
+}
+async function gestisci(ctx) {
   const { request, env, params } = ctx;
   const p = (params.q || []).join('/');
   const m = request.method;
@@ -223,6 +231,12 @@ export async function onRequest(ctx) {
   const body = m === 'POST' ? await request.json().catch(() => ({})) : null;
 
   if (p === 'stato') {
+    const t = await d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='cont_doc'").first();
+    if (!t.n) {
+      try { pronto = false; await cdb(env); } catch (e) {}
+      const t2 = await d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='cont_doc'").first();
+      if (!t2.n) return json({ io, danea: null, app: null, documenti: { n: 0 }, anni: [], oggi: oggi(), avviso: 'I conti non sono ancora stati preparati: il database oggi ha finito le scritture gratuite. Si preparano da soli alla prima apertura dopo l\'01:00 (oppure subito con il piano Workers Paid di Cloudflare).' });
+    }
     let dan = await info(d, 'conti_danea'), app = await info(d, 'conti_app');
     const sa = await info(d, 'info');
     const nSa = (await d.prepare('SELECT COUNT(*) n FROM storico_art').first()).n;
