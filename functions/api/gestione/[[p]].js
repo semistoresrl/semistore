@@ -191,6 +191,48 @@ export async function onRequest(ctx) {
     return json({ id, contentType: tipo });
   }
   // esportazione completa (solo admin): elenco tabelle e righe a pagine, senza segreti, codici, sessioni e contenuti binari
+  // STORICO PER CODICE (26/11): righe dei documenti Danea (vendite, DDT, fatture, rapporti d'intervento, arrivi, preventivi)
+  if (p === 'storicoart') {
+    if (!io) return json({ error: 'non autorizzato' }, 401);
+    await d.batch([
+      d.prepare(`CREATE TABLE IF NOT EXISTS storico_art (cod TEXT NOT NULL, base TEXT NOT NULL, tipo TEXT, data TEXT, num TEXT, cli TEXT, nome TEXT,
+        qta REAL, prezzo REAL, sconti TEXT, tot REAL, descr TEXT)`),
+      d.prepare('CREATE INDEX IF NOT EXISTS sa_base ON storico_art(base)'),
+      d.prepare('CREATE INDEX IF NOT EXISTS sa_cli ON storico_art(cli)'),
+      d.prepare('CREATE TABLE IF NOT EXISTS storico_art_info (k TEXT PRIMARY KEY, v TEXT)'),
+    ]);
+    const baseDi = c => String(c || '').trim().toUpperCase().replace(/-(QW|XJ|QS|QZ|XE|GB|LX|KR|QT|B5|B3|BL|DE|FR|IT|EU|SFDPS)$/, '');
+    if (m === 'POST') {
+      if (io.ruolo !== 'admin') return json({ error: 'solo amministratore' }, 403);
+      const b = body || {};
+      if (b.reset) await d.prepare('DELETE FROM storico_art').run();
+      const righe = Array.isArray(b.righe) ? b.righe.slice(0, 900) : [];
+      const st = [];
+      for (let i = 0; i < righe.length; i += 8) {
+        const blocco = righe.slice(i, i + 8), vals = [], arg = [];
+        for (const r of blocco) { vals.push('(?,?,?,?,?,?,?,?,?,?,?,?)'); const cod = String(r[0] || '').toUpperCase().slice(0, 40);
+          arg.push(cod, baseDi(cod), String(r[1] || '').slice(0, 2), String(r[2] || '').slice(0, 10), String(r[3] || '').slice(0, 30), String(r[4] || '').slice(0, 20), String(r[5] || '').slice(0, 120),
+            Number(r[6]) || 0, Number(r[7]) || 0, String(r[8] || '').slice(0, 30), Number(r[9]) || 0, String(r[10] || '').slice(0, 80)); }
+        st.push(d.prepare('INSERT INTO storico_art (cod,base,tipo,data,num,cli,nome,qta,prezzo,sconti,tot,descr) VALUES ' + vals.join(',')).bind(...arg));
+      }
+      if (b.info) st.push(d.prepare('INSERT OR REPLACE INTO storico_art_info (k,v) VALUES (?,?)').bind('info', JSON.stringify(b.info)));
+      if (st.length) await d.batch(st);
+      return json({ ok: true, n: righe.length });
+    }
+    const u = new URL(request.url), c = u.searchParams.get('c'), q = u.searchParams.get('q');
+    if (c) {
+      const righe = (await d.prepare('SELECT cod,tipo,data,num,cli,nome,qta,prezzo,sconti,tot,descr FROM storico_art WHERE base=? ORDER BY data DESC LIMIT 20000').bind(baseDi(c)).all()).results;
+      return json({ righe });
+    }
+    if (q) {
+      const t = String(q).trim().toUpperCase();
+      const r = (await d.prepare("SELECT cod, MAX(descr) descr, COUNT(*) n FROM storico_art WHERE cod LIKE ? OR UPPER(descr) LIKE ? GROUP BY cod ORDER BY n DESC LIMIT 30").bind(t + '%', '%' + t + '%').all()).results;
+      return json({ codici: r });
+    }
+    const info = await d.prepare("SELECT v FROM storico_art_info WHERE k='info'").first();
+    const n = (await d.prepare('SELECT COUNT(*) n FROM storico_art').first()).n;
+    return json({ righe: n, info: info ? JSON.parse(info.v) : null });
+  }
   if (p === 'esporta' && m === 'GET') {
     if (!io || io.ruolo !== 'admin') return json({ error: 'solo amministratore' }, 403);
     const NO_TAB = /^(codici|sessioni|csessioni|accessi|segreti|pmail_raw|sqlite_sequence|_cf_.*|d1_.*)$/;

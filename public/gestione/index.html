@@ -672,6 +672,7 @@ textarea.winp{min-height:110px;font-size:20px}
 <a href="#posta" data-v="posta" class="adm-only"><svg class="i"><use href="#i-send"/></svg><span>Posta</span><span class="ct" id="ctPosta">0</span></a>
 <a href="#lavorazioni" data-v="lavorazioni"><svg class="i"><use href="#i-wrench"/></svg><span>Lavorazioni</span><span class="ct" id="ctOpen">0</span></a>
 <a href="#prezzi" data-v="prezzi"><svg class="i"><use href="#i-tag"/></svg><span>Cerca prezzo</span></a>
+<a href="#storico" data-v="storico"><svg class="i"><use href="#i-clock"/></svg><span>Storico codice</span></a>
 <a href="#ricambi" data-v="ricambi"><svg class="i"><use href="#i-search"/></svg><span>Cerca ricambio</span></a>
 <a href="#compatibili" data-v="compatibili"><svg class="i"><use href="#i-plug"/></svg><span>Compatibilità accessori</span></a>
 <a href="#ordini" data-v="ordini"><svg class="i"><use href="#i-cart"/></svg><span>Ordini online</span><span class="ct" id="ctOrd">0</span></a>
@@ -1185,7 +1186,7 @@ function pager(total,page,key){
 }
 
 /* ---------- views ---------- */
-const VIEWS=["prenotate","clienti","prezzi","compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
+const VIEWS=["storico","prenotate","clienti","prezzi","compatibili","attrezzatura","noleggi","preventivi","tiktok","posta","consegne","utenti","registro","ordini","resi","sconti","canali","cruscotto","ricambi","lavorazioni","schede","richieste","magazzino","catalogo","verifiche","vault","garanzie","movimenti","impostazioni"];
 function render(){
   try{ sitoBarra(); }catch(e){ console.warn("barra",e); }
   const v = (location.hash.slice(1)||"cruscotto");
@@ -1213,7 +1214,7 @@ function render(){
   const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart;
   const ro = !S.canWrite ? `<div class="banner">Stai vedendo l'archivio in sola lettura.</div>` : "";
   const nodb = S.db ? "" : S.dbErr ? `<div class="banner err">L'archivio condiviso non è raggiungibile. Controlla la connessione e ricarica la pagina.</div>` : `<div class="banner">Sto scaricando l'archivio… un momento.</div>`;
-  const fns={prenotate:vPrenotate,clienti:vClienti,prezzi:vPrezzi,compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
+  const fns={storico:vStorico,prenotate:vPrenotate,clienti:vClienti,prezzi:vPrezzi,compatibili:vCompatibili,attrezzatura:vAttrezzatura,noleggi:vNoleggi,preventivi:vPreventivi,tiktok:vTikTok,posta:vPosta,consegne:vConsegne,utenti:vUtenti,registro:vRegistro,ordini:vOrdini,resi:vResi,sconti:vSconti,canali:vCanali,cruscotto:vCruscotto,ricambi:vRicambi,lavorazioni:vLavorazioni,schede:vSchede,richieste:vRichieste,magazzino:vMagazzino,catalogo:vCatalogo,verifiche:vVerifiche,vault:vVault,garanzie:vGaranzie,movimenti:vMovimenti,impostazioni:vImpostazioni};
   const html = nodb + ro + fns[S.view](st);
   const tieni = ae && aid && m.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) && S._vistaPrec===S.view;
   S._vistaPrec=S.view;
@@ -1243,7 +1244,7 @@ function patchTieni(m,html,vivo){
   }
   return true;
 }
-const VICON={"prenotate":"clock","clienti":"user","prezzi":"tag","compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
+const VICON={storico:"clock","prenotate":"clock","clienti":"user","prezzi":"tag","compatibili":"plug","attrezzatura":"cart","noleggi":"clock","preventivi":"euro","tiktok":"store","posta":"send","consegne":"box","utenti":"user","registro":"clock","ordini":"cart","resi":"return","sconti":"tag","canali":"plug","cruscotto": "home", "ricambi": "search", "lavorazioni": "wrench", "schede": "folder", "richieste": "globe", "magazzino": "box", "catalogo": "store", "verifiche": "clipboard", "vault": "truck", "garanzie": "shield", "movimenti": "swap", "impostazioni": "cog"};
 const ic=(n,c="i")=>`<svg class="${c}"><use href="#i-${n}"/></svg>`;
 function header(t,sub,actions=""){return `<div class="top"><div class="ttl"><span class="hic">${ic(VICON[S.view]||"home")}</span><div><h1>${t}</h1><p>${sub}</p></div></div><div class="sp"></div><div class="acts">${actions}</div></div>`}
 function emptyInv(){
@@ -1500,7 +1501,7 @@ function vImpostazioni(){
    <button class="btn pri" data-act="controllo">${ic("check")}Fai tutti i controlli</button></div>
   <div class="fs" style="max-width:640px"><span class="lg">Clienti</span>
    <p style="margin:0 0 10px">${nf(S.clienti.size)} clienti in archivio${S.clienti.size?` (${nf([...S.clienti.values()].filter(c=>c.origine==="danea").length)} da Danea, ${nf([...S.clienti.values()].filter(c=>scontoNum(c.sconto)).length)} con sconto ricambi)`:""}. Nella scheda il cliente si compila da solo scrivendo nome, telefono o P.IVA.</p>
-   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button><button class="btn" data-act="impSto">${ic("up")}Carica storico riparazioni Danea</button></div>
+   <div class="edit-only" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="impCli">${ic("up")}Importa clienti da Danea</button><button class="btn adm-only" data-act="impStoArt">${ic("up")}Carica storico per codice</button><button class="btn" data-act="impSto">${ic("up")}Carica storico riparazioni Danea</button></div>
    ${S.storico&&S.storico.size?`<p class="sub" style="margin:8px 0 0">Storico riparazioni Danea: ${nf([...S.storico.values()].reduce((a,l)=>a+l.length,0))} rapporti d'intervento di ${nf(S.storico.size)} clienti.</p>`:""}
   </div>
   <div class="fs" style="max-width:640px"><span class="lg">Inventario</span>
@@ -2021,7 +2022,7 @@ function openSyncGar(){
 function bindView(){
   const m=$("#main");
   m.querySelectorAll("[data-cons]").forEach(b=>b.onclick=()=>wizScaffale(b.dataset.cons));
-  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
+  const acts={ttInv:()=>ttInvio(false),ttRip:()=>ttInvio(true),ttAgg:()=>ttAggiorna(false),pCaselle:()=>gestisciCaselle(),pAgg:()=>{ delete PO.liste[pChiave()]; caricaCartelle(true); caricaCaselle(true); render(); },pScrivi:()=>scriviEmail(),pAltre:()=>caricaElenco(true),nuovoPrev:()=>openPreventivo(null),nuovoNol:()=>openNoleggio(null),nuovaConsegna:()=>wizScaffale("nuovo"),docConsegna:()=>wizScaffale("nuovo"),nuovoUtente:()=>openUtente(),impSbd:()=>openImportSbd(),impFatt:()=>openImportFatture(),impCli:()=>openImportClienti(),impStoArt:()=>openImportStoricoArt(),impSto:()=>openImportStorico(),esporta:()=>openEsporta(),azzera:()=>openAzzera(),controllo:()=>openControllo(),regAgg:()=>{S.regDati=null;render()},esportaTutto:()=>esportaTutto(),invia:()=>wizInvia(),newOrd:()=>openOrdine(),impOrd:openImportOrdini,newReso:()=>openReso(),newSconto:()=>openSconto(),offerta:openOfferta,expOrd:exportOrdini,expGiac:exportGiacenze,photos:applyPhotos,new:()=>openTicket(),newric:()=>openRic(),import:openImport,newreq:openReq,savecfg:saveCfg,seed:seedInventory,export:exportCatalog,pubAll:()=>bulkPub(true),unpubAll:()=>bulkPub(false)};
   m.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{ if(!S.canWrite&&/^new/.test(b.dataset.act)){toast("Non hai i permessi per modificare");return} acts[b.dataset.act]?.(); });
   bindNuovo(); bindFacile(); bindSito(); bindRichieste(); bindPosta();
   m.querySelectorAll("[data-open]").forEach(el=>el.onclick=()=>openTicket(S.tickets.find(t=>t.id===el.dataset.open)));
@@ -2051,7 +2052,7 @@ function bindView(){
   sel("fst",v=>S.filt.stato=v); sel("ftp",v=>S.filt.tipo=v); sel("ftc",v=>S.filt.tec=v);
   sel("cCat",v=>{S.cCat=v;S.cPage=1}); sel("cMarca",v=>{S.cMarca=v;S.cPage=1}); sel("cPiatt",v=>{S.cPiatt=v;S.cPage=1});
   if(S.view==="prenotate") bindPrenotate();
-  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="prezzi") bindPrezzi(); if(S.view==="clienti") bindClienti(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="compatibili") bindCompatibili(); if(S.view==="noleggi") bindNoleggi();
+  if(S.view==="vault") bindVault(); if(S.view==="garanzie") bindGar(); if(S.view==="preventivi") bindPreventivi(); if(S.view==="prezzi") bindPrezzi(); if(S.view==="storico") bindStorico(); if(S.view==="clienti") bindClienti(); if(S.view==="attrezzatura") bindAttrezzatura(); if(S.view==="compatibili") bindCompatibili(); if(S.view==="noleggi") bindNoleggi();
   const fst=$("#fst"); if(fst) fst.value=S.filt.stato; const ftp=$("#ftp"); if(ftp) ftp.value=S.filt.tipo; const ftc=$("#ftc"); if(ftc) ftc.value=S.filt.tec;
 }
 async function saveCfg(){
@@ -5047,6 +5048,104 @@ function daneaBox(c,pi){
 }
 // storico riparazioni Danea (collezione "storico", caricato da Impostazioni → Clienti)
 function storicoDi(c){ if(!S.storico||!c) return []; const k=c.id&&String(c.id).startsWith("D")?String(c.id).slice(1):null; return (k&&S.storico.get(k))||[]; }
+/* =====================================================================
+   STORICO CODICE (26/11): da un codice (ricambio o attrezzatura) chi l'ha preso, quanto, quanto ha speso.
+   Fonti: righe dei documenti Danea 2017–2026 (tabella storico_art sul server) + dati dell'app (schede, ordini/vendite, arrivi DEWALT)
+   ===================================================================== */
+const SA_TIPI={I:["Fattura","v"],F:["Fattura accomp.","v"],D:["DDT","v"],B:["Vendita al banco","v"],G:["Rapporto d'intervento","r"],N:["Nota di credito","n"],H:["Arrivo merce","a"],Q:["Preventivo","p"],S:["Scheda (app)","r"],W:["Vendita/ordine (app)","v"],A:["Arrivo DEWALT (app)","a"]};
+const SA_GRUPPI={v:"Vendite",r:"Riparazioni",n:"Resi",a:"Acquisti",p:"Preventivi"};
+const saBase=c=>String(c||"").trim().toUpperCase().replace(/-(QW|XJ|QS|QZ|XE|GB|LX|KR|QT|B5|B3|BL|DE|FR|IT|EU|SFDPS)$/,"");
+const r2s=x=>Math.round((Number(x)||0)*100)/100;
+function saRigheApp(cod){ const b=saBase(cod), out=[], gd=t=>t?new Date(t).toISOString().slice(0,10):"";
+  S.tickets.forEach(t=>{ const sc=Math.min(100,Math.max(0,Number(t.scontoRic)||0)); (t.ricambi||[]).forEach(p=>{ if(saBase(p.codice)!==b) return; const q=Number(p.qty)||0, pr=r2s((Number(p.prezzo)||0)/1.22);
+    out.push({cod:p.codice,tipo:"S",data:gd(t.createdAt),num:t.num,cli:t.cliId||"",nome:t.cliente||"",qta:q,prezzo:pr,sconti:sc?sc+"%":"",tot:r2s(q*pr*(1-sc/100)),descr:p.descr||"",app:1,tk:t.id}); }); });
+  (S.ordiniWeb||[]).forEach(o=>{ if(o.stato==="Annullato") return; (o.righe||[]).forEach(r=>{ if(saBase(r.codice)!==b) return; const q=Number(r.qty)||0, pr=r2s((Number(r.prezzo)||0)/1.22);
+    out.push({cod:r.codice,tipo:"W",data:gd(o.at||o.createdAt),num:(o.num||"")+(o.canale?" · "+o.canale:""),cli:o.cliId||"",nome:o.cliente||"",qta:q,prezzo:pr,sconti:"",tot:r2s(q*pr),descr:r.descr||"",app:1}); }); });
+  (S.ordini||[]).forEach(o=>{ if(o.stato!=="arrivato") return; (o.righe||[]).forEach(r=>{ if(saBase(r.codice)!==b) return; const q=Number(r.qty)||0, pr=Number(r.prezzo)||0;
+    out.push({cod:r.codice,tipo:"A",data:gd(o.arrivatoAt||o.createdAt),num:o.ordineVault||o.num||"",cli:"",nome:"DEWALT / Stanley Black & Decker",qta:q,prezzo:pr,sconti:"",tot:r2s(q*pr),descr:r.descr||"",app:1}); }); });
+  return out; }
+async function saCarica(cod){ S.sa=S.sa||{cache:{}}; const b=saBase(cod); if(S.sa.cache[b]) return S.sa.cache[b];
+  let righe=[], err=""; if(window.SEMI&&SEMI.req){ try{ righe=(await SEMI.req("storicoart?c="+encodeURIComponent(b))).righe||[]; }catch(e){ err=e.message||"errore"; } } else err="Lo storico Danea si vede solo nell'app sul sito (semistore.it/gestione).";
+  return S.sa.cache[b]={righe,err}; }
+function vStorico(){
+  S.sa=S.sa||{cache:{}}; const cod=S.sa.cod||"", q=S.sa.q??cod;
+  let corpo="";
+  if(!cod){
+    const loc=q.trim().length>=2?[...S.mag.values()].filter(r=>{ const t=q.trim().toUpperCase(); return String(r.codice).toUpperCase().startsWith(t)||String(r.descr||"").toUpperCase().includes(t); }).slice(0,12):[];
+    corpo=`<div class="panel">${q.trim().length<2?`<div class="empty">Scrivi o inquadra il codice di un ricambio o di un'attrezzatura: vedi chi l'ha comprato o montato, quanti pezzi, quanto ha speso e quando, dal 2017 a oggi.${S.sa.info?`<br><span class="sub">Storico Danea: ${nf(S.sa.info.righe)} righe dal ${esc(fmtG(new Date(S.sa.info.info?.da||"").getTime()))} al ${esc(fmtG(new Date(S.sa.info.info?.a||"").getTime()))}</span>`:""}</div>`:
+      `<div class="olist" style="gap:6px">${[...loc.map(r=>({cod:r.codice,descr:r.descr})),...(S.sa.sug||[]).filter(x=>!loc.some(r=>r.codice===x.cod)).map(x=>({cod:x.cod,descr:x.descr,n:x.n}))].slice(0,24).map(x=>`<button class="pki" data-sac="${esc(x.cod)}" style="text-align:left"><span><b class="mono">${esc(x.cod)}</b> ${esc(x.descr||"")}${x.n?` <small class="sub">${nf(x.n)} righe</small>`:""}</span></button>`).join("")||`<div class="empty">Nessun codice trovato. Premi Invio per cercare comunque «${esc(q)}».</div>`}</div>`}</div>`;
+  } else {
+    const st=S.sa.cache[saBase(cod)];
+    if(!st) corpo=`<div class="panel"><div class="empty">Carico lo storico di ${esc(cod)}…</div></div>`;
+    else{
+      const all=[...st.righe.map(r=>({...r})),...saRigheApp(cod)].sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+      const f=S.sa.f||"tutto", anno=S.sa.anno||"";
+      const gr=r=>(SA_TIPI[r.tipo]||["",""])[1];
+      const l=all.filter(r=>(f==="tutto"?gr(r)!=="p":gr(r)===f)&&(!anno||String(r.data).startsWith(anno)));
+      const usc=all.filter(r=>["v","r","n"].includes(gr(r))); all.forEach(r=>{ if(gr(r)==="n"){ r.qta=Math.abs(Number(r.qta)||0); r.tot=Math.abs(Number(r.tot)||0); } }); const sgn=r=>gr(r)==="n"?-1:1;
+      const pezzi=usc.reduce((a,r)=>a+sgn(r)*(Number(r.qta)||0),0), speso=usc.reduce((a,r)=>a+sgn(r)*(Number(r.tot)||0),0);
+      const acq=all.filter(r=>gr(r)==="a"), pzAcq=acq.reduce((a,r)=>a+(Number(r.qta)||0),0);
+      const anni={}; usc.forEach(r=>{ const y=String(r.data).slice(0,4); if(!y) return; const o=anni[y]=anni[y]||{p:0,e:0,n:0}; o.p+=sgn(r)*(Number(r.qta)||0); o.e+=sgn(r)*(Number(r.tot)||0); o.n++; });
+      const cl={}; usc.forEach(r=>{ const k=r.cli||("n:"+normNome(r.nome||"")); const o=cl[k]=cl[k]||{cli:r.cli,nome:r.nome||"Cliente al banco",p:0,e:0,n:0,ult:"",rip:0}; o.p+=sgn(r)*(Number(r.qta)||0); o.e+=sgn(r)*(Number(r.tot)||0); o.n++; if(gr(r)==="r") o.rip++; if(String(r.data)>o.ult) o.ult=r.data; });
+      const clL=Object.values(cl).filter(c=>c.nome).sort((a,b)=>b.e-a.e||b.p-a.p);
+      const it=itmV(cod), descr=it?.descr||all.find(r=>r.descr)?.descr||"";
+      const prima=usc.length?usc[usc.length-1].data:"", ultima=usc.length?usc[0].data:"";
+      const fd=d=>d?fmtG(new Date(d).getTime()):"";
+      const cliBtn=c=>c.cli&&S.clienti.get(c.cli)?`<a href="#" data-sacli="${esc(c.cli)}"><b>${esc(c.nome)}</b></a>`:`<b>${esc(c.nome)}</b>`;
+      S.sa.csv=[["Data","Documento","Numero","Cliente / fornitore","Codice","Descrizione","Quantità","Prezzo unit. IVA escl.","Sconti","Totale IVA escl.","Fonte"],...l.map(r=>[r.data,(SA_TIPI[r.tipo]||[r.tipo])[0],r.num,r.nome,r.cod,r.descr,r.qta,r.prezzo,r.sconti,r.tot,r.app?"app":"Danea"])];
+      corpo=`${st.err?`<div class="banner err">${esc(st.err)}</div>`:""}
+      <div class="panel"><div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><h2 class="mono" style="margin:0">${esc(cod)}</h2><span>${esc(descr)}</span><span class="sp"></span>${it?`<span class="sub">in negozio <b>${it.verificare?"da contare":nf(it.giacenza||0)}</b>${it.ubic?" · scaffale "+esc(it.ubic):""}${Number(it.prezzo)?" · prezzo "+eur(it.prezzo):""}${isAdmin()&&Number(it.costo)?" · costo "+eur(it.costo):""}</span>`:""}</div>
+       <div class="kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:12px">
+        ${[["Pezzi usciti",nf(pezzi),"vendite + riparazioni − resi"],["Speso dai clienti",eur(r2s(speso)),"IVA esclusa"],["Clienti",nf(clL.length),""],["Righe",nf(usc.length),""],["Prima / ultima",fd(prima)+(ultima?" → "+fd(ultima):""),""],["Comprati da noi",nf(pzAcq),"arrivi merce"]].map(([a,b,c])=>`<div style="border:1px solid var(--line);border-radius:12px;padding:10px"><div class="sub" style="font-size:12px">${a}</div><b style="font-size:18px">${b}</b>${c?`<div class="sub" style="font-size:11px">${c}</div>`:""}</div>`).join("")}</div>
+       ${Object.keys(anni).length?`<div class="sub" style="margin-top:10px">Per anno: ${Object.keys(anni).sort().reverse().map(y=>`<button class="chip ${anno===y?"on":""}" data-saa="${y}">${y}: <b>${nf(anni[y].p)}</b> pz · ${eur(r2s(anni[y].e))}</button>`).join(" ")}${anno?` <button class="chip" data-saa="">tutti gli anni</button>`:""}</div>`:""}</div>
+      <div class="panel"><h3 style="margin:0 0 8px">Chi l'ha preso (${nf(clL.length)})</h3>${clL.length?`<div class="tts"><table><thead><tr><th>Cliente</th><th class="num">Pezzi</th><th class="num">Speso (IVA escl.)</th><th class="num">Volte</th><th class="num">Di cui riparazioni</th><th>Ultima volta</th></tr></thead><tbody>${clL.slice(0,S.sa.tutti?9999:30).map(c=>`<tr><td>${cliBtn(c)}</td><td class="num">${nf(c.p)}</td><td class="num">${eur(r2s(c.e))}</td><td class="num">${nf(c.n)}</td><td class="num">${c.rip||""}</td><td>${fd(c.ult)}</td></tr>`).join("")}</tbody></table></div>${clL.length>30&&!S.sa.tutti?`<button class="btn sm" data-satutti="1" style="margin-top:8px">Mostra tutti i ${nf(clL.length)} clienti</button>`:""}`:`<div class="empty">Nessun cliente per questo codice.</div>`}</div>
+      <div class="panel"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px"><h3 style="margin:0">Storico completo</h3><span class="sp"></span>${[["tutto","Tutto"],["v","Vendite"],["r","Riparazioni"],["n","Resi"],["a","Acquisti"],["p","Preventivi"]].map(([k,t])=>`<button class="chip ${f===k?"on":""}" data-saf="${k}">${t} <b>${nf(all.filter(r=>k==="tutto"?gr(r)!=="p":gr(r)===k).length)}</b></button>`).join("")}<button class="btn sm" id="saCsv">${ic("down")}Excel</button></div>
+       ${l.length?`<div class="tts"><table><thead><tr><th>Data</th><th>Documento</th><th>Cliente / fornitore</th><th>Codice</th><th class="num">Q.tà</th><th class="num">Prezzo</th><th>Sconti</th><th class="num">Totale</th></tr></thead><tbody>${l.slice(0,S.sa.max||300).map(r=>`<tr${r.tk?` data-satk="${esc(r.tk)}" style="cursor:pointer"`:""}><td style="white-space:nowrap">${fd(r.data)}</td><td>${esc((SA_TIPI[r.tipo]||[r.tipo])[0])} <span class="sub mono">${esc(r.num||"")}</span>${r.app?` <span class="badge">app</span>`:""}</td><td>${r.cli&&S.clienti.get(r.cli)?`<a href="#" data-sacli="${esc(r.cli)}">${esc(r.nome)}</a>`:esc(r.nome||"Cliente al banco")}</td><td class="mono sub">${esc(r.cod)}</td><td class="num">${gr(r)==="n"?"−":""}${nf(r.qta)}</td><td class="num">${eur(r.prezzo)}</td><td class="sub">${esc(r.sconti||"")}</td><td class="num"><b>${gr(r)==="n"?"−":""}${eur(r.tot)}</b></td></tr>`).join("")}</tbody></table></div>${l.length>(S.sa.max||300)?`<button class="btn sm" data-samax="1" style="margin-top:8px">Mostra altre righe (${nf(l.length-(S.sa.max||300))})</button>`:""}`:`<div class="empty">Nessuna riga.</div>`}
+       <p class="sub" style="margin:8px 0 0">Prezzi IVA esclusa. Danea: documenti fino al ${esc(fd(S.sa.info?.info?.a||"2026-11-19"))} (le righe di DDT poi fatturati sono contate una volta sola). Dopo, i dati vengono dall'app: schede, vendite e ordini, arrivi DEWALT.</p></div>`;
+    }
+  }
+  return header("Storico codice","Da un codice di ricambio o attrezzatura: chi l'ha comprato o montato, quanti pezzi, quanto ha speso, quando")+`
+  <div class="toolbar"><input type="search" id="scq" placeholder="Codice o nome: es. N123456, DCB184, spazzole" value="${esc(cod||q)}" autocomplete="off" autocapitalize="characters" style="flex:1;min-width:240px;font-size:17px">${cod?`<button class="btn" id="scNew">Altro codice</button>`:""}</div>${corpo}`;
+}
+function bindStorico(){
+  const i=$("#scq"); if(!i) return; S.sa=S.sa||{cache:{}};
+  if(!S.sa.info&&window.SEMI&&SEMI.req&&!S.sa._inf){ S.sa._inf=1; SEMI.req("storicoart").then(r=>{ S.sa.info=r; if(S.view==="storico"&&!S.sa.cod) render(); }).catch(()=>{}); }
+  const apri=async c=>{ c=String(c||"").trim().toUpperCase(); if(!c) return; const it=itmV(c)||(sembraBC(c)&&trovaDaBC(c)); if(it) c=it.codice; S.sa.cod=c; S.sa.q=c; S.sa.f="tutto"; S.sa.anno=""; S.sa.max=300; S.sa.tutti=0; render(); await saCarica(c); if(S.view==="storico") render(); };
+  i.oninput=()=>{ if(S.sa.cod){ S.sa.cod=""; } S.sa.q=i.value; clearTimeout(i._t); i._t=setTimeout(async()=>{ const t=i.value.trim(); if(t.length>=2&&window.SEMI&&SEMI.req){ try{ S.sa.sug=(await SEMI.req("storicoart?q="+encodeURIComponent(t))).codici.map(x=>({cod:x.cod,descr:x.descr,n:x.n})); }catch(e){ S.sa.sug=[]; } } else S.sa.sug=[];
+      if(S.view!=="storico") return; const p=i.selectionStart; render(); const j=$("#scq"); if(j){ j.focus(); try{ j.setSelectionRange(p,p); }catch(e){} } },300); };
+  i.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); apri(i.value); } };
+  i.addEventListener("change",()=>{ if(sembraBC(i.value)||itmV(i.value)) apri(i.value); });
+  document.querySelectorAll("[data-sac]").forEach(b=>b.onclick=()=>apri(b.dataset.sac));
+  const nw=$("#scNew"); if(nw) nw.onclick=()=>{ S.sa.cod=""; S.sa.q=""; render(); $("#scq")?.focus(); };
+  document.querySelectorAll("[data-saf]").forEach(b=>b.onclick=()=>{ S.sa.f=b.dataset.saf; S.sa.max=300; render(); });
+  document.querySelectorAll("[data-saa]").forEach(b=>b.onclick=()=>{ S.sa.anno=b.dataset.saa; render(); });
+  document.querySelectorAll("[data-samax]").forEach(b=>b.onclick=()=>{ S.sa.max=(S.sa.max||300)+1000; render(); });
+  document.querySelectorAll("[data-satutti]").forEach(b=>b.onclick=()=>{ S.sa.tutti=1; render(); });
+  document.querySelectorAll("[data-sacli]").forEach(a=>a.onclick=e=>{ e.preventDefault(); const c=S.clienti.get(a.dataset.sacli); if(c) openCliente(c); });
+  document.querySelectorAll("[data-satk]").forEach(a=>a.onclick=()=>{ const t=S.tickets.find(x=>x.id===a.dataset.satk); if(t) openTicket(t); });
+  const cv=$("#saCsv"); if(cv) cv.onclick=()=>{ const t=(S.sa.csv||[]).map(r=>r.map(csvCell).join(";")).join("\r\n"); const b=new Blob(["\ufeff"+t],{type:"text/csv;charset=utf-8"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=`storico_${S.sa.cod}_al_${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),1000); };
+  if(S.sa.cod&&!S.sa.cache[saBase(S.sa.cod)]) saCarica(S.sa.cod).then(()=>{ if(S.view==="storico") render(); });
+  if(!matchMedia("(pointer:coarse)").matches&&!S.sa.cod) i.focus();
+}
+function apriStorico(cod){ S.sa=S.sa||{cache:{}}; S.sa.cod=String(cod||"").toUpperCase(); S.sa.q=S.sa.cod; S.sa.f="tutto"; S.sa.anno=""; try{ closeModal(); }catch(e){} if(location.hash!=="#storico") location.hash="#storico"; else render(); }
+// caricamento dello storico Danea per codice (Impostazioni → Clienti, solo admin)
+function openImportStoricoArt(){
+  openModal(`<div class="mh"><h2>Storico per codice da Danea</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><p style="margin-top:0">Carica il file <b>storico_articoli_danea.json</b>: tutte le righe di fatture, DDT, vendite al banco, rapporti d'intervento, note di credito, arrivi merce e preventivi di Danea. Servono alla pagina <b>Storico codice</b>. Ricaricarlo sostituisce quello di prima.</p>
+   <label class="btn pri">${ic("up")}Scegli il file<input type="file" id="saF" accept=".json" style="display:none"></label><div id="saRes" style="margin-top:12px"></div><div class="prog" id="saProg" style="display:none;margin-top:8px"><i></i></div></div>
+  <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn pri" id="saGo" disabled>Carica</button></div>`);
+  let D=null;
+  $("#saF").onchange=async e=>{ const f=e.target.files[0]; if(!f) return; $("#saRes").textContent="Leggo il file…";
+    try{ D=JSON.parse(await f.text()); if(!D||D.tipo!=="storico_articoli_danea"||!Array.isArray(D.righe)) throw 0;
+      $("#saRes").innerHTML=`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc"><b>${nf(D.righe.length)} righe</b> di ${nf(D.info?.codici||0)} codici, dal ${esc(D.info?.da||"")} al ${esc(D.info?.a||"")}.</div>`; $("#saGo").disabled=false; }
+    catch(x){ D=null; $("#saRes").innerHTML=`<div class="banner err" style="margin:0">File non valido</div>`; } };
+  $("#saGo").onclick=async()=>{ const b=$("#saGo"); b.disabled=true; $("#saProg").style.display="block"; const R=D.righe, N=800; let i=0, err="";
+    for(; i<R.length; i+=N){ let ok=false;
+      for(let t=0;t<3&&!ok;t++){ try{ await SEMI.post("storicoart",{righe:R.slice(i,i+N),reset:i===0,info:i+N>=R.length?D.info:undefined}); ok=true; }catch(e){ err=e.message||"errore"; await new Promise(r=>setTimeout(r,1500)); } }
+      if(!ok) break; $("#saProg i").style.width=Math.min(100,(i+N)/R.length*100)+"%"; b.textContent=`Carico ${nf(Math.min(R.length,i+N))}/${nf(R.length)}…`; }
+    if(i>=R.length){ toast(`Storico per codice caricato: ${nf(R.length)} righe`); S.sa&&(S.sa.cache={},S.sa.info=null,S.sa._inf=0); closeModal(); }
+    else{ $("#saRes").innerHTML+=`<div class="banner err">Interrotto a ${nf(i)} righe: ${esc(err)}. Riprova (riparte da capo).</div>`; b.disabled=false; b.textContent="Riprova"; } };
+}
 function openCliente(c){
   const nn=normNome(c.nome), tk=telKey(c.tel||c.cell);
   const mio=x=>(c.id&&x.cliId===c.id)||(tk&&telKey(x.tel)===tk)||normNome(x.cliente)===nn;
@@ -5427,7 +5526,12 @@ function wizPrezzo(pre){
 function wizCerca(pre){
   wizOpen("Cerco un prezzo","f-w");
   const scegli=step(()=>pickItem("Cosa cerchi?",{onPick:it=>{ WZ.it=it; wizStep(scheda); }}));
+<<<<<<< HEAD
   const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button><button class="wbig sec" id="aX">${ic("plug")}Accessori e compatibilità</button><button class="wbig sec" id="aAs">${ic("swap")}Associa a un cliente o a una scheda</button><button class="wbig sec" id="aPr">${ic("clock")}Prenota per un cliente (non ancora arrivato)</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
+=======
+  const scheda=step(()=>{ const it=WZ.it; wz(itemCard(it)+`<div class="wyn">${it.tipo==="vendita"?`<button class="wbig" id="aV">${ic("cart")}Lo vendo</button>${puoPrezzi()?`<button class="wbig sec" id="aP">${ic("tag")}Cambio il prezzo</button>`:""}`:""}<button class="wbig sec" id="aC">${ic("clipboard")}Lo conto</button><button class="wbig sec" id="aX">${ic("plug")}Accessori e compatibilità</button><button class="wbig sec" id="aPr">${ic("clock")}Prenota per un cliente</button><button class="wbig sec" id="aSt">${ic("user")}Chi l'ha comprato (storico)</button></div>`, wBtn("wAn","Cerca un altro","pri","search"));
+    $("#aSt").onclick=()=>{ wizClose(); apriStorico(it.codice); };
+>>>>>>> 576dacd (Gestione: Storico codice. Da un codice (ricambio o attrezzatura) chi l'ha comprato o montato, pezzi, speso, per anno e per cliente, storico completo Danea 2017–2026 + schede, vendite e arrivi dell'app; caricamento dello storico Danea da Impostazioni (solo admin))
     $("#aPr").onclick=()=>wizStep(step(()=>stepCliente(it,1,"attesa")));
     $("#aAs").onclick=()=>{ wizClose(); wizAssocia(it); };
     $("#aX").onclick=()=>{ wizClose(); S.cq=it.codice; location.hash="compatibili"; render(); };
