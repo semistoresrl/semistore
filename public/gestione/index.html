@@ -128,7 +128,7 @@
 
   /* ---------- avvio ---------- */
   const pronto=(async()=>{
-    let st=await req("io").catch(()=>({utente:null,primoAvvio:false}));
+    let st=await req("io").catch(()=>({utente:null,primoAvvio:false})); SEMI.ai=!!st.ai;
     let io=st.utente; if(!io){ if(!document.body) await new Promise(r=>document.addEventListener("DOMContentLoaded",r,{once:true})); io=await accesso(st); }
     SEMI.io=io; document.documentElement.classList.toggle("is-admin",io.ruolo==="admin");
     await sync();
@@ -2475,11 +2475,12 @@ function pvArticolo(cod){ let it=itm(cod); if(it) return it;
   const l2=cercaProd(cod,3); it=l2.find(x=>normC(x.codice)===normC(cod))||l2.find(x=>normC(x.codice).startsWith(normC(cod)))||null; if(it) return it;
   const vv=volDi(cod), si=S.sito&&S.sito[normC(cod)], ll=lisDi(cod);
   if(vv||si||ll) return {codice:vv?vv.c:ll?ll.c:String(cod).trim().toUpperCase(),descr:si?si.n:(vv&&vv.d?vv.d:(ll&&ll.d?ll.d:"")),tipo:"vendita",fuoriMagazzino:true};
+  const ir=infoRic(cod); if(ir.trovato) return {codice:ir.codice,descr:ir.descr,tipo:"ricambio",prezzo:ir.prezzo||0,fuoriMagazzino:true}; // ricambio solo nelle distinte / DEWALT
   return null; }
 function pvRiga(it,qty,fonte){ const pr=prezziDi(it); let f=fonte||"auto";
   if(f==="auto") f=pr.volantino?"volantino":"listino"; else if(!pr[f]) f=pr.volantino?"volantino":"listino";
-  return {codice:it.codice,nome:nomeDi(it),qty:Number(qty)||1,fonte:f,base:pr[f]||0,sc:null}; }
-function pvScontoRiga(p,r){ if(r.sc!=null&&r.sc!=="") return Number(r.sc)||0; return r.fonte==="volantino"?(Number(p.scVolantino)||0):r.fonte==="listino"?(Number(p.scListino)||0):r.fonte==="sito"?(Number(p.scSito)||0):0; }
+  return {codice:it.codice,nome:nomeDi(it),qty:Number(qty)||1,fonte:f,base:pr[f]||0,sc:null,...(it.tipo==="ricambio"?{ric:true}:{})}; }
+function pvScontoRiga(p,r){ if(r.sc!=null&&r.sc!=="") return Number(r.sc)||0; if(r.ric&&Number(p.scRicambi)>0) return Number(p.scRicambi); return r.fonte==="volantino"?(Number(p.scVolantino)||0):r.fonte==="listino"?(Number(p.scListino)||0):r.fonte==="sito"?(Number(p.scSito)||0):0; }
 function pvUnit(p,r){ return r2((Number(r.base)||0)*(1-pvScontoRiga(p,r)/100)); }
 // prezzi del preventivo mostrati IVA esclusa (in archivio "base" resta IVA inclusa); IVA 22% a parte sul totale
 const pvBaseEx=r=>r2((Number(r.base)||0)/1.22);
@@ -2518,13 +2519,15 @@ function openPreventivo(p0){ S._pvMagg=0;
        <label class="fl">Sconto sul volantino %<input id="pvScV" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scVolantino||""}" ${puoSc?"":"disabled"}></label>
        <label class="fl">Sconto sul listino %<input id="pvScL" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scListino||""}" ${puoSc?"":"disabled"}></label>
        <label class="fl">Sconto sul prezzo sito %<input id="pvScS" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scSito||""}" ${puoSc?"":"disabled"}></label>
-       <label class="fl">Sconto extra sul totale %<input id="pvScX" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.sconto||""}" ${puoSc?"":"disabled"}></label></div>
+       <label class="fl">Sconto extra sul totale %<input id="pvScX" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.sconto||""}" ${puoSc?"":"disabled"}></label>
+       <label class="fl">Sconto ricambi del cliente %<input id="pvScR" type="number" step="0.5" min="0" max="90" inputmode="decimal" value="${p.scRicambi||""}" ${puoSc?"":"disabled"} title="Vale per le righe dei ricambi; si compila da solo con lo sconto del cliente in Danea"></label></div>
       ${puoSc?`<div class="sub">Gli sconti per fonte valgono per tutte le righe di quella fonte; su una riga puoi metterne uno diverso.</div>`:`<div class="sub">Gli sconti li può cambiare solo l'amministratore.</div>`}</div>
      <div class="fs"><h3>Articoli</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><button class="btn pri" id="pvFoto">📷 Da foto dell'esploso</button><span class="sub" style="align-self:center">Foto del disegno con i pezzi evidenziati dal cliente: trovo codici e prezzi dalla distinta</span></div>
       <input id="pvP" placeholder="Codice o nome del prodotto (Invio = aggiungi)" autocomplete="off"><div id="pvPL" class="pkl" style="margin-top:6px"></div>
       <details style="margin:8px 0"><summary class="sub">Incolla un elenco (una riga per articolo: quantità e codice, es. «4 DCD740NT-XJ»)</summary><textarea id="pvBulk" rows="4" style="width:100%;margin-top:6px" placeholder="4 DCD740NT-XJ&#10;2 DT7274-QZ"></textarea><button class="btn sm" id="pvBulkOk" style="margin-top:6px">Aggiungi l'elenco</button><div id="pvBulkEsito" class="sub"></div></details>
       ${p.righe.length?`<div class="sub" style="margin:4px 0">Prezzi IVA esclusa; l'IVA 22% si aggiunge sul totale.</div><div class="tts"><table class="pvt"><thead><tr><th>Articolo</th><th>Prezzo da</th><th class="num">Pieno (no IVA)</th><th class="num">Sc. %</th><th class="num">Netto</th><th class="num">Q.tà</th><th class="num">Totale</th><th></th></tr></thead><tbody>
-      ${p.righe.map((r,i)=>`<tr><td class="pva"><b>${esc(r.nome||r.codice)}</b><div class="mono sub">${esc(r.codice)}</div></td><td data-l="Prezzo da"><select data-pvrf="${i}">${["volantino","listino","sito","manuale"].map(k=>`<option value="${k}" ${r.fonte===k?"selected":""} ${k!=="manuale"&&!(prezziDi(pvArticolo(r.codice)||{codice:r.codice})[k])?"disabled":""}>${k==="manuale"?"A mano":k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></td>
+      ${p.righe.map((r,i)=>`<tr><td class="pva"><b>${esc(r.nome||r.codice)}</b><div class="mono sub">${esc(r.codice)}${r.pos?` · pos. ${esc(r.pos)}`:""}${r.ric&&!r.sc&&Number(p.scRicambi)>0?` · ricambio −${esc(p.scRicambi)}%`:""}</div></td><td data-l="Prezzo da"><select data-pvrf="${i}">${["volantino","listino","sito","manuale"].map(k=>`<option value="${k}" ${r.fonte===k?"selected":""} ${k!=="manuale"&&!(prezziDi(pvArticolo(r.codice)||{codice:r.codice})[k])?"disabled":""}>${k==="manuale"?"A mano":k[0].toUpperCase()+k.slice(1)}</option>`).join("")}</select></td>
        <td class="num" data-l="Pieno"><input class="inl" type="number" step="0.01" min="0" data-pvrb="${i}" value="${r.base?pvBaseEx(r):""}" ${r.fonte==="manuale"&&puoSc?"":"disabled"}></td>
        <td class="num" data-l="Sconto %"><input class="inl" type="number" step="0.5" min="0" max="90" data-pvrs="${i}" value="${r.sc==null?"":r.sc}" placeholder="${pvScontoRiga(p,r)}" ${puoSc?"":"disabled"}></td>
        <td class="num" data-l="Netto"><b>${eur(pvUnitEx(p,r))}</b></td><td class="num" data-l="Q.tà"><input class="inl" type="number" step="1" min="1" data-pvrq="${i}" value="${r.qty}" style="width:64px"></td><td class="num" data-l="Totale"><b>${eur(r2(pvUnitEx(p,r)*r.qty))}</b></td><td class="pvx"><button class="btn sm ghost" data-pvrx="${i}">✕</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Nessun articolo: cercalo qui sopra o incolla l'elenco.</div>`}
@@ -2536,25 +2539,26 @@ function openPreventivo(p0){ S._pvMagg=0;
     </div>
     <div class="mf"><button class="btn" data-close>Chiudi</button>${!nuovo?`<button class="btn edit-only" id="pvDw">${ic("truck")}Ordina al fornitore</button>${p.ordineId?`<button class="btn pri" id="pvOrdApri">${ic("box")}Ordine ${esc(p.ordineNum||"")}</button>`:`<button class="btn edit-only" id="pvOrd">${ic("check")}Conferma come ordine</button>`}<button class="btn" id="pvStampa">🖨 Stampa</button><button class="btn" id="pvWa">${ic("chat")}WhatsApp</button><button class="btn" id="pvMail">${ic("send")}Email</button><button class="btn" id="pvDup">⧉ Copia</button><button class="btn ghost adm-only" id="pvDel">Elimina</button>`:""}<span class="sp"></span><button class="btn pri" id="pvSave" ${ro?"disabled":""}>${nuovo?"Crea preventivo":"Salva"}</button></div>`);
     const leggi=()=>{ p.cliente=$("#pvCli").value.trim(); p.tel=$("#pvTel").value.trim(); p.email=$("#pvEm").value.trim(); p.piva=$("#pvPiva").value.trim(); p.ind=$("#pvInd").value.trim();
-      if(puoSc){ p.scVolantino=Number($("#pvScV").value)||0; p.scListino=Number($("#pvScL").value)||0; p.scSito=Number($("#pvScS").value)||0; p.sconto=Number($("#pvScX").value)||0; }
+      if(puoSc){ p.scVolantino=Number($("#pvScV").value)||0; p.scListino=Number($("#pvScL").value)||0; p.scSito=Number($("#pvScS").value)||0; p.sconto=Number($("#pvScX").value)||0; p.scRicambi=Number($("#pvScR").value)||0; }
       p.validita=$("#pvVal").value; p.stato=$("#pvSt").value; p.note=$("#pvNote").value.trim();
       $("#modal").querySelectorAll("[data-pvrq]").forEach(i=>{ p.righe[+i.dataset.pvrq].qty=Math.max(1,Math.floor(Number(i.value)||1)); });
       $("#modal").querySelectorAll("[data-pvrs]").forEach(i=>{ if(puoSc) p.righe[+i.dataset.pvrs].sc=i.value===""?null:Number(i.value); });
       $("#modal").querySelectorAll("[data-pvrb]").forEach(i=>{ const r=p.righe[+i.dataset.pvrb]; if(r.fonte==="manuale"&&puoSc) r.base=r2((Number(i.value)||0)*1.22); }); };
     const ridis=()=>{ leggi(); draw(); };
-    ["pvScV","pvScL","pvScS","pvScX"].forEach(id=>{ const e=$("#"+id); if(e) e.onchange=ridis; });
+    ["pvScV","pvScL","pvScS","pvScX","pvScR"].forEach(id=>{ const e=$("#"+id); if(e) e.onchange=ridis; });
     $("#modal").querySelectorAll("[data-pvrq],[data-pvrs],[data-pvrb]").forEach(i=>i.onchange=ridis);
     const rc=$("#pvRical"); if(rc) rc.onclick=()=>{ leggi(); let n=0; p.righe.forEach(r=>{ if(r.fonte!=="manuale"||!(Number(r.base)>0)){ const x=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,p.fonte); if(x.base!==r.base||x.fonte!==r.fonte) n++; r.fonte=x.fonte; r.base=x.base; if(x.nome&&(!r.nome||r.nome===r.codice)) r.nome=x.nome; if(x.codice) r.codice=x.codice; } }); draw(); toast(n?`${n} righe aggiornate: ricordati di salvare`:"Prezzi già aggiornati"); };
     $("#modal").querySelectorAll("[data-pvfo]").forEach(b=>b.onclick=()=>{ leggi(); p.fonte=b.dataset.pvfo; p.righe.forEach(r=>{ if(r.fonte!=="manuale"||!(Number(r.base)>0)){ const n=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,p.fonte); r.fonte=n.fonte; r.base=n.base; } }); draw(); });
     $("#modal").querySelectorAll("[data-pvrf]").forEach(sl=>sl.onchange=()=>{ leggi(); const r=p.righe[+sl.dataset.pvrf]; const k=sl.value; if(k==="manuale"){ r.fonte="manuale"; } else { const pr=prezziDi(pvArticolo(r.codice)||{codice:r.codice}); r.fonte=k; r.base=pr[k]||0; } draw(); });
     $("#modal").querySelectorAll("[data-pvrx]").forEach(b=>b.onclick=()=>{ leggi(); p.righe.splice(+b.dataset.pvrx,1); draw(); });
-    suggCli($("#pvCli"),$("#pvCliL"),c=>{ leggi(); p.cliente=c.nome; p.tel=c.tel||c.cell||p.tel; p.email=c.email||p.email; p.piva=c.piva||c.cf||p.piva; p.ind=[c.ind,c.cap,c.citta].filter(Boolean).join(" ")||p.ind; p.cliId=c.id||""; S._pvMagg=maggListino(c); if(S._pvMagg) p.righe.forEach(r=>{ if(r.fonte==="listino"){ const x=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,"listino"); if(x.base) r.base=x.base; } }); draw(); if(S._pvMagg) toast(`${c.nome}: Listino 2, prezzi di listino +${S._pvMagg}%`); });
+    suggCli($("#pvCli"),$("#pvCliL"),c=>{ leggi(); p.cliente=c.nome; p.tel=c.tel||c.cell||p.tel; p.email=c.email||p.email; p.piva=c.piva||c.cf||p.piva; p.ind=[c.ind,c.cap,c.citta].filter(Boolean).join(" ")||p.ind; p.cliId=c.id||""; p.scRicambi=scontoNum(c.sconto)||0; S._pvMagg=maggListino(c); if(S._pvMagg) p.righe.forEach(r=>{ if(r.fonte==="listino"){ const x=pvRiga(pvArticolo(r.codice)||{codice:r.codice},r.qty,"listino"); if(x.base) r.base=x.base; } }); draw(); if(S._pvMagg||p.scRicambi) toast(`${c.nome}: `+[S._pvMagg?`Listino 2, prezzi di listino +${S._pvMagg}%`:"",p.scRicambi?`sconto ricambi ${p.scRicambi}%`:""].filter(Boolean).join(" · ")); });
     const aggiungi=(it,q)=>{ const ex=p.righe.find(r=>r.codice===it.codice); if(ex) ex.qty+=q; else p.righe.push(pvRiga(it,q,p.fonte)); };
     suggProd($("#pvP"),$("#pvPL"),it=>{ leggi(); aggiungi(it,1); draw(); setTimeout(()=>$("#pvP")&&$("#pvP").focus(),30); },{catalogo:true});
     $("#pvBulkOk").onclick=()=>{ leggi(); const mancanti=[]; let n=0;
       $("#pvBulk").value.split(/\n+/).forEach(l=>{ const m=l.trim().match(/^(\d+)\s*[x×]?\s+(.+)$|^(.+?)\s+[x×]?\s*(\d+)$|^(\S+)$/i); if(!m) return; const q=Number(m[1]||m[4]||1), cod=(m[2]||m[3]||m[5]||"").trim(); if(!cod) return;
         const it=pvArticolo(cod); if(it){ aggiungi(it,q); n++; } else mancanti.push(cod); });
       if(mancanti.length) toast("Non trovati: "+mancanti.join(", ")); draw(); if(mancanti.length){ const e=$("#pvBulkEsito"); if(e) e.textContent="Non trovati in magazzino: "+mancanti.join(", "); const d=$("#pvBulk"); if(d) d.value=mancanti.join("\n"); } };
+    $("#pvFoto").onclick=()=>{ leggi(); pvDaFoto(p,draw); };
     $("#pvSave").onclick=async()=>{ leggi(); if(!p.cliente){ toast("Scrivi il nome del cliente"); $("#pvCli").focus(); return; } if(!p.righe.length){ toast("Aggiungi almeno un articolo"); return; }
       const t=pvTotali(p); const d={...p,totale:t.totale,updatedAt:Date.now()}; delete d.id;
       const ok=await write(async()=>{ if(nuovo){ d.num=nextPrev(); const r=await S.db.collection("preventivi").add(d); p.id=r?.id; p.num=d.num; } else await S.db.collection("preventivi").doc(p.id).update(d); },nuovo?"Preventivo "+(d.num)+" creato":"Preventivo salvato");
@@ -2571,7 +2575,7 @@ function openPreventivo(p0){ S._pvMagg=0;
   draw();
 }
 function preventivoTesto(p){ const t=pvTotali(p);
-  return `SE.M.I. – Preventivo ${p.num} del ${fmtD(p.at)}\nCliente: ${p.cliente}\n\n`+p.righe.map(r=>`• ${r.qty} × ${r.nome||r.codice} (${r.codice}): ${eur(pvUnitEx(p,r))} cad. + IVA${pvScontoRiga(p,r)?" (−"+pvScontoRiga(p,r)+"%)":""} = ${eur(r2(pvUnitEx(p,r)*r.qty))}`).join("\n")+
+  return `SE.M.I. – Preventivo ${p.num} del ${fmtD(p.at)}\nCliente: ${p.cliente}\n\n`+p.righe.map(r=>`• ${r.qty} × ${r.nome||r.codice} (${r.codice}${r.pos?", pos. "+r.pos:""}): ${eur(pvUnitEx(p,r))} cad. + IVA${pvScontoRiga(p,r)?" (−"+pvScontoRiga(p,r)+"%)":""} = ${eur(r2(pvUnitEx(p,r)*r.qty))}`).join("\n")+
    `\n\n${t.extra?`Sconto extra ${p.sconto}%: −${eur(t.extra)}\n`:""}Imponibile: ${eur(t.imponibile)}\nIVA 22%: ${eur(t.iva)}\nTotale IVA inclusa: ${eur(t.totale)}${t.risparmio>0?`\nRisparmi ${eur(t.risparmio)} + IVA rispetto al prezzo pieno.`:""}\nValido fino al ${p.validita?p.validita.split("-").reverse().join("/"):"—"}.${p.note?"\n"+p.note:""}\n\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947`; }
 function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",listino:"Listino",sito:"Sito",manuale:""};
   return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Preventivo ${esc(p.num)}</title><style>
@@ -2590,10 +2594,143 @@ function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",
    <div class="bx"><div><div class="k">CLIENTE</div><b>${esc(p.cliente)}</b>${p.ind?"<br>"+esc(p.ind):""}${p.piva?"<br>P.IVA / C.F. "+esc(p.piva):""}${p.tel?"<br>Tel. "+esc(p.tel):""}${p.email?"<br>"+esc(p.email):""}</div>
     <div><div class="k">CONDIZIONI</div>Prezzi IVA esclusa; IVA 22% a parte. Merce franco nostro negozio.<br>Disponibilità e tempi di consegna da confermare all'ordine.<br>${p.note?esc(p.note):"Pagamento da concordare."}</div></div>
    <table><thead><tr><th>Codice</th><th>Articolo</th><th class="r">Q.tà</th><th class="r">Prezzo pieno</th><th class="r">Sconto</th><th class="r">Prezzo netto</th><th class="r">Importo</th></tr></thead><tbody>
-   ${p.righe.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.nome||"")}</td><td class="r">${r.qty}</td><td class="r">${r.base?eur(pvBaseEx(r)):"—"}</td><td class="r">${pvScontoRiga(p,r)?"−"+pvScontoRiga(p,r)+"%":""}</td><td class="r"><b>${eur(pvUnitEx(p,r))}</b></td><td class="r"><b>${eur(r2(pvUnitEx(p,r)*r.qty))}</b></td></tr>`).join("")}</tbody></table>
+   ${p.righe.map(r=>`<tr><td class="mono">${esc(r.codice)}</td><td>${esc(r.nome||"")}${r.pos?`<div class="mono">esploso ${esc(r.esploso||"")} · pos. ${esc(r.pos)}</div>`:""}</td><td class="r">${r.qty}</td><td class="r">${r.base?eur(pvBaseEx(r)):"—"}</td><td class="r">${pvScontoRiga(p,r)?"−"+pvScontoRiga(p,r)+"%":""}</td><td class="r"><b>${eur(pvUnitEx(p,r))}</b></td><td class="r"><b>${eur(r2(pvUnitEx(p,r)*r.qty))}</b></td></tr>`).join("")}</tbody></table>
    <div class="tot">${t.risparmio-t.extra>0?`<div><span>Prezzo pieno (IVA esclusa)</span><span>${eur(t.lordo)}</span></div><div><span>Sconti sulle righe</span><span>−${eur(r2(t.lordo-t.netto))}</span></div>`:""}${t.extra?`<div><span>Sconto extra ${p.sconto}%</span><span>−${eur(t.extra)}</span></div>`:""}<div><span>Imponibile (IVA esclusa)</span><span>${eur(t.imponibile)}</span></div><div><span>IVA 22%</span><span>${eur(t.iva)}</span></div><div class="g"><span>TOTALE</span><span>${eur(t.totale)}</span></div></div>
    <div class="ft">Preventivo non impegnativo, valido fino alla data indicata e salvo esaurimento scorte. Prodotti originali con garanzia ufficiale del produttore; siamo centro assistenza autorizzato DEWALT, STANLEY e BLACK+DECKER. SE.M.I. S.R.L. · Lun–Ven 8:30–13:00 / 14:30–18:00.</div>
   </div></body></html>`; }
+/* ---------- 26/11: preventivo da foto (esploso con i pezzi evidenziati dal cliente) ----------
+   Foto → riquadri colorati dell'evidenziatore trovati sul telefono → numeri di posizione letti (OCR, o AI se attiva)
+   → modello e Type → distinta salvata → codici, descrizioni e prezzi → righe del preventivo. Tutto si corregge a mano. */
+let ocrPos=null;
+function caricaOCRPos(){ if(ocrPos) return ocrPos;
+  ocrPos=(async()=>{ if(!window.Tesseract) await new Promise((ok,ko)=>{ const s=document.createElement("script"); s.src=OCR.js; s.onload=ok; s.onerror=()=>ko(new Error("lettore non caricato")); document.head.appendChild(s); });
+    return Tesseract.createWorker("eng",1,{workerPath:OCR.worker,corePath:OCR.core,langPath:"https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int"}); })();
+  ocrPos.catch(()=>{ ocrPos=null; }); return ocrPos; }
+// zone dell'evidenziatore: pixel colorati e chiari (giallo, verde, rosa, arancio, azzurro) raggruppati in riquadri
+function fotoZone(c){ const k=Math.min(1,720/Math.max(c.width,c.height)), w=Math.round(c.width*k), h=Math.round(c.height*k);
+  const t=document.createElement("canvas"); t.width=w; t.height=h; const x=t.getContext("2d",{willReadFrequently:true}); x.drawImage(c,0,0,w,h);
+  const d=x.getImageData(0,0,w,h).data, M=new Uint8Array(w*h);
+  for(let i=0,j=0;i<d.length;i+=4,j++){ const r=d[i],g=d[i+1],b=d[i+2], mx=Math.max(r,g,b), mn=Math.min(r,g,b); if(mx>140&&(mx-mn)/mx>0.33&&mx-mn>45) M[j]=1; }
+  const L=new Int32Array(w*h), out=[]; let n=0; const st=[];
+  for(let s0=0;s0<w*h;s0++){ if(!M[s0]||L[s0]) continue; n++; L[s0]=n; st.push(s0); let a=0,x0=w,y0=h,x1=0,y1=0;
+    while(st.length){ const q=st.pop(), qx=q%w, qy=(q-qx)/w; a++; if(qx<x0)x0=qx; if(qx>x1)x1=qx; if(qy<y0)y0=qy; if(qy>y1)y1=qy;
+      for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++){ const yy=qy+dy, xx=qx+dx; if(yy<0||yy>=h||xx<0||xx>=w) continue; const z=yy*w+xx; if(M[z]&&!L[z]){ L[z]=n; st.push(z); } } }
+    const bw=x1-x0+1, bh=y1-y0+1;
+    if(a>=12&&bw>=5&&bh>=5&&a<w*h*0.02&&bw<w*0.3&&bh<h*0.3&&a/(bw*bh)>0.25) out.push({x:x0/k,y:y0/k,w:bw/k,h:bh/k}); }
+  return out.sort((p,q)=>(p.y-q.y)||(p.x-q.x)); }
+function otsu(g){ const H=new Float64Array(256); g.forEach(v=>H[v]++); const N=g.length; let sum=0; for(let i=0;i<256;i++) sum+=i*H[i];
+  let sB=0,wB=0,best=0,t=128; for(let i=0;i<256;i++){ wB+=H[i]; if(!wB) continue; const wF=N-wB; if(!wF) break; sB+=i*H[i]; const mB=sB/wB, mF=(sum-sB)/wF, v=wB*wF*(mB-mF)**2; if(v>best){ best=v; t=i; } } return t; }
+// ritaglio di una zona: anteprima a colori + immagine pulita in bianco e nero per la lettura
+function fotoRitaglio(c,z){ const p=4, x0=Math.max(0,Math.floor(z.x-p)), y0=Math.max(0,Math.floor(z.y-p)), x1=Math.min(c.width,Math.ceil(z.x+z.w+p)), y1=Math.min(c.height,Math.ceil(z.y+z.h+p)), w=x1-x0, h=y1-y0;
+  const th=document.createElement("canvas"); th.width=w; th.height=h; th.getContext("2d").drawImage(c,x0,y0,w,h,0,0,w,h);
+  const k=Math.max(1,Math.min(5,160/h)), W=Math.round(w*k), Hh=Math.round(h*k), pad=24;
+  const o=document.createElement("canvas"); o.width=W+pad*2; o.height=Hh+pad*2; const x=o.getContext("2d",{willReadFrequently:true}); x.fillStyle="#fff"; x.fillRect(0,0,o.width,o.height); x.imageSmoothingQuality="high"; x.drawImage(th,0,0,w,h,pad,pad,W,Hh);
+  const im=x.getImageData(pad,pad,W,Hh), d=im.data, g=new Uint8Array(W*Hh); for(let i=0,j=0;i<d.length;i+=4,j++) g[j]=(d[i]*.3+d[i+1]*.59+d[i+2]*.11)|0;
+  const t=otsu(g); for(let i=0,j=0;i<d.length;i+=4,j++){ const v=g[j]>t?255:0; d[i]=d[i+1]=d[i+2]=v; } x.putImageData(im,pad,pad);
+  return {thumb:th.toDataURL("image/jpeg",0.85),ocr:o}; }
+// testo letto in una zona → numeri di posizione e/o codici ricambio
+function fotoValori(tx){ const v=[]; String(tx||"").toUpperCase().replace(/[|\[\]{}()]/g," ").split(/[\s,;]+/).forEach(w=>{ w=w.replace(/^[^A-Z0-9]+|[^A-Z0-9]+$/g,""); if(!w) return;
+    if(/[A-Z]/.test(w)&&/\d/.test(w)&&w.length>=5) v.push(w); else if(/^\d{1,4}$/.test(w)) v.push(String(Number(w))); });
+  return v; }
+// modello dell'utensile scritto sulla foto (es. DCH273): preferisce quelli con distinta salvata o già visti
+function fotoModello(tx){ const T=String(tx||"").toUpperCase().replace(/([A-Z0-9])[?'’`´.:,]+(?=[A-Z0-9])/g,"$1");
+  const c=[...new Set((T.match(/\b[A-Z]{1,5}\d{3,5}[A-Z0-9]{0,4}\b/g)||[]).filter(m=>!/^N[A]?\d{6}$/.test(m)&&!/^(PAG|TEL|CAP|ISO|EN|IEC)/.test(m)))];
+  const conD=[...new Set([...S.esplosi.values()].map(e=>String(e.modello).toUpperCase()))], noti=new Set([...conD,...modelliNoti().map(([m])=>String(m).toUpperCase())]);
+  const vicino=(m,l)=>l.find(k=>k.length>=5&&lev(m,k)<=1&&m.slice(-3)===k.slice(-3)); // letto male (es. NCH273 → DCH273)
+  return c.find(m=>conD.includes(m))||c.find(m=>noti.has(m))||c.map(m=>vicino(m,conD)).find(Boolean)||c.find(m=>/^D[A-Z]{1,3}\d{3}/.test(m))||c.map(m=>vicino(m,[...noti])).find(Boolean)||""; }
+function ruota(c,ang){ const o=document.createElement("canvas"); const r=ang%180!==0; o.width=r?c.height:c.width; o.height=r?c.width:c.height; const x=o.getContext("2d");
+  x.translate(o.width/2,o.height/2); x.rotate(ang*Math.PI/180); x.drawImage(c,-c.width/2,-c.height/2); return o; }
+function striscia(c,lato,pc){ const w=Math.max(20,Math.round(c.width*(pc||0.06))), o=document.createElement("canvas"); o.width=w; o.height=c.height; o.getContext("2d").drawImage(c,lato==="dx"?c.width-w:0,0,w,c.height,0,0,w,c.height); return o; }
+async function fotoBase64(c){ const k=Math.min(1,1600/Math.max(c.width,c.height)), o=document.createElement("canvas"); o.width=Math.round(c.width*k); o.height=Math.round(c.height*k); o.getContext("2d").drawImage(c,0,0,o.width,o.height); return o.toDataURL("image/jpeg",0.85); }
+
+function pvDaFoto(p,indietro){
+  const F={stato:"vuota",zone:[],extra:"",modello:"",type:"",sel:{},qty:{},msg:"",fonte:"",dubbi:"",img:null};
+  const voci=()=>{ const l=[]; F.zone.forEach((z,i)=>fotoValori(z.val).forEach(v=>l.push({v,z:i}))); fotoValori(F.extra).forEach(v=>l.push({v,z:-1}));
+    const vis=new Set(); return l.filter(x=>vis.has(x.v)?false:(vis.add(x.v),true)); };
+  const distinta=()=>F.modello?getEsploso(F.modello,F.type||""):null;
+  // righe trovate: posizione → pezzi della distinta; codice → articolo
+  const trovati=()=>{ const e=distinta(), out=[];
+    voci().forEach(({v})=>{
+      if(/^\d{1,4}$/.test(v)){ const ps=(e?.parti||[]).filter(x=>String(x.pos).replace(/^0+/,"").toUpperCase()===v);
+        if(!ps.length){ out.push({k:"p"+v,pos:v,manca:e?"posizione non presente nella distinta":"manca la distinta del modello"}); return; }
+        ps.forEach((x,j)=>out.push({k:"p"+v+"_"+x.codice,pos:v,codice:x.codice,descr:x.descr,qd:Number(x.qty)||1,alt:ps.length>1,primo:j===0})); }
+      else { let it=pvArticolo(v); if(!it){ const t=trovaCodiceEt(v,""); if(t.it) it=t.it; }
+        const ep=(e?.parti||[]).find(x=>x.codice===(it?.codice||v));
+        out.push(it?{k:"c"+it.codice,pos:ep?String(ep.pos):"",codice:it.codice,descr:nomeDi(it),qd:1,primo:true}:{k:"c"+v,codice:v,manca:"codice non trovato"}); } });
+    out.sort((a,b)=>(a.pos===""||a.pos==null?1e9:parseInt(a.pos)||1e9)-(b.pos===""||b.pos==null?1e9:parseInt(b.pos)||1e9));
+    out.forEach(r=>{ if(!r.manca){ if(F.sel[r.k]==null) F.sel[r.k]=r.primo; if(F.qty[r.k]==null) F.qty[r.k]=r.qd<=4?r.qd:1; } });
+    return out; };
+  const draw=()=>{ const e=distinta(), ds=F.modello?distinteDi(F.modello):[], rows=F.stato==="pronta"?trovati():[], scelti=rows.filter(r=>!r.manca&&F.sel[r.k]);
+    openModal(`<div class="mh"><h2>Preventivo da foto</h2><span class="sp"></span><button class="x" id="dfX">×</button></div>
+    <div class="mb">
+     ${F.stato==="vuota"?`<div class="fs" style="text-align:center;padding:26px 10px"><label class="btn pri" style="font-size:19px;padding:16px 26px;cursor:pointer">📷 Scatta o scegli la foto<input type="file" id="dfFile" accept="image/*" style="display:none"></label>
+       <p class="sub" style="margin-top:14px;line-height:1.6">Foto dell'<b>esploso</b> con i pezzi segnati dal cliente con l'evidenziatore (giallo, verde, rosa…).<br>Va bene anche la foto di un elenco di codici evidenziati o scritti a mano.<br>Trovo i numeri di posizione, prendo codici e prezzi dalla distinta del modello e li metto nel preventivo ${esc(p.num||"")}.</p></div>`:""}
+     ${F.stato==="lettura"?`<div class="fs" style="text-align:center;padding:30px"><b style="font-size:18px">Leggo la foto…</b><div class="sub" id="dfProg" style="margin-top:8px">${esc(F.msg||"")}</div></div>`:""}
+     ${F.stato==="pronta"?`
+      <div class="fs"><h3>Utensile</h3><div class="f">
+        <label class="fl">Modello<input id="dfMod" value="${esc(F.modello)}" placeholder="es. DCH273" autocapitalize="characters"></label>
+        <label class="fl">Type<select id="dfType"><option value="">${ds.length?"il più recente salvato":"—"}</option>${ds.map(d=>`<option value="${esc(d.type)}" ${String(F.type)===String(d.type)?"selected":""}>Type ${esc(d.type)} · ${(d.parti||[]).length} ricambi</option>`).join("")}</select></label></div>
+        ${e?`<div class="sub" style="margin-top:6px">Distinta <b>${esc(e.modello)} Type ${esc(e.type)}</b> · ${(e.parti||[]).length} ricambi${e.nome?" · "+esc(e.nome):""}. Se l'utensile del cliente ha un altro Type (targhetta), sceglilo o importalo: i codici possono cambiare.</div>`
+          :F.modello?`<div class="banner" style="margin-top:8px"><b>Non c'è ancora la distinta di ${esc(F.modello)} nell'app.</b> Importala una volta (2 minuti) e da lì in poi i preventivi da foto per questo modello sono automatici.<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn sm pri" id="dfImp">⇪ Importa la distinta</button><a class="btn sm" href="${sdCerca(F.modello)}" target="_blank" rel="noopener">Apri ${esc(F.modello)} su DEWALT Service ↗</a></div></div>`
+          :`<div class="banner" style="margin-top:8px">Non ho trovato il modello sulla foto: scrivilo qui sopra (es. DCH273).</div>`}</div>
+      <div class="fs"><h3>Pezzi segnati sulla foto</h3>
+        <div style="position:relative;display:inline-block;max-width:100%;line-height:0"><img src="${F.img}" style="max-width:100%;max-height:52vh;border-radius:8px;border:1px solid var(--line)" alt="foto">
+         ${F.zone.map((z,i)=>`<div style="position:absolute;left:${z.x/F.W*100}%;top:${z.y/F.H*100}%;width:${z.w/F.W*100}%;height:${z.h/F.H*100}%;border:2px solid #d92b2b;border-radius:4px"><b style="position:absolute;left:-2px;top:-17px;background:#d92b2b;color:#fff;font-size:11px;line-height:15px;padding:0 4px;border-radius:3px">${i+1}</b></div>`).join("")}</div>
+        <div class="sub" style="margin:8px 0">${F.fonte==="ai"?"Letto con l'intelligenza artificiale.":"Letto sul telefono."} <b>Controlla ogni numero col suo ritaglio</b>: la lettura può sbagliare una cifra (es. 75 letto 78) e darebbe un altro pezzo. Correggi scrivendo sopra (anche più numeri, es. «63 64»).${F.dubbi?` <b>Da controllare:</b> ${esc(F.dubbi)}`:""}</div>
+        ${F.zone.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px">${F.zone.map((z,i)=>`<div style="border:1px solid var(--line);border-radius:8px;padding:5px"><div style="display:flex;gap:6px;align-items:center"><b style="color:#d92b2b;min-width:16px">${i+1}</b><img src="${z.thumb}" style="height:50px;max-width:80px;object-fit:contain;background:#fff;border-radius:4px"><input data-dfz="${i}" value="${esc(z.val)}" inputmode="text" style="min-width:0;flex:1;font-size:17px;font-weight:700;padding:6px" placeholder="n°"></div>${fotoValori(z.val).map(v=>{ if(!/^\d+$/.test(v)||!e) return ""; const x=(e.parti||[]).find(q=>String(q.pos).replace(/^0+/,"")===v); return `<div class="sub" style="margin-top:3px;${x?"":"color:#b42318"}">${esc(v)}: ${x?esc(x.descr):"non c'è nella distinta"}</div>`; }).join("")}</div>`).join("")}</div>`:`<div class="sub">Nessuna zona evidenziata trovata: scrivi le posizioni qui sotto.</div>`}
+        <label class="fl" style="margin-top:10px">Altre posizioni o codici (a mano)<input id="dfExtra" value="${esc(F.extra)}" placeholder="es. 22, 48 oppure N463936"></label>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" id="dfAgg">↻ Aggiorna l'elenco</button><label class="btn sm" style="cursor:pointer">📷 Altra foto<input type="file" id="dfFile" accept="image/*" style="display:none"></label></div></div>
+      <div class="fs"><h3>Ricambi da mettere nel preventivo</h3>
+        ${rows.length?`<div class="tts"><table><thead><tr><th></th><th>Pos.</th><th>Codice</th><th>Descrizione</th><th class="num">Q.tà</th><th class="num">Prezzo (no IVA)</th></tr></thead><tbody>${rows.map(r=>{ if(r.manca) return `<tr><td>⚠️</td><td><b>${esc(r.pos||"")}</b></td><td class="mono">${esc(r.codice||"")}</td><td colspan="3" class="sub">${esc(r.manca)}</td></tr>`;
+          const it=pvArticolo(r.codice)||{codice:r.codice,descr:r.descr,tipo:"ricambio"}, rg=pvRiga(it,1,p.fonte), sc=pvScontoRiga(p,rg), un=r2(pvBaseEx(rg)*(1-sc/100));
+          return `<tr><td><input type="checkbox" data-dfs="${esc(r.k)}" ${F.sel[r.k]?"checked":""}></td><td><b>${esc(r.pos||"")}</b>${r.alt?`<div class="sub">scegli</div>`:""}</td><td class="mono">${esc(r.codice)}</td><td>${esc(r.descr||nomeDi(it)||"")}${r.qd>4?`<div class="sub">nella macchina: ${r.qd}</div>`:""}</td><td class="num"><input class="inl" type="number" min="1" step="1" data-dfq="${esc(r.k)}" value="${F.qty[r.k]}" style="width:60px"></td><td class="num">${rg.base?`<b>${eur(un)}</b>${sc?`<div class="sub">−${sc}%</div>`:""}`:`<span class="sub">senza prezzo</span>`}</td></tr>`; }).join("")}</tbody></table></div>`:`<div class="empty">Ancora nessun ricambio: controlla i numeri e il modello.</div>`}
+      </div>`:""}
+    </div>
+    <div class="mf"><button class="btn" id="dfInd">← Torna al preventivo</button><span class="sp"></span>${F.stato==="pronta"?`<button class="btn pri" id="dfOk" ${scelti.length?"":"disabled"}>${F.fonte==="ai"?"":"Ho controllato: "}aggiungi ${scelti.length} ${scelti.length===1?"riga":"righe"}</button>`:""}</div>`);
+    const back=()=>indietro(); $("#dfX").onclick=back; $("#dfInd").onclick=back;
+    const fi=$("#dfFile"); if(fi) fi.onchange=()=>{ const f=fi.files&&fi.files[0]; if(f) leggi(f); };
+    if(F.stato!=="pronta") return;
+    const sinc=()=>{ $("#modal").querySelectorAll("[data-dfz]").forEach(i=>F.zone[+i.dataset.dfz].val=i.value); F.extra=$("#dfExtra").value; F.modello=$("#dfMod").value.trim().toUpperCase(); F.type=$("#dfType").value;
+      $("#modal").querySelectorAll("[data-dfq]").forEach(i=>F.qty[i.dataset.dfq]=Math.max(1,Math.floor(Number(i.value)||1))); $("#modal").querySelectorAll("[data-dfs]").forEach(i=>F.sel[i.dataset.dfs]=i.checked); };
+    $("#modal").querySelectorAll("[data-dfz]").forEach(i=>i.onchange=()=>{ sinc(); draw(); });
+    $("#dfExtra").onchange=()=>{ sinc(); draw(); }; $("#dfAgg").onclick=()=>{ sinc(); draw(); };
+    $("#dfMod").onchange=()=>{ sinc(); F.type=""; draw(); }; $("#dfType").onchange=()=>{ sinc(); draw(); };
+    $("#modal").querySelectorAll("[data-dfs],[data-dfq]").forEach(i=>i.onchange=()=>{ sinc(); draw(); });
+    const im=$("#dfImp"); if(im) im.onclick=()=>{ sinc(); openEsploso(F.modello,"",()=>{ F.type=""; draw(); }); };
+    const ok=$("#dfOk"); if(ok) ok.onclick=()=>{ sinc(); const e=distinta(), rif=e?`${e.modello} T${e.type}`:F.modello; let n=0;
+      trovati().filter(r=>!r.manca&&F.sel[r.k]).forEach(r=>{ const it=pvArticolo(r.codice)||{codice:r.codice,descr:r.descr,tipo:"ricambio"}, q=F.qty[r.k]||1;
+        const ex=p.righe.find(x=>x.codice===it.codice); if(ex){ ex.qty+=q; if(r.pos&&!ex.pos){ ex.pos=r.pos; ex.esploso=rif; } }
+        else { const rg=pvRiga(it,q,p.fonte); if(!rg.nome||rg.nome===rg.codice) rg.nome=r.descr||rg.nome; rg.ric=true; if(r.pos){ rg.pos=r.pos; rg.esploso=rif; } p.righe.push(rg); } n++; });
+      p.daFoto={modello:F.modello,type:e?.type||F.type||"",at:Date.now()};
+      if(!p.note&&rif) p.note=`Ricambi per ${rif} come da esploso inviato dal cliente.`;
+      indietro(); toast(`${n} ricambi aggiunti dalla foto: controlla e salva`); };
+  };
+  const prog=t=>{ F.msg=t; const e=$("#dfProg"); if(e) e.textContent=t; };
+  const leggi=async file=>{ F.stato="lettura"; F.msg="Apro la foto…"; draw();
+    try{ const img=await imgDa(file); const c=tela(img,2400,0); F.W=c.width; F.H=c.height; F.img=c.toDataURL("image/jpeg",0.8);
+      prog("Cerco le parti evidenziate…"); await new Promise(r=>setTimeout(r,30));
+      const zone=fotoZone(c).slice(0,80); F.zone=zone.map(z=>({...z,...fotoRitaglio(c,z),val:""})); F.fonte=""; F.dubbi="";
+      let ai=null;
+      if(window.SEMI?.ai){ prog("Leggo i numeri con l'intelligenza artificiale…"); try{ ai=await SEMI.post("leggi-foto",{img:await fotoBase64(c)}); }catch(e){ ai=null; } }
+      if(ai&&(ai.posizioni?.length||ai.codici?.length)){ F.fonte="ai"; F.dubbi=ai.dubbi||"";
+        F.zone.forEach(z=>z.val=""); F.extra=[...(ai.posizioni||[]),...(ai.codici||[]).map(c=>c.codice)].join(", ");
+        (ai.codici||[]).forEach(c=>{ if(c.qty>1) F.qty["c"+c.codice]=c.qty; });
+        if(ai.modello) F.modello=ai.modello; if(ai.type) F.type=ai.type; }
+      else {
+        prog("Carico il lettore (la prima volta ci vuole qualche secondo)…"); const w=await caricaOCRPos();
+        await w.setParameters({tessedit_pageseg_mode:"6",tessedit_char_whitelist:"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-"});
+        for(let i=0;i<F.zone.length;i++){ prog(`Leggo il numero ${i+1} di ${F.zone.length}…`); const z=F.zone[i];
+          await w.setParameters({tessedit_pageseg_mode:"6"}); const r=await w.recognize(z.ocr); z.val=fotoValori(r.data.text).join(" "); }
+        if(!F.modello){ await w.setParameters({tessedit_pageseg_mode:"11",tessedit_char_whitelist:""});
+          const prove=[()=>c]; [0.045,0.08,0.12].forEach(pc=>["dx","sx"].forEach(l=>[270,90].forEach(a=>prove.push(()=>ruota(striscia(c,l,pc),a))))); // titolo scritto in verticale sul bordo
+          for(let i=0;i<prove.length&&!F.modello;i++){ prog(`Cerco il modello dell'utensile (${i+1}/${prove.length})…`); await w.setParameters({tessedit_pageseg_mode:i?"6":"11"}); const r=await w.recognize(prove[i]()); const tx=r.data.text||"";
+            F.modello=fotoModello(tx); const ty=tx.match(/TYPE\s*(\d{1,2})\b/i); if(ty&&!F.type) F.type=ty[1]; } } }
+      F.zone.forEach(z=>delete z.ocr);
+      if(F.type&&F.modello&&!distinteDi(F.modello).some(d=>String(d.type)===String(F.type))) F.type="";
+      F.stato="pronta"; F.sel={}; F.qty={...F.qty}; draw();
+    }catch(e){ console.error(e); F.stato="vuota"; draw(); toast("Non riesco a leggere la foto: "+(e.message||e)); } };
+  draw();
+}
 /* ---------- dal preventivo: ordine a DEWALT, conferma come ordine, fattura (24/11/2026) ---------- */
 // righe del preventivo da ordinare a DEWALT: di base solo quello che manca in magazzino
 function pvOrdinaDewalt(p){

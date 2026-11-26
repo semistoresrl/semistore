@@ -11,6 +11,7 @@
 //  GET/POST utenti               → solo admin: elenco, aggiungi/modifica, codice d'accesso a mano
 //  POST file                     → allegato (corpo = file, header x-nome) → {id}; si legge da /_blob/<id>
 //  GET  presenze?da&a            → solo admin: persone sul sito (in diretta, per periodo)
+//  POST leggi-foto {img}         → lettura AI di una foto (esploso evidenziato), solo se c'è ANTHROPIC_API_KEY
 import { gdb, json, utente, sha, casuale, cookieSessione, cookieVia, fondi, differenza, mandaEmail, giornoIT } from '../../_lib/gestione.js';
 import { riprovaRicostruzione } from '../../_lib/ricostruzione.js';
 
@@ -29,7 +30,7 @@ export async function onRequest(ctx) {
   if (p === 'io') {
     const n = (await d.prepare('SELECT COUNT(*) n FROM utenti').first()).n;
     if (io) await d.prepare('UPDATE utenti SET ultimo=? WHERE email=?').bind(Date.now(), io.email).run();
-    return json({ utente: io, primoAvvio: n === 0, email: !!env.RESEND_API_KEY, mittente: !!env.EMAIL_FROM });
+    return json({ utente: io, primoAvvio: n === 0, email: !!env.RESEND_API_KEY, mittente: !!env.EMAIL_FROM, ai: !!env.ANTHROPIC_API_KEY });
   }
   if (p === 'primo' && m === 'POST') {
     const n = (await d.prepare('SELECT COUNT(*) n FROM utenti').first()).n;
@@ -85,6 +86,38 @@ export async function onRequest(ctx) {
   // ----- da qui serve essere collegati -----
   if (!io) return json({ error: 'non collegato' }, 401);
   const admin = io.ruolo === 'admin';
+
+  // 26/11: lettura con l'intelligenza artificiale di una foto (esploso con i pezzi evidenziati, elenco codici).
+  // Facoltativa: funziona solo se su Cloudflare c'è la variabile ANTHROPIC_API_KEY; altrimenti l'app legge la foto sul telefono.
+  if (p === 'leggi-foto' && m === 'POST') {
+    if (!env.ANTHROPIC_API_KEY) return json({ error: 'lettura AI non attiva' }, 501);
+    const img = String(body.img || '').replace(/^data:image\/\w+;base64,/, '');
+    if (!img || img.length > 4_500_000) return json({ error: 'foto mancante o troppo grande' }, 400);
+    const prompt = `Questa è la foto di un esploso ricambi (disegno con i numeri di posizione) oppure di un elenco ricambi, di un utensile DEWALT, STANLEY o BLACK+DECKER.
+Il cliente ha segnato i pezzi che vuole (evidenziatore, cerchi, frecce, spunte o sottolineature).
+Rispondi SOLO con un oggetto JSON, senza altro testo:
+{"modello":"codice del modello se scritto (es. DCH273), altrimenti stringa vuota","type":"numero del Type se scritto, altrimenti stringa vuota","posizioni":["numeri di posizione SEGNATI, esattamente come scritti"],"codici":[{"codice":"codice ricambio segnato o scritto a mano","qty":1}],"dubbi":"cosa non si legge bene, in italiano, oppure stringa vuota"}
+Metti in "posizioni" solo i numeri segnati dal cliente, non tutti quelli del disegno. Se un numero segnato non si legge con certezza scrivilo comunque e spiegalo in "dubbi".`;
+    try {
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+        body: JSON.stringify({ model: env.ANTHROPIC_MODEL || 'claude-sonnet-5-5', max_tokens: 1500,
+          messages: [{ role: 'user', content: [{ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: img } }, { type: 'text', text: prompt }] }] }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) return json({ error: 'lettura AI non riuscita: ' + (j.error?.message || r.status) }, 502);
+      const tx = (j.content || []).map((c) => c.text || '').join('');
+      const mm = tx.match(/\{[\s\S]*\}/);
+      const o = mm ? JSON.parse(mm[0]) : {};
+      return json({
+        modello: String(o.modello || '').trim().toUpperCase(), type: String(o.type || '').replace(/\D/g, ''),
+        posizioni: (Array.isArray(o.posizioni) ? o.posizioni : []).map((x) => String(x).trim()).filter(Boolean).slice(0, 200),
+        codici: (Array.isArray(o.codici) ? o.codici : []).map((c) => ({ codice: String(c?.codice || c || '').trim().toUpperCase(), qty: Number(c?.qty) || 1 })).filter((c) => c.codice).slice(0, 200),
+        dubbi: String(o.dubbi || '').slice(0, 500),
+      });
+    } catch (e) { return json({ error: 'lettura AI non riuscita' }, 502); }
+  }
 
   if (p === 'db' && m === 'GET') {
     const since = Number(new URL(request.url).searchParams.get('since') || 0);
