@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Semi · Contabilità</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#15171a;--ink2:#3d4148;--mut:#6b7079;--line:#e6e4df;--bg:#f5f4f0;--card:#fff;--y:#f5b800;--y2:#fff4cc;--ok:#127a3e;--okb:#dcf3e5;--ko:#b3261e;--kob:#fde4e1;--wa:#8a5a00;--wab:#fff1d1;--blu:#2563c9;
+  --s1:#257de0;--s2:#f47230;--r:14px;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:var(--bg)}
+*{box-sizing:border-box}body{margin:0;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}a{color:var(--blu)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92em}
+.mut{color:var(--mut)}.sm{font-size:13px}.b{font-weight:700}.up{color:var(--ok)}.down{color:var(--ko)}
+/* struttura */
+#top{position:sticky;top:0;z-index:30;background:var(--ink);color:#fff;display:flex;align-items:center;gap:14px;padding:10px 18px;padding-top:calc(10px + env(safe-area-inset-top))}
+#top .lg{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;flex:none}#top .lg b{font-size:16px;letter-spacing:.3px}#top .lg small{display:block;color:#b8bcc4;font-size:12px;margin-top:-2px}
+#cerca{flex:1;max-width:640px;position:relative}#cerca input{width:100%;border:0;border-radius:12px;padding:11px 14px 11px 40px;background:#2a2d33;color:#fff;font-size:15px}
+#cerca input::placeholder{color:#9aa0aa}#cerca input:focus{outline:2px solid var(--y);background:#fff;color:var(--ink)}
+#cerca svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:#9aa0aa}
+#sug{position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;color:var(--ink);border-radius:14px;box-shadow:0 18px 50px #0004;overflow:hidden;display:none;max-height:70vh;overflow-y:auto}
+#sug.on{display:block}#sug button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--line)}
+#sug button:hover,#sug button.sel{background:var(--y2)}#sug .gh{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);padding:9px 14px 4px;font-weight:700}
+#top .chi{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:14px;color:#d6d9de;flex:none}#top .chi button{background:#2a2d33;border:0;color:#fff;border-radius:10px;padding:8px 12px;cursor:pointer}
+#wrap{display:flex;min-height:calc(100vh - 60px)}
+#nav{width:230px;flex:none;padding:16px 12px;position:sticky;top:60px;height:calc(100vh - 60px);overflow:auto}
+#nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;text-decoration:none;color:var(--ink2);font-weight:600;margin-bottom:2px}
+#nav a:hover{background:#ebe9e3}#nav a.on{background:var(--ink);color:#fff}#nav a.on svg{stroke:var(--y)}
+#nav a svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#nav .sep{height:1px;background:var(--line);margin:10px 8px}#nav .nt{font-size:12px;color:var(--mut);padding:10px 12px;line-height:1.4}
+main{flex:1;min-width:0;padding:22px 26px 90px;max-width:1280px}
+#bb{display:none}
+@media(max-width:900px){#nav{display:none}main{padding:16px 14px 100px}#top{padding:10px 12px;gap:10px}#top .lg small,#top .chi span{display:none}
+  #bb{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:30;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+  #bb a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px 9px;font-size:11px;font-weight:600;text-decoration:none;color:var(--mut)}
+  #bb a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}#bb a.on{color:var(--ink)}#bb a.on svg{stroke:var(--ink);fill:var(--y2)}}
+@media(max-width:560px){#top .lg b{display:none}}
+/* elementi */
+h1{font-size:26px;margin:0;letter-spacing:-.3px}h2{font-size:18px;margin:0}h3{font-size:15.5px;margin:0}
+.ph{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}.ph p{margin:4px 0 0;color:var(--mut);max-width:720px}.ph .sp{flex:1}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}.card+.card{margin-top:14px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:900px){.g2{grid-template-columns:1fr}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 15px;font-weight:600;cursor:pointer;text-decoration:none;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:#c9c6be}.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}.btn.pri:hover{background:#000}.btn.y{background:var(--y);border-color:var(--y);color:var(--ink)}
+.btn.big{font-size:17px;padding:15px 22px;border-radius:14px}.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}.btn.ko{color:var(--ko)}.btn:disabled{opacity:.5;cursor:default}
+.btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap}
+.chip:hover{border-color:#bdb9af}.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.per{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;margin-bottom:14px}
+.per .lb{font-weight:700;margin-right:4px}.per select,.per input[type=date]{border:1px solid var(--line);border-radius:10px;padding:7px 9px;background:#fff}
+.per .cur{margin-left:auto;font-size:13px;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;cursor:pointer;text-align:left;transition:border-color .15s,transform .15s}
+.kpi:hover{border-color:var(--ink);transform:translateY(-1px)}.kpi .t{font-size:13px;color:var(--mut);font-weight:600}.kpi .v{font-size:26px;font-weight:800;letter-spacing:-.5px;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12.5px;color:var(--mut)}.kpi.main{background:var(--ink);color:#fff;border-color:var(--ink)}.kpi.main .t,.kpi.main .s{color:#c3c7ce}.kpi.main .v{color:var(--y);font-size:30px}
+.kpi.warn{border-color:#f0c9c4;background:#fffafa}
+.dl{display:inline-flex;align-items:center;gap:3px;font-weight:700;font-size:12.5px;border-radius:6px;padding:1px 6px}.dl.up{background:var(--okb)}.dl.down{background:var(--kob)}
+.kpi.main .dl.up{background:#1e4d33;color:#9ff0c0}.kpi.main .dl.down{background:#5a2420;color:#ffc2bb}
+.ask{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}.ask button{border:1px dashed #c9c4b6;background:var(--y2);border-radius:12px;padding:9px 13px;font-weight:600;cursor:pointer;color:#5a4300;text-align:left}
+.ask button:hover{border-style:solid;border-color:var(--y)}
+table{width:100%;border-collapse:collapse}th{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);text-align:left;font-weight:700;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;background:#fbfaf7;position:sticky;top:0}
+td{padding:10px;border-bottom:1px solid #f0eee9;vertical-align:top}tbody tr{cursor:pointer}tbody tr:hover td{background:#fbf8ee}tr.nc td{cursor:default}
+.tw{overflow:auto;border:1px solid var(--line);border-radius:var(--r);background:#fff;max-height:70vh}
+.bd{display:inline-block;border-radius:7px;padding:2px 8px;font-size:12px;font-weight:700;white-space:nowrap;background:#eceae4;color:var(--ink2)}
+.bd.fattura{background:#e3edfb;color:#1d4f9c}.bd.nota{background:var(--kob);color:var(--ko)}.bd.banco{background:#efe6fb;color:#5b34a8}.bd.riparazione{background:#fff1d1;color:#7a5200}
+.bd.ddt{background:#e4f4f1;color:#0f6b5a}.bd.ordine{background:#e2f5e8;color:#16683a}.bd.acquisto,.bd.arrivo{background:#f3e8e2;color:#7d3d1c}.bd.preventivo{background:#eee;color:#555}.bd.spesa,.bd.incasso{background:#ffe9d6;color:#8a3e00}
+.st{font-size:12.5px;font-weight:700;white-space:nowrap}.st.ok{color:var(--ok)}.st.ko{color:var(--ko)}.st.wa{color:var(--wa)}
+.tot{display:flex;gap:20px;flex-wrap:wrap;align-items:baseline;padding:12px 16px;background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-bottom:12px}
+.tot div{font-size:13px;color:var(--mut)}.tot b{display:block;font-size:19px;color:var(--ink);font-variant-numeric:tabular-nums}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.tools input[type=search],.tools select{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff}
+.tools input[type=search]{flex:1;min-width:220px}
+.banner{border-radius:12px;padding:11px 14px;margin-bottom:12px;font-size:14px;background:var(--wab);border:1px solid #f2dc9f;color:#5d4100}.banner.ok{background:var(--okb);border-color:#bfe3cc;color:#0d4f29}.banner.ko{background:var(--kob);border-color:#f3c4bd;color:#7d1d16}
+.banner.info{background:#eef3fb;border-color:#d3def2;color:#22406f}
+.empty{padding:34px 16px;text-align:center;color:var(--mut)}
+.load{padding:40px;text-align:center;color:var(--mut)}.load:before{content:"";display:block;width:28px;height:28px;margin:0 auto 10px;border:3px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:g .8s linear infinite}@keyframes g{to{transform:rotate(1turn)}}
+.lst .it{display:flex;gap:10px;align-items:center;padding:10px 4px;border-bottom:1px solid #f0eee9;cursor:pointer}.lst .it:last-child{border-bottom:0}.lst .it:hover{background:#fbf8ee}
+.lst .n{width:26px;height:26px;border-radius:50%;background:#f1efe9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:none}.lst .x{flex:1;min-width:0}.lst .x b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:6px;border-radius:3px;background:#eceae4;margin-top:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--s1);border-radius:3px}
+/* grafico */
+.ch{position:relative}.ch svg{display:block;width:100%;height:auto;overflow:visible}.ch .ax{font-size:11px;fill:var(--mut)}.ch .gr{stroke:#efede8}
+.leg{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ink2);margin:2px 0 8px}.leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:#fff;border-radius:10px;padding:8px 11px;font-size:12.5px;white-space:nowrap;transform:translate(-50%,-110%);display:none;z-index:5;box-shadow:0 8px 24px #0003}
+.tip b{color:var(--y)}
+/* finestra */
+#mod{position:fixed;inset:0;z-index:60;background:#15171a99;display:none;align-items:flex-start;justify-content:flex-end}#mod.on{display:flex}
+#mod .pn{background:var(--bg);width:min(760px,100%);height:100%;overflow:auto;box-shadow:-20px 0 60px #0003;animation:sl .18s ease-out}
+@keyframes sl{from{transform:translateX(30px);opacity:.6}}
+#mod .mh{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);padding:14px 18px;display:flex;gap:10px;align-items:center;z-index:2}
+#mod .mh .x{margin-left:auto;border:0;background:#f1efe9;width:38px;height:38px;border-radius:50%;font-size:22px;cursor:pointer}
+#mod .mb{padding:18px}
+.fm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fm .w{grid-column:1/-1}@media(max-width:560px){.fm{grid-template-columns:1fr}}
+.fm label{display:block;font-size:13px;font-weight:700;color:var(--ink2)}.fm input,.fm select,.fm textarea{display:block;width:100%;margin-top:5px;border:2px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;font-size:16px}
+.fm input:focus,.fm select:focus,.fm textarea:focus{outline:0;border-color:var(--y)}.fm .hint{font-weight:400;color:var(--mut);font-size:12px}
+.seg{display:flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;margin-top:5px}.seg button{flex:1;border:0;background:#fff;padding:11px 6px;font-weight:700;cursor:pointer}.seg button.on{background:var(--ink);color:#fff}
+.amt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.amt div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}.amt small{color:var(--mut);font-weight:600}.amt b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.step{display:flex;gap:14px;margin-bottom:18px}.step .sn{width:34px;height:34px;border-radius:50%;background:var(--ink);color:var(--y);font-weight:800;display:flex;align-items:center;justify-content:center;flex:none;font-size:16px}
+.step .sb{flex:1;min-width:0}.step h3{margin:5px 0 10px;font-size:17px}
+.ck{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:6px;cursor:pointer}.ck input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--ink);flex:none}
+.ck small{display:block;color:var(--mut)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:80;box-shadow:0 10px 30px #0004;display:none;max-width:90vw}
+.toast.on{display:block}
+.drop{border:2px dashed #c9c4b6;border-radius:var(--r);padding:26px;text-align:center;background:#fff;cursor:pointer}.drop:hover,.drop.ov{border-color:var(--y);background:var(--y2)}
+.prog{height:8px;background:#eceae4;border-radius:4px;overflow:hidden;margin-top:10px}.prog i{display:block;height:100%;width:0;background:var(--y);transition:width .2s}
+/* telefono: tabelle a schede */
+@media(max-width:700px){.tw.cards{max-height:none;border:0;background:none;overflow:visible}.tw.cards table,.tw.cards tbody{display:block}.tw.cards thead{display:none}
+  .tw.cards tr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+  .tw.cards td{border:0;padding:0;background:none!important}.tw.cards td[data-h]:before{content:attr(data-h) " ";color:var(--mut);font-size:12px}.tw.cards td.hm{display:none}.tw.cards td.c1{grid-column:1/-1}}
+/* login */
+#login{max-width:430px;margin:9vh auto;background:#fff;border-radius:24px;padding:30px 26px;box-shadow:0 20px 60px #0002}
+#login h1{margin-bottom:6px}#login p{color:var(--ink2)}#login input{width:100%;font-size:21px;padding:15px;border-radius:14px;border:2px solid var(--line);margin:8px 0 12px}
+#login input:focus{outline:0;border-color:var(--y)}#login input.cod{font-size:32px;letter-spacing:10px;text-align:center;font-weight:800}#login .btn{width:100%}
+@media print{#top,#nav,#bb,.noprint{display:none!important}main{padding:0}.card{border:0}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.8c1.8.8 3 2.6 3.5 5.2"/></symbol>
+<symbol id="i-euro" viewBox="0 0 24 24"><path d="M17 6.5A7 7 0 107 17.5 7 7 0 0017 17.5"/><path d="M4 10h9M4 14h9"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4z"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12M6 10l6 6 6-6"/><path d="M4 20h16"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-print" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></symbol>
+</defs></svg>
+<div id="app"><div class="load">Apro i conti…</div></div>
+<div id="mod"><div class="pn"><div class="mh"><div id="mT"></div><button class="x" onclick="chiudi()" aria-label="Chiudi">×</button></div><div class="mb" id="mB"></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+/* =====================================================================
+   SEMI · CONTABILITÀ (26/11/2026) – il pannello di Raffaella
+   Dati: /api/gestione/conti/* (tabella cont_doc: Danea dal 2017 + app + fatture XML + documenti a mano).
+   Pensato per chiunque: una domanda alla volta, numeri grandi, tutto cliccabile, scarico per il commercialista.
+   ===================================================================== */
+const API="/api/gestione/";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const N=x=>Number(x)||0, r2=x=>Math.round(N(x)*100)/100;
+const eur=x=>(x==null||x==="")?"—":N(x).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:"always"})+" €";
+const eur0=x=>N(x).toLocaleString("it-IT",{maximumFractionDigits:0,useGrouping:"always"})+" €";
+const nf=x=>N(x).toLocaleString("it-IT",{maximumFractionDigits:0,useGrouping:"always"});
+const vIn=x=>x==null||x===""?"":String(x).replace(".",",");
+const kE=x=>{ const v=Math.abs(N(x)); return (N(x)<0?"−":"")+(v>=1e6?(v/1e6).toLocaleString("it-IT",{maximumFractionDigits:2})+" mln":v>=1e5?(v/1e3).toLocaleString("it-IT",{maximumFractionDigits:0})+"k":v>=1e4?(v/1e3).toLocaleString("it-IT",{maximumFractionDigits:1})+"k":v>=1e3?(v/1e3).toLocaleString("it-IT",{maximumFractionDigits:1})+"k":nf(v))+" €"; };
+const gma=d=>d?String(d).slice(0,10).split("-").reverse().join("/"):"";
+const iso=dt=>{ const z=new Date(dt.getTime()-dt.getTimezoneOffset()*6e4); return z.toISOString().slice(0,10); };
+const OGGI=()=>iso(new Date());
+const MESI=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"], MESIL=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const TIPI={fattura:"Fattura",nota:"Nota di credito",banco:"Vendita al banco",ddt:"DDT",riparazione:"Riparazione",ordine:"Ordine / vendita app",acquisto:"Fattura fornitore",arrivo:"Arrivo merce",preventivo:"Preventivo",ordinecli:"Ordine cliente",ordineforn:"Ordine fornitore",spesa:"Spesa",incasso:"Incasso",altro:"Altro"};
+const FONTI={danea:"Danea",app:"App Semi",xml:"Fattura elettronica / file",manuale:"Scritto a mano"};
+const ic=n=>`<svg><use href="#i-${n}"/></svg>`;
+function toast(t,ms=2600){ const e=$("#toast"); e.textContent=t; e.classList.add("on"); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove("on"),ms); }
+async function req(p,opt={}){ const r=await fetch(API+p,{credentials:"same-origin",...opt}); const t=await r.text(); let j={}; try{ j=JSON.parse(t); }catch(e){ j={error:"errore "+r.status}; }
+  if(!r.ok){ const e=new Error(j.error||("errore "+r.status)); e.status=r.status; throw e; } return j; }
+const post=(p,b)=>req(p,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(b||{})});
+const C=(p,par)=>req("conti/"+p+(par?"?"+new URLSearchParams(Object.entries(par).filter(([k,v])=>v!==undefined&&v!==null&&v!=="")).toString():""));
+const CP=(p,b)=>post("conti/"+p,b);
+const dl=v=>v==null||!isFinite(v)?"":`<span class="dl ${v>=0?"up":"down"}">${v>=0?"▲":"▼"} ${Math.abs(v).toLocaleString("it-IT",{maximumFractionDigits:v>-10&&v<10?1:0})}%</span>`;
+const delta=(a,b)=>N(b)?(N(a)-N(b))/Math.abs(N(b))*100:null;
+const libs={}; function lib(n,src){ return libs[n]||(libs[n]=new Promise((ok,ko)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=()=>ko(new Error("non riesco a caricare "+n)); document.head.appendChild(s); })); }
+const XLSXlib=()=>lib("xlsx","https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
+const ZIPlib=()=>lib("zip","https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js");
+function salvaFile(nome,blob){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=nome; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },2000); }
+
+/* ---------------- stato ---------------- */
+const S={io:null,st:null,view:"riepilogo",per:null,doc:{tipo:"",stato:"",q:"",ordina:"data"},cli:{q:""},art:{q:""},cache:{}};
+function periodo(k,da,a){ const d=new Date(), y=d.getFullYear(), m=d.getMonth();
+  const P={k};
+  if(k==="mese"){ P.da=iso(new Date(y,m,1)); P.a=OGGI(); P.lb=MESIL[m]+" "+y; }
+  else if(k==="mesePrec"){ P.da=iso(new Date(y,m-1,1)); P.a=iso(new Date(y,m,0)); P.lb=MESIL[(m+11)%12]+" "+(m?y:y-1); }
+  else if(k==="trim"){ const t=Math.floor(m/3); P.da=iso(new Date(y,t*3,1)); P.a=OGGI(); P.lb=(t+1)+"° trimestre "+y; }
+  else if(k==="trimPrec"){ let t=Math.floor(m/3)-1, yy=y; if(t<0){ t=3; yy--; } P.da=iso(new Date(yy,t*3,1)); P.a=iso(new Date(yy,t*3+3,0)); P.lb=(t+1)+"° trimestre "+yy; }
+  else if(k==="anno"){ P.da=y+"-01-01"; P.a=OGGI(); P.lb="dal 1° gennaio "+y+" a oggi"; }
+  else if(k==="annoPrec"){ P.da=(y-1)+"-01-01"; P.a=(y-1)+"-12-31"; P.lb="anno "+(y-1); }
+  else if(/^y\d{4}$/.test(k)){ const yy=k.slice(1); P.da=yy+"-01-01"; P.a=yy+"-12-31"; P.lb="anno "+yy; }
+  else if(k==="tutto"){ P.da="2000-01-01"; P.a="2999-12-31"; P.lb="tutti gli anni"; }
+  else { P.k="date"; P.da=da||OGGI(); P.a=a||OGGI(); P.lb="dal "+gma(P.da)+" al "+gma(P.a); }
+  return P; }
+S.per=(()=>{ try{ const x=JSON.parse(sessionStorage.getItem("conti-per")); if(x&&x.k) return periodo(x.k,x.da,x.a); }catch(e){} return periodo("anno"); })();
+function setPer(P){ S.per=P; sessionStorage.setItem("conti-per",JSON.stringify(P)); if(S.view==="incassi"&&S._incassi) return S._incassi(); render(); }
+function barraPeriodo(){ const P=S.per, anni=(S.st?.anni||[]).map(x=>x.anno).filter(a=>a>="2000").reverse();
+  return `<div class="per noprint"><span class="lb">Periodo</span><div class="chips">${[["mese","Questo mese"],["mesePrec","Mese scorso"],["trim","Trimestre"],["anno","Quest'anno"],["annoPrec","Anno scorso"],["tutto","Tutto"]].map(([k,t])=>`<button class="chip ${P.k===k?"on":""}" data-per="${k}">${t}</button>`).join("")}</div>
+  <select id="perY" aria-label="Anno"><option value="">Anno…</option>${anni.map(a=>`<option value="${a}" ${P.k==="y"+a?"selected":""}>${a}</option>`).join("")}</select>
+  <input type="date" id="perDa" value="${P.k==="tutto"?"":P.da}" aria-label="Dal"><span class="mut">→</span><input type="date" id="perA" value="${P.k==="tutto"?"":P.a}" aria-label="Al">
+  <span class="cur">${esc(P.lb)}</span></div>`; }
+function legaPeriodo(){ $$("[data-per]").forEach(b=>b.onclick=()=>setPer(periodo(b.dataset.per)));
+  const y=$("#perY"); if(y) y.onchange=()=>y.value&&setPer(periodo("y"+y.value));
+  const f=()=>{ const da=$("#perDa").value, a=$("#perA").value; if(da&&a&&da<=a) setPer(periodo("date",da,a)); };
+  if($("#perDa")){ $("#perDa").onchange=f; $("#perA").onchange=f; } }
+
+/* ---------------- accesso ---------------- */
+async function avvio(){
+  let st; try{ st=await req("io"); }catch(e){ st={}; }
+  if(!st.utente){ return login(); }
+  S.io=st.utente;
+  if(!["admin","contabilita"].includes(S.io.ruolo)){ $("#app").innerHTML=`<div id="login"><h1>Non è il tuo pannello</h1><p>Questo pannello è per l'amministrazione e la contabilità. Chiedi a Gianluca di darti il ruolo <b>Contabilità</b>.</p><a class="btn pri big" href="/gestione/">Torna all'app del negozio</a></div>`; return; }
+  scheletro();
+  try{ S.st=await C("stato"); }catch(e){ $("main").innerHTML=`<div class="banner ko">Non riesco a leggere i conti: ${esc(e.message)}</div>`; return; }
+  window.addEventListener("hashchange",()=>{ leggiHash(); render(); });
+  leggiHash(); render();
+}
+function login(){
+  const em=localStorage.getItem("semi-email")||"";
+  $("#app").innerHTML=`<div id="login"><div style="display:flex;gap:12px;align-items:center;margin-bottom:18px">${logo(48)}<div><b style="font-size:19px">SEMI · Contabilità</b><div class="mut sm">I conti dell'azienda, in un posto solo</div></div></div><div id="lb"></div></div>`;
+  const B=$("#lb");
+  const passoE=msg=>{ B.innerHTML=`<h1>Entra</h1><p>Scrivi la tua email: ti mandiamo un codice di 6 cifre.</p>${msg?`<div class="banner ok">${msg}</div>`:""}<div class="banner ko" id="le" style="display:none"></div>
+    <input id="lE" type="email" inputmode="email" autocomplete="email" placeholder="nome@email.it" value="${esc(em)}"><button class="btn pri big" id="lS">Mandami il codice</button><button class="btn" style="margin-top:8px;border:0" id="lH">Ho già un codice</button>`;
+    const e=$("#lE"); setTimeout(()=>e.focus(),50);
+    const vai=async()=>{ const v=e.value.trim().toLowerCase(); if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return err("Scrivi un'email valida"); $("#lS").disabled=true;
+      try{ await post("codice",{email:v}); localStorage.setItem("semi-email",v); passoC(v,true); }catch(x){ err(x.message); $("#lS").disabled=false; } };
+    $("#lS").onclick=vai; e.onkeydown=k=>k.key==="Enter"&&vai(); $("#lH").onclick=()=>{ const v=e.value.trim().toLowerCase(); if(!v) return err("Scrivi prima la tua email"); localStorage.setItem("semi-email",v); passoC(v,false); }; };
+  const passoC=(v,inv)=>{ B.innerHTML=`<h1>Il tuo codice</h1><p>${inv?`Ti abbiamo mandato un'email a <b>${esc(v)}</b> (guarda anche nello spam).`:"Scrivi il codice che ti ha dato Gianluca."}</p><div class="banner ko" id="le" style="display:none"></div>
+    <input id="lC" class="cod" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"><button class="btn pri big" id="lK">Entra</button><button class="btn" style="margin-top:8px;border:0" id="lX">Cambia email o rimanda il codice</button>`;
+    const c=$("#lC"); setTimeout(()=>c.focus(),50);
+    const vai=async()=>{ const co=c.value.replace(/\D/g,""); if(co.length!==6) return err("Il codice ha 6 cifre"); $("#lK").disabled=true;
+      try{ await post("entra",{email:v,codice:co}); location.reload(); }catch(x){ err(x.message); $("#lK").disabled=false; } };
+    c.oninput=()=>c.value.replace(/\D/g,"").length===6&&vai(); $("#lK").onclick=vai; $("#lX").onclick=()=>passoE(); };
+  const err=t=>{ const e=$("#le"); e.textContent=t; e.style.display="block"; };
+  passoE();
+}
+const logo=(s=36)=>`<svg viewBox="0 0 48 48" width="${s}" height="${s}"><polygon points="24,2 43,13 43,35 24,46 5,35 5,13" fill="#f5b800"/><polygon points="24,9 37,16.5 37,31.5 24,39 11,31.5 11,16.5" fill="#15171a"/><text x="24" y="31" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="19" fill="#f5b800">S</text></svg>`;
+
+/* ---------------- struttura ---------------- */
+const VOCI=[["riepilogo","Riepilogo","home"],["documenti","Documenti","doc"],["clienti","Clienti","users"],["incassi","Incassi","euro"],["commercialista","Per il commercialista","send"],
+  ["sep"],["articoli","Articoli","box"],["anni","Confronto anni","chart"],["carica","Carica dati","up"],["modifiche","Modifiche fatte","clock"]];
+function scheletro(){
+  $("#app").innerHTML=`<header id="top"><a class="lg" href="#riepilogo">${logo(34)}<div><b>SEMI · Contabilità</b><small>Tutti i numeri dell'azienda</small></div></a>
+   <div id="cerca">${`<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><use href="#i-search"/></svg>`}<input id="q" type="search" autocomplete="off" placeholder="Cerca cliente, numero documento, codice articolo o importo"><div id="sug"></div></div>
+   <div class="chi"><span>${esc(S.io.nome)}</span>${S.io.ruolo==="admin"?`<a class="btn" style="background:#2a2d33;color:#fff;border:0;padding:8px 12px" href="/gestione/">App negozio</a>`:""}<button onclick="esci()">Esci</button></div></header>
+   <div id="wrap"><nav id="nav">${VOCI.map(v=>v[0]==="sep"?`<div class="sep"></div>`:`<a href="#${v[0]}" data-v="${v[0]}">${ic(v[2])}<span>${v[1]}</span></a>`).join("")}
+    <div class="sep"></div><div class="nt" id="navNt"></div></nav><main id="main"></main></div>
+   <nav id="bb">${[["riepilogo","Riepilogo","home"],["documenti","Documenti","doc"],["clienti","Clienti","users"],["commercialista","Commercialista","send"],["altro","Altro","more"]].map(v=>`<a href="#${v[0]}" data-v="${v[0]}">${ic(v[2])}<span>${v[1]}</span></a>`).join("")}</nav>`;
+  cercaGlobale();
+}
+async function esci(){ try{ await post("esci"); }catch(e){} location.href="/gestione/conti/"; }
+function leggiHash(){ const h=decodeURIComponent(location.hash.slice(1)||"riepilogo"); const [v,...r]=h.split("/"); S.view=v||"riepilogo"; S.arg=r.join("/"); }
+function vai(v,arg){ location.hash=v+(arg?"/"+encodeURIComponent(arg):""); }
+function render(){
+  $$("#nav a,#bb a").forEach(a=>a.classList.toggle("on",a.dataset.v===S.view||(S.view==="cliente"&&a.dataset.v==="clienti")||(a.dataset.v==="altro"&&["articoli","anni","carica","modifiche","incassi","altro"].includes(S.view))));
+  const d=S.st?.danea; $("#navNt").innerHTML=d?`Danea: documenti dal ${gma(d.da)} al ${gma(d.a)}. Dopo, i dati arrivano dall'app.`:"";
+  const f={riepilogo:vRiepilogo,documenti:vDocumenti,clienti:vClienti,cliente:vCliente,incassi:vIncassi,commercialista:vCommercialista,articoli:vArticoli,anni:vAnni,carica:vCarica,modifiche:vModifiche,altro:vAltro}[S.view]||vRiepilogo;
+  window.scrollTo(0,0); f();
+}
+const M=()=>$("#main");
+const caricando=t=>`<div class="load">${t||"Carico i numeri…"}</div>`;
+const errore=e=>`<div class="banner ko">Qualcosa non va: ${esc(e.message||e)}. <a href="#" onclick="render();return false">Riprova</a></div>`;
+function badge(t){ return `<span class="bd ${esc(t)}">${esc(TIPI[t]||t)}</span>`; }
+function statoPag(r){ if(r.verso!=="vendita") return ""; if(r.pagato===1) return `<span class="st ok">✓ Pagato${r.pagatoIl?" "+gma(r.pagatoIl):""}</span>`;
+  if(r.pagato===0){ const sc=r.scadenza&&r.scadenza<OGGI(); return `<span class="st ${sc?"ko":"wa"}">${sc?"Scaduto":"Da incassare"}${r.scadenza?" · "+gma(r.scadenza):""}</span>`; } return `<span class="mut sm">—</span>`; }
+const imponibile=r=>r.fimp!=null?r.fimp:r.imp, totale=r=>r.ftot!=null?r.ftot:(r.imp!=null?r2(r.imp*1.22):null), ivaDi=r=>r.fiva!=null?r.fiva:(r.imp!=null?r2(r.imp*0.22):null);
+
+/* ---------------- ricerca in alto ---------------- */
+function cercaGlobale(){
+  const i=$("#q"), s=$("#sug"); let t0, sel=-1;
+  const chiudiS=()=>{ s.classList.remove("on"); sel=-1; };
+  i.oninput=()=>{ clearTimeout(t0); const t=i.value.trim(); if(t.length<2) return chiudiS(); t0=setTimeout(async()=>{
+    const codice=/^[A-Z0-9][A-Z0-9-]{3,}$/i.test(t)&&/\d/.test(t), importo=/^[\d.,€\s]+$/.test(t);
+    let cl=[]; if(!importo){ try{ cl=(await C("clienti",{da:"2000-01-01",a:"2999-12-31",q:t})).righe.slice(0,6); }catch(e){} }
+    if(i.value.trim()!==t) return;
+    s.innerHTML=`<div class="gh">Cerca</div><button data-go="doc">${ic("doc")}<span>Documenti con <b>${esc(t)}</b>${importo?" (importo)":codice?" (anche codice articolo)":""}</span></button>
+      ${codice?`<button data-go="art">${ic("box")}<span>Articolo <b class="mono">${esc(t.toUpperCase())}</b>: chi l'ha comprato e quanto</span></button>`:""}
+      ${cl.length?`<div class="gh">Clienti</div>${cl.map(c=>`<button data-cli="${esc(c.cli||"")}" data-nome="${esc(c.nome)}">${ic("users")}<span><b>${esc(c.nome)}</b> <span class="mut sm">${esc(c.citta||"")} · ${eur0(c.v)} in tutto</span></span></button>`).join("")}`:""}`;
+    s.classList.add("on");
+    s.querySelectorAll("button").forEach(b=>b.onmousedown=e=>{ e.preventDefault(); scegli(b); }); },220); };
+  const scegli=b=>{ const t=i.value.trim(); chiudiS(); i.blur();
+    if(b.dataset.go==="doc"){ S.doc={...S.doc,q:t,tipo:"",stato:""}; if(S.per.k!=="tutto") S.per=periodo("tutto"); vai("documenti"); if(S.view==="documenti") render(); }
+    else if(b.dataset.go==="art"){ S.art.q=t; if(S.per.k!=="tutto") S.per=periodo("tutto"); vai("articoli"); if(S.view==="articoli") render(); }
+    else vai("cliente",(b.dataset.cli||"")+"|"+b.dataset.nome); };
+  i.onkeydown=e=>{ const bs=[...s.querySelectorAll("button")];
+    if(e.key==="ArrowDown"||e.key==="ArrowUp"){ e.preventDefault(); sel=(sel+(e.key==="ArrowDown"?1:-1)+bs.length)%bs.length; bs.forEach((b,k)=>b.classList.toggle("sel",k===sel)); }
+    else if(e.key==="Enter"){ e.preventDefault(); if(bs[sel]) scegli(bs[sel]); else if(i.value.trim().length>=1){ S.doc={...S.doc,q:i.value.trim(),tipo:"",stato:""}; if(S.per.k!=="tutto") S.per=periodo("tutto"); chiudiS(); vai("documenti"); if(S.view==="documenti") render(); } }
+    else if(e.key==="Escape"){ chiudiS(); i.blur(); } };
+  i.onblur=()=>setTimeout(chiudiS,150);
+}
+
+/* ---------------- grafico a barre (periodo vs anno prima) ---------------- */
+function grafico(etichette,serie,opt={}){ // serie: [{nome,colore,valori:[]}]
+  const W=opt.w||760,H=opt.h||250,pl=54,pr=8,pt=10,pb=28, n=etichette.length, max=Math.max(1,...serie.flatMap(s=>s.valori.map(v=>N(v))));
+  const sc=niceMax(max), y=v=>pt+(H-pt-pb)*(1-N(v)/sc), gw=(W-pl-pr)/Math.max(1,n), ns=serie.length, bw=Math.max(3,Math.min(28,(gw-8)/ns-2));
+  let g=""; for(let k=0;k<=4;k++){ const v=sc*k/4, yy=y(v); g+=`<line class="gr" x1="${pl}" x2="${W-pr}" y1="${yy}" y2="${yy}"/><text class="ax" x="${pl-8}" y="${yy+4}" text-anchor="end">${kE(v).replace(" €","")}</text>`; }
+  let b="", hit="";
+  etichette.forEach((et,i)=>{ const x0=pl+gw*i+(gw-(bw+2)*ns+2)/2;
+    serie.forEach((s,j)=>{ const v=N(s.valori[i]); if(v<=0) return; const x=x0+j*(bw+2), yy=y(v), h=Math.max(1,H-pb-yy), r=Math.min(4,bw/2,h);
+      b+=`<path d="M${x},${H-pb}V${yy+r}Q${x},${yy} ${x+r},${yy}H${x+bw-r}Q${x+bw},${yy} ${x+bw},${yy+r}V${H-pb}Z" fill="${s.colore}"/>`; });
+    if(n<=16||i%Math.ceil(n/16)===0) g+=`<text class="ax" x="${pl+gw*i+gw/2}" y="${H-8}" text-anchor="middle">${esc(et)}</text>`;
+    hit+=`<rect x="${pl+gw*i}" y="${pt}" width="${gw}" height="${H-pt-pb}" fill="transparent" data-i="${i}"/>`; });
+  const id="g"+Math.random().toString(36).slice(2,8);
+  setTimeout(()=>{ const el=document.getElementById(id); if(!el) return; const tip=el.querySelector(".tip");
+    el.querySelectorAll("rect[data-i]").forEach(r=>{ r.onmousemove=e=>{ const i=+r.dataset.i, bx=el.getBoundingClientRect();
+      tip.innerHTML=`<div style="margin-bottom:3px">${esc(opt.tit?opt.tit[i]:etichette[i])}</div>`+serie.map(s=>`<div><i style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${s.colore};margin-right:6px"></i>${esc(s.nome)}: <b>${eur0(s.valori[i])}</b></div>`).join("")+(serie.length===2&&N(serie[1].valori[i])?`<div style="color:#c3c7ce;margin-top:2px">differenza ${dl(delta(serie[0].valori[i],serie[1].valori[i]))}</div>`:"");
+      tip.style.display="block"; tip.style.left=(e.clientX-bx.left)+"px"; tip.style.top=(e.clientY-bx.top)+"px"; }; r.onmouseleave=()=>tip.style.display="none";
+      if(opt.click) r.onclick=()=>opt.click(+r.dataset.i), r.style.cursor="pointer"; }); },0);
+  return `${serie.length>1?`<div class="leg">${serie.map(s=>`<span><i style="background:${s.colore}"></i>${esc(s.nome)}</span>`).join("")}</div>`:""}<div class="ch" id="${id}"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opt.aria||"grafico")}">${g}${b}${hit}</svg><div class="tip"></div></div>`; }
+function niceMax(v){ const p=Math.pow(10,Math.floor(Math.log10(v))), m=v/p; return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*p; }
+
+/* ---------------- RIEPILOGO ---------------- */
+async function vRiepilogo(){
+  const P=S.per, ora=new Date().getHours(), saluto=ora<13?"Buongiorno":ora<18?"Buon pomeriggio":"Buonasera";
+  M().innerHTML=`<div class="ph"><div><h1>${saluto}, ${esc(S.io.nome.split(" ")[0])}</h1><p>Ecco come sta andando Semi: tocca un numero per vedere i documenti che lo compongono. Gli importi sono <b>IVA esclusa</b>, se non è scritto diversamente.</p></div></div>
+   ${barraPeriodo()}
+   <div class="ask noprint">${[["Quanto abbiamo venduto questo mese?","mese","venduto"],["Chi deve ancora pagare?","","incassi"],["I 10 clienti migliori dell'anno","anno","clienti"],["Quante riparazioni abbiamo fatto quest'anno?","anno","riparazioni"],["Come va rispetto all'anno scorso?","","anni"],["Prepara i file per il commercialista","","commercialista"]].map(([t,p,g],k)=>`<button data-ask="${k}">💬 ${t}</button>`).join("")}</div>
+   <div id="rB">${caricando()}</div>`;
+  legaPeriodo();
+  $$("[data-ask]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.ask;
+    if(k===0){ S.per=periodo("mese"); sessionStorage.setItem("conti-per",JSON.stringify(S.per)); render(); }
+    if(k===1) vai("incassi"); if(k===2){ S.per=periodo("anno"); vai("clienti"); }
+    if(k===3){ S.per=periodo("anno"); S.doc={tipo:"riparazioni",stato:"",q:"",ordina:"data"}; vai("documenti"); } if(k===4) vai("anni"); if(k===5) vai("commercialista"); });
+  let R; try{ R=await C("riepilogo",{da:P.da,a:P.a}); }catch(e){ $("#rB").innerHTML=errore(e); return; }
+  if(S.view!=="riepilogo") return;
+  const o=R.ora||{}, p=R.prima||{}, vuoto=!N(o.nvend)&&!N(o.nacquisti);
+  const tile=(cls,t,v,s,dv,go)=>`<button class="kpi ${cls}" data-go='${JSON.stringify(go)}'><div class="t">${t}</div><div class="v">${v}</div><div class="s">${dv!=null?dl(dv)+" ":""}${s}</div></button>`;
+  const ap=R.aperti||{};
+  const confr=P.k==="tutto"?"":` rispetto allo stesso periodo dell'anno prima (${eur0(p.venduto)})`;
+  $("#rB").innerHTML=`${vuoto?`<div class="banner info">In questo periodo non ci sono documenti. Prova "Quest'anno" o "Anno scorso".</div>`:""}
+   <div class="kpis">
+    ${tile("main","Venduto",eur0(o.venduto),nf(o.nvend)+" documenti"+confr,P.k==="tutto"?null:delta(o.venduto,p.venduto),{tipo:"vendite"})}
+    ${tile("","Fatture",eur0(o.fatture),nf(o.nfatture)+" fatture"+(N(o.nnote)?" · "+nf(o.nnote)+" note di credito ("+eur0(o.note)+")":""),P.k==="tutto"?null:delta(o.fatture,p.fatture),{tipo:"fatture"})}
+    ${tile("","Vendite al banco",eur0(o.banco),nf(o.nbanco)+" scontrini / vendite",P.k==="tutto"?null:delta(o.banco,p.banco),{tipo:"banco"})}
+    ${tile("","Riparazioni",nf(o.nriparazioni),eur0(o.riparazioni)+" di lavori",P.k==="tutto"?null:delta(o.nriparazioni,p.nriparazioni),{tipo:"riparazioni"})}
+    ${tile("","DDT",eur0(o.ddt),nf(o.nddt)+" documenti di trasporto",P.k==="tutto"?null:delta(o.ddt,p.ddt),{tipo:"ddt"})}
+    ${tile("","Ordini e vendite dall'app",eur0(o.ordini),nf(o.nordini)+" ordini (negozio, sito, TikTok…)",null,{tipo:"ordini"})}
+    ${tile("","Acquisti dai fornitori",eur0(o.acquisti),N(o.nacquisti)?nf(o.nacquisti)+" fatture ricevute":"carica le fatture ricevute in “Carica dati”",P.k==="tutto"?null:delta(o.acquisti,p.acquisti),{tipo:"acquisti"})}
+    ${tile(N(ap.scad)?"warn":"","Da incassare (IVA inclusa)",eur0(ap.v),N(ap.scad)?`<b class="down">${eur0(ap.scad)} scaduti</b> · ${nf(ap.n)} documenti`:nf(ap.n)+" documenti",null,{vista:"incassi"})}
+    ${tile("","Clienti che hanno comprato",nf(o.clienti),"nel periodo",P.k==="tutto"?null:delta(o.clienti,p.clienti),{vista:"clienti"})}
+   </div>
+   <div class="grid g2" style="margin-top:14px">
+    <div class="card" style="grid-column:1/-1"><div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><h2>Venduto mese per mese</h2><span class="mut sm">${P.k==="tutto"?"":"blu = periodo scelto, arancione = stesso periodo dell'anno prima · "}tocca un mese per vederne i documenti</span><span style="flex:1"></span><button class="btn noprint" id="tabM">Vedi come tabella</button></div>
+     <div id="gM" style="margin-top:8px"></div></div>
+    <div class="card"><div style="display:flex;align-items:center"><h2>Migliori clienti</h2><span style="flex:1"></span><a href="#clienti" class="sm">tutti →</a></div><div class="lst" style="margin-top:8px">${listaClienti(R.clienti)}</div></div>
+    <div class="card"><div style="display:flex;align-items:center"><h2>Articoli più venduti</h2><span style="flex:1"></span><a href="#articoli" class="sm">tutti →</a></div><div class="lst" style="margin-top:8px">${listaArticoli(R.articoli)}</div>
+     <p class="mut sm" style="margin:8px 0 0">Dai documenti Danea (righe con codice).</p></div>
+    <div class="card"><h2>Da dove arriva il venduto</h2><div class="lst" style="margin-top:8px">${(R.perTipo||[]).map(t=>`<div class="it" data-tipo="${esc(t.tipo)}"><div class="x"><b>${esc(TIPI[t.tipo]||t.tipo)}</b><div class="bar"><i style="width:${Math.max(1,N(t.v)/Math.max(1,N(o.venduto))*100)}%"></i></div></div><div class="num"><b>${eur0(t.v)}</b><div class="mut sm">${nf(t.n)} doc.</div></div></div>`).join("")||`<div class="empty">Nessuna vendita</div>`}</div>
+     ${(R.perCanale||[]).length?`<h3 style="margin-top:14px">Ordini dell'app per canale</h3><div class="lst">${R.perCanale.map(c=>`<div class="it nc"><div class="x"><b>${esc(c.canale)}</b></div><div class="num"><b>${eur0(c.v)}</b><div class="mut sm">${nf(c.n)} ordini</div></div></div>`).join("")}</div>`:""}</div>
+    <div class="card"><div style="display:flex;align-items:center"><h2>Anno per anno</h2><span style="flex:1"></span><a href="#anni" class="sm">confronta →</a></div><div id="gA" style="margin-top:8px"></div></div>
+   </div>
+   <p class="mut sm" style="margin-top:14px">Venduto = fatture, vendite al banco, DDT, riparazioni e ordini, meno le note di credito, contando ogni riga una volta sola (un rapporto d'intervento poi messo in DDT e in fattura vale una volta). ${S.st?.danea?`Documenti Danea fino al ${gma(S.st.danea.a)}; dopo, dall'app.`:""}</p>`;
+  // mesi
+  const mesiP=[], cur={}, prv={}; (R.mesi||[]).forEach(x=>{ if(x.m>=R.da.slice(0,7)&&x.m<=R.a.slice(0,7)) cur[x.m]=x.v; else prv[x.m]=x.v; });
+  let da=R.da, a=R.a; if(P.k==="tutto"){ const ks=Object.keys(cur).sort(); da=(ks[0]||OGGI().slice(0,7))+"-01"; a=(ks[ks.length-1]||OGGI().slice(0,7))+"-01"; }
+  for(let d=new Date(+da.slice(0,4),+da.slice(5,7)-1,1); iso(d).slice(0,7)<=a.slice(0,7)&&mesiP.length<240; d=new Date(d.getFullYear(),d.getMonth()+1,1)) mesiP.push(iso(d).slice(0,7));
+  const tutti=mesiP.length>36;
+  const etM=mesiP.map(m=>MESI[+m.slice(5)-1]+(mesiP.length>12||P.k==="tutto"?" "+m.slice(2,4):"")), titM=mesiP.map(m=>MESIL[+m.slice(5)-1]+" "+m.slice(0,4));
+  const prevKey=m=>(+m.slice(0,4)-1)+m.slice(4);
+  const serie=[{nome:P.lb,colore:"#257de0",valori:mesiP.map(m=>cur[m]||0)}]; if(P.k!=="tutto"&&!tutti) serie.push({nome:"anno prima",colore:"#f47230",valori:mesiP.map(m=>prv[prevKey(m)]||0)});
+  const clickM=i=>{ const m=mesiP[i], fine=iso(new Date(+m.slice(0,4),+m.slice(5,7),0)); S.doc={tipo:"vendite",stato:"",q:"",ordina:"data"}; S.per=periodo("date",m+"-01",fine); sessionStorage.setItem("conti-per",JSON.stringify(S.per)); vai("documenti"); };
+  const disM=()=>{ $("#gM").innerHTML=grafico(etM,serie,{tit:titM,click:clickM,aria:"venduto per mese"}); }; disM();
+  $("#tabM").onclick=()=>{ const t=$("#tabM"); if(t.dataset.t){ t.dataset.t=""; t.textContent="Vedi come tabella"; disM(); return; } t.dataset.t=1; t.textContent="Vedi il grafico";
+    $("#gM").innerHTML=`<div class="tw"><table><thead><tr><th>Mese</th><th class="num">Venduto</th>${serie[1]?`<th class="num">Anno prima</th><th class="num">Differenza</th>`:""}</tr></thead><tbody>${mesiP.map((m,i)=>`<tr data-mi="${i}"><td>${esc(titM[i])}</td><td class="num">${eur(serie[0].valori[i])}</td>${serie[1]?`<td class="num">${eur(serie[1].valori[i])}</td><td class="num">${dl(delta(serie[0].valori[i],serie[1].valori[i]))}</td>`:""}</tr>`).join("")}</tbody></table></div>`;
+    $$("[data-mi]").forEach(r=>r.onclick=()=>clickM(+r.dataset.mi)); };
+  const an=(R.anni||[]).filter(x=>x.anno>="2017"); $("#gA").innerHTML=an.length?grafico(an.map(x=>x.anno),[{nome:"Venduto",colore:"#257de0",valori:an.map(x=>x.v)}],{h:220,w:420,click:i=>setPer(periodo("y"+an[i].anno)),aria:"venduto per anno"}):`<div class="empty">Nessun dato</div>`;
+  $$("#rB [data-go]").forEach(b=>b.onclick=()=>{ const g=JSON.parse(b.dataset.go); if(g.vista) return vai(g.vista); S.doc={tipo:g.tipo,stato:"",q:"",ordina:"data"}; vai("documenti"); });
+  legaListe();
+  $$("#rB [data-tipo]").forEach(b=>b.onclick=()=>{ const m={fattura:"fatture",nota:"note",banco:"banco",ddt:"ddt",riparazione:"riparazioni",ordine:"ordini"}; S.doc={tipo:m[b.dataset.tipo]||"vendite",stato:"",q:"",ordina:"data"}; vai("documenti"); });
+}
+function listaClienti(l){ const mx=Math.max(1,...(l||[]).map(c=>N(c.v))); return (l||[]).map((c,i)=>`<div class="it" data-cli="${esc(c.cli||"")}" data-nome="${esc(c.nome)}"><div class="n">${i+1}</div><div class="x"><b>${esc(c.nome)}</b><div class="bar"><i style="width:${N(c.v)/mx*100}%"></i></div></div><div class="num"><b>${eur0(c.v)}</b><div class="mut sm">${nf(c.n)} doc.</div></div></div>`).join("")||`<div class="empty">Nessun cliente nel periodo</div>`; }
+function listaArticoli(l){ const mx=Math.max(1,...(l||[]).map(c=>N(c.v))); return (l||[]).map((a,i)=>`<div class="it" data-art="${esc(a.cod)}"><div class="n">${i+1}</div><div class="x"><b><span class="mono">${esc(a.cod)}</span> <span class="mut" style="font-weight:500">${esc(a.descr||"")}</span></b><div class="bar"><i style="width:${N(a.v)/mx*100}%"></i></div></div><div class="num"><b>${eur0(a.v)}</b><div class="mut sm">${nf(a.qta)} pz</div></div></div>`).join("")||`<div class="empty">Nessun articolo nel periodo</div>`; }
+function legaListe(){ $$("[data-cli][data-nome]").forEach(b=>{ if(b.tagName==="BUTTON"&&b.closest("#sug")) return; b.onclick=()=>vai("cliente",b.dataset.cli+"|"+b.dataset.nome); });
+  $$("[data-art]").forEach(b=>b.onclick=()=>{ S.art.q=b.dataset.art; vai("articoli"); }); }
+
+/* ---------------- DOCUMENTI ---------------- */
+const GRUPPI=[["","Tutti"],["vendite","Vendite"],["fatture","Fatture e note"],["banco","Banco"],["riparazioni","Riparazioni"],["ddt","DDT"],["ordini","Ordini app"],["acquisti","Acquisti e spese"],["arrivi","Arrivi merce"],["preventivi","Preventivi"],["spese","Scritti a mano"]];
+async function vDocumenti(){
+  const D=S.doc;
+  M().innerHTML=`<div class="ph"><div><h1>Documenti</h1><p>Fatture, vendite al banco, DDT, riparazioni, ordini, acquisti: tutto quello che Semi ha fatto. Tocca un documento per vederlo, correggerlo o segnarlo pagato.</p></div><span class="sp"></span>
+    <button class="btn" id="dXls">${ic("down")}Scarica in Excel</button><button class="btn pri" id="dNew">${ic("plus")}Scrivi un documento</button></div>
+   ${barraPeriodo()}
+   <div class="chips" style="margin-bottom:10px">${GRUPPI.map(([k,t])=>`<button class="chip ${D.tipo===k?"on":""}" data-gt="${k}">${t}</button>`).join("")}</div>
+   <div class="tools"><input type="search" id="dQ" placeholder="Cerca: cliente, numero, P.IVA, note, importo (es. 122,00) o codice articolo" value="${esc(D.q)}">
+    <select id="dS"><option value="">Tutti gli stati</option><option value="aperti" ${D.stato==="aperti"?"selected":""}>Da incassare</option><option value="scaduti" ${D.stato==="scaduti"?"selected":""}>Scaduti</option><option value="pagati" ${D.stato==="pagati"?"selected":""}>Pagati</option><option value="modificati" ${D.stato==="modificati"?"selected":""}>Corretti a mano</option></select>
+    <select id="dO"><option value="data">Più recenti</option><option value="dataAsc" ${D.ordina==="dataAsc"?"selected":""}>Più vecchi</option><option value="importo" ${D.ordina==="importo"?"selected":""}>Importo più alto</option><option value="nome" ${D.ordina==="nome"?"selected":""}>Cliente A→Z</option><option value="scadenza" ${D.ordina==="scadenza"?"selected":""}>Scadenza</option></select></div>
+   <div id="dT"></div><div id="dL">${caricando()}</div>`;
+  legaPeriodo();
+  $$("[data-gt]").forEach(b=>b.onclick=()=>{ D.tipo=b.dataset.gt; vDocumenti(); });
+  let t0; $("#dQ").oninput=e=>{ clearTimeout(t0); t0=setTimeout(()=>{ D.q=e.target.value.trim(); carica(true); },300); };
+  $("#dS").onchange=e=>{ D.stato=e.target.value; carica(true); }; $("#dO").onchange=e=>{ D.ordina=e.target.value; carica(true); };
+  $("#dNew").onclick=()=>nuovoDoc(); $("#dXls").onclick=()=>scaricaElenco();
+  let off=0, righe=[];
+  async function carica(reset){ if(reset){ off=0; righe=[]; $("#dL").innerHTML=caricando(); }
+    let r; try{ r=await C("docs",{da:S.per.da,a:S.per.a,tipo:D.tipo,stato:D.stato,q:D.q,ordina:D.ordina,off,n:100}); }catch(e){ $("#dL").innerHTML=errore(e); return; }
+    righe=righe.concat(r.righe); off+=r.righe.length; const T=r.tot||{};
+    $("#dT").innerHTML=`<div class="tot"><div>Documenti<b>${nf(T.n)}</b></div><div>Imponibile<b>${eur(T.imp)}</b></div><div>IVA<b>${eur(T.iva)}</b></div><div>Totale<b>${eur(T.tot)}</b></div></div>`;
+    $("#dL").innerHTML=righe.length?`<div class="tw cards"><table><thead><tr><th>Data</th><th>Documento</th><th>Cliente / fornitore</th><th class="num">Imponibile</th><th class="num">Totale</th><th>Pagamento</th></tr></thead><tbody>${righe.map(rigaDoc).join("")}</tbody></table></div>
+      ${off<N(T.n)?`<div style="text-align:center;margin-top:12px"><button class="btn" id="dMore">Mostra altri ${nf(Math.min(100,N(T.n)-off))} (di ${nf(N(T.n)-off)} rimasti)</button></div>`:""}`:`<div class="card empty">Nessun documento con questi filtri.${D.q?` <a href="#" id="dAll">Cerca "${esc(D.q)}" in tutti gli anni</a>`:""}</div>`;
+    $$("#dL tr[data-id]").forEach(tr=>tr.onclick=()=>apriDoc(tr.dataset.id,()=>carica(true)));
+    if($("#dMore")) $("#dMore").onclick=()=>carica(false); if($("#dAll")) $("#dAll").onclick=e=>{ e.preventDefault(); setPer(periodo("tutto")); }; }
+  carica(true);
+}
+function rigaDoc(r){ const ft=r.fimp!=null||r.fonte!=="danea";
+  return `<tr data-id="${esc(r.id)}"><td data-h="" class="hm">${gma(r.data)}</td><td class="c1">${badge(r.tipo)} <b>${esc(r.num||"")}</b> <span class="mut sm">${esc(window.innerWidth<700?gma(r.data):"")}${r.mod?" · ✎ corretto":""}</span></td>
+   <td class="c1"><b>${esc(r.nome||"—")}</b>${r.piva?` <span class="mut sm">P.IVA ${esc(r.piva)}</span>`:""}${r.canale?` <span class="mut sm">· ${esc(r.canale)}</span>`:""}</td>
+   <td class="num" data-h="Imp.">${eur(imponibile(r))}</td><td class="num" data-h="Tot." title="${ft?"":"IVA calcolata al 22%"}">${eur(totale(r))}${ft?"":"<span class='mut'>*</span>"}</td><td>${statoPag(r)}</td></tr>`; }
+async function scaricaElenco(){ toast("Preparo il file…"); try{ await XLSXlib(); const tutte=await tuttiDocs({da:S.per.da,a:S.per.a,tipo:S.doc.tipo,stato:S.doc.stato,q:S.doc.q,ordina:"dataAsc"});
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,foglio(intestDoc,tutte.map(rowDoc)),"Documenti");
+    salvaFile(`SEMI_documenti_${S.per.da}_${S.per.a}.xlsx`,new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})])); toast(nf(tutte.length)+" documenti scaricati"); }catch(e){ toast("Errore: "+e.message,5000); } }
+async function tuttiDocs(par,prog){ let off=0, out=[], tot=1; while(off<tot){ const r=await C("docs",{...par,off,n:3000}); out=out.concat(r.righe); tot=N(r.tot?.n); off+=r.righe.length; if(prog) prog(off,tot); if(!r.righe.length) break; } return out; }
+
+/* ---------------- dettaglio documento ---------------- */
+function apri(tit,html){ $("#mT").innerHTML=tit; $("#mB").innerHTML=html; $("#mod").classList.add("on"); document.body.style.overflow="hidden"; }
+function chiudi(){ $("#mod").classList.remove("on"); document.body.style.overflow=""; }
+$("#mod").addEventListener("click",e=>{ if(e.target.id==="mod") chiudi(); }); addEventListener("keydown",e=>{ if(e.key==="Escape") chiudi(); });
+async function apriDoc(id,dopo){
+  apri("Documento",caricando("Apro il documento…"));
+  let R; try{ R=await C("doc",{id}); }catch(e){ $("#mB").innerHTML=errore(e); return; }
+  const r=R.doc, vend=r.verso==="vendita", esatto=r.fimp!=null&&r.fonte==="danea"||r.fonte!=="danea", incl=r.fonte==="danea"&&r.fimp!=null&&r.imp!=null&&Math.abs(r.fimp-r.imp)>0.5;
+  $("#mT").innerHTML=`${badge(r.tipo)} <b style="font-size:17px">${esc(r.num||"senza numero")}</b> <span class="mut">del ${gma(r.data)}</span>`;
+  $("#mB").innerHTML=`${r.nasc?`<div class="banner ko">Questo documento è <b>escluso dai conti</b>.</div>`:""}
+   <div class="card"><div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start"><div style="flex:1;min-width:220px"><div class="mut sm">${vend?"Cliente":"Fornitore"}</div><div style="font-size:19px;font-weight:700">${esc(r.nome||"—")}</div>
+     <div class="mut sm">${[r.piva&&"P.IVA "+r.piva,r.cf&&r.cf!==r.piva&&"C.F. "+r.cf,r.citta&&r.citta+(r.prov?" ("+r.prov+")":""),r.sdi&&"SDI "+r.sdi,r.pec&&"PEC "+r.pec].filter(Boolean).map(esc).join(" · ")}</div>
+     ${r.cli||r.nome?`<a href="#" id="xCli" class="sm">Tutti i documenti di questo ${vend?"cliente":"fornitore"} →</a>`:""}</div>
+     <div class="sm mut" style="text-align:right">Fonte: <b>${esc(FONTI[r.fonte]||r.fonte)}</b>${r.canale?"<br>Canale: "+esc(r.canale):""}${r.chi?"<br>Ultima modifica: "+esc(r.chi):""}</div></div>
+    <div class="amt" style="margin-top:14px"><div><small>Imponibile</small><b>${eur(imponibile(r))}</b></div><div><small>IVA</small><b>${eur(ivaDi(r))}</b></div><div><small>Totale</small><b>${eur(totale(r))}</b></div></div>
+    ${!esatto?`<p class="mut sm" style="margin:10px 0 0">Importo dalle righe con codice di Danea; l'IVA è calcolata al 22%. Per gli importi esatti carica le fatture elettroniche in “Carica dati”.</p>`:""}
+    ${incl?`<p class="mut sm" style="margin:10px 0 0">Questa fattura comprende DDT o rapporti d'intervento: nelle statistiche le loro righe sono già contate lì (${eur(r.imp)} di righe proprie).</p>`:""}
+    ${vend?`<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${statoPag(r)}<span style="flex:1"></span>${r.pagato!==1?`<button class="btn ok" id="xPag">${ic("check")}È stato pagato oggi</button>`:""}${r.pagato!==0?`<button class="btn" id="xApe">Da incassare</button>`:""}</div>`:""}</div>
+   ${R.righe.length?`<div class="card"><h3 style="margin-bottom:8px">Righe (${nf(R.righe.length)}) · prezzi IVA esclusa</h3><div class="tw" style="max-height:340px"><table><thead><tr><th>Codice</th><th>Descrizione</th><th class="num">Q.tà</th><th class="num">Prezzo</th><th>Sconti</th><th class="num">Totale</th></tr></thead><tbody>${R.righe.map(x=>`<tr class="nc"><td class="mono">${esc(x.cod||"")}</td><td>${esc(x.descr||"")}</td><td class="num">${nf(x.qta)}</td><td class="num">${eur(x.prezzo)}</td><td>${esc(x.sconti||"")}</td><td class="num">${eur(x.tot)}</td></tr>`).join("")}</tbody></table></div></div>`:""}
+   <div class="card"><h3 style="margin-bottom:12px">Correggi i dati</h3><div class="fm">
+    <label>Data<input type="date" id="fData" value="${esc(r.data||"")}"></label><label>Numero<input id="fNum" value="${esc(r.num||"")}"></label>
+    <label class="w">${vend?"Cliente":"Fornitore"}<input id="fNome" value="${esc(r.nome||"")}"></label>
+    <label>Partita IVA / C.F.<input id="fPiva" value="${esc(r.piva||"")}"></label><label>Tipo<select id="fTipo">${Object.entries(TIPI).map(([k,t])=>`<option value="${k}" ${r.tipo===k?"selected":""}>${t}</option>`).join("")}</select></label>
+    <label>Imponibile €<input id="fImp" inputmode="decimal" value="${vIn(imponibile(r))}"></label><label>IVA € <span class="hint">vuoto = 22%</span><input id="fIva" inputmode="decimal" value="${vIn(r.fiva)}"></label>
+    <label>Totale € <span class="hint">vuoto = imponibile + IVA</span><input id="fTot" inputmode="decimal" value="${vIn(r.ftot)}"></label>
+    <label>Modalità di pagamento<input id="fPagam" list="lPag" value="${esc(r.pagamento||r.pagamentoCli||"")}"></label>
+    ${vend?`<label>Pagato?<div class="seg" id="fPagato">${[[1,"Sì"],[0,"No, da incassare"],["","Non seguito"]].map(([v,t])=>`<button type="button" data-v="${v}" class="${String(r.pagato??"")===String(v)?"on":""}">${t}</button>`).join("")}</div></label>
+    <label>Pagato il<input type="date" id="fPagIl" value="${esc(r.pagatoIl||"")}"></label><label>Scadenza<input type="date" id="fScad" value="${esc(r.scadenza||"")}"></label>
+    <label>Come ha pagato<select id="fMet">${["","Contanti","POS / carta","Bonifico","RiBa","Assegno","SDD","Compensazione","Altro"].map(x=>`<option ${r.metodo===x?"selected":""}>${x}</option>`).join("")}</select></label>`:""}
+    <label class="w">Note<textarea id="fNote" rows="2">${esc(r.note||"")}</textarea></label></div>
+    <datalist id="lPag">${["Rimessa diretta","Rimessa diretta 30 gg f.m.","Bonifico 30 gg f.m.","Bonifico 60 gg f.m.","RiBa 30 gg f.m.","RiBa 30/60 gg f.m.","RiBa 60/90 gg f.m.","Contanti","POS"].map(x=>`<option value="${x}">`).join("")}</datalist>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button class="btn pri big" id="fOk">${ic("check")}Salva le correzioni</button><span style="flex:1"></span>
+     ${r.fonte==="manuale"||r.fonte==="xml"?`<button class="btn ko" id="fDel">Elimina</button>`:`<button class="btn ko" id="fNasc">${r.nasc?"Rimetti nei conti":"Escludi dai conti"}</button>`}</div></div>
+   ${R.modifiche.length?`<div class="card"><h3 style="margin-bottom:8px">Storia delle modifiche</h3>${R.modifiche.map(x=>`<div class="sm" style="padding:6px 0;border-bottom:1px solid #f0eee9"><b>${esc(x.nome)}</b> · ${new Date(x.at).toLocaleString("it-IT")}<br><span class="mut">${diffTxt(x.d)}</span></div>`).join("")}</div>`:""}`;
+  let pg=r.pagato??""; $$("#fPagato button").forEach(b=>b.onclick=()=>{ pg=b.dataset.v; $$("#fPagato button").forEach(x=>x.classList.toggle("on",x===b)); if(pg==="1"&&!$("#fPagIl").value) $("#fPagIl").value=OGGI(); });
+  const salva=async campi=>{ try{ await CP("salva",{id,campi}); toast("Salvato ✓"); S.cache={}; await apriDoc(id,dopo); dopo&&dopo(); }catch(e){ toast("Non salvato: "+e.message,5000); } };
+  const nm=v=>{ v=String(v||"").trim().replace(/\s|€/g,""); if(!v) return ""; if(/,/.test(v)) v=v.replace(/\./g,"").replace(",","."); return Number(v); };
+  $("#fOk").onclick=()=>{ const c={data:$("#fData").value,num:$("#fNum").value.trim(),nome:$("#fNome").value.trim(),piva:$("#fPiva").value.trim(),tipo:$("#fTipo").value,pagamento:$("#fPagam").value.trim(),note:$("#fNote").value.trim()};
+    const imp=nm($("#fImp").value), iv=nm($("#fIva").value), tt=nm($("#fTot").value);
+    if([imp,iv,tt].some(x=>x!==""&&!isFinite(x))) return toast("Controlla gli importi: scrivi solo numeri, es. 1.234,56",4000);
+    if(imp!==""&&imp!==imponibile(r)) c.fimp=imp; if(iv!==(r.fiva??"")) c.fiva=iv===""?(imp!==""?r2(imp*0.22):null):iv; if(tt!==(r.ftot??"")||c.fimp!=null||c.fiva!=null){ const I=c.fimp??imponibile(r), V=c.fiva??(r.fiva??r2(N(I)*0.22)); c.ftot=tt===""||(c.fimp!=null&&tt===r.ftot)?r2(N(I)+N(V)):tt; }
+    if(c.fimp!=null&&c.fiva==null&&r.fiva==null) c.fiva=r2(c.fimp*0.22);
+    if(vend){ c.pagato=pg===""?null:+pg; c.pagatoIl=$("#fPagIl").value; c.scadenza=$("#fScad").value; c.metodo=$("#fMet").value; }
+    if(!c.data) return toast("Manca la data"); salva(c); };
+  if($("#xPag")) $("#xPag").onclick=()=>salva({pagato:1,pagatoIl:OGGI()});
+  if($("#xApe")) $("#xApe").onclick=()=>salva({pagato:0,pagatoIl:""});
+  if($("#fNasc")) $("#fNasc").onclick=()=>{ if(!r.nasc&&!confirm("Escludo questo documento da totali, statistiche e file per il commercialista? Si può rimettere quando vuoi.")) return; salva({nasc:r.nasc?0:1}); };
+  if($("#fDel")) $("#fDel").onclick=async()=>{ if(!confirm("Elimino questo documento? Non si può tornare indietro.")) return; try{ await CP("elimina",{id}); toast("Eliminato"); chiudi(); dopo&&dopo(); }catch(e){ toast(e.message,5000); } };
+  if($("#xCli")) $("#xCli").onclick=e=>{ e.preventDefault(); chiudi(); vai("cliente",(r.cli||"")+"|"+(r.nome||"")); };
+}
+const CAMPI_N={data:"data",num:"numero",nome:"nome",piva:"P.IVA",fimp:"imponibile",imp:"imponibile (statistiche)",fiva:"IVA",ftot:"totale",pagato:"pagato",pagatoIl:"pagato il",scadenza:"scadenza",metodo:"metodo",pagamento:"pagamento",note:"note",tipo:"tipo",nasc:"escluso",verso:"verso"};
+function diffTxt(d){ if(!d||typeof d!=="object") return esc(d); if(d._nuovo) return "documento scritto a mano"; if(d.nuovi!=null) return `caricati ${d.nuovi} documenti nuovi, ${d.aggiornati} aggiornati`; if(d._cancellato) return "eliminato";
+  const f=v=>v==null||v===""?"vuoto":v===1&&typeof v==="number"?"sì":String(v); return Object.entries(d).map(([k,[a,b]])=>`${esc(CAMPI_N[k]||k)}: ${esc(f(a))} → <b>${esc(f(b))}</b>`).join(" · "); }
+function nuovoDoc(pre={}){
+  apri("<b style='font-size:17px'>Scrivi un documento</b>",`<p class="mut" style="margin-top:0">Per le cose che non passano da Danea o dall'app: una spesa, un incasso, una fattura fatta a mano, una rettifica. Finisce nei conti e nei file per il commercialista.</p>
+   <div class="card"><div class="fm"><label class="w">Cos'è<div class="seg" id="nV">${[["spesa","Spesa / costo"],["incasso","Incasso / vendita"],["fattura","Fattura emessa"],["acquisto","Fattura ricevuta"]].map(([v,t],i)=>`<button type="button" data-v="${v}" class="${(pre.tipo||"spesa")===v?"on":""}">${t}</button>`).join("")}</div></label>
+    <label>Data<input type="date" id="nData" value="${OGGI()}"></label><label>Numero <span class="hint">se c'è</span><input id="nNum"></label>
+    <label class="w">Cliente / fornitore / descrizione<input id="nNome" placeholder="es. ENEL energia, affitto, Rossi Mario"></label><label>Partita IVA <span class="hint">se c'è</span><input id="nPiva"></label>
+    <label>Categoria<input id="nCat" list="lCat" placeholder="es. utenze, affitto, carburante"></label>
+    <label>Imponibile €<input id="nImp" inputmode="decimal" placeholder="0,00"></label><label>IVA € <span class="hint">vuoto = 22%</span><input id="nIva" inputmode="decimal"></label>
+    <label>Pagato?<div class="seg" id="nPg"><button type="button" data-v="1" class="on">Sì</button><button type="button" data-v="0">No</button></div></label><label>Scadenza<input type="date" id="nScad"></label>
+    <label class="w">Note<textarea id="nNote" rows="2"></textarea></label></div>
+    <datalist id="lCat">${["Utenze","Affitto","Carburante","Stipendi","Commercialista","Banca","Trasporti e corrieri","Pubblicità","Software","Manutenzione","Assicurazioni","Tasse","Altro"].map(x=>`<option value="${x}">`).join("")}</datalist>
+    <button class="btn pri big" id="nOk" style="margin-top:14px">${ic("check")}Salva</button></div>`);
+  let tipo=pre.tipo||"spesa", pg="1";
+  $$("#nV button").forEach(b=>b.onclick=()=>{ tipo=b.dataset.v; $$("#nV button").forEach(x=>x.classList.toggle("on",x===b)); });
+  $$("#nPg button").forEach(b=>b.onclick=()=>{ pg=b.dataset.v; $$("#nPg button").forEach(x=>x.classList.toggle("on",x===b)); });
+  $("#nOk").onclick=async()=>{ const nm=v=>{ v=String(v||"").trim().replace(/\s|€/g,""); if(!v) return null; if(/,/.test(v)) v=v.replace(/\./g,"").replace(",","."); return Number(v); };
+    const imp=nm($("#nImp").value), iva=nm($("#nIva").value); if(imp==null||!isFinite(imp)) return toast("Scrivi l'imponibile");
+    const v=tipo==="spesa"||tipo==="acquisto"?"acquisto":"vendita", iv=iva==null?r2(imp*0.22):iva;
+    try{ await CP("nuovo",{campi:{tipo,verso:v,data:$("#nData").value,num:$("#nNum").value.trim(),nome:$("#nNome").value.trim(),piva:$("#nPiva").value.trim(),categoria:$("#nCat").value.trim(),
+      fimp:imp,imp,fiva:iv,ftot:r2(imp+iv),pagato:+pg,pagatoIl:pg==="1"?$("#nData").value:"",scadenza:$("#nScad").value,note:$("#nNote").value.trim()}});
+      toast("Salvato ✓"); chiudi(); render(); }catch(e){ toast("Non salvato: "+e.message,5000); } };
+}
+
+/* ---------------- CLIENTI ---------------- */
+async function vClienti(){
+  M().innerHTML=`<div class="ph"><div><h1>Clienti</h1><p>Chi ha comprato, quanto e come va rispetto all'anno prima. Tocca un cliente per tutti i suoi numeri, anno per anno.</p></div><span class="sp"></span><button class="btn" id="cXls">${ic("down")}Scarica in Excel</button></div>
+   ${barraPeriodo()}<div class="tools"><input type="search" id="cQ" placeholder="Cerca un cliente: nome, codice, P.IVA" value="${esc(S.cli.q)}"></div><div id="cT"></div><div id="cL">${caricando()}</div>`;
+  legaPeriodo();
+  let righe=[];
+  const carica=async()=>{ $("#cL").innerHTML=caricando(); let r; try{ r=await C("clienti",{da:S.per.da,a:S.per.a,q:S.cli.q}); }catch(e){ $("#cL").innerHTML=errore(e); return; }
+    righe=r.righe; const T=r.tot||{};
+    $("#cT").innerHTML=`<div class="tot"><div>Clienti nel periodo<b>${nf(T.n)}</b></div><div>Venduto<b>${eur(T.v)}</b></div><div>Media per cliente<b>${eur(N(T.v)/Math.max(1,N(T.n)))}</b></div></div>`;
+    $("#cL").innerHTML=righe.length?`<div class="tw cards"><table><thead><tr><th>#</th><th>Cliente</th><th class="num">Venduto</th><th class="num">Anno prima</th><th class="num">Documenti</th><th class="num">Riparazioni</th><th>Ultimo</th><th class="num">Da incassare</th></tr></thead><tbody>
+      ${righe.map((c,i)=>`<tr data-cli="${esc(c.cli||"")}" data-nome="${esc(c.nome)}"><td class="hm mut">${i+1}</td><td class="c1"><b>${esc(c.nome)}</b><div class="mut sm">${esc([c.citta,c.piva&&"P.IVA "+c.piva,c.pagamento].filter(Boolean).join(" · "))}</div></td>
+       <td class="num" data-h="Venduto"><b>${eur(c.v)}</b></td><td class="num" data-h="Anno prima">${eur(c.prima)} ${dl(delta(c.v,c.prima))}</td><td class="num hm">${nf(c.n)}</td><td class="num" data-h="Rip.">${nf(c.rip)}</td><td class="hm">${gma(c.ult)}</td><td class="num" data-h="Da incassare">${N(c.aperto)?`<b class="down">${eur(c.aperto)}</b>`:"—"}</td></tr>`).join("")}</tbody></table></div>`:`<div class="card empty">Nessun cliente trovato.</div>`;
+    legaListe(); };
+  let t0; $("#cQ").oninput=e=>{ clearTimeout(t0); t0=setTimeout(()=>{ S.cli.q=e.target.value.trim(); carica(); },300); };
+  $("#cXls").onclick=async()=>{ await XLSXlib(); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,foglio(["Cliente","Codice","P.IVA","Città","Pagamento","Venduto IVA escl.","Anno prima","Documenti","Riparazioni","Ultimo documento","Da incassare"],righe.map(c=>[c.nome,c.cli,c.piva,c.citta,c.pagamento,r2(c.v),r2(c.prima),c.n,c.rip||0,dataX(c.ult),r2(c.aperto)])),"Clienti"); salvaFile(`SEMI_clienti_${S.per.da}_${S.per.a}.xlsx`,new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})])); };
+  carica();
+}
+async function vCliente(){
+  const [cli,...nn]=S.arg.split("|"), nome=nn.join("|");
+  M().innerHTML=`<div class="ph"><div><a href="#clienti" class="sm">← Clienti</a><h1>${esc(nome||cli)}</h1></div></div><div id="kB">${caricando()}</div>`;
+  let R; try{ R=await C("cliente",cli?{cli}:{nome}); }catch(e){ $("#kB").innerHTML=errore(e); return; }
+  const a=R.anagrafica||{}, tot=R.anni.reduce((s,x)=>s+N(x.v),0), aperto=R.docs.filter(d=>d.pagato===0&&d.verso==="vendita").reduce((s,d)=>s+N(totale(d)),0);
+  const an=[...R.anni].reverse().filter(x=>x.anno>="2017");
+  $("#kB").innerHTML=`<div class="grid g2"><div class="card"><h2>Dati</h2><div class="sm" style="margin-top:8px;line-height:1.8">${[["Codice",cli],["P.IVA",a.piva],["Codice fiscale",a.cf],["Indirizzo",[a.ind,a.cap,a.citta,a.prov&&"("+a.prov+")"].filter(Boolean).join(" ")],["Telefono",[a.tel,a.cell].filter(Boolean).join(" · ")],["Email",a.email],["PEC",a.pec],["Codice SDI",a.sdi],["Pagamento",a.pagamento],["Sconto",a.sconto],["Listino",a.listino]].filter(x=>x[1]).map(([k,v])=>`<div><span class="mut">${k}:</span> <b>${esc(v)}</b></div>`).join("")||`<span class="mut">Anagrafica non trovata</span>`}</div></div>
+    <div class="card"><div class="kpis" style="grid-template-columns:1fr 1fr"><div class="kpi main" style="cursor:default"><div class="t">Venduto in tutto</div><div class="v">${eur0(tot)}</div><div class="s">dal ${esc(an[0]?.anno||"—")}</div></div>
+     <div class="kpi ${aperto?"warn":""}" style="cursor:default"><div class="t">Da incassare</div><div class="v">${eur0(aperto)}</div><div class="s">IVA inclusa</div></div></div>
+     <div style="margin-top:10px">${an.length?grafico(an.map(x=>x.anno),[{nome:"Venduto",colore:"#257de0",valori:an.map(x=>x.v)}],{h:200,w:420,aria:"venduto per anno"}):""}</div></div></div>
+   <div class="card"><h2 style="margin-bottom:8px">Anno per anno</h2><div class="tw"><table><thead><tr><th>Anno</th><th class="num">Venduto</th><th class="num">Documenti</th><th class="num">Fatture</th><th class="num">Riparazioni</th></tr></thead><tbody>${R.anni.map(x=>`<tr class="nc"><td><b>${esc(x.anno)}</b></td><td class="num">${eur(x.v)}</td><td class="num">${nf(x.n)}</td><td class="num">${nf(x.fat)}</td><td class="num">${nf(x.rip)}</td></tr>`).join("")}</tbody></table></div></div>
+   <div class="card"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap"><h2>Documenti (${nf(R.docs.length)}${R.docs.length>=400?"+":""})</h2><span style="flex:1"></span><button class="btn" id="kXls">${ic("down")}Estratto conto in Excel</button></div>
+    <div class="tw cards"><table><thead><tr><th>Data</th><th>Documento</th><th>Note</th><th class="num">Imponibile</th><th class="num">Totale</th><th>Pagamento</th></tr></thead><tbody>${R.docs.map(r=>`<tr data-id="${esc(r.id)}"><td class="hm">${gma(r.data)}</td><td class="c1">${badge(r.tipo)} <b>${esc(r.num||"")}</b> <span class="mut sm">${window.innerWidth<700?gma(r.data):""}</span></td><td class="mut sm hm">${esc(r.note||"")}</td><td class="num" data-h="Imp.">${eur(imponibile(r))}</td><td class="num" data-h="Tot.">${eur(totale(r))}</td><td>${statoPag(r)}</td></tr>`).join("")}</tbody></table></div></div>
+   ${R.articoli.length?`<div class="card"><h2 style="margin-bottom:8px">Cosa compra di più</h2><div class="tw"><table><thead><tr><th>Codice</th><th>Descrizione</th><th class="num">Pezzi</th><th class="num">Speso</th><th>Ultima volta</th></tr></thead><tbody>${R.articoli.map(x=>`<tr class="nc"><td class="mono">${esc(x.cod)}</td><td>${esc(x.descr||"")}</td><td class="num">${nf(x.qta)}</td><td class="num">${eur(x.v)}</td><td>${gma(x.ult)}</td></tr>`).join("")}</tbody></table></div></div>`:""}`;
+  $$("#kB tr[data-id]").forEach(tr=>tr.onclick=()=>apriDoc(tr.dataset.id,vCliente));
+  $("#kXls").onclick=async()=>{ await XLSXlib(); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,foglio(intestDoc,[...R.docs].reverse().map(rowDoc)),"Estratto conto"); salvaFile(`SEMI_estratto_${(nome||cli).replace(/[^\w]+/g,"_").slice(0,40)}.xlsx`,new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})])); };
+}
+
+/* ---------------- INCASSI ---------------- */
+async function vIncassi(){
+  M().innerHTML=`<div class="ph"><div><h1>Incassi</h1><p>Chi deve ancora pagare e quando. Quando arriva un pagamento tocca <b>Pagato</b>: si aggiorna anche nell'app del negozio.</p></div></div>
+   <div class="banner info">Qui ci sono le vendite fatte con <b>“Paga dopo”</b> nell'app e i documenti che segni tu come <b>da incassare</b>. Le fatture di Danea non hanno lo stato del pagamento (lo scadenzario di Danea non è mai stato aggiornato): se una fattura non è ancora pagata, aprila e scegli “No, da incassare”.</div>
+   <div class="chips" style="margin-bottom:12px"><button class="chip on" data-iv="aperti">Da incassare</button><button class="chip" data-iv="scaduti">Solo scaduti</button><button class="chip" data-iv="pagati">Incassati nel periodo</button></div>
+   <div id="iP"></div><div id="iT"></div><div id="iL">${caricando()}</div>`;
+  let v="aperti";
+  const carica=async()=>{ $("#iP").innerHTML=v==="pagati"?barraPeriodo():""; legaPeriodo(); $("#iL").innerHTML=caricando();
+    let r; try{ r=await C("docs",v==="pagati"?{stato:"pagati",tipo:"vendite",n:500,ordina:"data",da:S.per.da,a:S.per.a}:{stato:v,n:1000,ordina:"scadenza"}); }catch(e){ $("#iL").innerHTML=errore(e); return; }
+    const T=r.tot||{}; $("#iT").innerHTML=`<div class="tot"><div>${v==="pagati"?"Incassati":"Documenti"}<b>${nf(T.n)}</b></div><div>Totale IVA inclusa<b>${eur(T.tot)}</b></div></div>`;
+    $("#iL").innerHTML=r.righe.length?`<div class="tw cards"><table><thead><tr><th>Scadenza</th><th>Cliente</th><th>Documento</th><th class="num">Totale</th><th></th></tr></thead><tbody>${r.righe.map(d=>{ const sc=d.pagato===0&&d.scadenza&&d.scadenza<OGGI();
+      return `<tr data-id="${esc(d.id)}"><td data-h="" class="c1">${d.pagato===1?`<span class="st ok">✓ ${gma(d.pagatoIl)||"pagato"}</span>`:d.scadenza?`<span class="st ${sc?"ko":"wa"}">${sc?"Scaduto il ":"Entro il "}${gma(d.scadenza)}</span>`:`<span class="mut sm">senza scadenza</span>`}</td>
+       <td class="c1"><b>${esc(d.nome||"—")}</b>${d.pagamento?`<div class="mut sm">${esc(d.pagamento)}</div>`:""}</td><td>${badge(d.tipo)} ${esc(d.num||"")} <span class="mut sm">${gma(d.data)}</span></td><td class="num"><b>${eur(totale(d))}</b></td>
+       <td>${d.pagato===0?`<button class="btn ok" data-paga="${esc(d.id)}">${ic("check")}Pagato</button>`:""}</td></tr>`; }).join("")}</tbody></table></div>`:`<div class="card empty">${v==="pagati"?"Nessun incasso registrato nel periodo.":"Nessuno deve pagare. 🎉"}</div>`;
+    $$("#iL tr[data-id]").forEach(tr=>tr.onclick=e=>{ if(e.target.closest("[data-paga]")) return; apriDoc(tr.dataset.id,carica); });
+    $$("[data-paga]").forEach(b=>b.onclick=()=>chiediPagato(b.dataset.paga,carica)); };
+  $$("[data-iv]").forEach(b=>b.onclick=()=>{ v=b.dataset.iv; $$("[data-iv]").forEach(x=>x.classList.toggle("on",x===b)); carica(); });
+  S._incassi=carica;
+  carica();
+}
+function chiediPagato(id,dopo){
+  apri("<b style='font-size:17px'>Segna come pagato</b>",`<div class="card"><div class="fm"><label>Quando è arrivato il pagamento<input type="date" id="pD" value="${OGGI()}"></label>
+   <label>Come<select id="pM">${["Bonifico","Contanti","POS / carta","RiBa","Assegno","SDD","Compensazione","Altro"].map(x=>`<option>${x}</option>`).join("")}</select></label></div>
+   <button class="btn ok big" id="pOk" style="margin-top:14px;width:100%">${ic("check")}Confermo: è pagato</button></div>`);
+  $("#pOk").onclick=async()=>{ try{ await CP("salva",{id,campi:{pagato:1,pagatoIl:$("#pD").value||OGGI(),metodo:$("#pM").value}}); toast("Segnato come pagato ✓"); chiudi(); dopo&&dopo(); }catch(e){ toast(e.message,5000); } };
+}
+
+/* ---------------- ARTICOLI ---------------- */
+async function vArticoli(){
+  M().innerHTML=`<div class="ph"><div><h1>Articoli</h1><p>Cosa si vende di più, quanti pezzi, a quanti clienti, e quanto è stato comprato da noi (arrivi merce). Dai documenti Danea, righe con codice.</p></div><span class="sp"></span><button class="btn" id="aXls">${ic("down")}Scarica in Excel</button></div>
+   ${barraPeriodo()}<div class="tools"><input type="search" id="aQ" placeholder="Codice o descrizione (es. DCD796 o batteria)" value="${esc(S.art.q)}"></div><div id="aL">${caricando()}</div>`;
+  legaPeriodo(); let righe=[];
+  const carica=async()=>{ $("#aL").innerHTML=caricando(); try{ righe=(await C("articoli",{da:S.per.da,a:S.per.a,q:S.art.q})).righe; }catch(e){ $("#aL").innerHTML=errore(e); return; }
+    $("#aL").innerHTML=righe.length?`<div class="tw cards"><table><thead><tr><th>Codice</th><th>Descrizione</th><th class="num">Pezzi venduti</th><th class="num">Venduto</th><th class="num">Prezzo medio</th><th class="num">Clienti</th><th class="num">Pezzi comprati</th><th>Ultima volta</th></tr></thead><tbody>${righe.map(a=>`<tr class="nc"><td class="mono c1"><b>${esc(a.cod)}</b></td><td class="c1">${esc(a.descr||"")}</td><td class="num" data-h="Pezzi">${nf(a.qta)}</td><td class="num" data-h="Venduto"><b>${eur(a.v)}</b></td><td class="num hm">${N(a.qta)?eur(N(a.v)/N(a.qta)):"—"}</td><td class="num" data-h="Clienti">${nf(a.clienti)}</td><td class="num" data-h="Comprati">${nf(a.acq)}</td><td class="hm">${gma(a.ult)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="card empty">Nessun articolo trovato nel periodo.</div>`; };
+  let t0; $("#aQ").oninput=e=>{ clearTimeout(t0); t0=setTimeout(()=>{ S.art.q=e.target.value.trim(); carica(); },350); };
+  $("#aXls").onclick=async()=>{ await XLSXlib(); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,foglio(["Codice","Descrizione","Pezzi venduti","Venduto IVA escl.","Clienti","Pezzi comprati","Ultima volta"],righe.map(a=>[a.cod,a.descr,a.qta,r2(a.v),a.clienti,a.acq,dataX(a.ult)])),"Articoli"); salvaFile(`SEMI_articoli_${S.per.da}_${S.per.a}.xlsx`,new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})])); };
+  carica();
+}
+
+/* ---------------- CONFRONTO ANNI ---------------- */
+async function vAnni(){
+  const anni=(S.st?.anni||[]).map(x=>x.anno).filter(a=>a>="2017").reverse(); S.annoC=S.annoC||anni[0]||String(new Date().getFullYear());
+  M().innerHTML=`<div class="ph"><div><h1>Confronto anni</h1><p>Ogni anno di Semi, e un anno contro quello prima, mese per mese.</p></div></div>
+   <div class="card" id="yA">${caricando()}</div><div class="card"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><h2>Mese per mese:</h2><div class="chips">${anni.map(a=>`<button class="chip ${S.annoC===a?"on":""}" data-ya="${a}">${a}</button>`).join("")}</div></div><div id="yM" style="margin-top:10px">${caricando()}</div></div>`;
+  $$("[data-ya]").forEach(b=>b.onclick=()=>{ S.annoC=b.dataset.ya; vAnni(); });
+  try{ const [T,R]=await Promise.all([C("riepilogo",{da:"2000-01-01",a:"2999-12-31"}),C("riepilogo",{da:S.annoC+"-01-01",a:S.annoC+"-12-31"})]);
+    const an=(T.anni||[]).filter(x=>x.anno>="2017");
+    $("#yA").innerHTML=`<h2 style="margin-bottom:6px">Tutti gli anni</h2>${grafico(an.map(x=>x.anno),[{nome:"Venduto",colore:"#257de0",valori:an.map(x=>x.v)}],{h:220,click:i=>{ S.annoC=an[i].anno; vAnni(); },aria:"venduto per anno"})}
+     <div class="tw" style="margin-top:10px"><table><thead><tr><th>Anno</th><th class="num">Venduto</th><th class="num">Rispetto all'anno prima</th><th class="num">Riparazioni</th><th class="num">Acquisti fornitori</th></tr></thead><tbody>${[...an].reverse().map((x,i,l)=>`<tr data-yy="${x.anno}"><td><b>${x.anno}</b>${x.anno===String(new Date().getFullYear())?` <span class="mut sm">(fino a oggi)</span>`:""}</td><td class="num">${eur(x.v)}</td><td class="num">${l[i+1]?dl(delta(x.v,l[i+1].v)):""}</td><td class="num">${nf(x.rip)}</td><td class="num">${N(x.acq)?eur(x.acq):"—"}</td></tr>`).join("")}</tbody></table></div>`;
+    $$("[data-yy]").forEach(r=>r.onclick=()=>{ setPer(periodo("y"+r.dataset.yy)); vai("riepilogo"); });
+    const y=S.annoC, cur={}, prv={}; (R.mesi||[]).forEach(x=>{ (x.m.startsWith(y)?cur:prv)[x.m.slice(5)]=x.v; });
+    const ms=MESI.map((_,i)=>String(i+1).padStart(2,"0")), sc=ms.reduce((s,m)=>s+N(cur[m]),0), sp=ms.reduce((s,m)=>s+N(prv[m]),0);
+    $("#yM").innerHTML=grafico(MESI,[{nome:y,colore:"#257de0",valori:ms.map(m=>cur[m]||0)},{nome:String(y-1),colore:"#f47230",valori:ms.map(m=>prv[m]||0)}],{tit:MESIL.map(m=>m),aria:"mese per mese"})+
+     `<div class="tw" style="margin-top:10px"><table><thead><tr><th>Mese</th><th class="num">${y}</th><th class="num">${y-1}</th><th class="num">Differenza</th></tr></thead><tbody>${ms.map((m,i)=>`<tr class="nc"><td>${MESIL[i]}</td><td class="num">${eur(cur[m]||0)}</td><td class="num">${eur(prv[m]||0)}</td><td class="num">${dl(delta(cur[m],prv[m]))} <span class="mut sm">${N(cur[m])||N(prv[m])?eur(N(cur[m])-N(prv[m])):""}</span></td></tr>`).join("")}
+      <tr class="nc"><td><b>Totale</b></td><td class="num"><b>${eur(sc)}</b></td><td class="num"><b>${eur(sp)}</b></td><td class="num">${dl(delta(sc,sp))}</td></tr></tbody></table></div>`;
+  }catch(e){ $("#yA").innerHTML=errore(e); }
+}
+
+/* ---------------- MODIFICHE ---------------- */
+async function vModifiche(){
+  M().innerHTML=`<div class="ph"><div><h1>Modifiche fatte</h1><p>Ogni correzione ai conti: chi, quando, cosa era prima e cosa è dopo. Niente si perde.</p></div></div><div id="mL">${caricando()}</div>`;
+  try{ const r=await C("modifiche"); $("#mL").innerHTML=r.righe.length?`<div class="tw cards"><table><thead><tr><th>Quando</th><th>Chi</th><th>Documento</th><th>Cosa</th></tr></thead><tbody>${r.righe.map(x=>`<tr ${x.docid!=="*"?`data-id="${esc(x.docid)}"`:`class="nc"`}><td class="c1">${new Date(x.at).toLocaleString("it-IT")}</td><td><b>${esc(x.nome)}</b></td><td class="mono sm">${esc(x.docid==="*"?"caricamento":x.docid)}</td><td class="c1 sm">${diffTxt(x.d)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="card empty">Ancora nessuna modifica.</div>`;
+    $$("#mL tr[data-id]").forEach(tr=>tr.onclick=()=>apriDoc(tr.dataset.id,vModifiche)); }catch(e){ $("#mL").innerHTML=errore(e); }
+}
+function vAltro(){
+  M().innerHTML=`<div class="ph"><div><h1>Altro</h1></div></div><div class="lst card">${[["incassi","Incassi","Chi deve pagare, scaduti, incassati","euro"],["articoli","Articoli","Cosa si vende di più","box"],["anni","Confronto anni","Anno per anno e mese per mese","chart"],["carica","Carica dati","Fatture elettroniche ed elenchi da Danea","up"],["modifiche","Modifiche fatte","Chi ha corretto cosa","clock"]].map(([v,t,s])=>`<div class="it" onclick="vai('${v}')"><div class="x"><b>${t}</b><span class="mut sm">${s}</span></div><span>›</span></div>`).join("")}
+   <div class="it" onclick="esci()"><div class="x"><b>Esci</b><span class="mut sm">${esc(S.io.nome)}</span></div></div></div>`;
+}
+
+/* ---------------- EXCEL: fogli comuni ---------------- */
+const dataX=s=>{ if(!s) return ""; const [y,m,d]=String(s).slice(0,10).split("-").map(Number); return y?new Date(y,m-1,d,12):""; };
+const intestDoc=["Data","Tipo","Numero","Cliente / fornitore","P.IVA","Codice fiscale","Città","Imponibile","IVA","Totale","Importi","Pagamento","Scadenza","Pagato","Pagato il","Metodo","Canale","Note","Fonte","Codice cliente"];
+const rowDoc=r=>[dataX(r.data),TIPI[r.tipo]||r.tipo,r.num,r.nome,r.piva||"",r.cf||"",r.citta||"",imponibile(r)==null?"":r2(imponibile(r)),ivaDi(r)==null?"":r2(ivaDi(r)),totale(r)==null?"":r2(totale(r)),
+  r.fimp!=null||r.fonte!=="danea"?"esatti":"dalle righe Danea (IVA 22% calcolata)",r.pagamento||r.pagamentoCli||"",dataX(r.scadenza),r.pagato===1?"sì":r.pagato===0?"no":"",dataX(r.pagatoIl),r.metodo||"",r.canale||"",r.note||"",FONTI[r.fonte]||r.fonte,r.cli||""];
+function foglio(intest,righe){ const ws=XLSX.utils.aoa_to_sheet([intest,...righe],{cellDates:true,dateNF:"dd/mm/yyyy"});
+  const rng=XLSX.utils.decode_range(ws["!ref"]||"A1"); for(let R=1;R<=rng.e.r;R++) for(let Cc=0;Cc<=rng.e.c;Cc++){ const c=ws[XLSX.utils.encode_cell({r:R,c:Cc})]; if(!c) continue; if(c.t==="n"&&!Number.isInteger(c.v)) c.z="#,##0.00"; if(c.t==="n"&&/import|totale|iva|venduto|speso|incass|prima/i.test(intest[Cc]||"")) c.z="#,##0.00"; if(c.t==="d") c.z="dd/mm/yyyy"; }
+  ws["!cols"]=intest.map((h,i)=>({wch:Math.min(48,Math.max(10,h.length+2,...righe.slice(0,200).map(r=>String(r[i]instanceof Date?"00/00/0000":r[i]??"").length+1)))}));
+  ws["!autofilter"]={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:Math.max(0,righe.length),c:intest.length-1}})}; return ws; }
+
+/* ---------------- PER IL COMMERCIALISTA ---------------- */
+async function vCommercialista(){
+  const pp=S.comm||(S.comm={per:periodo("mesePrec"),inc:{vendite:1,corr:1,acq:1,altri:1,aperti:1,iva:1,tutti:1}});
+  const P=pp.per;
+  M().innerHTML=`<div class="ph"><div><h1>Per il commercialista</h1><p>Tre passi: scegli il periodo, controlla i numeri, scarica il pacchetto (Excel + riepilogo da stampare in PDF). Poi lo mandi per email.</p></div></div>
+   <div class="card"><div class="step"><div class="sn">1</div><div class="sb"><h3>Quale periodo?</h3><div class="chips">${[["mesePrec","Mese scorso"],["mese","Questo mese"],["trimPrec","Trimestre scorso"],["trim","Questo trimestre"],["annoPrec","Anno scorso"],["anno","Quest'anno"]].map(([k,t])=>`<button class="chip ${P.k===k?"on":""}" data-cp="${k}">${t}</button>`).join("")}</div>
+     <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap"><span class="mut sm">oppure dal</span><input type="date" id="cDa" value="${P.da}" style="border:1px solid var(--line);border-radius:10px;padding:8px"><span class="mut sm">al</span><input type="date" id="cA" value="${P.a}" style="border:1px solid var(--line);border-radius:10px;padding:8px"></div>
+     <div style="margin-top:8px;font-weight:700">Periodo scelto: ${esc(P.lb)}</div></div></div>
+    <div class="step"><div class="sn">2</div><div class="sb"><h3>Controlla i numeri</h3><div id="cR">${caricando("Preparo il riepilogo…")}</div></div></div>
+    <div class="step"><div class="sn">3</div><div class="sb"><h3>Cosa mettere nel pacchetto</h3>
+     ${[["vendite","Fatture emesse e note di credito","con P.IVA/C.F., imponibile, IVA e totale"],["corr","Corrispettivi giorno per giorno","vendite al banco e vendite senza fattura (negozio, sito, TikTok)"],["acq","Fatture dei fornitori e spese","fatture ricevute e spese scritte a mano"],["altri","Riparazioni e DDT","documenti non fiscali, per controllo"],["aperti","Crediti da incassare","chi deve pagare, con le scadenze"],["tutti","Tutti i documenti del periodo","un foglio unico con tutto"]].map(([k,t,s])=>`<label class="ck"><input type="checkbox" data-inc="${k}" ${pp.inc[k]?"checked":""}><span><b>${t}</b><small>${s}</small></span></label>`).join("")}
+     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><button class="btn y big" id="cZip">${ic("down")}Scarica il pacchetto (ZIP)</button><button class="btn big" id="cXl">${ic("down")}Solo il file Excel</button><button class="btn big" id="cPr">${ic("print")}Stampa il riepilogo</button></div>
+     <div class="prog" id="cPg" style="display:none"><i></i></div><div id="cMsg" class="mut sm" style="margin-top:6px"></div>
+     <div class="card" style="margin-top:14px;background:#fbfaf7"><h3>Email per il commercialista</h3><div class="fm" style="margin-top:8px"><label class="w">Email del commercialista <span class="hint">(la ricordo su questo computer)</span><input id="cEm" type="email" value="${esc(localStorage.getItem("conti-comm-email")||"")}" placeholder="studio@commercialista.it"></label>
+      <label class="w">Testo<textarea id="cTx" rows="7"></textarea></label></div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" id="cCopy">Copia il testo</button><a class="btn pri" id="cMail" href="#">${ic("send")}Apri l'email</a></div>
+      <p class="mut sm" style="margin:8px 0 0">L'email si apre nel tuo programma di posta: ricordati di <b>allegare il file scaricato</b>.</p></div></div></div></div>`;
+  const setP=x=>{ pp.per=x; vCommercialista(); };
+  $$("[data-cp]").forEach(b=>b.onclick=()=>setP(periodo(b.dataset.cp)));
+  const fd=()=>{ const da=$("#cDa").value, a=$("#cA").value; if(da&&a&&da<=a) setP(periodo("date",da,a)); }; $("#cDa").onchange=fd; $("#cA").onchange=fd;
+  $$("[data-inc]").forEach(c=>c.onchange=()=>pp.inc[c.dataset.inc]=c.checked?1:0);
+  $("#cEm").onchange=e=>{ localStorage.setItem("conti-comm-email",e.target.value.trim()); mail(); };
+  let PK=null;
+  const mail=()=>{ const tx=$("#cTx").value, em=$("#cEm").value.trim(); $("#cMail").href=`mailto:${encodeURIComponent(em)}?subject=${encodeURIComponent("SE.M.I. srl – documenti contabili "+P.lb)}&body=${encodeURIComponent(tx)}`; };
+  $("#cTx").oninput=mail;
+  $("#cCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText($("#cTx").value); toast("Testo copiato"); }catch(e){ $("#cTx").select(); document.execCommand("copy"); toast("Testo copiato"); } };
+  try{ PK=await pacchetto(P,(a,t)=>{ $("#cR").innerHTML=caricando(`Leggo i documenti… ${nf(a)} di ${nf(t)}`); }); }catch(e){ $("#cR").innerHTML=errore(e); return; }
+  if(S.view!=="commercialista") return;
+  const K=PK.k;
+  $("#cR").innerHTML=`${K.dalleRighe?`<div class="banner">⚠️ <b>${nf(K.dalleRighe)} fatture/note</b> hanno l'importo ricostruito dalle righe di Danea (IVA calcolata al 22%), e le fatture riepilogative di DDT non compaiono da sole. Per un registro esatto carica le <b>fatture elettroniche emesse</b> del periodo in <a href="#carica">Carica dati</a> (2 minuti).</div>`:`<div class="banner ok">✓ Tutte le fatture del periodo hanno gli importi esatti.</div>`}
+   <div class="tw"><table><thead><tr><th>Voce</th><th class="num">Documenti</th><th class="num">Imponibile</th><th class="num">IVA</th><th class="num">Totale</th></tr></thead><tbody>
+   ${K.righe.map(x=>`<tr class="nc"><td>${x[0]}</td><td class="num">${nf(x[1])}</td><td class="num">${eur(x[2])}</td><td class="num">${eur(x[3])}</td><td class="num"><b>${eur(x[4])}</b></td></tr>`).join("")}
+   <tr class="nc"><td><b>IVA da versare (stima)</b><div class="mut sm">IVA su fatture e corrispettivi − IVA sugli acquisti</div></td><td></td><td></td><td class="num"><b>${eur(K.ivaSaldo)}</b></td><td></td></tr></tbody></table></div>`;
+  $("#cTx").value=`Buongiorno,\n\nin allegato i documenti contabili di SE.M.I. srl per il periodo ${P.lb} (dal ${gma(P.da)} al ${gma(P.a)}):\n${K.righe.map(x=>`- ${x[0].replace(/<[^>]+>/g,"")}: ${nf(x[1])} documenti, imponibile ${eur(x[2])}`).join("\n")}\n\nNel file Excel trova un foglio per ogni registro e il riepilogo.\n\nCordiali saluti\n${S.io.nome}\nSE.M.I. srl – Semi Store`;
+  mail();
+  const pg=(a,t,m)=>{ $("#cPg").style.display="block"; $("#cPg i").style.width=(a/t*100)+"%"; $("#cMsg").textContent=m||""; };
+  $("#cXl").onclick=async()=>{ try{ pg(1,3,"Preparo l'Excel…"); await XLSXlib(); const wb=libro(PK,pp.inc); salvaFile(nomeP(P)+".xlsx",new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})])); pg(3,3,"Fatto ✓ Il file è nei Download."); }catch(e){ toast("Errore: "+e.message,5000); } };
+  $("#cZip").onclick=async()=>{ try{ pg(1,4,"Preparo il pacchetto…"); await Promise.all([XLSXlib(),ZIPlib()]); const wb=libro(PK,pp.inc); const z=new JSZip(), n=nomeP(P);
+    z.file(n+".xlsx",XLSX.write(wb,{bookType:"xlsx",type:"array"})); pg(2,4);
+    const cs=z.folder("CSV"); wb.SheetNames.forEach(s=>cs.file(s.replace(/[^\w]+/g,"_")+".csv","﻿"+XLSX.utils.sheet_to_csv(wb.Sheets[s],{FS:";",dateNF:"dd/mm/yyyy"})));
+    z.file("Riepilogo.html",stampaHtml(PK)); z.file("LEGGIMI.txt",leggimi(PK)); pg(3,4);
+    salvaFile(n+".zip",await z.generateAsync({type:"blob"})); pg(4,4,"Fatto ✓ Il pacchetto è nei Download: allegalo all'email."); }catch(e){ toast("Errore: "+e.message,5000); } };
+  $("#cPr").onclick=()=>{ const w=window.open("","_blank"); if(!w) return toast("Il browser ha bloccato la finestra: consenti i popup"); w.document.write(stampaHtml(PK,true)); w.document.close(); };
+}
+const nomeP=P=>`SEMI_contabilita_${P.da}_${P.a}`;
+async function pacchetto(P,prog){
+  const tutti=await tuttiDocs({da:P.da,a:P.a,ordina:"dataAsc"},prog);
+  const aperti=(await C("docs",{stato:"aperti",n:3000,ordina:"scadenza"})).righe;
+  const fis=r=>r.tipo==="fattura"||r.tipo==="nota";
+  const vendite=tutti.filter(r=>r.verso==="vendita"&&fis(r)), banco=tutti.filter(r=>r.tipo==="banco"), senzaF=tutti.filter(r=>r.tipo==="ordine"&&!/fattura n\./i.test(r.note||"")&&r.stat), conF=tutti.filter(r=>r.tipo==="ordine"&&/fattura n\./i.test(r.note||""));
+  const acq=tutti.filter(r=>r.verso==="acquisto"&&r.tipo!=="arrivo"), altri=tutti.filter(r=>["riparazione","ddt"].includes(r.tipo)||(r.tipo==="incasso"));
+  const sum=(l,f)=>r2(l.reduce((s,r)=>s+N(f(r)),0)), tr=(t,l)=>[t,l.length,sum(l,imponibile),sum(l,ivaDi),sum(l,totale)];
+  const corr={}; [...banco,...senzaF].forEach(r=>{ const g=corr[r.data]=corr[r.data]||{n:0,imp:0,iva:0,tot:0,banco:0,online:0}; g.n++; g.imp+=N(imponibile(r)); g.iva+=N(ivaDi(r)); g.tot+=N(totale(r)); if(r.tipo==="banco") g.banco+=N(totale(r)); else g.online+=N(totale(r)); });
+  const righe=[tr("Fatture emesse",vendite.filter(r=>r.tipo==="fattura")),tr("Note di credito emesse",vendite.filter(r=>r.tipo==="nota")),tr("Vendite al banco (corrispettivi)",banco),tr("Vendite dall'app senza fattura (corrispettivi)",senzaF),tr("Fatture dei fornitori e spese",acq),tr("Riparazioni, DDT e altri incassi (per controllo)",altri)];
+  const ivaV=r2(sum(vendite,ivaDi)+sum(banco,ivaDi)+sum(senzaF,ivaDi)), ivaA=sum(acq,ivaDi);
+  return {P,tutti,vendite,banco,senzaF,conF,acq,altri,aperti,corr,k:{righe,ivaV,ivaA,ivaSaldo:r2(ivaV-ivaA),dalleRighe:vendite.filter(r=>r.fonte==="danea"&&r.fimp==null).length}};
+}
+function libro(PK,inc){ const wb=XLSX.utils.book_new(), K=PK.k, P=PK.P;
+  const rie=[["SE.M.I. S.R.L. – P.IVA 07149740636"],["Riepilogo contabile "+P.lb+" (dal "+gma(P.da)+" al "+gma(P.a)+")"],["Preparato il "+new Date().toLocaleString("it-IT")+" da "+S.io.nome],[],["Voce","Documenti","Imponibile","IVA","Totale"],...K.righe,[],["IVA su vendite e corrispettivi","","",K.ivaV],["IVA sugli acquisti","","",K.ivaA],["IVA da versare (stima, da verificare)","","",K.ivaSaldo],[],["Importi in euro. Dove scritto 'dalle righe Danea' l'IVA è calcolata al 22% sulle righe con codice."]];
+  const ws=XLSX.utils.aoa_to_sheet(rie); ws["!cols"]=[{wch:52},{wch:12},{wch:16},{wch:16},{wch:16}]; for(const k in ws) if(ws[k]&&ws[k].t==="n") ws[k].z="#,##0.00"; XLSX.utils.book_append_sheet(wb,ws,"Riepilogo");
+  if(inc.vendite) XLSX.utils.book_append_sheet(wb,foglio(intestDoc,PK.vendite.map(rowDoc)),"Fatture emesse");
+  if(inc.corr){ XLSX.utils.book_append_sheet(wb,foglio(["Giorno","Documenti","Imponibile","IVA","Totale","di cui banco","di cui app/online"],Object.keys(PK.corr).sort().map(d=>{ const g=PK.corr[d]; return [dataX(d),g.n,r2(g.imp),r2(g.iva),r2(g.tot),r2(g.banco),r2(g.online)]; })),"Corrispettivi");
+    XLSX.utils.book_append_sheet(wb,foglio(intestDoc,[...PK.banco,...PK.senzaF].sort((a,b)=>a.data<b.data?-1:1).map(rowDoc)),"Corrispettivi dettaglio"); }
+  if(inc.acq) XLSX.utils.book_append_sheet(wb,foglio([...intestDoc,"Categoria"],PK.acq.map(r=>[...rowDoc(r),r.categoria||""])),"Acquisti e spese");
+  if(inc.altri) XLSX.utils.book_append_sheet(wb,foglio(intestDoc,PK.altri.map(rowDoc)),"Riparazioni e DDT");
+  if(inc.aperti) XLSX.utils.book_append_sheet(wb,foglio(intestDoc,PK.aperti.map(rowDoc)),"Da incassare");
+  if(inc.tutti) XLSX.utils.book_append_sheet(wb,foglio(intestDoc,PK.tutti.map(rowDoc)),"Tutti i documenti");
+  return wb; }
+function stampaHtml(PK,auto){ const K=PK.k, P=PK.P;
+  return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Riepilogo ${esc(P.lb)}</title><style>body{font-family:Inter,Arial,sans-serif;color:#15171a;margin:28px;font-size:13px}h1{font-size:20px;margin:0}table{border-collapse:collapse;width:100%;margin-top:14px}th,td{border-bottom:1px solid #ddd;padding:7px 8px;text-align:left}th{font-size:11px;text-transform:uppercase;color:#666}.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.m{color:#666}.hd{display:flex;justify-content:space-between;border-bottom:3px solid #f5b800;padding-bottom:10px}@page{size:A4;margin:14mm}</style></head><body>
+  <div class="hd"><div><h1>Riepilogo contabile · ${esc(P.lb)}</h1><div class="m">dal ${gma(P.da)} al ${gma(P.a)}</div></div><div style="text-align:right"><b>SE.M.I. S.R.L.</b><br><span class="m">P.IVA 07149740636 · Casavatore (NA)</span></div></div>
+  <table><thead><tr><th>Voce</th><th class="n">Documenti</th><th class="n">Imponibile</th><th class="n">IVA</th><th class="n">Totale</th></tr></thead><tbody>${K.righe.map(x=>`<tr><td>${esc(x[0])}</td><td class="n">${nf(x[1])}</td><td class="n">${eur(x[2])}</td><td class="n">${eur(x[3])}</td><td class="n"><b>${eur(x[4])}</b></td></tr>`).join("")}</tbody></table>
+  <table><tbody><tr><td>IVA su fatture e corrispettivi</td><td class="n">${eur(K.ivaV)}</td></tr><tr><td>IVA sugli acquisti</td><td class="n">${eur(K.ivaA)}</td></tr><tr><td><b>IVA da versare (stima, da verificare)</b></td><td class="n"><b>${eur(K.ivaSaldo)}</b></td></tr></tbody></table>
+  <h2 style="font-size:15px;margin-top:22px">Crediti da incassare a oggi</h2><table><thead><tr><th>Cliente</th><th>Documento</th><th>Scadenza</th><th class="n">Totale</th></tr></thead><tbody>${PK.aperti.slice(0,60).map(r=>`<tr><td>${esc(r.nome)}</td><td>${esc(TIPI[r.tipo]||r.tipo)} ${esc(r.num||"")} del ${gma(r.data)}</td><td>${gma(r.scadenza)}</td><td class="n">${eur(totale(r))}</td></tr>`).join("")||`<tr><td colspan="4" class="m">Nessuno</td></tr>`}</tbody></table>
+  <p class="m" style="margin-top:18px">Preparato il ${new Date().toLocaleString("it-IT")} da ${esc(S.io.nome)} con il pannello contabilità di Semi. ${K.dalleRighe?`${nf(K.dalleRighe)} fatture/note con importo ricostruito dalle righe Danea (IVA calcolata al 22%).`:""}</p>
+  ${auto?`<script>setTimeout(()=>print(),400)<\/script>`:""}</body></html>`; }
+function leggimi(PK){ const P=PK.P; return `SE.M.I. S.R.L. – documenti contabili ${P.lb} (dal ${gma(P.da)} al ${gma(P.a)})
+Preparato il ${new Date().toLocaleString("it-IT")} da ${S.io.nome}.
+
+${nomeP(P)}.xlsx  → un foglio per ogni registro:
+  Riepilogo · Fatture emesse · Corrispettivi (per giorno) · Corrispettivi dettaglio · Acquisti e spese · Riparazioni e DDT · Da incassare · Tutti i documenti
+CSV/             → gli stessi fogli in CSV (separatore ; , date gg/mm/aaaa)
+Riepilogo.html   → riepilogo da aprire e stampare
+
+Da dove vengono i numeri
+- Danea Easyfatt: documenti fino al ${gma(S.st?.danea?.a||"")}. Dove la colonna "Importi" dice "dalle righe Danea" l'imponibile è la somma delle righe con codice articolo e l'IVA è calcolata al 22%.
+- Fatture elettroniche caricate (XML): importi esatti.
+- App Semi (ordini, vendite, schede di riparazione): prezzi IVA inclusa scorporati al 22%.
+- Documenti scritti a mano: come inseriti.
+Importi in euro. Il riepilogo IVA è una stima da verificare.
+`; }
+
+/* ---------------- CARICA DATI ---------------- */
+function vCarica(){
+  const d=S.st?.danea, ap=S.st?.app, doc=S.st?.documenti||{};
+  M().innerHTML=`<div class="ph"><div><h1>Carica dati</h1><p>Per avere i numeri esatti al centesimo. Tutto quello che carichi si somma a quello che c'è: niente si cancella.</p></div></div>
+   <div class="card"><h2>1. Fatture elettroniche (XML)</h2><p class="mut" style="margin:6px 0 12px">Le fatture <b>emesse</b> e <b>ricevute</b>: file .xml, .p7m o lo .zip intero. Dove trovarle: in Danea <b>Fatture elettroniche → seleziona → Esporta file</b>, oppure sul sito dell'Agenzia delle Entrate <b>Fatture e Corrispettivi → Consultazione → scarica</b>. Le fatture già caricate si aggiornano, non si doppiano.</p>
+    <label class="drop" id="xDrop"><input type="file" id="xF" accept=".xml,.p7m,.zip" multiple style="display:none"><b style="font-size:16px">Tocca qui o trascina i file</b><div class="mut sm">XML, P7M o ZIP · anche tanti insieme</div></label><div id="xR"></div></div>
+   <div class="card"><h2>2. Elenco documenti esportato da Danea (Excel)</h2><p class="mut" style="margin:6px 0 12px">In Danea apri l'elenco (es. <b>Fatture</b>), scegli il periodo, seleziona tutto e fai <b>Esporta → Excel</b>. Servono le colonne data, numero, cliente e gli importi (imponibile/IVA/totale).</p>
+    <div class="fm" style="margin-bottom:10px"><label>Che documenti sono?<select id="eT"><option value="fattura">Fatture emesse</option><option value="nota">Note di credito</option><option value="banco">Vendite al banco</option><option value="ddt">DDT</option><option value="acquisto">Fatture ricevute</option></select></label></div>
+    <label class="drop"><input type="file" id="eF" accept=".xlsx,.xls,.csv" style="display:none"><b style="font-size:16px">Scegli il file Excel</b></label><div id="eR"></div></div>
+   <div class="card"><h2>Situazione</h2><div class="sm" style="line-height:1.9;margin-top:6px">
+    <div>Storico Danea: <b>${d?`${nf(d.documenti)} documenti dal ${gma(d.da)} al ${gma(d.a)}`:"non caricato"}</b> <span class="mut">(si carica dall'app del negozio: Impostazioni → Clienti → Carica storico per codice)</span></div>
+    <div>Documenti nei conti: <b>${nf(doc.n)}</b>, di cui con importi esatti da fattura elettronica <b>${nf(doc.esatti)}</b>, corretti a mano <b>${nf(doc.modificati)}</b></div>
+    <div>Ultimo aggiornamento dall'app: <b>${ap?.at?new Date(ap.at).toLocaleString("it-IT"):"—"}</b> (si aggiorna da solo ogni pochi minuti)</div></div>
+    <button class="btn" id="rAll" style="margin-top:10px">Ricalcola tutto adesso</button></div>`;
+  const drop=$("#xDrop"); ["dragover","dragenter"].forEach(e=>drop.addEventListener(e,x=>{ x.preventDefault(); drop.classList.add("ov"); })); ["dragleave","drop"].forEach(e=>drop.addEventListener(e,()=>drop.classList.remove("ov")));
+  drop.addEventListener("drop",x=>{ x.preventDefault(); caricaXml([...x.dataTransfer.files]); });
+  $("#xF").onchange=e=>caricaXml([...e.target.files]);
+  $("#eF").onchange=e=>caricaExcel(e.target.files[0],$("#eT").value);
+  $("#rAll").onclick=async()=>{ const b=$("#rAll"); b.disabled=true; b.textContent="Ricalcolo… (qualche secondo)"; try{ await CP("ricalcola",{parte:"tutto"}); S.st=await C("stato"); toast("Ricalcolato ✓"); vCarica(); }catch(e){ toast(e.message,5000); b.disabled=false; } };
+}
+async function caricaXml(files){ if(!files.length) return; const R=$("#xR"); R.innerHTML=caricando("Leggo i file…");
+  const docs=[], err=[];
+  for(const f of files){ try{ const buf=await f.arrayBuffer(); const l=/\.zip$/i.test(f.name)?await unzipTutto(buf,[],f.name):[{nome:f.name,dati:new Uint8Array(buf)}];
+    for(const x of l){ if(!/\.(xml|p7m)$/i.test(x.nome)||/^(MT|EC|NS|RC|DT|AT|SE)_|_(MT|EC|NS|RC|DT|AT|SE)_\d+\.xml$|metadat/i.test(x.nome)) continue; const d=xmlDaFile(x.nome,x.dati); if(d) docs.push(...leggiFE(d,x.nome)); else err.push(x.nome); } }catch(e){ err.push(f.name+" ("+e.message+")"); } }
+  const vis=new Set(), L=docs.filter(d=>{ const k=d.verso+d.piva+d.num+d.data; if(vis.has(k)) return false; vis.add(k); return true; });
+  const em=L.filter(d=>d.verso==="vendita"), ri=L.filter(d=>d.verso==="acquisto");
+  if(!L.length){ R.innerHTML=`<div class="banner ko" style="margin-top:12px">Nessuna fattura trovata nei file.${err.length?" File non leggibili: "+esc(err.slice(0,5).join(", ")):""}</div>`; return; }
+  R.innerHTML=`<div class="banner ok" style="margin-top:12px"><b>${nf(L.length)} fatture lette</b>: ${nf(em.length)} emesse (${eur(em.reduce((s,d)=>s+N(d.imp),0))} imponibile), ${nf(ri.length)} ricevute (${eur(ri.reduce((s,d)=>s+N(d.imp),0))}).${err.length?` <b>${nf(err.length)} file non leggibili.</b>`:""}<br>Dal ${gma(L.map(d=>d.data).sort()[0])} al ${gma(L.map(d=>d.data).sort().pop())}.</div>
+   <button class="btn pri big" id="xOk">${ic("up")}Carica nei conti</button><div class="prog" id="xPg" style="display:none"><i></i></div>`;
+  $("#xOk").onclick=async()=>{ const b=$("#xOk"); b.disabled=true; $("#xPg").style.display="block"; let nu=0, ag=0;
+    try{ for(let i=0;i<L.length;i+=300){ const r=await CP("importa",{docs:L.slice(i,i+300),fonte:"xml"}); nu+=r.nuovi; ag+=r.aggiornati; $("#xPg i").style.width=Math.min(100,(i+300)/L.length*100)+"%"; b.textContent=`Carico… ${nf(Math.min(L.length,i+300))}/${nf(L.length)}`; }
+      R.innerHTML=`<div class="banner ok" style="margin-top:12px">✓ Fatto: <b>${nf(ag)}</b> documenti Danea ora hanno gli importi esatti, <b>${nf(nu)}</b> documenti nuovi aggiunti.</div>`; S.st=await C("stato"); }catch(e){ toast("Errore: "+e.message,5000); b.disabled=false; } };
+}
+function leggiFE(doc,nome){ const q=(el,n)=>el?el.getElementsByTagNameNS("*",n)[0]||el.getElementsByTagName(n)[0]:null, tx=(el,n)=>(q(el,n)?.textContent||"").trim(), all=(el,n)=>el?[...el.getElementsByTagNameNS("*",n)]:[];
+  const ced=q(doc,"CedentePrestatore"), ces=q(doc,"CessionarioCommittente");
+  const den=el=>tx(el,"Denominazione")||[tx(el,"Nome"),tx(el,"Cognome")].join(" ").trim();
+  const pivaDi=el=>{ const i=q(el,"IdFiscaleIVA"); return i?tx(i,"IdCodice"):""; };
+  const pc=pivaDi(ced), mie=pc===MIA_PIVA, contro=mie?ces:ced;
+  return all(doc,"FatturaElettronicaBody").map(body=>{ const g=q(body,"DatiGeneraliDocumento"), td=tx(g,"TipoDocumento"), nc=/^TD0[48]$/.test(td), s=nc?-1:1;
+    let imp=0, iva=0; all(body,"DatiRiepilogo").forEach(r=>{ imp+=N(tx(r,"ImponibileImporto")); iva+=N(tx(r,"Imposta")); });
+    const totD=tx(g,"ImportoTotaleDocumento"), tot=totD?N(totD):imp+iva;
+    const pag=q(body,"DettaglioPagamento"), MOD={MP01:"Contanti",MP02:"Assegno",MP05:"Bonifico",MP08:"Carta",MP12:"RiBa",MP19:"SDD",MP21:"SDD"};
+    return {verso:mie?"vendita":"acquisto",tipo:mie?(nc?"nota":"fattura"):"acquisto",td,num:tx(g,"Numero"),data:tx(g,"Data"),nome:den(contro),piva:pivaDi(contro)||tx(contro,"CodiceFiscale"),
+      imp:r2(s*Math.abs(imp)),iva:r2(s*Math.abs(iva)),tot:r2(s*Math.abs(tot)),scadenza:pag?tx(pag,"DataScadenzaPagamento"):"",pagamento:pag?MOD[tx(pag,"ModalitaPagamento")]||tx(pag,"ModalitaPagamento"):"",file:nome}; }); }
+async function caricaExcel(f,tipo){ if(!f) return; const R=$("#eR"); R.innerHTML=caricando("Leggo il file…");
+  try{ await XLSXlib(); const wb=XLSX.read(await f.arrayBuffer(),{type:"array",cellDates:true}); const rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:""});
+    const hi=rows.findIndex(r=>r.some(c=>/^data/i.test(String(c).trim()))&&r.some(c=>/^n(um|°|r|\.)/i.test(String(c).trim()))); if(hi<0) throw new Error("non trovo le colonne Data e Numero");
+    const H=rows[hi].map(h=>String(h).trim().toLowerCase()), col=re=>H.findIndex(h=>re.test(h));
+    const c={data:col(/^data( doc)?/),num:col(/^n(um(ero)?|°|r\.?|\.)/),nome:col(/client|fornitor|denomin|ragione|intestat|destinat/),cod:col(/^cod/),piva:col(/p\.? ?iva|partita/),imp:col(/imponib/),iva:col(/^(tot\.? )?iva|imposta/),tot:col(/^tot(ale)?( doc(umento)?)?\.?$|totale/),pag:col(/pagament/),sc:col(/scadenz/)};
+    if(c.data<0||c.num<0||(c.imp<0&&c.tot<0)) throw new Error("servono almeno Data, Numero e un importo (Imponibile o Totale)");
+    const num=v=>typeof v==="number"?v:N(String(v).replace(/[€\s]/g,"").replace(/\./g,"").replace(",","."));
+    const dd=v=>{ if(v instanceof Date) return iso(new Date(v.getFullYear(),v.getMonth(),v.getDate(),12)); const m=String(v).match(/(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/); if(m) return (m[3].length===2?"20"+m[3]:m[3])+"-"+m[2].padStart(2,"0")+"-"+m[1].padStart(2,"0"); return /^\d{4}-\d\d-\d\d/.test(v)?String(v).slice(0,10):""; };
+    const L=rows.slice(hi+1).map(r=>{ const imp=c.imp>=0?num(r[c.imp]):null, tot=c.tot>=0?num(r[c.tot]):null, iva=c.iva>=0?num(r[c.iva]):null;
+      return {tipo,data:dd(r[c.data]),num:String(r[c.num]??"").trim(),nome:c.nome>=0?String(r[c.nome]).trim():"",cli:c.cod>=0&&tipo!=="acquisto"?"D"+String(r[c.cod]).trim():"",piva:c.piva>=0?String(r[c.piva]).trim():"",
+        imp:imp??(tot!=null?r2(tot/1.22):null),iva:iva??(imp!=null&&tot!=null?r2(tot-imp):null),tot,pagamento:c.pag>=0?String(r[c.pag]).trim():"",scadenza:c.sc>=0?dd(r[c.sc]):""}; }).filter(x=>x.data&&x.num);
+    if(!L.length) throw new Error("nessuna riga con data e numero");
+    R.innerHTML=`<div class="banner ok" style="margin-top:12px"><b>${nf(L.length)} documenti</b> letti (${esc(TIPI[tipo])}), dal ${gma(L.map(x=>x.data).sort()[0])} al ${gma(L.map(x=>x.data).sort().pop())}, imponibile ${eur(L.reduce((s,x)=>s+N(x.imp),0))}.</div><button class="btn pri big" id="eOk">${ic("up")}Carica nei conti</button>`;
+    $("#eOk").onclick=async()=>{ const b=$("#eOk"); b.disabled=true; let nu=0, ag=0; try{ for(let i=0;i<L.length;i+=300){ const r=await CP("importa",{docs:L.slice(i,i+300),fonte:"excel"}); nu+=r.nuovi; ag+=r.aggiornati; b.textContent=`Carico… ${nf(Math.min(L.length,i+300))}/${nf(L.length)}`; }
+      R.innerHTML=`<div class="banner ok" style="margin-top:12px">✓ Fatto: <b>${nf(ag)}</b> documenti aggiornati con gli importi esatti, <b>${nf(nu)}</b> nuovi.</div>`; }catch(e){ toast("Errore: "+e.message,5000); b.disabled=false; } };
+  }catch(e){ R.innerHTML=`<div class="banner ko" style="margin-top:12px">Non riesco a leggere il file: ${esc(e.message)}</div>`; } }
+
+/* --- lettura ZIP e P7M (come nell'app del negozio) --- */
+const MIA_PIVA="07149740636";
+async function unzipTutto(buf,out=[],nome=""){ const b=new Uint8Array(buf), dv=new DataView(b.buffer,b.byteOffset,b.byteLength);
+  let e=-1; for(let i=b.length-22;i>=Math.max(0,b.length-66000);i--) if(dv.getUint32(i,true)===0x06054b50){ e=i; break; } if(e<0) throw new Error("ZIP non valido: "+nome);
+  let n=dv.getUint16(e+10,true), off=dv.getUint32(e+16,true);
+  for(let k=0;k<n;k++){ if(dv.getUint32(off,true)!==0x02014b50) break;
+    const met=dv.getUint16(off+10,true), csz=dv.getUint32(off+20,true), ln=dv.getUint16(off+28,true), lx=dv.getUint16(off+30,true), lc=dv.getUint16(off+32,true), loc=dv.getUint32(off+42,true);
+    const fn=new TextDecoder().decode(b.subarray(off+46,off+46+ln)); off+=46+ln+lx+lc; if(fn.endsWith("/")) continue;
+    const st=loc+30+dv.getUint16(loc+26,true)+dv.getUint16(loc+28,true); let dat=b.subarray(st,st+csz);
+    if(met===8) dat=new Uint8Array(await new Response(new Blob([dat]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer()); else if(met!==0) continue;
+    if(/\.zip$/i.test(fn)) await unzipTutto(dat,out,fn); else out.push({nome:fn.split("/").pop(),dati:dat}); }
+  return out; }
+function contenutoP7m(b){ let best=null;
+  const walk=(i,end,depth)=>{ const pezzi=[];
+    while(i<end){ const tag=b[i]; if(tag===0&&b[i+1]===0) return {i:i+2,pezzi,eoc:true};
+      let j=i+1, len=b[j++], indef=false; if(len===0x80){ indef=true; len=-1; } else if(len&0x80){ const n=len&0x7f; len=0; for(let k=0;k<n;k++) len=len*256+b[j++]; }
+      const costr=!!(tag&0x20); let fine;
+      if(costr){ const r=walk(j,indef?end:j+len,depth+1); fine=indef?r.i:j+len;
+        if((tag&0x1f)===4){ const tot=r.pezzi.reduce((a,x)=>a+x.length,0), u=new Uint8Array(tot); let o=0; r.pezzi.forEach(x=>{u.set(x,o);o+=x.length;}); pezzi.push(u); if(!best||u.length>best.length) best=u; } }
+      else { fine=j+len; if(tag===4){ const u=b.subarray(j,fine); pezzi.push(u); if(!best||u.length>best.length) best=u; } }
+      if(len<0&&!costr) return {i:end,pezzi}; i=fine; if(depth>40) break; }
+    return {i,pezzi}; };
+  try{ walk(0,b.length,0); }catch(e){} return best; }
+function xmlDaFile(nome,dati){ let b=dati, t=new TextDecoder("latin1").decode(b);
+  if(/\.p7m$/i.test(nome)){ if(b[0]!==0x30&&/^[A-Za-z0-9+/=\s]+$/.test(t.slice(0,200))){ try{ const bin=atob(t.replace(/[^A-Za-z0-9+/=]/g,"")); b=Uint8Array.from(bin,ch=>ch.charCodeAt(0)); }catch(e){} }
+    const c=contenutoP7m(b); if(c) b=c; t=new TextDecoder("latin1").decode(b); }
+  const i=t.search(/<\?xml|<[A-Za-z0-9_]*:?FatturaElettronica[\s>]/); const m=t.match(/<\/[A-Za-z0-9_]*:?FatturaElettronica>/g); if(i<0||!m) return null;
+  const j=t.lastIndexOf(m[m.length-1])+m[m.length-1].length; let x=t.slice(i,j); try{ x=decodeURIComponent(escape(x)); }catch(e){} x=x.replace(/^<\?xml[^>]*\?>/,"");
+  const d=new DOMParser().parseFromString(x,"application/xml"); return d.getElementsByTagName("parsererror").length?null:d; }
+
+avvio();
+</script>
+</body>
+</html>

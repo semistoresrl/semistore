@@ -160,7 +160,7 @@ export async function onRequest(ctx) {
     const email = String(body.email || '').trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'email non valida' }, 400);
     if (body.azione === 'salva') {
-      const ruolo = body.ruolo === 'admin' ? 'admin' : 'operatore', nome = String(body.nome || '').trim() || email;
+      const ruolo = ['admin', 'contabilita'].includes(body.ruolo) ? body.ruolo : 'operatore', nome = String(body.nome || '').trim() || email;
       if (email === io.email && (ruolo !== 'admin' || body.attivo === false)) return json({ error: 'non puoi togliere i permessi a te stesso' }, 400);
       await d.prepare(`INSERT INTO utenti(email,nome,ruolo,attivo,creato) VALUES(?,?,?,?,?)
         ON CONFLICT(email) DO UPDATE SET nome=excluded.nome, ruolo=excluded.ruolo, attivo=excluded.attivo`).bind(email, nome, ruolo, body.attivo === false ? 0 : 1, Date.now()).run();

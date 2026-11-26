@@ -130,7 +130,7 @@
   const pronto=(async()=>{
     let st=await req("io").catch(()=>({utente:null,primoAvvio:false}));
     let io=st.utente; if(!io){ if(!document.body) await new Promise(r=>document.addEventListener("DOMContentLoaded",r,{once:true})); io=await accesso(st); }
-    SEMI.io=io; document.documentElement.classList.toggle("is-admin",io.ruolo==="admin");
+    SEMI.io=io; if(io.ruolo==="contabilita"){ location.replace("/gestione/conti/"); await new Promise(()=>{}); } document.documentElement.classList.toggle("is-admin",io.ruolo==="admin");
     await sync();
     setInterval(()=>{ if(document.visibilityState==="visible") sync(); },4000);
     document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") sync(); });
@@ -723,6 +723,7 @@ html,body{overscroll-behavior-x:none;max-width:100%}
     <nav id="nav">
 <div class="ng">In primo piano</div><a href="#cruscotto" data-v="cruscotto"><svg class="i"><use href="#i-home"/></svg><span>Home</span></a>
 <a href="#posta" data-v="posta" class="adm-only"><svg class="i"><use href="#i-send"/></svg><span>Posta</span><span class="ct" id="ctPosta">0</span></a>
+<a href="/gestione/conti/" class="adm-only"><svg class="i"><use href="#i-chart"/></svg><span>Contabilità</span></a>
 <a href="#lavorazioni" data-v="lavorazioni"><svg class="i"><use href="#i-wrench"/></svg><span>Lavorazioni</span><span class="ct" id="ctOpen">0</span></a>
 <a href="#prezzi" data-v="prezzi"><svg class="i"><use href="#i-tag"/></svg><span>Cerca prezzo</span></a>
 <a href="#storico" data-v="storico"><svg class="i"><use href="#i-clock"/></svg><span>Storico codice</span></a>
@@ -3887,7 +3888,7 @@ function vUtenti(){
   return header("Utenti","Chi può entrare nell'app: amministratore e operatori",`<button class="btn pri" data-act="nuovoUtente">${ic("plus")}Aggiungi persona</button>`)+
   `<div class="banner">Ognuno entra da <b>semistore.it/gestione</b> con la sua email: riceve un codice di 6 cifre. Se l'email non arriva, tocca <b>“Codice d'accesso”</b> e manda il codice su WhatsApp. Gli operatori fanno tutte le operazioni di lavoro; solo l'amministratore vede Utenti, Registro e le persone sul sito.</div>
   <table class="tbig"><thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Ultimo accesso</th><th></th></tr></thead><tbody>
-  ${l.map(u=>`<tr style="${u.attivo?"":"opacity:.5"}"><td><b>${esc(u.nome)}</b></td><td>${esc(u.email)}</td><td>${u.ruolo==="admin"?`<span class="badge st-Pronto">Amministratore</span>`:`<span class="badge">Operatore</span>`}${u.attivo?"":` <span class="badge st-Annullato">Disattivato</span>`}</td><td class="sub">${u.ultimo?fmtDT(u.ultimo):"mai"}</td>
+  ${l.map(u=>`<tr style="${u.attivo?"":"opacity:.5"}"><td><b>${esc(u.nome)}</b></td><td>${esc(u.email)}</td><td>${u.ruolo==="admin"?`<span class="badge st-Pronto">Amministratore</span>`:u.ruolo==="contabilita"?`<span class="badge st-Spedito">Contabilità</span>`:`<span class="badge">Operatore</span>`}${u.attivo?"":` <span class="badge st-Annullato">Disattivato</span>`}</td><td class="sub">${u.ultimo?fmtDT(u.ultimo):"mai"}</td>
     <td class="num"><button class="btn sm" data-ucod="${esc(u.email)}">${ic("chat")}Codice d'accesso</button> <button class="btn sm" data-umod="${esc(u.email)}">Modifica</button></td></tr>`).join("")}</tbody></table>
   <div class="panel" style="margin-top:18px"><h3>${ic("up")} Trasferimento dall'app su claude.ai</h3><p class="sub" style="margin:0 0 10px">Una volta sola: nell'app vecchia premi <b>“Esporta tutto per il sito”</b> (Canali e integrazioni), poi carica qui il file.</p><label class="btn">${ic("up")}Carica il file dell'archivio<input type="file" id="impF" accept=".json,application/json" style="display:none"></label><div id="impSt" class="sub" style="margin-top:8px"></div></div>`;
 }
@@ -3895,7 +3896,7 @@ function openUtente(u){
   const n=!u; u=u||{ruolo:"operatore",attivo:1};
   openModal(`<div class="mh"><h2>${n?"Aggiungi persona":esc(u.nome)}</h2><span class="sp"></span><button class="x" data-close>×</button></div>
   <div class="mb"><div class="fs"><div class="f"><label class="fl">Nome<input id="uN" value="${esc(u.nome||"")}" placeholder="es. Francesco"></label><label class="fl">Email<input id="uE" type="email" value="${esc(u.email||"")}" ${n?"":"readonly"}></label>
-   <label class="fl">Ruolo<select id="uR"><option value="operatore" ${u.ruolo!=="admin"?"selected":""}>Operatore (assistenza, garanzie, vendite, magazzino)</option><option value="admin" ${u.ruolo==="admin"?"selected":""}>Amministratore (vede tutto)</option></select></label>
+   <label class="fl">Ruolo<select id="uR"><option value="operatore" ${u.ruolo!=="admin"&&u.ruolo!=="contabilita"?"selected":""}>Operatore (assistenza, garanzie, vendite, magazzino)</option><option value="contabilita" ${u.ruolo==="contabilita"?"selected":""}>Contabilità (solo il pannello dei conti)</option><option value="admin" ${u.ruolo==="admin"?"selected":""}>Amministratore (vede tutto)</option></select></label>
    <label class="ck" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="uA" ${u.attivo?"checked":""}> Attivo</label>
    <label class="fl" style="grid-column:1/-1">Email di recupero (riceve anche lei il codice d'accesso)<input id="uRec" type="email" value="${esc(u.recupero||"")}" placeholder="facoltativa, es. un'email personale"></label></div></div></div>
   <div class="mf">${n?"":`<button class="btn" id="uX">Scollega da tutti i dispositivi</button>`}<span class="sp" style="flex:1"></span><button class="btn" data-close>Chiudi</button><button class="btn pri" id="uOk">Salva</button></div>`);
