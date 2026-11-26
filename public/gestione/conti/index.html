@@ -692,6 +692,8 @@ function vCarica(){
    <div class="card"><h2>2. Elenco documenti esportato da Danea (Excel)</h2><p class="mut" style="margin:6px 0 12px">In Danea apri l'elenco (es. <b>Fatture</b>), scegli il periodo, seleziona tutto e fai <b>Esporta → Excel</b>. Servono le colonne data, numero, cliente e gli importi (imponibile/IVA/totale).</p>
     <div class="fm" style="margin-bottom:10px"><label>Che documenti sono?<select id="eT"><option value="fattura">Fatture emesse</option><option value="nota">Note di credito</option><option value="banco">Vendite al banco</option><option value="ddt">DDT</option><option value="acquisto">Fatture ricevute</option></select></label></div>
     <label class="drop"><input type="file" id="eF" accept=".xlsx,.xls,.csv" style="display:none"><b style="font-size:16px">Scegli il file Excel</b></label><div id="eR"></div></div>
+   <div class="card"><h2>3. Documenti completi da Danea (file preparato da Claude)</h2><p class="mut" style="margin:6px 0 12px">Il file <b>documenti_danea_conti.json</b>: tutte le fatture, note di credito, vendite al banco, DDT, rapporti d'intervento e fatture ricevute dal 2017, con imponibile, IVA e totale esatti.</p>
+    <label class="drop"><input type="file" id="jF" accept=".json" style="display:none"><b style="font-size:16px">Scegli il file .json</b></label><div id="jR"></div></div>
    <div class="card"><h2>Situazione</h2><div class="sm" style="line-height:1.9;margin-top:6px">
     <div>Storico Danea: <b>${d?`${nf(d.documenti)} documenti dal ${gma(d.da)} al ${gma(d.a)}`:"non caricato"}</b> <span class="mut">(si carica dall'app del negozio: Impostazioni → Clienti → Carica storico per codice)</span></div>
     <div>Documenti nei conti: <b>${nf(doc.n)}</b>, di cui con importi esatti da fattura elettronica <b>${nf(doc.esatti)}</b>, corretti a mano <b>${nf(doc.modificati)}</b></div>
@@ -701,6 +703,7 @@ function vCarica(){
   drop.addEventListener("drop",x=>{ x.preventDefault(); caricaXml([...x.dataTransfer.files]); });
   $("#xF").onchange=e=>caricaXml([...e.target.files]);
   $("#eF").onchange=e=>caricaExcel(e.target.files[0],$("#eT").value);
+  $("#jF").onchange=e=>caricaJson(e.target.files[0]);
   $("#rAll").onclick=async()=>{ const b=$("#rAll"); b.disabled=true; b.textContent="Ricalcolo… (qualche secondo)"; try{ await CP("ricalcola",{parte:"tutto"}); S.st=await C("stato"); toast("Ricalcolato ✓"); vCarica(); }catch(e){ toast(e.message,5000); b.disabled=false; } };
 }
 async function caricaXml(files){ if(!files.length) return; const R=$("#xR"); R.innerHTML=caricando("Leggo i file…");
@@ -742,6 +745,17 @@ async function caricaExcel(f,tipo){ if(!f) return; const R=$("#eR"); R.innerHTML
     R.innerHTML=`<div class="banner ok" style="margin-top:12px"><b>${nf(L.length)} documenti</b> letti (${esc(TIPI[tipo])}), dal ${gma(L.map(x=>x.data).sort()[0])} al ${gma(L.map(x=>x.data).sort().pop())}, imponibile ${eur(L.reduce((s,x)=>s+N(x.imp),0))}.</div><button class="btn pri big" id="eOk">${ic("up")}Carica nei conti</button>`;
     $("#eOk").onclick=async()=>{ const b=$("#eOk"); b.disabled=true; let nu=0, ag=0; try{ for(let i=0;i<L.length;i+=300){ const r=await CP("importa",{docs:L.slice(i,i+300),fonte:"excel"}); nu+=r.nuovi; ag+=r.aggiornati; b.textContent=`Carico… ${nf(Math.min(L.length,i+300))}/${nf(L.length)}`; }
       R.innerHTML=`<div class="banner ok" style="margin-top:12px">✓ Fatto: <b>${nf(ag)}</b> documenti aggiornati con gli importi esatti, <b>${nf(nu)}</b> nuovi.</div>`; }catch(e){ toast("Errore: "+e.message,5000); b.disabled=false; } };
+  }catch(e){ R.innerHTML=`<div class="banner ko" style="margin-top:12px">Non riesco a leggere il file: ${esc(e.message)}</div>`; } }
+
+async function caricaJson(f){ if(!f) return; const R=$("#jR"); R.innerHTML=caricando("Leggo il file…");
+  try{ const j=JSON.parse(await f.text()), L=(Array.isArray(j)?j:j.docs||[]).filter(x=>x&&/^\d{4}-\d\d-\d\d$/.test(x.data||""));
+    if(!L.length) throw new Error("nessun documento nel file");
+    const per={}; L.forEach(x=>{ per[x.tipo]=(per[x.tipo]||0)+1; });
+    R.innerHTML=`<div class="banner ok" style="margin-top:12px"><b>${nf(L.length)} documenti</b> dal ${gma(L.map(x=>x.data).sort()[0])} al ${gma(L.map(x=>x.data).sort().pop())}: ${Object.entries(per).map(([t,n])=>nf(n)+" "+esc((TIPI[t]||t).toLowerCase())).join(", ")}.</div><button class="btn pri big" id="jOk">${ic("up")}Carica nei conti</button><div class="prog" id="jPg" style="display:none"><i></i></div>`;
+    $("#jOk").onclick=async()=>{ const b=$("#jOk"); b.disabled=true; $("#jPg").style.display="block"; let nu=0, ag=0;
+      try{ for(let i=0;i<L.length;i+=300){ let r, k=0; for(;;){ try{ r=await CP("importa",{docs:L.slice(i,i+300),fonte:"danea-json"}); break; }catch(e){ if(++k>=3) throw e; await new Promise(o=>setTimeout(o,1500)); } }
+          nu+=r.nuovi; ag+=r.aggiornati; $("#jPg i").style.width=Math.min(100,(i+300)/L.length*100)+"%"; b.textContent=`Carico… ${nf(Math.min(L.length,i+300))}/${nf(L.length)} (lascia la pagina aperta)`; }
+        R.innerHTML=`<div class="banner ok" style="margin-top:12px">✓ Fatto: <b>${nf(ag)}</b> documenti ora hanno gli importi esatti, <b>${nf(nu)}</b> aggiunti.</div>`; S.st=await C("stato"); }catch(e){ toast("Errore: "+e.message+" — puoi ricaricare lo stesso file, non si doppia",6000); b.disabled=false; } };
   }catch(e){ R.innerHTML=`<div class="banner ko" style="margin-top:12px">Non riesco a leggere il file: ${esc(e.message)}</div>`; } }
 
 /* --- lettura ZIP e P7M (come nell'app del negozio) --- */
