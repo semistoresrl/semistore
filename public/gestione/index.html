@@ -842,6 +842,7 @@ async function init(){
   db.collection("ordiniWeb").onSnapshot(s=>{S.ordiniWeb=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("w");},err);
   db.collection("consegne").onSnapshot(s=>{S.consegne=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("prenotazioni").onSnapshot(s=>{S.pren=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
+  db.collection("colli").onSnapshot(s=>{S.colli=s.docs.map(d=>({id:d.id,...d.data()}));},()=>{});
   db.collection("noleggi").onSnapshot(s=>{S.noleggi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("preventivi").onSnapshot(s=>{S.preventivi=s.docs.map(d=>({id:d.id,...d.data()})); schedule();},()=>{});
   db.collection("resi").onSnapshot(s=>{S.resi=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("x");},err);
@@ -5249,10 +5250,119 @@ function bindPrenotate(){ const m=$("#main");
   m.querySelectorAll("[data-pok]").forEach(x=>x.onclick=()=>write(()=>S.db.collection("prenotazioni").doc(x.dataset.pok).update({stato:"consegnato",chiusoAt:Date.now()}),"Segnato come consegnato"));
   m.querySelectorAll("[data-pno]").forEach(x=>x.onclick=()=>{ if(!confirm("Annullare questa prenotazione?")) return; write(()=>S.db.collection("prenotazioni").doc(x.dataset.pno).update({stato:"annullato",chiusoAt:Date.now()}),"Prenotazione annullata"); }); }
 
+
+/* 26/11: etichetta «CONTENTS» dei pacchi Stanley Black & Decker. Foto → lettura (OCR in inglese) → righe SKU/quantità
+   controllate col magazzino (anche con codici letti male o tagliati) → carico in un colpo → assegnazione a schede/vendite. */
+let ocrEn=null;
+function caricaOCREn(prog){ if(ocrEn) return ocrEn;
+  ocrEn=(async()=>{ if(!window.Tesseract) await new Promise((ok,ko)=>{ const s=document.createElement("script"); s.src=OCR.js; s.onload=ok; s.onerror=()=>ko(new Error("lettore non caricato")); document.head.appendChild(s); });
+    const w=await Tesseract.createWorker("eng",1,{workerPath:OCR.worker,corePath:OCR.core,langPath:"https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int",logger:m=>prog&&prog(m)});
+    try{ await w.setParameters({tessedit_pageseg_mode:"4",preserve_interword_spaces:"1"}); }catch(e){}
+    return w; })();
+  ocrEn.catch(()=>{ ocrEn=null; }); return ocrEn; }
+async function leggiEtichettaTesto(file,prog){
+  const w=await caricaOCREn(m=>{ if(m.status==="recognizing text") prog&&prog(Math.round(40+m.progress*60)); else if(/load|initial/.test(m.status||"")) prog&&prog(Math.round((m.progress||0)*35)); });
+  const img=await imgDa(file); const c=tela(img,3000,0); const x=c.getContext("2d"); const d=x.getImageData(0,0,c.width,c.height), p=d.data, n=p.length/4;
+  const h=new Uint32Array(256); for(let i=0;i<p.length;i+=4){ const g=(p[i]*.3+p[i+1]*.59+p[i+2]*.11)|0; p[i]=g; h[g]++; }
+  let lo=0,hi=255,a=0; while(a<n*.02&&lo<255) a+=h[lo++]; a=0; while(a<n*.02&&hi>0) a+=h[hi--]; const k=255/Math.max(1,hi-lo);
+  for(let i=0;i<p.length;i+=4){ const g=Math.max(0,Math.min(255,(p[i]-lo)*k)); p[i]=p[i+1]=p[i+2]=g; } x.putImageData(d,0,0);
+  prog&&prog(40); const r=await w.recognize(c); return r.data.text||""; }
+const lev=(a,b)=>{ if(Math.abs(a.length-b.length)>2) return 9; const m=[...Array(b.length+1).keys()]; for(let i=1;i<=a.length;i++){ let pr=m[0]; m[0]=i; for(let j=1;j<=b.length;j++){ const t=m[j]; m[j]=Math.min(m[j]+1,m[j-1]+1,pr+(a[i-1]===b[j-1]?0:1)); pr=t; } } return m[b.length]; };
+// codice letto → articolo del magazzino. come: esatto | letto male | completato (inizio tagliato) | nuovo
+function trovaCodiceEt(raw,descr){ const c=String(raw||"").toUpperCase().replace(/[—–~_]/g,"-").replace(/\s+/g,"").replace(/^[^A-Z0-9]+|[^A-Z0-9]+$/g,"");
+  if(!c) return {codice:"",come:"nuovo"};
+  const ex=itm(c); if(ex) return {it:ex,codice:ex.codice,come:"esatto"};
+  const idx=indiceCodici(), k=sch(c); if(idx.get(k)) return {it:idx.get(k),codice:idx.get(k).codice,come:"letto male"};
+  if(k.length<5) return {codice:c,come:"nuovo"};
+  const parole=new Set(String(descr||"").toUpperCase().split(/[^A-Z0-9]+/).filter(w=>w.length>=3));
+  const somiglia=r=>String(r.descr||"").toUpperCase().split(/[^A-Z0-9]+/).filter(w=>parole.has(w)).length;
+  const sicuri=[], forse=[];
+  for(const r of allItems()){ const s=sch(r.codice); if(!s||Math.abs(s.length-k.length)>3) continue;
+    if(s.length>k.length&&s.length-k.length<=3&&s.endsWith(k)) sicuri.push({r,come:"completato",p:somiglia(r)});              // inizio tagliato nella foto
+    else if(s.length>=k.length&&s.length-k.length<=2&&s.endsWith(k.slice(1))) sicuri.push({r,come:"completato",p:somiglia(r)}); // primo carattere rovinato dal bordo
+    else if(Math.abs(s.length-k.length)<=1&&lev(s,k)<=1) forse.push({r,come:"letto male",p:somiglia(r)}); }
+  const sceglie=l=>{ if(!l.length) return null; l.sort((a,b)=>b.p-a.p); return (l.length===1||l[0].p>l[1].p)?l[0]:null; };
+  const a=sceglie(sicuri); if(a) return {it:a.r,codice:a.r.codice,come:a.come};
+  const b=sceglie(forse); if(b&&b.p>0) return {it:b.r,codice:b.r.codice,come:b.come};
+  return {codice:c,come:"nuovo",ipotesi:[...sicuri,...forse].sort((x,y)=>y.p-x.p).slice(0,4).map(x=>x.r.codice)}; }
+function analizzaEtichetta(testo){
+  const L=testo.split(/\n/).map(x=>x.replace(/[|‘’“”"]/g," ").replace(/\s+/g," ").trim()).filter(Boolean), tutto=L.join("\n");
+  const ctn=((tutto.replace(/\s/g,"").match(/0{3,5}53\d{13}/)||[])[0]||"").replace(/^0+/,"");
+  const consegna=(tutto.match(/DELIVER\S*\s*[:#]?\s*\S?(\d{9,10})/i)||[])[1]||"";
+  const pagina=(tutto.match(/PAGE\s*(\d)\s*(?:of|0f|ot|af)\s*(\d)/i)||[]).slice(1).join("/");
+  const righe=[]; const DATA=/(\S{2,4})\s+(\S{2,3})\s+\d{1,2}\s*[-–—~]\s*\d{1,2}\s*[-–—~]\s*\d{2}\b/;
+  for(let i=0;i<L.length;i++){ const ln=L[i]; if(/carrier|service|company|tracking|sku\s|sales ord/i.test(ln)) continue;
+    const m=ln.match(DATA); if(!m) continue; let head=ln.slice(0,m.index).trim(); const po=(m[2].replace(/[?Aa]/g,"7").replace(/[Oo]/g,"0").match(/\d{3}/)||[])[0]||"";
+    let qty=1, dubbio=false; const tk=head.split(" "); const ul=tk[tk.length-1]||"";
+    if(tk.length>1&&/^[\dIl|oO']{1,3}$/.test(ul)){ tk.pop(); const q=parseInt(ul.replace(/[Il|']/g,"1").replace(/[oO]/g,"0")); if(q>0&&q<=200) qty=q; else dubbio=true; if(/['|Il]/.test(ul)) dubbio=true; } else dubbio=true;
+    const sku=tk.join("").replace(/[—–~]/g,"-"); if(sku.replace(/[^A-Z0-9]/gi,"").length<4) continue;
+    let descr=""; const nx=L[i+1]||""; if(nx&&!DATA.test(nx)&&/[A-Za-z]{3}/.test(nx)&&!/^0{4}/.test(nx)) descr=nx.replace(/^[^A-Za-z]+/,"").slice(0,60);
+    const tr=trovaCodiceEt(sku,descr); righe.push({letto:sku,codice:tr.codice,come:tr.come,ipotesi:tr.ipotesi||[],qty,dubbio:dubbio||tr.come!=="esatto",descr,po}); }
+  return {ctn,consegna,pagina,righe,testo:tutto}; }
+async function etichettaFoto(file){ WZ.et=WZ.et||{righe:[],colli:[]};
+  wz(`<div class="wdone"><div class="we">🔎</div><h2>Leggo l'etichetta…</h2><p>La prima volta ci vuole qualche secondo in più.</p><div class="bar" style="height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-top:14px"><i id="wEp" style="display:block;height:100%;width:3%;background:var(--y);transition:width .3s"></i></div></div>`,"");
+  try{ const tx=await leggiEtichettaTesto(file,p=>{ const e=$("#wEp"); if(e) e.style.width=Math.max(3,p)+"%"; }); const an=analizzaEtichetta(tx);
+    const gia=an.ctn&&(S.colli||[]).find(c=>c.ctn===an.ctn&&(c.pagina||"")===(an.pagina||""));
+    WZ.et.colli.push({ctn:an.ctn,consegna:an.consegna,pagina:an.pagina,gia:gia?gia.at:0,n:an.righe.length});
+    an.righe.forEach(r=>{ const e=WZ.et.righe.find(x=>x.codice&&codEq(x.codice,r.codice)&&x.po===r.po&&x.collo===an.ctn); if(!e) WZ.et.righe.push({...r,collo:an.ctn,on:!gia}); });
+    if(!an.righe.length) toast("Non riesco a leggere le righe: rifai la foto più vicina e dritta, oppure aggiungile a mano");
+  }catch(e){ console.warn(e); toast("Lettura non riuscita: "+(e.message||"riprova")); }
+  WZ.stack.push(step(()=>stepEtichetta())); stepEtichetta(); }
+function stepEtichetta(){ const E=WZ.et, R=E.righe;
+  const stato=r=>{ const it=itm(r.codice); if(!r.codice) return `<span class="badge st-Annullato">scrivi il codice</span>`; if(!it) return `<span class="badge st-Annullato">nuovo in magazzino</span>`;
+    return r.come==="esatto"?`<span class="badge st-Pronto">trovato</span>`:`<span class="badge st-Preventivo-inviato" style="background:#fff3cd;color:#7a5a00">${r.come==="completato"?"codice completato":"corretto"}: controlla</span>`; };
+  const att=r=>{ const a=r.codice&&itm(r.codice)?attesePer(r.codice):[]; return a.length?`<div class="wsub" style="color:#1d3f7a"><b>Atteso da:</b> ${a.slice(0,3).map(x=>esc(x.titolo)+(x.cliente?" ("+esc(x.cliente)+")":"")).join(", ")}</div>`:""; };
+  const on=R.filter(r=>r.on&&r.codice&&r.qty>0), pz=on.reduce((a,r)=>a+r.qty,0);
+  wz(`<div class="wq">Contenuto del pacco</div>
+    ${E.colli.map(c=>`<div class="wsub">Collo <span class="mono">${esc(c.ctn||"non letto")}</span>${c.pagina?" · pagina "+esc(c.pagina):""}${c.consegna?" · consegna "+esc(c.consegna):""} · ${c.n} righe lette${c.gia?` · <b style="color:#b42318">già caricato il ${fmtD(c.gia)}</b>`:""}</div>`).join("")}
+    <div class="wsub" style="margin:6px 0 10px">Controlla codice e quantità con l'etichetta: le righe in giallo le ho corrette io, quelle in rosso vanno scritte.</div>
+    ${R.length?R.map((r,j)=>{ const it=itm(r.codice); return `<div class="wcard" style="margin-bottom:8px;${r.on?"":"opacity:.5;"}${!it||r.dubbio?"border-left:4px solid "+(it?"#e0a800":"#d92d20"):""}">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="checkbox" data-eon="${j}" ${r.on?"checked":""} style="width:22px;height:22px">
+        <input class="winp mono" data-ec="${j}" value="${esc(r.codice)}" style="flex:1;min-width:120px;margin:0;padding:8px;font-size:16px;text-transform:uppercase">
+        <input class="winp" data-eq="${j}" type="number" min="0" value="${r.qty}" style="width:70px;margin:0;padding:8px;font-size:16px;text-align:center"><span>pz</span></div>
+      <div class="wsub" style="margin-top:4px">${it?`<b>${esc(nomeDi(it))}</b> · in negozio ${Number(it.giacenza)||0}`:esc(r.descr||"")} ${stato(r)}${r.letto&&!codEq(r.letto,r.codice)?` <span class="mono" style="opacity:.6">letto: ${esc(r.letto)}</span>`:""}${r.descr&&it?` <span style="opacity:.6">etichetta: ${esc(r.descr)}</span>`:""}${r.po?` · PO ${esc(r.po)}`:""}</div>${!it&&(r.ipotesi||[]).length?`<div class="wsub">Forse: ${r.ipotesi.map(c=>`<button class="chip" data-eip="${j}" data-c="${esc(c)}" style="margin:4px 4px 0 0">${esc(c)} · ${esc((itm(c)?.descr||"").slice(0,24))}</button>`).join("")}</div>`:""}${att(r)}</div>`; }).join(""):`<div class="empty">Nessuna riga letta</div>`}
+    <div class="wyn">${docLabel("wEt2","Fotografa un'altra etichetta","")}<button class="wbig sec" id="wErm">${ic("plus")}Aggiungi una riga a mano</button></div>`,
+    wBtn("wEok",`Carica ${pz} pezzi in magazzino`,"pri","check"));
+  const B=$("#wzB");
+  B.querySelectorAll("[data-eon]").forEach(x=>x.onchange=()=>{ R[+x.dataset.eon].on=x.checked; stepEtichetta(); });
+  B.querySelectorAll("[data-ec]").forEach(x=>x.onchange=()=>{ const r=R[+x.dataset.ec], tr=trovaCodiceEt(x.value,r.descr); Object.assign(r,{codice:tr.codice,come:tr.come==="nuovo"?"nuovo":"esatto",dubbio:false}); stepEtichetta(); });
+  B.querySelectorAll("[data-eq]").forEach(x=>x.onchange=()=>{ R[+x.dataset.eq].qty=Math.max(0,parseInt(x.value)||0); R[+x.dataset.eq].dubbio=false; stepEtichetta(); });
+  B.querySelectorAll("[data-eip]").forEach(x=>x.onclick=()=>{ Object.assign(R[+x.dataset.eip],{codice:x.dataset.c,come:"esatto",dubbio:false,ipotesi:[]}); stepEtichetta(); });
+  bindDoc("wEt2",f=>{ WZ.stack.pop(); etichettaFoto(f); });
+  $("#wErm").onclick=()=>{ R.push({letto:"",codice:"",come:"nuovo",qty:1,dubbio:true,descr:"",po:"",collo:"",on:true}); stepEtichetta(); setTimeout(()=>{ const l=B.querySelectorAll("[data-ec]"); l[l.length-1]?.focus(); },50); };
+  $("#wEok").onclick=()=>caricaEtichetta(); }
+async function caricaEtichetta(){ const E=WZ.et, on=E.righe.filter(r=>r.on&&r.codice&&r.qty>0); if(!on.length){ toast("Nessuna riga da caricare"); return; }
+  const senza=on.filter(r=>!itm(r.codice)); if(senza.length&&!confirm(`${senza.length} codici non sono in magazzino (${senza.map(r=>r.codice).join(", ")}). Li aggiungo come nuovi?`)) return;
+  const b=$("#wEok"); b.disabled=true; b.textContent="Carico…";
+  const prima=on.map(r=>({r,att:itm(r.codice)?attesePer(r.codice):[]}));
+  const rif=[...new Set(on.map(r=>r.po&&"PO "+r.po).filter(Boolean))].join(" ")+(E.colli[0]?.ctn?" · collo "+E.colli.map(c=>c.ctn.slice(-6)).join("/"):"");
+  const ok=await write(async()=>{
+    for(const r of senza) await updItem(r.codice,{codice:r.codice,descr:r.descr||r.codice,tipo:classify(r.codice,r.descr||""),giacenza:0,scortaMin:0,forn:"Stanley Black & Decker"});
+    for(const r of on) await muovi(r.codice,r.qty,"arrivo merce (etichetta pacco)",rif.trim()||"pacco DEWALT");
+    for(const c of E.colli) if(c.ctn&&!c.gia) await S.db.collection("colli").doc((c.ctn+"-"+(c.pagina||"1").replace("/","di")).slice(0,40)).set({ctn:c.ctn,pagina:c.pagina||"",consegna:c.consegna||"",at:Date.now(),by:S.me||null,righe:on.filter(r=>r.collo===c.ctn).map(r=>({codice:r.codice,qty:r.qty,po:r.po||""}))});
+  },`Caricati ${on.reduce((a,r)=>a+r.qty,0)} pezzi (${on.length} codici)`);
+  if(!ok){ b.disabled=false; b.textContent="Riprova"; return; }
+  WZ.et=null; const daAss=prima.filter(x=>x.att.length);
+  const riga=(x,j)=>{ const it=itm(x.r.codice)||{codice:x.r.codice,descr:x.r.descr}; return `<div class="wcard" style="margin-bottom:8px"><b class="mono">${esc(x.r.codice)}</b> ×${x.r.qty} · ${esc(nomeDi(it))}
+    ${x.att.map((a,i)=>`<div style="display:flex;gap:8px;align-items:center;margin-top:6px"><span style="flex:1">${esc(a.titolo)}${a.cliente?" · "+esc(a.cliente):""} <span class="wsub">servono ${a.qty}</span></span><span data-eslot="${j}-${i}"><button class="btn sm pri" data-eas="${j}-${i}">${ic("check")}Assegna</button></span></div>`).join("")}
+    <button class="btn sm" data-easc="${j}" style="margin-top:6px">${ic("swap")}Associa ad altro</button></div>`; };
+  wz(`<div class="wdone" style="padding-bottom:4px"><div class="we">📦</div><h2>Pacco caricato</h2><p>${on.length} codici · ${on.reduce((a,r)=>a+r.qty,0)} pezzi</p></div>
+    ${daAss.length?`<div class="wq sm">Questi pezzi sono attesi:</div>${daAss.map(riga).join("")}`:`<div class="wsub" style="margin:8px 0">Nessuno di questi codici è atteso da schede o vendite.</div>`}
+    <details style="margin-top:10px"><summary class="wsub">Associa un altro pezzo del pacco a una scheda o vendita</summary>${on.map((r,j)=>`<button class="chip" data-eal="${j}" style="margin:6px 6px 0 0">${esc(r.codice)} ×${r.qty}</button>`).join("")}</details>`,
+    wBtn("wEfine","Fatto, torna alla home","pri","home"));
+  $("#wzB").querySelectorAll("[data-eas]").forEach(x=>x.onclick=async()=>{ const [j,i]=x.dataset.eas.split("-").map(Number), d=daAss[j], a=d.att[i], it=itm(d.r.codice);
+    x.disabled=true; if(await assegnaArrivo(a,it,Math.min(d.r.qty,a.qty))){ const s=$(`[data-eslot="${j}-${i}"]`); if(s) s.innerHTML=`<span class="badge st-Pronto">Assegnato</span>${a.tel?waBtn(a.tel,avvisoArrivo(a.cliente,nomeDi(it),a.k==="t"?"scheda "+a.rif:a.rif),"Avvisa","sm"):""}`; } else x.disabled=false; });
+  const assoc=r=>{ const it=itm(r.codice); if(it) wizStep(step(()=>stepAssocia(it,r.qty))); };
+  $("#wzB").querySelectorAll("[data-easc]").forEach(x=>x.onclick=()=>assoc(daAss[+x.dataset.easc].r));
+  $("#wzB").querySelectorAll("[data-eal]").forEach(x=>x.onclick=()=>assoc(on[+x.dataset.eal]));
+  $("#wEfine").onclick=wizClose; }
+
 /* ---------- 4. È arrivata merce ---------- */
 function wizArrivo(){
   wizOpen("È arrivata merce","f-p"); let fatti=0;
-  const scegli=step(()=>pickItem("Cosa è arrivato?",{onPick:it=>{ WZ.it=it; wizStep(quanti); },hint:"Prodotti in vendita e ricambi. Scrivi il codice che c'è sulla scatola."}));
+  const scegli=step(()=>{ pickItem("Cosa è arrivato?",{onPick:it=>{ WZ.it=it; wizStep(quanti); },hint:"Prodotti in vendita e ricambi. Scrivi il codice che c'è sulla scatola."});
+    $("#wzB").insertAdjacentHTML("afterbegin",docLabel("wEt","Fotografa l'etichetta del pacco DEWALT (CONTENTS)","ok")+`<div class="wor">oppure un pezzo alla volta</div>`);
+    bindDoc("wEt",f=>etichettaFoto(f)); });
   const prossimo=t=>{ WZ.stack=[]; wizStep(scegli); WZ.pkHandle(t); };
   const quanti=step(()=>{ const it=WZ.it, att=attesePer(it.codice);
     const carica=async()=>{ const q=Math.max(1,parseInt($("#wq1").value)||1); const ok=await write(()=>muovi(it.codice,q,"arrivo merce","banco"),`+${q} ${esc(it.codice)} (ora ${(Number(it.giacenza)||0)+q})`); if(ok) fatti++; return ok?q:0; };
