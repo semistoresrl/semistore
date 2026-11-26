@@ -38838,8 +38838,16 @@
 "auto": true,
 "prezzoListino": 7731,
 "tipo": "punta-metallo",
-"punti": ["Custodia ToughCase+ modulare e impilabile, compatibile con TSTAK Caddy", "Coperchio trasparente: si vede subito la punta che serve", "Le punte restano bloccate al loro posto"],
-"impieghi": ["Carpenteria metallica", "Montaggio", "Manutenzione"]
+"punti": [
+"Custodia ToughCase+ modulare e impilabile, compatibile con TSTAK Caddy",
+"Coperchio trasparente: si vede subito la punta che serve",
+"Le punte restano bloccate al loro posto"
+],
+"impieghi": [
+"Carpenteria metallica",
+"Montaggio",
+"Manutenzione"
+]
 },
 {
 "id": 4466,
@@ -39028,7 +39036,15 @@
 "Montaggio",
 "Manutenzione",
 "Furgone e officina"
-]
+],
+"video": {
+"id": "ZhdahSJsvo8",
+"t": "Recensione del DEWALT DT70518T-QZ, Set 10 pezzi Inserti Impact Torsion e porta inserti pivotale",
+"ch": "Laboratorio Pro",
+"it": "Recensione del DEWALT DT70518T-QZ, Set 10 pezzi Inserti Impact Torsion e porta inserti pivotale",
+"l": "it",
+"d": "2026-07-12"
+}
 },
 {
 "id": 4471,
@@ -39201,7 +39217,15 @@
 "Carpenteria",
 "Cartongesso"
 ],
-"consiglio": "Per gli avvitatori a impulsi scegli inserti Impact o Torsion: assorbono i picchi di coppia e durano molto di più."
+"consiglio": "Per gli avvitatori a impulsi scegli inserti Impact o Torsion: assorbono i picchi di coppia e durano molto di più.",
+"video": {
+"id": "1uo7a8Uw6eU",
+"t": "Recensione del DEWALT DT71521-QZ - 25 pezzi inserti pz2 da 25 mm. in tic tac (in espositore masterbo",
+"ch": "Fucina Scientifica",
+"it": "Recensione del DEWALT DT71521-QZ - 25 pezzi inserti pz2 da 25 mm. in tic tac (in espositore masterbo",
+"l": "it",
+"d": "2026-07-19"
+}
 },
 {
 "id": 4475,
