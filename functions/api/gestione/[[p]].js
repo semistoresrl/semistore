@@ -19,6 +19,14 @@ const MAX_FILE = 1_900_000;
 const nuovoId = () => casuale(10);
 
 export async function onRequest(ctx) {
+  try { return await gestisci(ctx); }
+  catch (e) { // errore leggibile invece della pagina di Cloudflare
+    const msg = String(e && (e.message || e) || 'errore');
+    console.error('gestione', ctx.params?.p, msg);
+    return json({ error: /SQLITE_FULL|maximum|too big|exceed|size limit/i.test(msg) ? 'Database pieno: ' + msg : 'Errore del server: ' + msg.slice(0, 300) }, 500);
+  }
+}
+async function gestisci(ctx) {
   const { request, env, params } = ctx;
   const p = (params.p || []).join('/');
   const m = request.method;
