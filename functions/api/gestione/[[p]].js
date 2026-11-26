@@ -124,7 +124,7 @@ Rispondi SOLO con un oggetto JSON, senza altro testo:
 In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti quelli del disegno. Leggi con cura la scrittura a mano: cifre e lettere dei codici devono essere esatte; se non sei sicuro scrivi la lettura più probabile e spiegalo in "dubbi". Le quantità scritte (2x, n. 3, 3 pz) vanno in qty.`,
       trascrivi: `Trascrivi fedelmente tutto il testo di questa foto (etichetta, documento, bolla, fattura, biglietto, anche scritto a mano), riga per riga, nell'ordine in cui si legge. Nelle tabelle tieni ogni riga della tabella su una riga e separa le colonne con tre spazi. Non tradurre, non correggere, non aggiungere commenti: rispondi solo con il testo.`,
       zona: `Questo è un piccolo ritaglio di un esploso ricambi: contiene un numero di posizione (a volte due numeri uno sopra l'altro) segnato con l'evidenziatore. Rispondi SOLO con i numeri che leggi, separati da uno spazio, dall'alto in basso. Niente altro testo. Se non leggi nessun numero rispondi con un trattino.`,
-      risposta: `Sei l'assistente di SE.M.I. S.R.L. (Semi Store), concessionario DEWALT, STANLEY e BLACK+DECKER e centro assistenza autorizzato a Casavatore (NA). Scrivi in italiano una bozza di risposta cortese, chiara e breve all'email qui sotto, dando del Lei. Non inventare prezzi, disponibilità, date o impegni che non sono scritti: dove servono, metti [DA COMPLETARE: …]. Non aggiungere la firma (si aggiunge da sola). Rispondi solo con il testo della risposta.${body.istruzioni ? '\nIndicazioni di chi risponde: ' + String(body.istruzioni).slice(0, 1000) : ''}`,
+      risposta: `Sei l'assistente di SE.M.I. S.R.L. (Semi Store), concessionario DEWALT, STANLEY e BLACK+DECKER e centro assistenza autorizzato a Casavatore (NA). Scrivi in italiano una bozza di risposta cortese, chiara e breve all'email qui sotto, dando del Lei. Non inventare prezzi, disponibilità, date o impegni che non sono scritti: dove servono, metti [DA COMPLETARE: …]. Chiudi con «Cordiali saluti» e nient'altro dopo: la firma si aggiunge da sola. Rispondi solo con il testo della risposta.${body.istruzioni ? '\nIndicazioni di chi risponde: ' + String(body.istruzioni).slice(0, 1000) : ''}`,
     }[compito];
     if (!P) return json({ error: 'compito sconosciuto' }, 400);
     if (compito !== 'risposta' && !img && !testo) return json({ error: 'foto o testo mancanti' }, 400);
@@ -149,6 +149,7 @@ In un esploso metti in "posizioni" solo i numeri segnati dal cliente, non tutti 
         out = typeof r?.response === 'string' ? r.response : r?.response ? JSON.stringify(r.response) : String(r?.result?.response || '');
       }
     } catch (e) { return json({ error: 'AI non riuscita: ' + String(e?.message || e).slice(0, 200) }, 502); }
+    if (compito === 'risposta') out = out.replace(/\n*\[(non aggiungere|firma)[^\]]*\]\s*$/i, '').trim();
     if (compito !== 'preventivo') return json({ testo: out.trim(), fonte: env.ANTHROPIC_API_KEY ? 'claude' : 'cloudflare' });
     let o = {}; try { const mm = out.match(/\{[\s\S]*\}/); o = mm ? JSON.parse(mm[0]) : {}; } catch (e) { o = {}; }
     return json({
