@@ -37,7 +37,7 @@ async function gestisci(ctx) {
 
   if (p === 'io') {
     const n = (await d.prepare('SELECT COUNT(*) n FROM utenti').first()).n;
-    if (io) await d.prepare('UPDATE utenti SET ultimo=? WHERE email=?').bind(Date.now(), io.email).run();
+    if (io) await d.prepare('UPDATE utenti SET ultimo=? WHERE email=?').bind(Date.now(), io.email).run().catch(() => {}); // se il database non accetta scritture si entra lo stesso in sola lettura
     return json({ utente: io, primoAvvio: n === 0, email: !!env.RESEND_API_KEY, mittente: !!env.EMAIL_FROM, ai: !!(env.ANTHROPIC_API_KEY || env.AI) });
   }
   if (p === 'primo' && m === 'POST') {
