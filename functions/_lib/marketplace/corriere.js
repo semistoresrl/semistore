@@ -26,6 +26,20 @@ export async function mittenti(c) {
   return (j.sender_addresses || []).map((a) => ({ id: a.id, nome: [a.company_name, a.street, a.house_number, a.city].filter(Boolean).join(' ') }));
 }
 
+
+// Sendcloud ha un servizio per ogni fascia di peso (es. "Poste … Domicilio 0-2kg", "2-5kg"…): scelto il servizio
+// predefinito, per ogni pacco si usa quello della stessa famiglia adatto al peso. Se non si trova, resta quello scelto.
+const famiglia = (n) => String(n || '').replace(/\s*\d+(?:[.,]\d+)?\s*-\s*\d+(?:[.,]\d+)?\s*kg\s*$/i, '').trim().toLowerCase();
+export async function metodoPerPeso(c, metodo, pesoKg) {
+  try {
+    const tutti = await metodi(c); const scelto = tutti.find((m) => String(m.id) === String(metodo));
+    if (!scelto || (pesoKg > scelto.min - 0.0005 && pesoKg <= scelto.max)) return metodo;
+    const f = famiglia(scelto.nome);
+    const adatto = tutti.filter((m) => famiglia(m.nome) === f && pesoKg > m.min - 0.0005 && pesoKg <= m.max).sort((a, b) => a.max - b.max)[0];
+    return adatto ? adatto.id : metodo;
+  } catch { return metodo; }
+}
+
 const CORR = { brt: 'BRT', bartolini: 'BRT', gls: 'GLS', gls_it: 'GLS', poste: 'Poste', poste_italiane: 'Poste', sda: 'SDA', dhl: 'DHL', ups: 'UPS', inpost: 'InPost', fedex: 'FedEx', tnt: 'TNT' };
 const nomeCor = (code) => { const k = String(code || '').toLowerCase(); return CORR[k] || Object.entries(CORR).find(([x]) => k.includes(x))?.[1] || String(code || '').toUpperCase(); };
 
@@ -34,12 +48,13 @@ const nomeCor = (code) => { const k = String(code || '').toLowerCase(); return C
 export async function creaEtichetta(env, c, o, opz = {}) {
   if (c?.tipo !== 'sendcloud') return { indirizzo: true };
   if (!c.publicKey || !c.secretKey) throw new Error('Sendcloud non collegato: inserisci le chiavi in Impostazioni → Marketplace e spedizioni');
-  const metodo = opz.metodo || c.metodo;
+  let metodo = opz.metodo || c.metodo;
   if (!metodo) throw new Error('Sendcloud: scegli il servizio di spedizione predefinito in Impostazioni → Marketplace e spedizioni');
   for (const [k, t] of [['cliente', 'nome del destinatario'], ['ind', 'indirizzo'], ['cap', 'CAP'], ['citta', 'città']]) if (!String(o[k] || '').trim()) throw new Error('manca ' + t);
   const [via, civ] = viaCivico(o.ind);
   const peso = Number(opz.pesoKg) || (await pesoOrdine(env, o, Number(c.pesoKg) || 2));
   const colli = Math.max(1, Math.min(10, parseInt(opz.colli) || 1));
+  metodo = await metodoPerPeso(c, metodo, peso / colli);
   const totale = (o.righe || []).reduce((a, r) => a + (Number(r.qty) || 0) * (Number(r.prezzo) || 0), 0);
   const parcel = {
     name: String(o.cliente).slice(0, 75), company_name: o.azienda || '', address: via, house_number: civ || 'snc', address_2: o.ind2 || '',
