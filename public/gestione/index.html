@@ -2578,8 +2578,8 @@ function openPreventivo(p0){ S._pvMagg=0;
   draw();
 }
 function preventivoTesto(p){ const t=pvTotali(p);
-  const riga=(r,i)=>{ const u=pvUnitEx(p,r), sc=pvScontoRiga(p,r), tot=r2(u*r.qty);
-    return `${i+1}) *${r.codice}*${r.pos?" (pos. "+r.pos+")":""}\n${r.nome||r.codice}\n`+(u>0?`${r.qty} × ${eur(u)} + IVA${sc?" (sconto "+sc+"%)":""} → *${eur(tot)}*`:`${r.qty} × *OMAGGIO*`); };
+  const riga=(r,i)=>{ const u=pvUnitEx(p,r), b=r2(pvBaseEx(r)), sc=pvScontoRiga(p,r), tot=r2(u*r.qty);
+    return `${i+1}) *${r.codice}*${r.pos?" (pos. "+r.pos+")":""}\n${r.nome||r.codice}\n`+(u>0?(b>u?`Prezzo pieno: ~${eur(b)}~ + IVA\n${sc?"Scontato "+sc+"%":"Prezzo scontato"}: *${eur(u)}* + IVA\n`:`Prezzo: ${eur(u)} + IVA\n`)+`Q.tà ${r.qty} → *${eur(tot)}* + IVA`:(b>0?`Prezzo pieno: ~${eur(b)}~ + IVA\n`:"")+`Q.tà ${r.qty} → *OMAGGIO*`); };
   return `*SE.M.I. – Preventivo ${p.num}*\ndel ${fmtD(p.at)}\nCliente: *${p.cliente}*\n\n`+p.righe.map(riga).join("\n\n")+
    `\n\n━━━━━━━━━━━━\n${t.extra?`Sconto extra ${p.sconto}%: −${eur(t.extra)}\n`:""}Imponibile: *${eur(t.imponibile)}*\nIVA 22%: ${eur(t.iva)}\n*TOTALE: ${eur(t.totale)} IVA inclusa*\n━━━━━━━━━━━━${p.note?"\n"+p.note:""}\n\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947`; }
 function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",listino:"Listino",sito:"Sito",manuale:""};
