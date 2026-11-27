@@ -39455,7 +39455,8 @@
 "t": "DeWALT DT71516 - DeWALT bitset - DeWALT bitbox",
 "ch": "TheMegaStofi",
 "it": "Set inserti e cricchetto DEWALT DT71516: il video",
-"l": "de"
+"l": "de",
+"d": "2018-07-12"
 },
 "fontePrezzo": "onsite"
 },
@@ -39671,7 +39672,15 @@
 "Carpenteria",
 "Cartongesso"
 ],
-"consiglio": "Per gli avvitatori a impulsi scegli inserti Impact o Torsion: assorbono i picchi di coppia e durano molto di più."
+"consiglio": "Per gli avvitatori a impulsi scegli inserti Impact o Torsion: assorbono i picchi di coppia e durano molto di più.",
+"video": {
+"id": "rWIQGHP0Kgw",
+"t": "Recensione del DEWALT SET DI BUSSOLE PER AVVITATORI A IMPULSI, DT7507-QZ",
+"ch": "Vettore Scientifico",
+"it": "Recensione del DEWALT SET DI BUSSOLE PER AVVITATORI A IMPULSI, DT7507-QZ",
+"l": "it",
+"d": "2026-09-25"
+}
 },
 {
 "id": 4485,
@@ -41728,7 +41737,15 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"video": {
+"id": "Jh8dUiPnU1I",
+"t": "Recensione del STANLEY FATMAX, ZAINO PORTA UTENSILI FATMAX . 1-95-611",
+"ch": "Nucleo Verde",
+"it": "Recensione del STANLEY FATMAX, ZAINO PORTA UTENSILI FATMAX . 1-95-611",
+"l": "it",
+"d": "2026-09-24"
+}
 },
 {
 "id": 4534,
@@ -41767,7 +41784,15 @@
 "Cantiere",
 "Officina"
 ],
-"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio."
+"consiglio": "Agganciando più elementi dello stesso sistema trasporti tutto in un solo viaggio.",
+"video": {
+"id": "eKvukCLbhGM",
+"t": "Recensione del Stanley - FatMax STANLEY FATMAX, ORGANIZER PROFESS.A VALIGETTA.1-97-518",
+"ch": "Il Focolare Verde",
+"it": "Recensione del Stanley - FatMax STANLEY FATMAX, ORGANIZER PROFESS.A VALIGETTA.1-97-518",
+"l": "it",
+"d": "2026-09-05"
+}
 },
 {
 "id": 4535,
@@ -42135,7 +42160,15 @@
 "Rasanti e autolivellanti",
 "Vernici e resine"
 ],
-"consiglio": "Avvia a bassa velocità e aumenta gradualmente per evitare schizzi."
+"consiglio": "Avvia a bassa velocità e aumenta gradualmente per evitare schizzi.",
+"video": {
+"id": "b4T4TLNs3l4",
+"t": "Recensione del Stanley - FatMax STANLEY FATMAX, MISCELATORE 1.600W. FME190-QS",
+"ch": "Laboratorio Pro",
+"it": "Recensione del Stanley - FatMax STANLEY FATMAX, MISCELATORE 1.600W. FME190-QS",
+"l": "it",
+"d": "2026-07-03"
+}
 },
 {
 "id": 4544,
@@ -42444,7 +42477,15 @@
 "Rimozione fughe",
 "Levigatura angoli"
 ],
-"consiglio": "Per il legno con chiodi usa lame bimetalliche: durano molto più delle lame in HCS."
+"consiglio": "Per il legno con chiodi usa lame bimetalliche: durano molto più delle lame in HCS.",
+"video": {
+"id": "grrc59kyPhw",
+"t": "Stanley FatMax® Utensile Multifunzione FME650K",
+"ch": "BricoBravo",
+"it": "Stanley FatMax® Utensile Multifunzione FME650K",
+"l": "it",
+"d": "2015-02-10"
+}
 },
 {
 "id": 4550,
@@ -42800,7 +42841,15 @@
 "Impiantistica e manutenzione",
 "Carpenteria e falegnameria"
 ],
-"consiglio": "Per fori frequenti nel calcestruzzo armato abbina un tassellatore SDS-Plus: la percussione del trapano è pensata per mattoni e muratura, non per il cemento duro."
+"consiglio": "Per fori frequenti nel calcestruzzo armato abbina un tassellatore SDS-Plus: la percussione del trapano è pensata per mattoni e muratura, non per il cemento duro.",
+"video": {
+"id": "e8ws11_KYGA",
+"t": "STANLEY® FATMAX® Percussion Drill 750W",
+"ch": "Mister Worker®",
+"it": "STANLEY® FATMAX® Percussion Drill 750W",
+"l": "it",
+"d": "2019-10-07"
+}
 },
 {
 "id": 4557,
@@ -42976,7 +43025,15 @@
 "Troncatrici e seghe",
 "Cantiere",
 "Officina"
-]
+],
+"video": {
+"id": "pWdKcCAkia8",
+"t": "FMST1-75672 FATMAX™ EXPRESS® BANCO DA LAVORO PIEGHEVOLE - STANLEY",
+"ch": "Dinamitek srl",
+"it": "FMST1-75672 FATMAX™ EXPRESS® BANCO DA LAVORO PIEGHEVOLE - STANLEY",
+"l": "it",
+"d": "2017-06-30"
+}
 },
 {
 "id": 4561,
@@ -44462,7 +44519,15 @@
 "Rilievi",
 "Tracciatura",
 "Posa e montaggio"
-]
+],
+"video": {
+"id": "yLv6ksueprg",
+"t": "Recensione del STANLEY, NUOVO CUBIX RAGGIO ROSSO.STHT77498-1",
+"ch": "Svelato",
+"it": "Recensione del STANLEY, NUOVO CUBIX RAGGIO ROSSO.STHT77498-1",
+"l": "it",
+"d": "2026-05-05"
+}
 },
 {
 "id": 4595,
