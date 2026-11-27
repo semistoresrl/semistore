@@ -58,9 +58,9 @@ export async function onRequestPost({ request, env, waitUntil }) {
     if (!slug && (g.codice || g.slug)) { slug = g.slug || nuovoSlug(g.marca, g.codice); esito.nonSulSito.push(slug); }
     if (!slug || !Number.isFinite(qty) || qty < 0) { esito.scartati.push(g.codice || g.slug || '?'); continue; }
     // la scheda inviata dall'app serve solo per gli articoli che non sono nel catalogo del sito: per quelli del sito restano i dati del sito
-    const dati = {}; if (!SLUGS.has(slug)) for (const k of CAMPI) if (g[k] !== undefined && g[k] !== '') dati[k] = g[k];
-    // 27/11: EAN e peso servono anche per gli articoli del sito (feed Google, Meta, Trovaprezzi): si salvano sempre
-    else for (const k of ['ean', 'pesoKg']) if (g[k] !== undefined && g[k] !== '') dati[k] = g[k];
+    // 27/11: per gli articoli del sito si salvano solo EAN e peso (servono ai feed Google, Meta, Trovaprezzi)
+    const dati = {};
+    for (const k of SLUGS.has(slug) ? ['ean', 'pesoKg'] : CAMPI) if (g[k] !== undefined && g[k] !== '') dati[k] = g[k];
     // 24/11: per gli articoli fuori dal catalogo del sito, se non c'è un prezzo sito vale il prezzo al pubblico del negozio (app)
     const pNeg = !SLUGS.has(slug) && Number(g.prezzoNegozio) > 0 ? Math.round(Number(g.prezzoNegozio)) : null;
     const prezzo = Number.isFinite(Number(g.prezzo)) && Number(g.prezzo) > 0 ? Math.round(Number(g.prezzo)) : pNeg;
