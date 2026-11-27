@@ -2048,7 +2048,7 @@ function openEsploso(mod,type,onDone){
 /* ---------- view: garanzie ---------- */
 function vGaranzie(){
   let l=S.tickets.filter(t=>t.tipo==="garanzia").sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-  const cnt=k=>l.filter(t=>(t.gar?.stato||"Da inserire")===k).length;
+  const tutte=l, cnt=k=>tutte.filter(t=>(t.gar?.stato||"Da inserire")===k).length;
   if(S.gFilt==="aperte") l=l.filter(t=>!["Chiusa","Respinta"].includes(t.gar?.stato));
   else if(S.gFilt!=="tutte") l=l.filter(t=>(t.gar?.stato||"Da inserire")===S.gFilt);
   return header("Garanzie DEWALT","Le schede in garanzia e la loro pratica sul portale DEWALT",`<a class="btn" href="${VT_GAR}" target="_blank" rel="noopener">Garanzie DEWALT ↗</a><button class="btn edit-only" data-g-act="sync">⇩ Aggiorna stati dal portale DEWALT</button><button class="btn pri edit-only" data-g-act="file">⇪ Crea file garanzie (${S.tickets.filter(t=>t.tipo==="garanzia"&&(t.gar?.stato||"Da inserire")==="Da inserire").length})</button>`)+`
