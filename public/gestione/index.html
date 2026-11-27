@@ -5202,11 +5202,13 @@ async function creaDaCatalogo(cod){ const a=pvArticolo(cod); if(!a) return null;
   const it=clean({codice:a.codice,descr:(nomeDi(a)||a.descr||a.codice).slice(0,160),tipo:"vendita",marca:"DEWALT",giacenza:0,scortaMin:0,prezzo,...(listino?{prezzoListino:listino}:{}),...(ll?.e?{ean:ll.e}:{}),forn:"Stanley Black & Decker",creatoDa:"listino",creatoAt:Date.now()});
   const ok=await write(()=>updItem(a.codice,it),a.codice+" aggiunto al magazzino");
   return ok?itm(a.codice):null; }
+// prezzi in negozio mostrati al netto di IVA, con IVA e totale a parte (i prezzi salvati sono IVA inclusa)
+const nettoRiga=(v,stile="")=>`<b${stile}>${eur(netto(v))} <small style="font-weight:500">+ IVA</small></b>`;
 function prezziBox(it){ S._pvMagg=0; const pr=prezziDi(it); if(!pr.listino&&!pr.volantino&&!pr.sito) return "";
-  return `<div class="wsub" style="margin-top:8px;display:grid;grid-template-columns:1fr auto;gap:2px 12px">${pr.listino?`<span>Listino</span><b>${eur(pr.listino)}</b>`:""}${pr.volantino?`<span>Volantino${pr.scade?` fino al ${String(pr.scade).split("-").reverse().join("/")}`:""}</span><b style="color:#b45309">${eur(pr.volantino)}</b>`:""}${pr.sito?`<span>Sul sito</span><b>${eur(pr.sito)}</b>`:""}</div>`; }
+  return `<div class="wsub" style="margin-top:8px;display:grid;grid-template-columns:1fr auto;gap:2px 12px">${pr.listino?`<span>Listino</span>${nettoRiga(pr.listino)}`:""}${pr.volantino?`<span>Volantino${pr.scade?` fino al ${String(pr.scade).split("-").reverse().join("/")}`:""}</span>${nettoRiga(pr.volantino,' style="color:#b45309"')}`:""}${pr.sito?`<span>Sul sito</span>${nettoRiga(pr.sito)}`:""}</div>`; }
 function itemCard(it){ const s=sitoDi(it);
   return `<div class="wcard"><div class="wname">${esc(nomeDi(it))}</div><div class="mono wsub">${esc(it.codice)}${it.marca?" · "+esc(it.marca):""}</div>
-  <div class="wrow"><div><small>Prezzo</small><div class="wprice">${prezzoVendita(it)?eur(prezzoVendita(it)):"—"}</div></div><div><small>In negozio</small><div class="wstock ${(Number(it.giacenza)||0)>0?"":"zero"}">${it.verificare?"?":(Number(it.giacenza)||0)}</div></div></div>
+  <div class="wrow"><div><small>Prezzo + IVA</small><div class="wprice">${prezzoVendita(it)?eur(netto(prezzoVendita(it))):"—"}</div>${prezzoVendita(it)?`<div class="wsub">IVA 22% ${eur(ivaDi(prezzoVendita(it)))} · totale ${eur(prezzoVendita(it))}</div>`:""}</div><div><small>In negozio</small><div class="wstock ${(Number(it.giacenza)||0)>0?"":"zero"}">${it.verificare?"?":(Number(it.giacenza)||0)}</div></div></div>
   ${it.verificare?`<div class="wwarn">Quantità non ancora contata</div>`:""}${atteseBox(it)}${prezziBox(it)}${ubiBox(it)}${s?`<a class="wlink" href="${SITO_URL}/prodotti/${esc(s.s)}/" target="_blank" rel="noopener">${ic("ext")}Vedi sul sito</a>`:""}</div>`; }
 const segnaInvio=(it,f={})=>updItem(it.codice,{...f,...(it.tipo==="vendita"?{daInviare:Date.now()}:{})});
 
