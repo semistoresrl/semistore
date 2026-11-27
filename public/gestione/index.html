@@ -714,6 +714,9 @@ html,body{overscroll-behavior-x:none;max-width:100%}
   table.tcard tr.click:hover{background:#fffbea}
   .tts{overflow:visible}
 }
+.topsb{display:none;overflow-x:auto;overflow-y:hidden;height:16px;position:sticky;z-index:12;background:#f5f5f2e8;margin-bottom:4px;border-radius:6px}
+.topsb>div{height:1px}
+@media (pointer:fine){.topsb.on{display:block}}
 </style>
 </head>
 <body>
@@ -6557,6 +6560,19 @@ async function openSpedImpost(){
 
 initShell();
 init();
+})();
+
+/* Barra di scorrimento orizzontale anche in alto (solo PC) per board e tabelle larghe */
+(function(){ if(!matchMedia("(pointer:fine)").matches) return;
+  const SEL=".board,.tts";
+  function agg(el){ let t=el.previousElementSibling; if(!t||!t.classList.contains("topsb")){ t=document.createElement("div"); t.className="topsb"; t.appendChild(document.createElement("div")); el.before(t);
+      t.addEventListener("scroll",()=>{ if(Math.abs(el.scrollLeft-t.scrollLeft)>1) el.scrollLeft=t.scrollLeft; },{passive:true});
+      el.addEventListener("scroll",()=>{ if(Math.abs(el.scrollLeft-t.scrollLeft)>1) t.scrollLeft=el.scrollLeft; },{passive:true}); }
+    const tb=document.querySelector(".tb"); t.style.top=(tb?tb.offsetHeight:0)+"px";
+    t.firstChild.style.width=el.scrollWidth+"px"; t.classList.toggle("on",el.scrollWidth>el.clientWidth+4); t.scrollLeft=el.scrollLeft; }
+  function tutti(){ document.querySelectorAll(SEL).forEach(agg); document.querySelectorAll(".topsb").forEach(t=>{ const n=t.nextElementSibling; if(!n||!n.matches(SEL)) t.remove(); }); }
+  let q=0; const pr=()=>{ if(q) return; q=requestAnimationFrame(()=>{q=0;tutti();}); };
+  new MutationObserver(pr).observe(document.body,{childList:true,subtree:true}); addEventListener("resize",pr); pr();
 })();
 </script>
 </body>
