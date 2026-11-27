@@ -110,26 +110,39 @@ async function ricalcolaDanea(d) {
 // con poche o nessuna riga propria, quindi "Fatture" nel pannello mostrava 105.247 € invece di 485.389 € (2026).
 // Dalle testate Danea (storico_doc: TotNetto, TotIva, TotDoc) si mettono gli importi del documento in fimp/fiva/ftot
 // e si aggiungono le fatture senza righe proprie (imp=0: le statistiche delle vendite non raddoppiano).
-const TF_VER = 1;
-const SD_SRC = `SELECT anno, CASE WHEN n GLOB '[0-9]*' AND length(n)<=4 THEN substr(anno,3,2)||substr('0000'||n,-4) ELSE n END num,
-  CASE k WHEN 'N' THEN 'N' ELSE 'I' END kk, d, cli, nm, json_extract(j,'$.imp') imp, json_extract(j,'$.iva') iva, json_extract(j,'$.tot') tot,
-  json_extract(j,'$.pi') pi, json_extract(j,'$.pg') pg FROM storico_doc WHERE k IN ('I','N') AND d<>''`;
-const STESSO = "c.fonte='danea' AND c.anno=s.anno AND c.num=s.num AND ((s.kk='N' AND c.dt='N') OR (s.kk='I' AND c.dt IN ('I','F','A')))";
+const TF_VER = 2;
+// 27/11 sera: la prima versione (UPDATE … FROM con join su 13.000 × 38.000 righe senza indice) mandava D1 in sovraccarico.
+// Ora: due letture semplici, confronto in memoria, scritture a blocchi; al massimo TF_MAX documenti per chiamata,
+// il resto alla prossima apertura del pannello (stato) finché non è tutto allineato.
+const TF_MAX = 1500;
+const numDi = (anno, n) => (/^\d{1,4}$/.test(String(n || '')) ? String(anno).slice(2, 4) + String(n).padStart(4, '0') : String(n || ''));
 async function totaliFatture(d) {
   const t = await d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='storico_doc'").first();
   if (!t.n) return null;
   const now = Date.now();
-  const agg = await d.prepare(`UPDATE cont_doc AS c SET fimp=s.imp, fiva=s.iva, ftot=s.tot,
-      piva=COALESCE(NULLIF(c.piva,''),s.pi), pagamento=COALESCE(NULLIF(c.pagamento,''),NULLIF(s.pg,'')), u=?
-    FROM (${SD_SRC}) AS s
-    WHERE ${STESSO} AND c.mod=0 AND (c.fimp IS NOT s.imp OR c.fiva IS NOT s.iva OR c.ftot IS NOT s.tot)`).bind(now).run();
-  const ins = await d.prepare(`INSERT INTO cont_doc (id,fonte,dt,tipo,verso,num,data,anno,cli,nome,piva,imp,fimp,fiva,ftot,righe,pagamento,stat,nasc,mod,u)
-    SELECT 'D:'||s.kk||':'||s.anno||':'||s.num, 'danea', s.kk, CASE s.kk WHEN 'N' THEN 'nota' ELSE 'fattura' END, 'vendita', s.num, s.d, s.anno,
-      COALESCE(s.cli,''), COALESCE(s.nm,''), COALESCE(s.pi,''), 0, s.imp, s.iva, s.tot, 0, COALESCE(s.pg,''), 1, 0, 0, ?
-    FROM (${SD_SRC}) AS s WHERE NOT EXISTS (SELECT 1 FROM cont_doc c WHERE ${STESSO})
-    ON CONFLICT(id) DO NOTHING`).bind(now).run();
-  const n = (await d.prepare('SELECT COUNT(*) n FROM storico_doc').first()).n;
-  const r = { at: now, v: TF_VER, n, aggiornati: agg.meta?.changes || 0, aggiunti: ins.meta?.changes || 0 };
+  const sd = (await d.prepare(`SELECT anno, n, k, d, cli, nm, json_extract(j,'$.imp') imp, json_extract(j,'$.iva') iva, json_extract(j,'$.tot') tot,
+      json_extract(j,'$.pi') pi, json_extract(j,'$.pg') pg FROM storico_doc WHERE k IN ('I','N') AND d<>''`).all()).results;
+  const cd = (await d.prepare("SELECT id, dt, anno, num, fimp, fiva, ftot, mod FROM cont_doc WHERE fonte='danea' AND dt IN ('I','F','A','N')").all()).results;
+  const M = new Map();
+  for (const c of cd) M.set((c.dt === 'N' ? 'N' : 'I') + '|' + c.anno + '|' + c.num, c);
+  const st = []; let aggiornati = 0, aggiunti = 0, restano = 0;
+  const eq = (a, b) => (a == null ? b == null : b != null && Math.abs(Number(a) - Number(b)) < 0.005);
+  for (const x of sd) {
+    const kk = x.k === 'N' ? 'N' : 'I', num = numDi(x.anno, x.n), c = M.get(kk + '|' + x.anno + '|' + num);
+    if (c) {
+      if (c.mod || (eq(c.fimp, x.imp) && eq(c.fiva, x.iva) && eq(c.ftot, x.tot))) continue;
+      if (st.length >= TF_MAX) { restano++; continue; }
+      st.push(d.prepare("UPDATE cont_doc SET fimp=?, fiva=?, ftot=?, piva=COALESCE(NULLIF(piva,''),?), pagamento=COALESCE(NULLIF(pagamento,''),NULLIF(?,'')), u=? WHERE id=?")
+        .bind(x.imp, x.iva, x.tot, x.pi || '', x.pg || '', now, c.id)); aggiornati++;
+    } else {
+      if (st.length >= TF_MAX) { restano++; continue; }
+      st.push(d.prepare(`INSERT INTO cont_doc (id,fonte,dt,tipo,verso,num,data,anno,cli,nome,piva,imp,fimp,fiva,ftot,righe,pagamento,stat,nasc,mod,u)
+        VALUES (?,'danea',?,?,'vendita',?,?,?,?,?,?,0,?,?,?,0,?,1,0,0,?) ON CONFLICT(id) DO NOTHING`)
+        .bind('D:' + kk + ':' + x.anno + ':' + num, kk, kk === 'N' ? 'nota' : 'fattura', num, x.d, x.anno, x.cli || '', x.nm || '', x.pi || '', x.imp, x.iva, x.tot, x.pg || '', now)); aggiunti++;
+    }
+  }
+  for (let i = 0; i < st.length; i += 100) await d.batch(st.slice(i, i + 100));
+  const r = { at: now, v: TF_VER, n: sd.length, aggiornati, aggiunti, restano };
   await setInfo(d, 'conti_fatture', r);
   return r;
 }
@@ -278,7 +291,7 @@ async function gestisci(ctx) {
         const tf = await info(d, 'conti_fatture');
         const sdt = await d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='storico_doc'").first();
         const nSd = sdt.n ? (await d.prepare('SELECT COUNT(*) n FROM storico_doc').first()).n : 0;
-        if (nSd && (!tf || tf.v !== TF_VER || tf.n !== nSd)) await totaliFatture(d);
+        if (nSd && (!tf || tf.v !== TF_VER || tf.n !== nSd || tf.restano)) await totaliFatture(d);
       }
       if (!app || Date.now() - app.at > 600_000) await ricalcolaApp(d);
     } catch (e) { avviso = /write limit|daily row/i.test(String(e?.message || e)) ? 'Il database ha finito le scritture gratuite di oggi: i conti si vedono ma non si aggiornano né si modificano fino all\'01:00 (oppure subito con il piano Workers Paid di Cloudflare).' : 'Aggiornamento dei conti non riuscito: ' + String(e?.message || e).slice(0, 200); }
