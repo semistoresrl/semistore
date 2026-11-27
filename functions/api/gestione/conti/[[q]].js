@@ -101,7 +101,37 @@ async function ricalcolaDanea(d) {
   const fine = await d.prepare("SELECT MIN(data) da, MAX(data) a, COUNT(*) n FROM storico_art WHERE data<>''").first();
   const n = (await d.prepare("SELECT COUNT(*) n FROM cont_doc WHERE fonte='danea'").first()).n;
   await setInfo(d, 'conti_danea', { at: now, da: fine?.da || '', a: fine?.a || '', righe: fine?.n || 0, documenti: n });
+  await totaliFatture(d);
   return { documenti: n, da: fine?.da, a: fine?.a };
+}
+
+// ---------- totali veri di fatture e note (27/11) ----------
+// Le fatture differite hanno quasi tutte le righe copiate dai DDT/rapporti: in storico_art (righe contate una volta) restano
+// con poche o nessuna riga propria, quindi "Fatture" nel pannello mostrava 105.247 € invece di 485.389 € (2026).
+// Dalle testate Danea (storico_doc: TotNetto, TotIva, TotDoc) si mettono gli importi del documento in fimp/fiva/ftot
+// e si aggiungono le fatture senza righe proprie (imp=0: le statistiche delle vendite non raddoppiano).
+const TF_VER = 1;
+const SD_SRC = `SELECT anno, CASE WHEN n GLOB '[0-9]*' AND length(n)<=4 THEN substr(anno,3,2)||substr('0000'||n,-4) ELSE n END num,
+  CASE k WHEN 'N' THEN 'N' ELSE 'I' END kk, d, cli, nm, json_extract(j,'$.imp') imp, json_extract(j,'$.iva') iva, json_extract(j,'$.tot') tot,
+  json_extract(j,'$.pi') pi, json_extract(j,'$.pg') pg FROM storico_doc WHERE k IN ('I','N') AND d<>''`;
+const STESSO = "c.fonte='danea' AND c.anno=s.anno AND c.num=s.num AND ((s.kk='N' AND c.dt='N') OR (s.kk='I' AND c.dt IN ('I','F','A')))";
+async function totaliFatture(d) {
+  const t = await d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='storico_doc'").first();
+  if (!t.n) return null;
+  const now = Date.now();
+  const agg = await d.prepare(`UPDATE cont_doc AS c SET fimp=s.imp, fiva=s.iva, ftot=s.tot,
+      piva=COALESCE(NULLIF(c.piva,''),s.pi), pagamento=COALESCE(NULLIF(c.pagamento,''),NULLIF(s.pg,'')), u=?
+    FROM (${SD_SRC}) AS s
+    WHERE ${STESSO} AND c.mod=0 AND (c.fimp IS NOT s.imp OR c.fiva IS NOT s.iva OR c.ftot IS NOT s.tot)`).bind(now).run();
+  const ins = await d.prepare(`INSERT INTO cont_doc (id,fonte,dt,tipo,verso,num,data,anno,cli,nome,piva,imp,fimp,fiva,ftot,righe,pagamento,stat,nasc,mod,u)
+    SELECT 'D:'||s.kk||':'||s.anno||':'||s.num, 'danea', s.kk, CASE s.kk WHEN 'N' THEN 'nota' ELSE 'fattura' END, 'vendita', s.num, s.d, s.anno,
+      COALESCE(s.cli,''), COALESCE(s.nm,''), COALESCE(s.pi,''), 0, s.imp, s.iva, s.tot, 0, COALESCE(s.pg,''), 1, 0, 0, ?
+    FROM (${SD_SRC}) AS s WHERE NOT EXISTS (SELECT 1 FROM cont_doc c WHERE ${STESSO})
+    ON CONFLICT(id) DO NOTHING`).bind(now).run();
+  const n = (await d.prepare('SELECT COUNT(*) n FROM storico_doc').first()).n;
+  const r = { at: now, v: TF_VER, n, aggiornati: agg.meta?.changes || 0, aggiunti: ins.meta?.changes || 0 };
+  await setInfo(d, 'conti_fatture', r);
+  return r;
 }
 
 const totOrd = (o) => { const sub = (o.righe || []).reduce((a, r) => a + (Number(r.qty) || 0) * (Number(r.prezzo) || 0), 0); return Math.max(0, r2(sub - (Number(o.sconto) || 0) + (Number(o.spedizione) || 0))); };
@@ -244,6 +274,12 @@ async function gestisci(ctx) {
     let avviso = '';
     try {
       if (nSa && (!dan || dan.righe !== nSa)) await ricalcolaDanea(d);
+      else {
+        const tf = await info(d, 'conti_fatture');
+        const sdt = await d.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type='table' AND name='storico_doc'").first();
+        const nSd = sdt.n ? (await d.prepare('SELECT COUNT(*) n FROM storico_doc').first()).n : 0;
+        if (nSd && (!tf || tf.v !== TF_VER || tf.n !== nSd)) await totaliFatture(d);
+      }
       if (!app || Date.now() - app.at > 600_000) await ricalcolaApp(d);
     } catch (e) { avviso = /write limit|daily row/i.test(String(e?.message || e)) ? 'Il database ha finito le scritture gratuite di oggi: i conti si vedono ma non si aggiornano né si modificano fino all\'01:00 (oppure subito con il piano Workers Paid di Cloudflare).' : 'Aggiornamento dei conti non riuscito: ' + String(e?.message || e).slice(0, 200); }
     app = await info(d, 'conti_app');
@@ -296,7 +332,11 @@ async function gestisci(ctx) {
     const ord = ORD[q.get('ordina')] || ORD.data;
     const n = Math.min(5000, Math.max(1, Number(q.get('n')) || 100)), off = Math.max(0, Number(q.get('off')) || 0);
     const rows = (await d.prepare(`SELECT ${COLS} FROM cont_doc WHERE ${w} ORDER BY ${ord} LIMIT ? OFFSET ?`).bind(...b, n, off).all()).results.map((r) => arricchisci(M, r));
-    const tot = await d.prepare(`SELECT COUNT(*) n, SUM(${VAL}) imp, SUM(COALESCE(fiva, ${VAL}*0.22)) iva, SUM(COALESCE(ftot, ${VAL}*1.22)) tot FROM cont_doc WHERE ${w}`).bind(...b).first();
+    // fatture, note, banco, acquisti: importo del documento; elenchi misti (vendite, DDT, riparazioni): righe proprie, per non contare due volte DDT e fattura
+    const esatti = ['fatture', 'fiscali', 'note', 'acquisti', 'spese'].includes(q.get('tipo') || '');
+    const tot = esatti
+      ? await d.prepare(`SELECT COUNT(*) n, SUM(${VAL}) imp, SUM(COALESCE(fiva, ${VAL}*0.22)) iva, SUM(COALESCE(ftot, ${VAL}*1.22)) tot FROM cont_doc WHERE ${w}`).bind(...b).first()
+      : await d.prepare(`SELECT COUNT(*) n, SUM(${VAL_S}) imp, SUM(${VAL_S}*0.22) iva, SUM(${VAL_S}*1.22) tot FROM cont_doc WHERE ${w}`).bind(...b).first();
     return json({ righe: rows, tot, off, n });
   }
 
