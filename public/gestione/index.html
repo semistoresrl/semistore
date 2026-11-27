@@ -2578,8 +2578,10 @@ function openPreventivo(p0){ S._pvMagg=0;
   draw();
 }
 function preventivoTesto(p){ const t=pvTotali(p);
-  return `SE.M.I. – Preventivo ${p.num} del ${fmtD(p.at)}\nCliente: ${p.cliente}\n\n`+p.righe.map(r=>`• ${r.qty} × ${r.nome||r.codice} (${r.codice}${r.pos?", pos. "+r.pos:""}): ${eur(pvUnitEx(p,r))} cad. + IVA${pvScontoRiga(p,r)?" (−"+pvScontoRiga(p,r)+"%)":""} = ${eur(r2(pvUnitEx(p,r)*r.qty))}`).join("\n")+
-   `\n\n${t.extra?`Sconto extra ${p.sconto}%: −${eur(t.extra)}\n`:""}Imponibile: ${eur(t.imponibile)}\nIVA 22%: ${eur(t.iva)}\nTotale IVA inclusa: ${eur(t.totale)}${t.risparmio>0?`\nRisparmi ${eur(t.risparmio)} + IVA rispetto al prezzo pieno.`:""}\nValido fino al ${p.validita?p.validita.split("-").reverse().join("/"):"—"}.${p.note?"\n"+p.note:""}\n\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947`; }
+  const riga=(r,i)=>{ const u=pvUnitEx(p,r), sc=pvScontoRiga(p,r), tot=r2(u*r.qty);
+    return `${i+1}) *${r.codice}*${r.pos?" (pos. "+r.pos+")":""}\n${r.nome||r.codice}\n`+(u>0?`${r.qty} × ${eur(u)} + IVA${sc?" (sconto "+sc+"%)":""} → *${eur(tot)}*`:`${r.qty} × *OMAGGIO*`); };
+  return `*SE.M.I. – Preventivo ${p.num}*\ndel ${fmtD(p.at)}\nCliente: *${p.cliente}*\n\n`+p.righe.map(riga).join("\n\n")+
+   `\n\n━━━━━━━━━━━━\n${t.extra?`Sconto extra ${p.sconto}%: −${eur(t.extra)}\n`:""}Imponibile: *${eur(t.imponibile)}*\nIVA 22%: ${eur(t.iva)}\n*TOTALE: ${eur(t.totale)} IVA inclusa*\n━━━━━━━━━━━━${p.note?"\n"+p.note:""}\n\nSE.M.I. S.R.L. · Viale G. Marconi 225, Casavatore (NA) · Tel. 081 553 6604 · WhatsApp 375 626 6947`; }
 function preventivoHtml(p){ const t=pvTotali(p); const F={volantino:"Volantino",listino:"Listino",sito:"Sito",manuale:""};
   return `<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Preventivo ${esc(p.num)}</title><style>
   @page{size:A4;margin:10mm 12mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;color:#000;background:#e9e9e9;font-size:9.5pt;line-height:1.3}
