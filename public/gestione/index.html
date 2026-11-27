@@ -803,6 +803,17 @@ const PROVINCE="AG AL AN AO AP AQ AR AT AV BA BG BI BL BN BO BR BS BZ CA CB CE C
 const GAR_FILE_TIPO={"REPAIR":"REPAIR","EXCHANGE LABOUR":"EXCHANGE LABOUR","EXCHANGE":"EXCHANGE","FREE SERVICE":"REPAIR"};
 const ddmmyyyy = v => { if(!v) return ""; const d=typeof v==="number"?new Date(v):new Date(String(v).length===10?v+"T12:00:00":v); if(isNaN(d)) return ""; return String(d.getDate()).padStart(2,"0")+String(d.getMonth()+1).padStart(2,"0")+d.getFullYear(); };
 const ascii = v => String(v??"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^\x20-\x7E]/g," ").replace(/\s+/g," ").trim();
+// Vs Riferimento usato sul portale DEWALT: numero Danea a 6 cifre (AS-2026-2334 -> 262334), come le pratiche gia' caricate
+const garRif=t=>{ const r=String(t?.gar?.rif||"").trim(); if(r&&r!==t?.num) return r; if(t?.dnum) return String(t.dnum); const m=String(t?.num||"").match(/(\d{4})-(\d+)$/); return m?m[1].slice(2)+m[2].padStart(4,"0"):(r||t?.num||""); };
+const garKeys=t=>new Set([garRif(t),t?.gar?.rif,t?.num,t?.dnum].filter(Boolean).map(x=>String(x).trim().toUpperCase()));
+const modBase=c=>String(c||"").toUpperCase().replace(/-[A-Z0-9]{2}$/,"");
+// storico delle garanzie chiuse dal portale (config/garChiuse): cosa DEWALT ha rimborsato su quel modello
+function garStorico(mod){
+  const b=modBase(mod); if(!b) return null; const it=S.garChiuse||{}; const L=Object.values(it).filter(x=>modBase(x[2])===b||(b.length>=6&&modBase(x[2]).startsWith(b)));
+  if(!L.length) return null; const pz={}, mo={};
+  L.forEach(x=>{ (x[5]||[]).forEach(r=>{ const k=r[0]; pz[k]=pz[k]||{n:0,imp:r[2]/(r[1]||1),d:r[3]||""}; pz[k].n++; }); const k=Number(x[3]||0).toFixed(2); mo[k]=(mo[k]||0)+1; });
+  return {n:L.length, ricambi:Object.entries(pz).sort((a,b)=>b[1].n-a[1].n).slice(0,5), mano:Object.entries(mo).sort((a,b)=>b[1]-a[1])[0]?.[0]};
+}
 function garCheck(t){
   const g=t.gar||{}, err=[], warn=[];
   if(!S.cfg.sapId) err.push("codice cliente DEWALT mancante (Impostazioni)");
@@ -811,6 +822,7 @@ function garCheck(t){
   if(!t.ind) err.push("indirizzo"); if(!t.citta) err.push("città"); if(!t.prov) err.push("provincia"); if(!t.cap) err.push("CAP");
   if(!t.tel) err.push("telefono");
   if(!(g.catalogo||t.modello)) err.push("codice prodotto");
+  if(!/^\d{6}(\/\w+)?$/.test(garRif(t))) warn.push("Vs Riferimento diverso dal numero Danea a 6 cifre");
   if(!g.difetto) err.push("codice difetto");
   if(!t.matricola) err.push("matricola");
   if(!g.dateCode) err.push("date code"); else if(!/^\d+$/.test(g.dateCode)) warn.push("date code non numerico");
@@ -826,7 +838,7 @@ function garCheck(t){
 }
 function garFileLines(t){
   const g=t.gar||{}, tipo=g.tipo||"REPAIR";
-  const H=["H",S.cfg.sapId,g.rif||t.num,t.cliente,t.ind,t.citta,t.prov,t.cap,"IT",t.tel,t.email,
+  const H=["H",S.cfg.sapId,garRif(t),t.cliente,t.ind,t.citta,t.prov,t.cap,"IT",t.tel,t.email,
     (g.catalogo||t.modello||"").toUpperCase(),g.difetto,t.matricola,g.dateCode,g.trasporto?String(g.trasporto).replace(",","."):"",
     ddmmyyyy(t.dataAcquisto),ddmmyyyy(t.createdAt),ddmmyyyy(g.dataRip||t.prontoAt||Date.now()),g.lavoro==="LO"?"LO":"HI",GAR_FILE_TIPO[tipo],
     g.goodwill?"x":"",tipo==="FREE SERVICE"?"x":"",(t.diagnosi||t.difetto||"").slice(0,120),g.trasportoNote||"",g.goodwill?(g.goodwillNote||""):"","",g.battCaric?"x":""].map(ascii);
@@ -911,6 +923,7 @@ async function init(){
   db.collection("storico").onSnapshot(s=>{ const m=new Map(); s.docs.forEach(d=>{ const it=d.data()?.items||{}; for(const k in it) m.set(k,it[k]); }); S.storico=m; schedule(); },()=>{});
   db.collection("ean").onSnapshot(s=>{const m={}; s.docs.forEach(d=>m[d.id]=d.data().codice); S.ean=m;},()=>{});
   db.collection("sconti").onSnapshot(s=>{S.sconti=s.docs.map(d=>({id:d.id,...d.data()})); s.metadata.fromCache?schedule():done("z");},err);
+  db.doc("config/garChiuse").onSnapshot(d=>{ S.garChiuse=d.exists?(d.data().items||{}):{}; },()=>{});
   db.doc("config/impostazioni").onSnapshot(d=>{ if(d.exists) S.cfg={...S.cfg,...d.data()}; d.metadata.fromCache?schedule():done("c");},err);
 }
 let _rq=0; function schedule(){ if(_rq) return; _rq=requestAnimationFrame(()=>{_rq=0; if(!$("#ov").classList.contains("show")||true) render();}); }
@@ -1652,6 +1665,19 @@ function parseElencoParti(txt){
   }
   return out;
 }
+// "Riepilogo garanzie chiuse" (Garanzie -> Elenco garanzie per riparazione e sostituzione) of ToolCommerce
+function parseGaranzieChiuse(txt){
+  const out=[];
+  for(const p of String(txt).split(/N\.\s*Garanz\.?\s+/).slice(1)){
+    const n=(p.match(/^(\d{6,})/)||[])[1]; if(!n) continue;
+    const g={n,data:(p.match(/chiusura garanzia\s+(\d{2}\/\d{2}\/\d{4})/i)||[])[1]||"",cliente:((p.match(/Cliente\s+([\s\S]*?)\s+Vs Riferimento/i)||[])[1]||"").replace(/\s+/g," ").trim(),
+      rif:((p.match(/Vs Riferimento\*?\s*(\S+)/i)||[])[1]||"").trim(),prodotto:"",ricambi:[],mano:0,totale:num((p.match(/Totale Documento\s*€\s*([\d.,]+)/i)||[])[1])};
+    for(const l of p.split(/\n/)){ const m=l.trim().match(/^(\S+)\s+(.+?)\s+(\d+)\s+€\s*([\d.,]+)$/); if(!m) continue; const imp=num(m[4]);
+      if(/^LAB-/i.test(m[1])) g.mano=Math.round((g.mano+imp)*100)/100; else if(!g.prodotto) g.prodotto=m[1].toUpperCase(); else g.ricambi.push([m[1].toUpperCase(),parseInt(m[3])||1,imp,m[2].replace(/\s+/g," ").slice(0,40)]); }
+    out.push(g);
+  }
+  return out;
+}
 // "Le mie garanzie" list of ToolCommerce
 function parseGaranzieVault(txt){
   const t=toks(txt), out=[];
@@ -2030,7 +2056,7 @@ function vGaranzie(){
   <div class="toolbar"><div class="chips">${[["aperte","Da chiudere"],...GAR_STATI.map(s=>[s,s]),["tutte","Tutte"]].map(([k,t])=>`<button class="chip ${S.gFilt===k?"on":""}" data-gf="${esc(k)}">${t}</button>`).join("")}</div></div>
   ${l.length?`<table><thead><tr><th>Scheda</th><th>Utensile</th><th>Codice difetto</th><th>Rif. DEWALT</th><th>Pratica</th><th>Lavorazione</th><th></th></tr></thead><tbody>
   ${l.map(t=>{const g=t.gar||{};return `<tr class="click" data-open="${esc(t.id)}"><td class="mono">${esc(t.num)}<div class="sub">${fmtD(t.createdAt)} · ${esc(t.cliente||"")}</div></td><td><b>${esc(g.catalogo||t.modello)}</b><div class="mono sub">${esc(t.matricola||"")}${g.dateCode?" · "+esc(g.dateCode):""}</div></td>
-   <td class="sub">${g.difetto?esc(g.difetto+" "+(FAULTS.find(f=>f[0]===g.difetto)||["",""])[1]):"<span style='color:var(--warn)'>da scegliere</span>"}</td><td class="mono">${esc(g.rif||"—")}${(g.stato||"Da inserire")==="Da inserire"?(garCheck(t).err.length?`<div class="sub" style="color:var(--warn)">incompleta</div>`:`<div class="sub" style="color:var(--ok)">pronta per il file</div>`):""}</td>
+   <td class="sub">${g.difetto?esc(g.difetto+" "+(FAULTS.find(f=>f[0]===g.difetto)||["",""])[1]):"<span style='color:var(--warn)'>da scegliere</span>"}</td><td class="mono">${esc(garRif(t)||"—")}${g.chiusa?`<div class="sub">n. ${esc(g.chiusa.n)} · ${eur(g.chiusa.totale)}</div>`:""}${(g.stato||"Da inserire")==="Da inserire"?(garCheck(t).err.length?`<div class="sub" style="color:var(--warn)">incompleta</div>`:`<div class="sub" style="color:var(--ok)">pronta per il file</div>`):""}</td>
    <td><span class="badge ${g.stato==="Chiusa"?"st-Pronto":g.stato==="Respinta"?"st-Attesa_ricambi":g.stato==="Inserita sul portale DEWALT"?"st-Ricevuto":"st-Preventivo_inviato"}">${esc(g.stato||"Da inserire")}</span>${g.vaultStato?`<div class="sub">Vault: ${esc(g.vaultStato)}</div>`:""}</td><td><span class="badge ${stCls(t.stato)}">${esc(t.stato)}</span></td>
    <td class="edit-only"><button class="btn sm" data-gcopy="${esc(t.id)}">⧉ Copia per Vault</button></td></tr>`}).join("")}</tbody></table>`
   :`<div class="panel"><div class="empty">Nessuna scheda in garanzia con questo filtro</div></div>`}<div id="gCopyBox"></div>`;
@@ -2050,7 +2076,7 @@ function openGarFile(){
    ${!S.cfg.sapId?`<div class="banner err" style="margin-top:0">Prima inserisci il <b>codice cliente DEWALT</b> in Impostazioni (lo trovi sul portale in “Miei riferimenti”).</div>`:""}
    <p style="margin-top:0">Il file segue il tracciato ufficiale “Warranty File Upload” di DEWALT. Sul portale: <b>Garanzie → Importa garanzie</b>, scegli il file e premi <b>Carica ordini</b>. Le pratiche con errori finiscono in “Modifica garanzie errate”.</p>
    ${l.length?`<table class="parts"><thead><tr><th style="width:28px"></th><th>Scheda</th><th>Utensile</th><th>Ricambi</th><th>Controllo</th></tr></thead><tbody>
-   ${l.map(({t,c})=>`<tr><td><input type="checkbox" data-gsel="${esc(t.id)}" ${c.err.length?"disabled":"checked"}></td><td class="mono">${esc(t.gar?.rif||t.num)}<div class="sub">${esc(t.cliente||"")}</div></td><td>${esc(t.gar?.catalogo||t.modello||"")}<div class="sub mono">${esc(t.matricola||"")}</div></td><td class="num">${(t.ricambi||[]).length}</td>
+   ${l.map(({t,c})=>`<tr><td><input type="checkbox" data-gsel="${esc(t.id)}" ${c.err.length?"disabled":"checked"}></td><td class="mono">${esc(garRif(t))}<div class="sub">${esc(t.cliente||"")}</div></td><td>${esc(t.gar?.catalogo||t.modello||"")}<div class="sub mono">${esc(t.matricola||"")}</div></td><td class="num">${(t.ricambi||[]).length}</td>
      <td class="sub">${c.err.length?`<span style="color:var(--bad)">manca: ${esc(c.err.join(", "))}</span>`:`<span style="color:var(--ok)">ok</span>`}${c.warn.length?`<br>${esc(c.warn.join(", "))}`:""}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">Nessuna garanzia da inserire</div>`}
    <div id="gfBox"></div></div></div>
   <div class="mf"><button class="btn" data-close>Chiudi</button><button class="btn" id="gfCopy" ${ok.length?"":"disabled"}>⧉ Copia testo</button><button class="btn pri" id="gfDl" ${ok.length&&S.dl?"":"disabled"}>⇩ Scarica file</button><button class="btn dark" id="gfDone" disabled>✓ Segna come inserite</button></div>`);
@@ -2065,23 +2091,35 @@ function openGarFile(){
 function garText(t){
   const g=t.gar||{}, fl=FAULTS.find(f=>f[0]===g.difetto);
   const d=s=>s?new Date(s).toLocaleDateString("it-IT"):"";
-  return [`Vs Riferimento: ${g.rif||t.num}`,`Nome/Cognome: ${t.cliente||""}`,`Indirizzo: ${t.ind||""}, ${t.cap||""} ${t.citta||""} (${t.prov||""})`,`Telefono: ${t.tel||""}   Email: ${t.email||""}`,`Tipologia cliente: ${g.cliTipo==="1"?"UTILIZZATORE FINALE":"RIVENDITORE"}`,
+  return [`Vs Riferimento: ${garRif(t)}`,`Nome/Cognome: ${t.cliente||""}`,`Indirizzo: ${t.ind||""}, ${t.cap||""} ${t.citta||""} (${t.prov||""})`,`Telefono: ${t.tel||""}   Email: ${t.email||""}`,`Tipologia cliente: ${g.cliTipo==="1"?"UTILIZZATORE FINALE":"RIVENDITORE"}`,
     `Codice prodotto: ${g.catalogo||t.modello||""}`,`Matricola: ${t.matricola||""}`,`Date code: ${g.dateCode||""}`,`Codice difetto: ${fl?fl[0]+" - "+fl[1]:"(da scegliere)"}`,
     `Data acquisto: ${t.dataAcquisto?d(t.dataAcquisto):""}`,`Data ricevimento: ${d(t.createdAt)}`,`Data riparazione: ${d(g.dataRip||t.prontoAt||Date.now())}`,
     `Tipo garanzia: ${(GAR_TIPI.find(x=>x[0]===g.tipo)||GAR_TIPI[0])[1]}`,`Intervento: ${g.lavoro==="LO"?"INTERVENTO MINIMO":"INTERVENTO MASSIMO"}`,g.goodwill?`Goodwill: sì – ${g.goodwillNote||""}`:"",
     `Note: ${(t.diagnosi||t.difetto||"").replace(/\s+/g," ").slice(0,120)}`,"","Ricambi (incolla nelle righe codice / q.tà):",...(t.ricambi||[]).map(p=>`${p.codice},${p.qty}`)].filter(x=>x!=="").join("\n");
 }
 function openSyncGar(){
-  openModal(`<div class="mh"><h2>Aggiorna stati garanzie</h2><span class="sp"></span><button class="x" data-close>×</button></div>
-  <div class="mb"><div class="fs"><p style="margin-top:0">Sul portale DEWALT apri <a href="${VT_GARLIST}" target="_blank" rel="noopener"><b>Garanzie → Chiusura/Modifica garanzie</b> ↗</a>, seleziona tutta la pagina, copia e incolla qui. Le schede vengono abbinate per <b>Vs Riferimento</b>.</p>
+  openModal(`<div class="mh"><h2>Aggiorna garanzie dal portale DEWALT</h2><span class="sp"></span><button class="x" data-close>×</button></div>
+  <div class="mb"><div class="fs"><p style="margin-top:0">Sul portale DEWALT apri <b>Garanzie → Elenco garanzie per riparazione e sostituzione</b> (scegli il periodo, massimo 6 mesi) oppure <a href="${VT_GARLIST}" target="_blank" rel="noopener"><b>Chiusura/Modifica garanzie</b> ↗</a>, seleziona tutta la pagina, copia e incolla qui. Le schede vengono abbinate per <b>Vs Riferimento</b> (numero Danea a 6 cifre). Dal riepilogo delle chiuse l'app prende anche numero garanzia, ricambi e rimborso.</p>
    <textarea id="sgTxt" rows="7"></textarea><div id="sgPrev" class="sub" style="margin-top:10px"></div></div></div>
   <div class="mf"><button class="btn" data-close>Annulla</button><button class="btn pri" id="sgOk" disabled>Aggiorna</button></div>`);
-  let match=[];
-  $("#sgTxt").oninput=()=>{ const p=parseGaranzieVault($("#sgTxt").value);
-    match=p.map(x=>({x,t:S.tickets.find(t=>t.tipo==="garanzia"&&String(t.gar?.rif||t.num).trim()===x.rif)})).filter(m=>m.t);
-    $("#sgPrev").innerHTML=`${p.length} pratiche lette · <b>${match.length}</b> abbinate a schede dell'app${p.length&&!match.length?"<br>Nessun abbinamento: controlla che nelle schede il campo “Rif. DEWALT” sia uguale al Vs Riferimento usato.":""}`;
-    $("#sgOk").disabled=!match.length; };
-  $("#sgOk").onclick=async()=>{ const ok=await write(async()=>{ for(const {x,t} of match){ const st=/CLOSED|CHIUSA/.test(x.stato)?"Chiusa":"Inserita sul portale DEWALT"; await S.db.doc("tickets/"+t.id).update({gar:{...(t.gar||{}),stato:st,vaultStato:x.stato,vaultSync:Date.now()}}); } },`${match.length} pratiche aggiornate`); if(ok) closeModal(); };
+  let match=[], chiuse=[];
+  const trova=rif=>{ const k=String(rif||"").trim().toUpperCase(); return k?S.tickets.find(t=>garKeys(t).has(k)):null; };
+  $("#sgTxt").oninput=()=>{ const txt=$("#sgTxt").value;
+    chiuse=parseGaranzieChiuse(txt);
+    const p=chiuse.length?chiuse.map(x=>({...x,stato:"CLOSED"})):parseGaranzieVault(txt);
+    match=p.map(x=>({x,t:trova(x.rif)})).filter(m=>m.t);
+    const daAgg=match.filter(({x,t})=>!(t.gar?.stato==="Chiusa"&&t.gar?.chiusa?.n===x.n&&/CLOSED|CHIUSA/.test(x.stato)));
+    const noApp=p.filter(x=>!trova(x.rif)).length;
+    $("#sgPrev").innerHTML=`${p.length} pratiche lette${chiuse.length?" (riepilogo garanzie chiuse)":""} · <b>${match.length}</b> abbinate a schede dell'app, ${daAgg.length} da aggiornare${noApp?` · ${noApp} senza scheda nell'app (pratiche vecchie)`:""}`;
+    $("#sgOk").disabled=!p.length; };
+  $("#sgOk").onclick=async()=>{ const ok=await write(async()=>{
+      for(const {x,t} of match){ const chiusa=/CLOSED|CHIUSA/.test(x.stato);
+        const gar={...(t.gar||{}),rif:garRif(t),stato:chiusa?"Chiusa":(t.gar?.stato==="Chiusa"?"Chiusa":"Inserita sul portale DEWALT"),vaultStato:x.stato,vaultSync:Date.now()};
+        if(x.n) gar.chiusa={n:x.n,data:x.data,ricambi:x.ricambi,mano:x.mano,totale:x.totale};
+        const upd={gar}; if(t.tipo!=="garanzia") upd.tipo="garanzia";
+        await S.db.doc("tickets/"+t.id).update(upd); }
+      if(chiuse.length){ const it={...(S.garChiuse||{})}; chiuse.forEach(x=>it[x.n]=[x.rif,x.data,x.prodotto,x.mano,x.totale,x.ricambi]); await S.db.doc("config/garChiuse").set({items:it,at:Date.now()}); S.garChiuse=it; }
+    },`${match.length} pratiche aggiornate${chiuse.length?`, ${chiuse.length} garanzie chiuse in archivio`:""}`); if(ok) closeModal(); };
 }
 
 /* ---------- binding ---------- */
@@ -3248,7 +3286,7 @@ function openTicket(t, fromReq, draft){
       <label class="fl">Tipo garanzia<select id="gTipo">${GAR_TIPI.map(([k,d])=>`<option value="${k}" ${(t.gar?.tipo||"REPAIR")===k?"selected":""}>${esc(d)}</option>`).join("")}</select></label>
       <label class="fl">Intervento<select id="gLav"><option value="HI" ${t.gar?.lavoro!=="LO"?"selected":""}>Intervento massimo</option><option value="LO" ${t.gar?.lavoro==="LO"?"selected":""}>Intervento minimo</option></select></label>
       <label class="fl">Tipologia cliente<select id="gCli"><option value="1" ${t.gar?.cliTipo!=="0"?"selected":""}>Utilizzatore finale</option><option value="0" ${t.gar?.cliTipo==="0"?"selected":""}>Rivenditore</option></select></label>
-      <label class="fl">Rif. DEWALT (Vs Riferimento)<input id="gRif" placeholder="${esc(t.num||"n° scheda")}" value="${esc(t.gar?.rif)}"></label>
+      <label class="fl">Rif. DEWALT (Vs Riferimento)<input id="gRif" placeholder="${esc(garRif(t)||"n° Danea")}" value="${esc(t.gar?.rif&&t.gar.rif!==t.num?t.gar.rif:garRif(t))}"></label>
       <label class="fl">Stato pratica<select id="gSt">${GAR_STATI.map(s=>`<option ${(t.gar?.stato||"Da inserire")===s?"selected":""}>${s}</option>`).join("")}</select></label>
       <label class="fl">Spese trasporto € (facolt.)<input id="gFr" inputmode="decimal" placeholder="0" value="${esc(t.gar?.trasporto)}"></label>
       <label class="ck" style="align-self:end"><input type="checkbox" id="gBat" ${t.gar?.battCaric?"checked":""}> Batteria / caricabatterie</label>
@@ -3375,12 +3413,15 @@ function openTicket(t, fromReq, draft){
       toast("Carico "+file.name+"…"); try{ const r=await S.assets.upload(file); att.push({id:r.id,nome:file.name,type:r.contentType||file.type,at:Date.now()}); drawAtt(); }catch(e){ toast("Caricamento non riuscito ("+(e?.code||"errore")+")"); } }
     tf.value=""; toast("Allegati pronti: salva la scheda"); };
   // garanzia copy
-  const garFromForm=()=>({catalogo:$("#gCat").value.trim().toUpperCase(),dateCode:$("#gDc").value.trim(),difetto:$("#gDif").value,tipo:$("#gTipo").value,lavoro:$("#gLav").value,cliTipo:$("#gCli").value,rif:$("#gRif").value.trim(),stato:$("#gSt").value,goodwill:$("#gGw").checked,goodwillNote:$("#gGwN").value.trim(),battCaric:$("#gBat").checked,trasporto:$("#gFr").value.trim(),trasportoNote:t.gar?.trasportoNote||"",vaultStato:t.gar?.vaultStato||"",dataRip:t.gar?.dataRip||null});
+  const garFromForm=()=>({catalogo:$("#gCat").value.trim().toUpperCase(),dateCode:$("#gDc").value.trim(),difetto:$("#gDif").value,tipo:$("#gTipo").value,lavoro:$("#gLav").value,cliTipo:$("#gCli").value,rif:$("#gRif").value.trim(),stato:$("#gSt").value,goodwill:$("#gGw").checked,goodwillNote:$("#gGwN").value.trim(),battCaric:$("#gBat").checked,trasporto:$("#gFr").value.trim(),trasportoNote:t.gar?.trasportoNote||"",vaultStato:t.gar?.vaultStato||"",dataRip:t.gar?.dataRip||null,...(t.gar?.chiusa?{chiusa:t.gar.chiusa}:{}),...(t.gar?.vaultSync?{vaultSync:t.gar.vaultSync}:{})});
   const addrFromForm=()=>({ind:$("#tInd").value.trim(),citta:$("#tCitta").value.trim(),prov:$("#tProv").value.trim().toUpperCase(),cap:$("#tCap").value.trim()});
   const drawChk=()=>{ const box=$("#gChk"); if(!box||$("#tTipo").value!=="garanzia") return;
     const c=garCheck({...t,...addrFromForm(),cliente:$("#tCli").value.trim(),tel:$("#tTel").value.trim(),email:$("#tMail").value.trim(),modello:$("#tMod").value.trim(),matricola:$("#tMat").value.trim(),dataAcquisto:$("#tAcq").value,ricambi:rows,gar:garFromForm()});
     box.innerHTML=c.err.length?`<div class="banner" style="margin:0">Per il file DEWALT mancano: <b>${esc(c.err.join(", "))}</b>${c.warn.length?`<br><span class="sub">Da controllare: ${esc(c.warn.join(", "))}</span>`:""}</div>`
-      :`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc">Pratica completa: entra nel prossimo file per DEWALT.${c.warn.length?` <span class="sub">Da controllare: ${esc(c.warn.join(", "))}</span>`:""}</div>`; };
+      :`<div class="banner" style="margin:0;background:#e9f6ee;border-color:#bfe3cc">Pratica completa: entra nel prossimo file per DEWALT.${c.warn.length?` <span class="sub">Da controllare: ${esc(c.warn.join(", "))}</span>`:""}</div>`;
+    const ch=t.gar?.chiusa; const sto=garStorico($("#gCat").value||$("#tMod").value);
+    box.innerHTML+=(ch?`<div class="banner" style="margin:8px 0 0;background:#e9f6ee;border-color:#bfe3cc">Chiusa da DEWALT il ${esc(ch.data)} (garanzia n. ${esc(ch.n)}): rimborso <b>${eur(ch.totale)}</b>${(ch.ricambi||[]).length?" · ricambi "+esc(ch.ricambi.map(r=>r[0]+"×"+r[1]).join(", ")):""} · manodopera ${eur(ch.mano)}</div>`:"")
+      +(sto?`<div class="sub" style="margin-top:8px">Storico DEWALT su questo modello (${sto.n} garanzie chiuse): ${sto.ricambi.map(([k,v])=>`<b>${esc(k)}</b> ${esc(v.d)} ×${v.n} (${eur(v.imp)})`).join(" · ")||"solo manodopera"}${sto.mano?` · manodopera di solito ${eur(Number(sto.mano))}`:""}</div>`:""); };
   $("#modal").addEventListener("input",()=>{clearTimeout(drawChk._t); drawChk._t=setTimeout(drawChk,300)}); $("#modal").addEventListener("change",drawChk); setTimeout(drawChk,50);
   $("#gCopy").onclick=()=>copyText(garText({...t,cliente:$("#tCli").value,tel:$("#tTel").value,email:$("#tMail").value,modello:$("#tMod").value,matricola:$("#tMat").value,dataAcquisto:$("#tAcq").value,diagnosi:$("#tDia").value,difetto:$("#tDif").value,ricambi:rows,gar:{...garFromForm(),rif:$("#gRif").value.trim()||t.num}}),"Dati garanzia copiati",$("#gCopyT"));
   // keep unsaved edits when a sub-dialog (esploso) replaces this one
@@ -3432,7 +3473,7 @@ function openTicket(t, fromReq, draft){
     if(stato==="Pronto" && !t.prontoAt) data.prontoAt=Date.now();
     if(stato==="Consegnato" && !t.consegnatoAt){ data.consegnatoAt=Date.now(); if(!data.prontoAt) data.prontoAt=Date.now(); }
     if(isNew) data.num=nextNum();
-    if(data.gar && !data.gar.rif) data.gar.rif=data.num;
+    if(data.gar && (!data.gar.rif||data.gar.rif===data.num)) data.gar.rif=garRif(data);
     const ok=await write(async()=>{
       const ref = isNew? S.db.collection("tickets").doc() : S.db.doc("tickets/"+t.id);
       await ref.set(data);
