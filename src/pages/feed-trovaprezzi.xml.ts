@@ -30,7 +30,7 @@ export const GET = () => {
 <Stock>${q >= 2 ? 'disponibile' : 'limitata'}</Stock>
 <Categories>${x(['Utensileria', p.categoria].filter(Boolean).join(';'))}</Categories>
 <Image>${x(img)}</Image>
-<ShippingCost>${eur(sped)}</ShippingCost>
+<ShippingCost>${sped > 0 ? eur(sped) : "0"}</ShippingCost>
 <PartNumber>${x(p.codice || p.modello)}</PartNumber>${p.ean ? `\n<EanCode>${x(p.ean)}</EanCode>` : ''}${Number(p.peso) > 0 ? `\n<Weight>${Number(p.peso).toFixed(3)}</Weight>` : ''}
 </Offer>`;
   });
