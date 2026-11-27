@@ -33,6 +33,8 @@ for (const p of prodotti) {
   if (prezzo > 0 && prezzo !== p.prezzo) { p.prezzo = prezzo; p.fontePrezzo = 'app'; np++; }
   const q = Math.max(0, Math.floor(Number(r.qty) || 0));
   p.giacenza = q;
+  if (r.ean && !p.ean) p.ean = String(r.ean);
+  if (Number(r.peso) > 0 && !p.peso) p.peso = Number(r.peso);
   p.disponibilita = q > 0 ? 'disponibile' : 'conferma';
   if (q > 0) nd++;
 }

@@ -1,4 +1,4 @@
-// Giacenze e prezzi ufficiali. GET pubblico: { slug: quantità } (con ?completo=1: [{slug, qty, prezzo}]). POST (ADMIN_TOKEN, dall'app interna):
+// Giacenze e prezzi ufficiali. GET pubblico: { slug: quantità } (con ?completo=1: [{slug, qty, prezzo, ean?, peso?}]). POST (ADMIN_TOKEN, dall'app interna):
 // { giacenze: [{ slug? | codice, qty, prezzo? (centesimi IVA incl.), nome?, marca?, immagine?, ean?, pesoKg?, descrizione? }] }
 // Tutto ciò che arriva con quantità > 0 va in vendita anche su TikTok Shop (se collegato).
 import prodotti from '../../src/data/prodotti.json';
@@ -20,7 +20,13 @@ export async function onRequestGet({ request, env, waitUntil }) {
   if (!env.DB) return json(completo ? [] : {});
   const d = await db(env);
   // ?completo=1: [{slug, qty, prezzo}] per il build del sito (scripts/live.mjs), senza cache
-  if (completo) return json((await d.prepare('SELECT slug, qty, prezzo FROM giacenze').all()).results);
+  if (completo) return json((await d.prepare('SELECT slug, qty, prezzo, dati FROM giacenze').all()).results.map((r) => {
+    let x = {}; try { x = JSON.parse(r.dati || '{}'); } catch {}
+    const o = { slug: r.slug, qty: r.qty, prezzo: r.prezzo };
+    if (x.ean && /^\d{8,14}$/.test(String(x.ean))) o.ean = String(x.ean);
+    if (Number(x.pesoKg) > 0) o.peso = Number(x.pesoKg);
+    return o;
+  }));
   const r = (await d.prepare('SELECT slug, qty FROM giacenze').all()).results;
   waitUntil(riprovaRicostruzione(env).catch(() => {}));
   // avanza la coda TikTok anche con le visite (al massimo una volta al minuto)
@@ -53,6 +59,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     if (!slug || !Number.isFinite(qty) || qty < 0) { esito.scartati.push(g.codice || g.slug || '?'); continue; }
     // la scheda inviata dall'app serve solo per gli articoli che non sono nel catalogo del sito: per quelli del sito restano i dati del sito
     const dati = {}; if (!SLUGS.has(slug)) for (const k of CAMPI) if (g[k] !== undefined && g[k] !== '') dati[k] = g[k];
+    // 27/11: EAN e peso servono anche per gli articoli del sito (feed Google, Meta, Trovaprezzi): si salvano sempre
+    else for (const k of ['ean', 'pesoKg']) if (g[k] !== undefined && g[k] !== '') dati[k] = g[k];
     // 24/11: per gli articoli fuori dal catalogo del sito, se non c'è un prezzo sito vale il prezzo al pubblico del negozio (app)
     const pNeg = !SLUGS.has(slug) && Number(g.prezzoNegozio) > 0 ? Math.round(Number(g.prezzoNegozio)) : null;
     const prezzo = Number.isFinite(Number(g.prezzo)) && Number(g.prezzo) > 0 ? Math.round(Number(g.prezzo)) : pNeg;
